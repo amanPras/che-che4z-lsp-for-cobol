@@ -259,6 +259,7 @@ public class TransformTreeStage implements Stage<AnalysisContext, ProcessingResu
     ProcessingPhase u = ProcessingPhase.USAGE;
     ctx.register(u, CodeBlockUsageNode.class, new CodeBlockUsage(symbolAccumulatorService));
     ctx.register(u, QualifiedReferenceNode.class, new QualifiedReferenceUpdateVariableUsage(symbolAccumulatorService));
+    ctx.register(u, QualifiedReferenceNode.class, new FunctionUsageReferenceEnricher(symbolAccumulatorService));
     ctx.register(u, FunctionReference.class, new FunctionReferenceProcessor(symbolAccumulatorService));
 
     // ENRICHMENT
@@ -266,7 +267,6 @@ public class TransformTreeStage implements Stage<AnalysisContext, ProcessingResu
     ctx.register(e, SectionNameNode.class, new SectionNameNodeEnricher(symbolAccumulatorService));
     ctx.register(e, ParagraphNameNode.class, new ParagraphNameNodeEnricher(symbolAccumulatorService));
     ctx.register(e, CodeBlockUsageNode.class, new CodeBlockUsageNodeEnricher(symbolAccumulatorService));
-    ctx.register(e, QualifiedReferenceNode.class, new UsageReferenceEnricher(symbolAccumulatorService));
     ctx.register(e, FunctionReference.class, new FunctionReferenceEnricher(symbolAccumulatorService));
     ctx.register(e, ProgramIdNode.class, new ProgramIdEnricher(symbolAccumulatorService));
 
@@ -287,7 +287,7 @@ public class TransformTreeStage implements Stage<AnalysisContext, ProcessingResu
     ctx.register(v, XMLParseNode.class, new XMLParseProcess(symbolAccumulatorService));
     ctx.register(v, FileOperationStatementNode.class, new FileOperationProcess());
     ctx.register(v, XmlGenerateNode.class, new XmlGenerateProcess(symbolAccumulatorService));
-    ctx.register(v, FunctionDeclaration.class, new FunctionDeclarationValidator(symbolAccumulatorService));
+    ctx.register(v, FunctionDeclaration.class, new FunctionDeclarationValidator());
 
     ctx.register(v, ProcedureDivisionUsingNode.class, new LinkageArgumentsOriginCheck());
     ctx.register(v, ProcedureDivisionReturningNode.class, new LinkageArgumentsOriginCheck());
