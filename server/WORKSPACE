@@ -1,0 +1,46 @@
+# WORKSPACE
+
+# Load basic repo rule
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Rules for Protocol Buffers
+http_archive(
+    name = "rules_proto",
+    sha256 = "33e496a2b3fe925d5247d848535cb0371890f3e9514a13fd79b0ac9a60a5fc41",
+    strip_prefix = "rules_proto-7.0.1",
+    url = "https://github.com/bazelbuild/rules_proto/releases/download/7.0.1/rules_proto-7.0.1.tar.gz",
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
+rules_proto_dependencies()
+
+load("@rules_proto//proto:setup.bzl", "rules_proto_setup")
+rules_proto_setup()
+
+# Rules for Java
+http_archive(
+    name = "rules_java",
+    urls = [
+        "https://github.com/bazelbuild/rules_java/releases/download/8.3.1/rules_java-8.3.1.tar.gz",
+    ],
+    sha256 = "ee786b943e00da4fea7c233e70e5f5b8a01cc69b9341b3f49169f174fe0df1c5",
+)
+load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
+rules_java_dependencies()
+rules_java_toolchains()
+
+# Rules for Closure (JS)
+http_archive(
+    name = "io_bazel_rules_closure",
+    url = "https://github.com/bazelbuild/rules_closure/archive/0.12.0.tar.gz",
+    strip_prefix = "rules_closure-0.12.0",
+    sha256 = "9498e57368efb82b985db1ed426a767cbf1ba0398fd7aed632fc3908654e1b1e",  # Make sure this SHA256 is correct
+)
+
+# Load Closure rules
+load("@io_bazel_rules_closure//closure:repositories.bzl", "rules_closure_dependencies", "rules_closure_toolchains")
+rules_closure_dependencies()
+rules_closure_toolchains()
+
+# Load Closure JS rules
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")

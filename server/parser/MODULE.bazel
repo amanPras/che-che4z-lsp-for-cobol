@@ -1,0 +1,22 @@
+module(
+    name = "parser",
+    version = "1.0-SNAPSHOT",
+)
+bazel_dep(name = "rules_jvm_external", version = "6.2")
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+# Depend on module common at a local path.
+bazel_dep(name = "//common")  # Declare dependency on common module
+
+maven.install(
+    artifacts = [
+        "org.antlr:antlr4:4.7.1",
+        "org.antlr:antlr4-runtime:4.7.1",
+        "org.antlr:antlr4:jar:complete:4.7.1",
+        "com.google.guava:guava:32.0.1-jre",
+         "org.projectlombok:lombok:1.18.30",
+         "org.antlr:stringtemplate:4.0.2",
+    ],
+
+#   lock_file = "//:maven_install.json",
+)
+use_repo(maven, "maven")

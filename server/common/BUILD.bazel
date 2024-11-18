@@ -1,0 +1,38 @@
+load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "common",
+    srcs = glob(["src/main/java/**/*.java"]),
+    deps = [
+        artifact("com.google.guava:guava"),
+        artifact("com.google.code.gson:gson"),
+        artifact("ch.qos.logback:logback-classic"),
+        artifact("org.eclipse.lsp4j:org.eclipse.lsp4j"),
+        artifact("org.apache.commons:commons-lang3"),
+        artifact("com.google.code.findbugs:jsr305"),
+        artifact("org.slf4j:slf4j-api"),
+        artifact("org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc"),
+        ":lombok"
+    ],
+     visibility = ["//visibility:public"],
+)
+
+
+java_plugin(
+    name = "lombok_plugin",
+    generates_api = True,
+    processor_class = "lombok.launch.AnnotationProcessorHider$AnnotationProcessor",
+    deps = ["@maven//:org_projectlombok_lombok"],
+)
+
+java_library(
+    name = "lombok",
+    exported_plugins = [
+        ":lombok_plugin",
+    ],
+    visibility = ["//visibility:public"],
+    exports = [
+        "@maven//:org_projectlombok_lombok",
+    ],
+)

@@ -1,0 +1,6 @@
+build --nojava_header_compilation
+build --javacopt=-Xep:DoubleBraceInitialization:OFF
+build --javacopt=-Xep:BoxedPrimitiveEquality:OFF
+build --javacopt=-Xep:CollectionIncompatibleType:OFF
+build --javacopt=-Xep:DangerousLiteralNull:OFF
+build --javacopt=-Xep:InvalidPatternSyntax:OFF
