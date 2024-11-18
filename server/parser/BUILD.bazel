@@ -1,33 +1,53 @@
 load("@rules_jvm_external//:defs.bzl", "artifact")
 package(default_visibility = ["//visibility:public"])
 
-# Generate Java sources from ANTLR grammar files
+# Generate Java sources from ANTLR grammar files on GIT BASH
 genrule(
     name = "generate_antlr_sources",
     srcs = glob(["src/main/antlr4/**/CobolLexer.g4", "src/main/antlr4/**/CobolParser.g4"]),  # Path to ANTLR grammar files
     tools = ["@maven//:org_antlr_antlr4_complete_4_7_1"],
-    cmd = """
-        java -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool \
-        -Dlanguage=Java \
-        -visitor \
-        -o $(GENDIR) \
-        -package org.eclipse.lsp.cobol.core \
-        -lib $(GENDIR)/parser/src/main/antlr4/org/eclipse/lsp/cobol/core \
-        $(SRCS)
-    """,
+    cmd = "java -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool -Dlanguage=Java -visitor -o $(GENDIR)/parser -package org.eclipse.lsp.cobol.core -lib $(GENDIR) $(SRCS)",
     outs = [
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolLexer.interp",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolLexer.java",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolLexer.tokens",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParser.interp",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParser.java",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParser.tokens",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserBaseListener.java",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserBaseVisitor.java",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserListener.java",
-                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserVisitor.java"
+            "CobolLexer.interp",
+                "CobolLexer.java",
+                "CobolLexer.tokens",
+                "CobolParser.interp",
+                "CobolParser.java",
+                "CobolParser.tokens",
+                "CobolParserBaseListener.java",
+                "CobolParserBaseVisitor.java",
+                "CobolParserListener.java",
+                "CobolParserVisitor.java"
                 ],
 )
+
+# Generate Java sources from ANTLR grammar files on CMD
+#genrule(
+#    name = "generate_antlr_sources",
+#    srcs = glob(["src/main/antlr4/**/CobolLexer.g4", "src/main/antlr4/**/CobolParser.g4"]),  # Path to ANTLR grammar files
+#    tools = ["@maven//:org_antlr_antlr4_complete_4_7_1"],
+#    cmd = """
+#        java -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool \
+#        -Dlanguage=Java \
+#        -visitor \
+#        -o $(GENDIR) \
+#        -package org.eclipse.lsp.cobol.core \
+#        -lib $(GENDIR)/parser/src/main/antlr4/org/eclipse/lsp/cobol/core \
+#        $(SRCS)
+#    """,
+#    outs = [
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolLexer.interp",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolLexer.java",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolLexer.tokens",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParser.interp",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParser.java",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParser.tokens",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserBaseListener.java",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserBaseVisitor.java",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserListener.java",
+#                "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolParserVisitor.java"
+#                ],
+#)
 
 # Main java_library for the parser module
 java_library(

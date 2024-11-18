@@ -1,7 +1,6 @@
 # server/BUILD.bazel
 load("@rules_jvm_external//:defs.bzl", "artifact")
-load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library", "closure_js_binary")
-#load("@bazel_j2cl//:j2cl.bzl", "j2cl_library")
+load("@com_google_j2cl//build_defs:rules.bzl", "j2cl_import", "j2cl_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -35,6 +34,41 @@ java_library(
     visibility = ["//visibility:public"],
 )
 
+# FOR WINDOWS CMD
+#genrule(
+#    name = "antlr_gen_cobol_preprocessor",
+#    srcs = glob(["src/main/antlr4/org/eclipse/lsp/cobol/core/TechnicalLexer.g4", "src/main/antlr4/org/eclipse/lsp/cobol/core/*Lexer.g4", "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessor.g4", "src/main/antlr4/org/eclipse/lsp/cobol/core/*Parser.g4"]),
+#    tools = ["@maven//:org_antlr_antlr4_complete_4_7_1"],
+#    cmd = "java -Xmx500M -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool \
+#    -Dlanguage=Java \
+#    -visitor \
+#    -package org.eclipse.lsp.cobol.core \
+#    -o $(GENDIR) \
+#    -lib $(GENDIR)/engine/src/main/antlr4/org/eclipse/lsp/cobol/core \
+#    -package org.eclipse.lsp.cobol.core \
+#    $(SRCS)",
+#    outs = ["src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessor.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorBaseVisitor.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorListener.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesLexer.tokens",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserBaseListener.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserVisitor.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessor.tokens",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorLexer.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorVisitor.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParser.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserBaseVisitor.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/TechnicalLexer.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorBaseListener.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorLexer.tokens",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesLexer.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParser.tokens",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserListener.java",
+#            "src/main/antlr4/org/eclipse/lsp/cobol/core/TechnicalLexer.tokens"],
+#    visibility = [ "//visibility:public" ]
+#)
+
+# For gitbash
 genrule(
     name = "antlr_gen_cobol_preprocessor",
     srcs = glob(["src/main/antlr4/org/eclipse/lsp/cobol/core/TechnicalLexer.g4", "src/main/antlr4/org/eclipse/lsp/cobol/core/*Lexer.g4", "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessor.g4", "src/main/antlr4/org/eclipse/lsp/cobol/core/*Parser.g4"]),
@@ -43,33 +77,34 @@ genrule(
     -Dlanguage=Java \
     -visitor \
     -package org.eclipse.lsp.cobol.core \
-    -o $(GENDIR) \
-    -lib $(GENDIR)/engine/src/main/antlr4/org/eclipse/lsp/cobol/core \
+    -o $(GENDIR)/engine \
+    -lib $(GENDIR) \
     -package org.eclipse.lsp.cobol.core \
     $(SRCS)",
-    outs = ["src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessor.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorBaseVisitor.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorListener.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesLexer.tokens",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserBaseListener.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserVisitor.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessor.tokens",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorLexer.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorVisitor.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParser.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserBaseVisitor.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/TechnicalLexer.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorBaseListener.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CobolPreprocessorLexer.tokens",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesLexer.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParser.tokens",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/CompilerDirectivesParserListener.java",
-            "src/main/antlr4/org/eclipse/lsp/cobol/core/TechnicalLexer.tokens"],
+    outs = ["CobolPreprocessor.java",
+            "CobolPreprocessorBaseVisitor.java",
+            "CobolPreprocessorListener.java",
+            "CompilerDirectivesLexer.tokens",
+            "CompilerDirectivesParserBaseListener.java",
+            "CompilerDirectivesParserVisitor.java",
+            "CobolPreprocessor.tokens",
+            "CobolPreprocessorLexer.java",
+            "CobolPreprocessorVisitor.java",
+            "CompilerDirectivesParser.java",
+            "CompilerDirectivesParserBaseVisitor.java",
+            "TechnicalLexer.java",
+            "CobolPreprocessorBaseListener.java",
+            "CobolPreprocessorLexer.tokens",
+            "CompilerDirectivesLexer.java",
+            "CompilerDirectivesParser.tokens",
+            "CompilerDirectivesParserListener.java",
+            "TechnicalLexer.tokens"],
     visibility = [ "//visibility:public" ]
 )
 
+# for windows cmd
 genrule(
-    name = "antlr_gen_cics",
+    name = "antlr_gen_cics_windows",
     srcs = glob(["src/main/antlr4/org/eclipse/lsp/**/cics/CICSLexer.g4", "src/main/antlr4/org/eclipse/lsp/**/cics/CICSParser.g4"]),
     tools = ["@maven//:org_antlr_antlr4_complete_4_7_1"],
     cmd = "java -Xmx500M -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool \
@@ -90,8 +125,31 @@ genrule(
     visibility = [ "//visibility:public" ]
 )
 
+#for gitbash
 genrule(
-    name = "antlr_gen_db2",
+    name = "antlr_gen_cics",
+    srcs = glob(["src/main/antlr4/org/eclipse/lsp/**/cics/CICSLexer.g4", "src/main/antlr4/org/eclipse/lsp/**/cics/CICSParser.g4"]),
+    tools = ["@maven//:org_antlr_antlr4_complete_4_7_1"],
+    cmd = "java -Xmx500M -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool \
+    -Dlanguage=Java \
+    -visitor \
+    -package org.eclipse.lsp.cobol.implicitDialects.cics \
+    -o $(GENDIR)/engine \
+    -lib $(GENDIR) \
+    $(SRCS)",
+    outs = ["CICSLexer.java",
+            "CICSLexer.tokens",
+            "CICSParser.java",
+            "CICSParser.tokens",
+            "CICSParserBaseListener.java",
+            "CICSParserBaseVisitor.java",
+            "CICSParserListener.java",
+            "CICSParserVisitor.java"],
+    visibility = [ "//visibility:public" ]
+)
+
+genrule(
+    name = "antlr_gen_db2_windows",
     srcs = glob(["src/main/antlr4/org/eclipse/lsp/**/sql/*Lexer.g4", "src/main/antlr4/org/eclipse/lsp/**/sql/*Parser.g4"]),
     tools = ["@maven//:org_antlr_antlr4_complete_4_7_1"],
     cmd = "java -Xmx500M -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool \
@@ -109,6 +167,31 @@ genrule(
             "src/main/antlr4/org/eclipse/lsp/cobol/implicitDialects/sql/Db2SqlParserBaseVisitor.java",
             "src/main/antlr4/org/eclipse/lsp/cobol/implicitDialects/sql/Db2SqlParserListener.java",
             "src/main/antlr4/org/eclipse/lsp/cobol/implicitDialects/sql/Db2SqlParserVisitor.java"
+],
+    visibility = [ "//visibility:public" ]
+)
+
+
+#for gitbash
+genrule(
+    name = "antlr_gen_db2",
+    srcs = glob(["src/main/antlr4/org/eclipse/lsp/**/sql/*Lexer.g4", "src/main/antlr4/org/eclipse/lsp/**/sql/*Parser.g4"]),
+    tools = ["@maven//:org_antlr_antlr4_complete_4_7_1"],
+    cmd = "java -Xmx500M -cp $(locations @maven//:org_antlr_antlr4_complete_4_7_1) org.antlr.v4.Tool \
+    -Dlanguage=Java \
+    -visitor \
+    -package org.eclipse.lsp.cobol.implicitDialects.sql \
+    -o $(GENDIR)/engine \
+    -lib $(GENDIR) \
+    $(SRCS)",
+    outs = ["Db2SqlLexer.java",
+            "Db2SqlLexer.tokens",
+            "Db2SqlParser.java",
+            "Db2SqlParser.tokens",
+            "Db2SqlParserBaseListener.java",
+            "Db2SqlParserBaseVisitor.java",
+            "Db2SqlParserListener.java",
+            "Db2SqlParserVisitor.java"
 ],
     visibility = [ "//visibility:public" ]
 )
@@ -131,15 +214,146 @@ java_library(
     ],
 )
 
-# Define J2CL (Java to Closure Compiler) output
-closure_js_binary(
-    name = "server_js",
-    deps = [":parser_library"],
-#    main_class = ["org/eclipse/lsp/cobol/LangServerBootstrap"],
-#    js_out = "engine.js"
+######### CHECK if #######################################
+j2cl_import(
+    name = "lombok-j2cl",
+    jar = "//engine:lombok",
 )
 
-closure_js_library(
-    name = "parser_library",
-    deps = [":server"],
+j2cl_import(
+    name = "common-j2cl",
+    jar = "//common:common",
+)
+
+j2cl_import(
+    name = "parser-j2cl",
+    jar = "//parser:parser",
+)
+
+j2cl_import(
+    name = "guava-j2cl",
+    jar = "@maven//:com_google_guava_guava",
+)
+
+j2cl_import(
+    name = "gson-j2cl",
+    jar = "@maven//:com_google_code_gson_gson",
+)
+
+j2cl_import(
+    name = "logback-classic-j2cl",
+    jar = "@maven//:ch_qos_logback_logback_classic",
+)
+
+j2cl_import(
+    name = "lsp4j-j2cl",
+    jar = "@maven//:org_eclipse_lsp4j_org_eclipse_lsp4j",
+)
+
+j2cl_import(
+    name = "commons-lang3-j2cl",
+    jar = "@maven//:org_apache_commons_commons_lang3",
+)
+
+j2cl_import(
+    name = "jsr305-j2cl",
+    jar = "@maven//:com_google_code_findbugs_jsr305",
+)
+
+j2cl_import(
+    name = "slf4j-api-j2cl",
+    jar = "@maven//:org_slf4j_slf4j_api",
+)
+
+j2cl_import(
+    name = "lsp4j-jsonrpc-j2cl",
+    jar = "@maven//:org_eclipse_lsp4j_org_eclipse_lsp4j_jsonrpc",
+)
+
+j2cl_import(
+    name = "antlr4-j2cl",
+    jar = "@maven//:org_antlr_antlr4",
+)
+
+j2cl_import(
+    name = "antlr4-runtime-j2cl",
+    jar = "@maven//:org_antlr_antlr4_runtime",
+)
+
+j2cl_import(
+    name = "guice-j2cl",
+    jar = "@maven//:com_google_inject_guice",
+)
+
+j2cl_import(
+    name = "picocli-j2cl",
+    jar = "@maven//:info_picocli_picocli",
+)
+
+j2cl_import(
+    name = "guice-assistedinject-j2cl",
+    jar = "@maven//:com_google_inject_extensions_guice_assistedinject",
+)
+
+j2cl_import(
+    name = "logback-core-j2cl",
+    jar = "@maven//:ch_qos_logback_logback_core",
+)
+
+j2cl_import(
+    name = "commons-text-j2cl",
+    jar = "@maven//:org_apache_commons_commons_text",
+)
+
+j2cl_import(
+    name = "commons-io-j2cl",
+    jar = "@maven//:commons_io_commons_io",
+)
+
+j2cl_import(
+    name = "javax-inject-j2cl",
+    jar = "@maven//:javax_inject_javax_inject",
+)
+
+j2cl_import(
+    name = "server-engine",
+    jar = ":server",
+)
+
+#######################################
+j2cl_library(
+    name = "server-j2cl-lib-ty",
+#    srcs = glob(["src/main/java/**/*.java"]) + [":antlr_gen_cobol_preprocessor"] + [":antlr_gen_cics"] + [":antlr_gen_db2"],
+#    main_class = "org.eclipse.lsp.cobol.LangServerBootstrap",
+#    resources = glob(["src/main/resources/**"]),
+    deps = ":server",
+    )
+j2cl_library(
+    name = "server-j2cl-lib",
+    srcs = glob(["src/main/java/**/*.java"]) + [":antlr_gen_cobol_preprocessor"] + [":antlr_gen_cics"] + [":antlr_gen_db2"],
+#    main_class = "org.eclipse.lsp.cobol.LangServerBootstrap",
+#    resources = glob(["src/main/resources/**"]),
+    deps = [
+        ":lombok-j2cl",
+                ":common-j2cl",
+                ":parser-j2cl",
+                ":guava-j2cl",
+                ":gson-j2cl",
+                ":logback-classic-j2cl",
+                ":lsp4j-j2cl",
+                ":commons-lang3-j2cl",
+                ":jsr305-j2cl",
+                ":slf4j-api-j2cl",
+                ":lsp4j-jsonrpc-j2cl",
+                ":antlr4-j2cl",
+                ":antlr4-runtime-j2cl",
+                ":guice-j2cl",
+                ":picocli-j2cl",
+                ":guice-assistedinject-j2cl",
+                ":logback-core-j2cl",
+                ":commons-text-j2cl",
+                ":commons-io-j2cl",
+                ":javax-inject-j2cl"
+    ],
+    visibility = ["//visibility:public"],
 )
