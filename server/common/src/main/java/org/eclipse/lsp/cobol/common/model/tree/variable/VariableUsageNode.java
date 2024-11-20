@@ -73,7 +73,7 @@ public class VariableUsageNode extends Node implements DefinedAndUsedStructure, 
     }
   }
 
-  private Optional<VariableNode> getDefinition() {
+  public Optional<VariableNode> getDefinition() {
     if (definitions.isEmpty()) return Optional.empty();
     return Optional.of(definitions.get(0));
   }

@@ -210,7 +210,7 @@ public class TestFunction {
           + "       01  {$*UNRELATED-STUFF}.                                 \n"
           + "           05  {$*NUM}         PIC X(1234).                     \n"
           + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.        \n"
-          + "       END FUNCTION FUNC1.}                                  \n"
+          + "       END FUNCTION FUNC1.|FUNC1}                                  \n"
           + "                                                            \n"
           + "       IDENTIFICATION DIVISION.                             \n"
           + "       PROGRAM-ID. PGM.                                     \n"
@@ -288,7 +288,7 @@ public class TestFunction {
           + "           05  {$*NUM}              PIC X(1234).                \n"
           + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
           + "             MOVE 1234 to {$NUM}.                              \n"
-          + "       END FUNCTION FUNC1.}                                  \n";
+          + "       END FUNCTION FUNC1.|FUNC1}                                  \n";
 
   @Test
   void diagnose_defined_after() {
@@ -414,7 +414,7 @@ public class TestFunction {
           + "       01  {$*UNRELATED-STUFF}.                                 \n"
           + "           05  {$*NUM}         PIC X(1234).                     \n"
           + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.        \n"
-          + "       END FUNCTION FUNC1.}                                  \n"
+          + "       END FUNCTION FUNC1.|FUNC1}                                  \n"
           + "       \n"
           + "       IDENTIFICATION DIVISION.\n"
           + "       PROGRAM-ID. EXAMPLE.\n"
@@ -449,7 +449,7 @@ public class TestFunction {
           + "       01  {$*UNRELATED-STUFF}.                                 \n"
           + "           05  {$*NUM}         PIC X(1234).                     \n"
           + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.        \n"
-          + "       END FUNCTION FUNC1.}                                  \n"
+          + "       END FUNCTION FUNC1.|FUNC1}                                  \n"
           + "       \n"
           + "       IDENTIFICATION DIVISION.\n"
           + "       PROGRAM-ID. EXAMPLE.\n"
@@ -479,7 +479,7 @@ public class TestFunction {
           + "       01  {$*UNRELATED-STUFF}.                                 \n"
           + "           05  {$*NUM}         PIC X(1234).                     \n"
           + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.        \n"
-          + "       END FUNCTION FUNC1.}                                  \n"
+          + "       END FUNCTION FUNC1.|FUNC1}                                  \n"
           + "       \n"
           + "       IDENTIFICATION DIVISION.\n"
           + "       PROGRAM-ID. EXAMPLE.\n"
@@ -494,7 +494,7 @@ public class TestFunction {
           + "           05 {$*func1|1} pic 9.\n"
           + "           05 {$*hex-of|2} pic 9.\n"
           + "       PROCEDURE DIVISION.\n"
-          + "           display {$$func1}.\n"
+          + "           display {$func1}.\n"
           + "           display function {$$func1}.\n"
           + "           display \"hello\".";
 
@@ -526,7 +526,7 @@ public class TestFunction {
           + "       01  {$*UNRELATED-STUFF}.                                 \n"
           + "           05  {$*NUM}         PIC X(1234).                     \n"
           + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.        \n"
-          + "       END FUNCTION FUNC1.}                                  \n"
+          + "       END FUNCTION FUNC1.|FUNC1}                                  \n"
           + "\n"
           + "       IDENTIFICATION DIVISION.                             \n"
           + "       PROGRAM-ID. PGM.                                     \n"
@@ -560,7 +560,7 @@ public class TestFunction {
               + "       01  {$*UNRELATED-STUFF}.                                 \n"
               + "           05  {$*NUM}         PIC X(1234).                     \n"
               + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.        \n"
-              + "       END FUNCTION FUNC1.}                                  \n"
+              + "       END FUNCTION FUNC1.|FUNC1}                                  \n"
               + "\n"
               + "       IDENTIFICATION DIVISION.                             \n"
               + "       PROGRAM-ID. PGM.                                     \n"
