@@ -159,7 +159,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
   @Override
   public List<Node> visitFunctionRepositoryClause(FunctionRepositoryClauseContext ctx) {
     Optional<Locality> statementLocality = retrieveLocality(ctx, extendedDocument, copybooks);
-    if (!statementLocality.isPresent()){
+    if (!statementLocality.isPresent()) {
       return ImmutableList.of();
     }
       boolean isIntrinsic = ctx.INTRINSIC() != null;

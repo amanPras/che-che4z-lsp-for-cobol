@@ -26,85 +26,88 @@ import org.junit.jupiter.api.Test;
 /** Test function support */
 public class TestFunction {
 
-  public static final String BASIC_FUNCTION_DEFINITION = ""
-      // ----+----1----+----2----+----3----+----4----+----5----+----6
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC.                                   \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC.                                   \n";
+  public static final String BASIC_FUNCTION_DEFINITION =
+      ""
+          // ----+----1----+----2----+----3----+----4----+----5----+----6
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC.                                   \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC.                                   \n";
 
   @Test
   void parse_basic_function_definition() {
     UseCaseEngine.runTest(BASIC_FUNCTION_DEFINITION, ImmutableList.of(), ImmutableMap.of());
   }
 
-  public static final String VARIOUS_ALTERNATIVE_FUNCTIONS = ""
-      // ----+----1----+----2----+----3----+----4----+----5----+----6
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC AS 'funcx'                         \n"
-      + "                    ENTRY-INTERFACE STATIC.                 \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC.                                   \n"
-      + "                                                            \n"
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC2 AS 'funcx2'                       \n"
-      + "                    ENTRY-NAME IS LONGMIXED.                \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC2.                                  \n"
-      + "                                                            \n"
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC3 AS 'funcx3' IS PROTOTYPE          \n"
-      + "                    ENTRY-NAME IS LONGMIXED.                \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC3.                                  \n";
+  public static final String VARIOUS_ALTERNATIVE_FUNCTIONS =
+      ""
+          // ----+----1----+----2----+----3----+----4----+----5----+----6
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC AS 'funcx'                         \n"
+          + "                    ENTRY-INTERFACE STATIC.                 \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC.                                   \n"
+          + "                                                            \n"
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC2 AS 'funcx2'                       \n"
+          + "                    ENTRY-NAME IS LONGMIXED.                \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC2.                                  \n"
+          + "                                                            \n"
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC3 AS 'funcx3' IS PROTOTYPE          \n"
+          + "                    ENTRY-NAME IS LONGMIXED.                \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC3.                                  \n";
 
   @Test
   void parse_various_alternative_functions() {
     UseCaseEngine.runTest(VARIOUS_ALTERNATIVE_FUNCTIONS, ImmutableList.of(), ImmutableMap.of());
   }
 
-  public static final String DISALLOW_FUNCTION_NESTING = ""
-      // ----+----1----+----2----+----3----+----4----+----5----+----6
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC.                                   \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "                                                            \n"
-      + "       {IDENTIFICATION|1} DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC2.                                  \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC2.                                  \n"
-      + "                                                            \n"
-      + "       {END|2} FUNCTION FUNC.                                   \n";
+  public static final String DISALLOW_FUNCTION_NESTING =
+      ""
+          // ----+----1----+----2----+----3----+----4----+----5----+----6
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC.                                   \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "                                                            \n"
+          + "       {IDENTIFICATION|1} DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC2.                                  \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC2.                                  \n"
+          + "                                                            \n"
+          + "       {END|2} FUNCTION FUNC.                                   \n";
 
   @Test
   void parse_disallow_function_nesting() {
@@ -126,28 +129,29 @@ public class TestFunction {
                 ErrorSource.PARSING.getText())));
   }
 
-  public static final String DISALLOW_FUNCTION_NESTING_IN_PROGRAMS = ""
-      // ----+----1----+----2----+----3----+----4----+----5----+----6
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       PROGRAM-ID. PGM.                                     \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "                                                            \n"
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC.                                   \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC.                                   \n"
-      + "                                                            \n"
-      + "       {END|1} PROGRAM PGM.                                     \n";
+  public static final String DISALLOW_FUNCTION_NESTING_IN_PROGRAMS =
+      ""
+          // ----+----1----+----2----+----3----+----4----+----5----+----6
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       PROGRAM-ID. PGM.                                     \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "                                                            \n"
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC.                                   \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC.                                   \n"
+          + "                                                            \n"
+          + "       {END|1} PROGRAM PGM.                                     \n";
 
   @Test
   void parse_disallow_function_nesting_in_programs() {
@@ -231,27 +235,28 @@ public class TestFunction {
     UseCaseEngine.runTest(FUNCTION_FOUND, ImmutableList.of(), ImmutableMap.of());
   }
 
-  public static final String FUNCTION_REDEFINED = ""
-      // ----+----1----+----2----+----3----+----4----+----5----+----6
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       FUNCTION-ID. FUNC1.                                  \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC1.                                  \n"
-      + "                                                            \n"
-      + "       IDENTIFICATION DIVISION.                             \n"
-      + "       {FUNCTION-ID. FUNC1.|1}                                  \n"
-      + "       DATA DIVISION.                                       \n"
-      + "       LINKAGE SECTION.                                     \n"
-      + "       01  {$*RETVAL}.                                          \n"
-      + "           05  {$*NUM}              PIC X(1234).                \n"
-      + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
-      + "             MOVE 1234 to {$NUM}.                              \n"
-      + "       END FUNCTION FUNC1.                                  \n";
+  public static final String FUNCTION_REDEFINED =
+      ""
+          // ----+----1----+----2----+----3----+----4----+----5----+----6
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. FUNC1.                                  \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC1.                                  \n"
+          + "                                                            \n"
+          + "       IDENTIFICATION DIVISION.                             \n"
+          + "       {FUNCTION-ID. FUNC1.|1}                                  \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*RETVAL}.                                          \n"
+          + "           05  {$*NUM}              PIC X(1234).                \n"
+          + "       PROCEDURE DIVISION RETURNING {$RETVAL}.                 \n"
+          + "             MOVE 1234 to {$NUM}.                              \n"
+          + "       END FUNCTION FUNC1.                                  \n";
 
   @Test
   void function_redefined() {
@@ -548,7 +553,8 @@ public class TestFunction {
 
   @Test
   void test_use_declared_function_in_nested_program() {
-    UseCaseEngine.runTest(USE_DECLARED_FUNCTION_IN_NESTED_PROGRAM, ImmutableList.of(), ImmutableMap.of());
+    UseCaseEngine.runTest(
+        USE_DECLARED_FUNCTION_IN_NESTED_PROGRAM, ImmutableList.of(), ImmutableMap.of());
   }
 
   public static final String
@@ -584,11 +590,49 @@ public class TestFunction {
 
   @Test
   void test_multiple_program_in_compile_unit_refers_correctly_to_function_declaration() {
-    UseCaseEngine.runTest(MULTIPLE_PROGRAM_IN_COMPILE_UNIT_REFERS_CORRECTLY_TO_FUNCTION_DECLARATION, ImmutableList.of(), ImmutableMap.of("1",
+    UseCaseEngine.runTest(
+        MULTIPLE_PROGRAM_IN_COMPILE_UNIT_REFERS_CORRECTLY_TO_FUNCTION_DECLARATION,
+        ImmutableList.of(),
+        ImmutableMap.of(
+            "1",
             new Diagnostic(
-                    new Range(),
-                    "Variable FUNC1 is not defined",
-                    DiagnosticSeverity.Error,
-                    ErrorSource.PARSING.getText())));
+                new Range(),
+                "Variable FUNC1 is not defined",
+                DiagnosticSeverity.Error,
+                ErrorSource.PARSING.getText())));
+  }
+
+  public static final String REDEFINE_FUNCTION_DECLARATION =
+      "       {$$*IDENTIFICATION DIVISION.                             \n"
+          + "       FUNCTION-ID. HEX-OF.                                  \n"
+          + "       DATA DIVISION.                                       \n"
+          + "       LINKAGE SECTION.                                     \n"
+          + "       01  {$*UNRELATED-STUFF}.                                 \n"
+          + "           05  {$*NUM}         PIC X(1234).                     \n"
+          + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.        \n"
+          + "       END FUNCTION HEX-OF.|HEX-OF}                              \n"
+          + "       \n"
+          + "       IDENTIFICATION DIVISION.\n"
+          + "       PROGRAM-ID. EXAMPLE.\n"
+          + "       ENVIRONMENT DIVISION.\n"
+          + "       CONFIGURATION SECTION.\n"
+          + "       repository.\n"
+          + "           FUNCTION {$$HEX-OF}\n"
+          + "           FUNCTION {$$HEX-OF|1} intrinsic.     \n"
+          + "       DATA DIVISION.\n"
+          + "       WORKING-STORAGE SECTION.";
+
+  @Test
+  void test_redefine_function_declaration() {
+    UseCaseEngine.runTest(
+            REDEFINE_FUNCTION_DECLARATION,
+        ImmutableList.of(),
+        ImmutableMap.of(
+            "1",
+            new Diagnostic(
+                new Range(),
+                "Name 'HEX-OF' was previously defined in the REPOSITORY paragraph.",
+                DiagnosticSeverity.Error,
+                ErrorSource.PARSING.getText())));
   }
 }
