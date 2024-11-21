@@ -55,6 +55,9 @@ public class FunctionUsageReferenceEnricher implements Processor<QualifiedRefere
     VariableUsageNode dataNameNode = usageNodes.get(0);
     if (!isFunctionDeclaredWithName(dataNameNode, program.get())) return;
 
+    // If definition of a data node is present, this signifies that this dataNode already has a variable definition
+    // and shouldn't try to enrich it further.
+    // in case there is a name collision it would anyway be shown for the definition
     if (!dataNameNode.getDefinitions().isEmpty()) {
       return;
     }
@@ -65,20 +68,17 @@ public class FunctionUsageReferenceEnricher implements Processor<QualifiedRefere
       return;
     }
 
-    program.ifPresent(
-        programNode -> {
-          int indexOfQualifiedNode = node.getParent().getChildren().indexOf(node);
-          node.getChildren().remove(dataNameNode);
-          FunctionReference functionReference =
-              new FunctionReference(dataNameNode.getLocality(), dataNameNode.getName());
-          functionReference.setDefinitions(functionInfo.getDefinition());
-          node.getParent().getChildren().add(indexOfQualifiedNode, functionReference);
-        });
+    int indexOfQualifiedNode = node.getParent().getChildren().indexOf(node);
+    node.getChildren().remove(dataNameNode);
+    FunctionReference functionReference = new FunctionReference(dataNameNode.getLocality(), dataNameNode.getName());
+    functionReference.setDefinitions(functionInfo.getDefinition());
+    node.getParent().getChildren().add(indexOfQualifiedNode, functionReference);
   }
 
   private static boolean isFunctionDeclaredWithName(
       VariableUsageNode dataNameNode, ProgramNode program) {
-    while (!program.getRepository().containsKey(dataNameNode.getName().toUpperCase(Locale.ROOT))) {
+    String funcName = dataNameNode.getName().toUpperCase(Locale.ROOT);
+    while (!program.getRepository().containsKey(funcName)) {
       Optional<ProgramNode> nearestProgram = program.getProgram();
       if (nearestProgram.isPresent()) {
         program = nearestProgram.get();

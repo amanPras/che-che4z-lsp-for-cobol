@@ -289,9 +289,8 @@ public class SymbolAccumulatorService implements VariableAccumulator {
    */
   public Optional<SyntaxError> registerFunctionReferenceNode(ProgramNode callingProgram, FunctionReference function) {
     String functionName = function.getName().toUpperCase();
-    boolean isDeclared = callingProgram.getRepository().containsKey(functionName);
-    Boolean isImplicit = Optional.ofNullable(callingProgram.getRepository().get(functionName)).orElse(false);
-    FunctionInfo fi = getFunctionInfo(functionName, isDeclared, isImplicit);
+    Boolean isImplicit = callingProgram.getRepository().get(functionName);
+    FunctionInfo fi = getFunctionInfo(functionName, isImplicit != null, isImplicit != null && isImplicit);
     fi.usage.add(function.getLocality().toLocation());
     function.setDefinitions(fi.getDefinition());
     if (fi.node == null || fi.node.getOrdinal() > callingProgram.getOrdinal()) {
@@ -316,7 +315,6 @@ public class SymbolAccumulatorService implements VariableAccumulator {
   public Optional<SyntaxError> registerFunctionNode(ProgramNode function) {
     assert function.getSubtype() == ProgramSubtype.Function;
     String functionName = function.getProgramName().toUpperCase();
-    if (functionName.equalsIgnoreCase("ALL")) return Optional.empty();
     FunctionInfo fi = userDefinedFunctions.computeIfAbsent(functionName, (String) -> new FunctionInfo(function));
     if (fi.node != function) {
       return Optional.of(

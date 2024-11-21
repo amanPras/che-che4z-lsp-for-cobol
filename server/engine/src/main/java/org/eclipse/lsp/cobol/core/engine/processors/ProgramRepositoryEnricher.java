@@ -21,6 +21,7 @@ import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.tree.FunctionDeclaration;
 import org.eclipse.lsp.cobol.common.model.tree.FunctionReference;
+import org.eclipse.lsp.cobol.common.model.tree.ProgramNode;
 import org.eclipse.lsp.cobol.common.processor.ProcessingContext;
 import org.eclipse.lsp.cobol.common.processor.Processor;
 import org.eclipse.lsp.cobol.core.engine.symbols.SymbolAccumulatorService;
@@ -44,10 +45,9 @@ public class ProgramRepositoryEnricher implements Processor<FunctionDeclaration>
       FunctionDeclaration functionDeclaration, ProcessingContext processingContext) {
     functionDeclaration
         .getProgram()
+         .map(ProgramNode::getRepository)
         .ifPresent(
-            program -> {
-              Map<String, Boolean> repository = program.getRepository();
-
+                repository  -> {
                 //  function-name collision with the implicitly available function names is possible.
                 //  Normally this would lead to error,but NOT when `function all intrinsic` clause is used as the
                 //  last declaration in the chain of declarations.
@@ -59,13 +59,15 @@ public class ProgramRepositoryEnricher implements Processor<FunctionDeclaration>
                 symbolAccumulatorService
                     .getAllImplicitFunctionNames()
                     .forEach(name -> repository.put(name, true));
+              } else {
+                  functionDeclaration.getChildren().stream()
+                          .filter(FunctionReference.class::isInstance)
+                          .map(FunctionReference.class::cast)
+                          .forEach(
+                                  reference ->
+                                          addOrValidateFunction(
+                                                  repository, reference, functionDeclaration, processingContext));
               }
-
-              getFunctionReferences(functionDeclaration)
-                  .forEach(
-                      reference ->
-                          addOrValidateFunction(
-                              repository, reference, functionDeclaration, processingContext));
             });
   }
 

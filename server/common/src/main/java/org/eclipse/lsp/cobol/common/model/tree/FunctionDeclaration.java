@@ -34,7 +34,7 @@ public class FunctionDeclaration extends Node {
   private final boolean declareAllIntrinsicFunctions;
 
   public FunctionDeclaration(
-      Locality location, List<FunctionReference> functionNames, boolean isIntrinsic) {
+      Locality location, List<Node> functionNames, boolean isIntrinsic) {
     super(location, NodeType.FUNCTION_DECLARATION);
     this.isIntrinsic = isIntrinsic;
     this.declareAllIntrinsicFunctions = false;

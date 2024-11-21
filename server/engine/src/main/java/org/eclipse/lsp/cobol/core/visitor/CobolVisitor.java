@@ -152,14 +152,16 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     return retrieveLocality(fnCtx, extendedDocument, copybooks)
         .map(l -> new FunctionReference(l, name))
         .map(Node.class::cast)
-        .map(n -> ImmutableList.of(n))
+        .map(ImmutableList::of)
         .orElse(ImmutableList.of());
   }
 
   @Override
   public List<Node> visitFunctionRepositoryClause(FunctionRepositoryClauseContext ctx) {
     Optional<Locality> statementLocality = retrieveLocality(ctx, extendedDocument, copybooks);
-    if (statementLocality.isPresent()) {
+    if (!statementLocality.isPresent()){
+      return ImmutableList.of();
+    }
       boolean isIntrinsic = ctx.INTRINSIC() != null;
       TerminalNode all = ctx.ALL();
       if (Objects.nonNull(all)) {
@@ -168,23 +170,13 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
           return  ImmutableList.of(new FunctionDeclaration(allImplicitLocality.get()));
         }
       }
-      List<FunctionReference> functionNames =
+      List<Node> functionNames =
           ctx.functionName().stream()
-              .map(
-                  functionNameContext ->
-                      retrieveLocality(functionNameContext, extendedDocument, copybooks)
-                          .map(
-                              functionLocality ->
-                                  new FunctionReference(
-                                      functionLocality, functionNameContext.getText(), true)))
-              .filter(Optional::isPresent)
-              .map(Optional::get)
+            .map(this::makeFunctionReferenceNodes)
+            .flatMap(List::stream)
               .collect(Collectors.toList());
       return ImmutableList.of(
           new FunctionDeclaration(statementLocality.get(), functionNames, isIntrinsic));
-    } else {
-      return ImmutableList.of();
-    }
     }
 
 
