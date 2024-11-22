@@ -347,6 +347,7 @@ public class SymbolAccumulatorService implements VariableAccumulator {
    */
   public FunctionInfo getFunctionReference(String functionName, ProgramNode programNode) {
     Optional<ProgramNode> programContainingFunctionDeclaration = getProgramContainingFunctionDeclaration(functionName, programNode);
+    if (!programContainingFunctionDeclaration.isPresent()) return null;
     boolean isDeclaredIntrinsic = programContainingFunctionDeclaration
             .map(ProgramNode::getRepository)
             .map(repo -> repo.get(functionName.toUpperCase(Locale.ROOT)))

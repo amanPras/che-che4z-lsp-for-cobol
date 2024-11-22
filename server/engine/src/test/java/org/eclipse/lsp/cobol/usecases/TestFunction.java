@@ -512,13 +512,13 @@ public class TestFunction {
             "1",
             new Diagnostic(
                 new Range(),
-                "The name FUNC1 was used for an item that was not defined as a data-name",
+                "The name FUNC1 cannot be used as a data-name because it was already declared as a function",
                 DiagnosticSeverity.Error,
                 ErrorSource.PARSING.getText()),
             "2",
             new Diagnostic(
                 new Range(),
-                "The name HEX-OF was used for an item that was not defined as a data-name",
+                "The name HEX-OF cannot be used as a data-name because it was already declared as a function",
                 DiagnosticSeverity.Error,
                 ErrorSource.PARSING.getText())));
   }
@@ -637,14 +637,14 @@ public class TestFunction {
   }
 
   public static final String USE_DECLARED_FUNCTION_IN_NESTED_PROGRAM_2 =
-      "       {$$*IDENTIFICATION DIVISION.\n"
+      "       IDENTIFICATION DIVISION.\n"
           + "       FUNCTION-ID. hex-of.\n"
           + "       DATA DIVISION.\n"
           + "       LINKAGE SECTION.\n"
           + "       01  {$*UNRELATED-STUFF}.\n"
           + "           05  {$*NUM}         PIC X(1234).\n"
           + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.\n"
-          + "       END FUNCTION hex-of.|HEX-OF}\n"
+          + "       END FUNCTION hex-of.\n"
           + "\n"
           + "       IDENTIFICATION DIVISION.\n"
           + "       PROGRAM-ID. PGM.\n"
@@ -660,15 +660,19 @@ public class TestFunction {
           + "\n"
           + "       DATA DIVISION.\n"
           + "       WORKING-STORAGE SECTION. \n"
+          + "       01 {$*so-data}.\n"
+          + "           05 {$*HEX-OF1} pic 9.\n"
           + "       PROCEDURE DIVISION.\n"
-          // TODO: This doesn't reference to user defined hex-of. Update use case to check this scenario
-          + "             display {$$hex-of}.\n"
+          // TODO: This doesn't reference to user defined hex-of, but to intrinsic hex-of.
+          // Now we deal with this by removing use case annotation for the user defined function.
+          // A better way should be present to actually check the references in use case.
+          + "             display {$$HEX-OF}({$HEX-OF1}).\n"
           + "       END PROGRAM PGM1.\n"
           + "       END PROGRAM PGM.";
 
   @Test
   void test_use_declared_function_in_nested_program_2() {
     UseCaseEngine.runTest(
-            USE_DECLARED_FUNCTION_IN_NESTED_PROGRAM_2, ImmutableList.of(), ImmutableMap.of());
+        USE_DECLARED_FUNCTION_IN_NESTED_PROGRAM_2, ImmutableList.of(), ImmutableMap.of());
   }
 }

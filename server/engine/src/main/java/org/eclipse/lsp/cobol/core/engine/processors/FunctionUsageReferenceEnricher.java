@@ -53,7 +53,6 @@ public class FunctionUsageReferenceEnricher implements Processor<QualifiedRefere
     }
 
     VariableUsageNode dataNameNode = usageNodes.get(0);
-    if (!isFunctionDeclaredWithName(dataNameNode, program.get())) return;
 
     // If definition of a data node is present, this signifies that this dataNode already has a variable definition
     // and shouldn't try to enrich it further.
@@ -74,19 +73,5 @@ public class FunctionUsageReferenceEnricher implements Processor<QualifiedRefere
     functionReference.setDefinitions(functionInfo.getDefinition());
     functionInfo.getReferences().add(functionReference.getLocality().toLocation());
     node.getParent().getChildren().add(indexOfQualifiedNode, functionReference);
-  }
-
-  private static boolean isFunctionDeclaredWithName(
-      VariableUsageNode dataNameNode, ProgramNode program) {
-    String funcName = dataNameNode.getName().toUpperCase(Locale.ROOT);
-    while (!program.getRepository().containsKey(funcName)) {
-      Optional<ProgramNode> nearestProgram = program.getProgram();
-      if (nearestProgram.isPresent()) {
-        program = nearestProgram.get();
-        continue;
-      }
-      return false;
-    }
-    return true;
   }
 }
