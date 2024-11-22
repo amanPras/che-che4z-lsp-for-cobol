@@ -499,7 +499,7 @@ public class TestFunction {
           + "           05 {$*func1|1} pic 9.\n"
           + "           05 {$*hex-of|2} pic 9.\n"
           + "       PROCEDURE DIVISION.\n"
-          + "           display {$func1}.\n"
+          + "           display {$$func1}.\n"
           + "           display function {$$func1}.\n"
           + "           display \"hello\".";
 
