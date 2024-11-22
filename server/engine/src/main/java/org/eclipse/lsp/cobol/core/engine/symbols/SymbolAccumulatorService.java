@@ -289,7 +289,10 @@ public class SymbolAccumulatorService implements VariableAccumulator {
    */
   public Optional<SyntaxError> registerFunctionReferenceNode(ProgramNode callingProgram, FunctionReference function) {
     String functionName = function.getName().toUpperCase();
-    Boolean isImplicit = callingProgram.getRepository().get(functionName);
+    Boolean isImplicit = getProgramContainingFunctionDeclaration(functionName, callingProgram)
+            .map(ProgramNode::getRepository)
+            .map(repo -> repo.get(functionName))
+            .orElse(null);
     FunctionInfo fi = getFunctionInfo(functionName, isImplicit != null, isImplicit != null && isImplicit);
     fi.usage.add(function.getLocality().toLocation());
     function.setDefinitions(fi.getDefinition());
@@ -338,17 +341,43 @@ public class SymbolAccumulatorService implements VariableAccumulator {
   /**
    * Search for a function reference
    *
-   * @param name the name of the function
+   * @param functionName the functionName of the function
    * @param programNode
    * @return the block reference or null if not found
    */
-  public FunctionInfo getFunctionReference(String name, ProgramNode programNode) {
-    Boolean isDeclaredIntrinsic = Optional.ofNullable(programNode.getRepository().get(name.toUpperCase(Locale.ROOT))).orElse(false);
+  public FunctionInfo getFunctionReference(String functionName, ProgramNode programNode) {
+    Optional<ProgramNode> programContainingFunctionDeclaration = getProgramContainingFunctionDeclaration(functionName, programNode);
+    boolean isDeclaredIntrinsic = programContainingFunctionDeclaration
+            .map(ProgramNode::getRepository)
+            .map(repo -> repo.get(functionName.toUpperCase(Locale.ROOT)))
+            .orElse(false);
     if (isDeclaredIntrinsic) {
-        return implicitFunctions.get(name.toUpperCase());
+        return implicitFunctions.get(functionName.toUpperCase());
     } else {
-        return userDefinedFunctions.get(name.toUpperCase());
+        return userDefinedFunctions.get(functionName.toUpperCase());
     }
+  }
+
+  /**
+   * Search for a user defined function reference within a compilation unit
+   *
+   * @param functionName the name of the function
+   * @return the block reference or null if not found
+   */
+  public FunctionInfo getUserDefinedFunctionReference(String functionName) {
+    return userDefinedFunctions.get(functionName.toUpperCase());
+  }
+
+  private static Optional<ProgramNode> getProgramContainingFunctionDeclaration(String functionName, ProgramNode programNode) {
+    while (!programNode.getRepository().containsKey(functionName)) {
+      Optional<ProgramNode> nearestProgram = programNode.getProgram();
+      if (nearestProgram.isPresent()) {
+        programNode = nearestProgram.get();
+        continue;
+      }
+      return Optional.empty();
+    }
+    return Optional.of(programNode);
   }
 
   /**

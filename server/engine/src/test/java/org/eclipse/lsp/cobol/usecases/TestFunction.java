@@ -512,13 +512,13 @@ public class TestFunction {
             "1",
             new Diagnostic(
                 new Range(),
-                "Variable name FUNC1 is not allowed",
+                "The name FUNC1 was used for an item that was not defined as a data-name",
                 DiagnosticSeverity.Error,
                 ErrorSource.PARSING.getText()),
             "2",
             new Diagnostic(
                 new Range(),
-                "Variable name HEX-OF is not allowed",
+                "The name HEX-OF was used for an item that was not defined as a data-name",
                 DiagnosticSeverity.Error,
                 ErrorSource.PARSING.getText())));
   }
@@ -625,7 +625,7 @@ public class TestFunction {
   @Test
   void test_redefine_function_declaration() {
     UseCaseEngine.runTest(
-            REDEFINE_FUNCTION_DECLARATION,
+        REDEFINE_FUNCTION_DECLARATION,
         ImmutableList.of(),
         ImmutableMap.of(
             "1",
@@ -634,5 +634,41 @@ public class TestFunction {
                 "Name 'HEX-OF' was previously defined in the REPOSITORY paragraph.",
                 DiagnosticSeverity.Error,
                 ErrorSource.PARSING.getText())));
+  }
+
+  public static final String USE_DECLARED_FUNCTION_IN_NESTED_PROGRAM_2 =
+      "       {$$*IDENTIFICATION DIVISION.\n"
+          + "       FUNCTION-ID. hex-of.\n"
+          + "       DATA DIVISION.\n"
+          + "       LINKAGE SECTION.\n"
+          + "       01  {$*UNRELATED-STUFF}.\n"
+          + "           05  {$*NUM}         PIC X(1234).\n"
+          + "       PROCEDURE DIVISION RETURNING {$UNRELATED-STUFF}.\n"
+          + "       END FUNCTION hex-of.|HEX-OF}\n"
+          + "\n"
+          + "       IDENTIFICATION DIVISION.\n"
+          + "       PROGRAM-ID. PGM.\n"
+          + "       ENVIRONMENT DIVISION.\n"
+          + "       CONFIGURATION SECTION.\n"
+          + "       REPOSITORY.\n"
+          + "               FUNCTION {$$hex-of} intrinsic.\n"
+          + "       DATA DIVISION.\n"
+          + "       WORKING-STORAGE SECTION.\n"
+          + "       PROCEDURE DIVISION.\n"
+          + "       IDENTIFICATION DIVISION.\n"
+          + "       PROGRAM-ID. PGM1. \n"
+          + "\n"
+          + "       DATA DIVISION.\n"
+          + "       WORKING-STORAGE SECTION. \n"
+          + "       PROCEDURE DIVISION.\n"
+          // TODO: This doesn't reference to user defined hex-of. Update use case to check this scenario
+          + "             display {$$hex-of}.\n"
+          + "       END PROGRAM PGM1.\n"
+          + "       END PROGRAM PGM.";
+
+  @Test
+  void test_use_declared_function_in_nested_program_2() {
+    UseCaseEngine.runTest(
+            USE_DECLARED_FUNCTION_IN_NESTED_PROGRAM_2, ImmutableList.of(), ImmutableMap.of());
   }
 }

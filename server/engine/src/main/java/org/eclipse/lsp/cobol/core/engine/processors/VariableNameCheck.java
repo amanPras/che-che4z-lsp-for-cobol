@@ -42,7 +42,7 @@ public class VariableNameCheck implements Processor<VariableWithLevelNode> {
         .map(
             x ->
                 MessageTemplate.of(
-                    "parsers.notAllowedVariableName", variableWithLevelNode.getName()))
+                    "variableNameCheck.notAllowedVariableName", variableWithLevelNode.getName()))
         .map(variableWithLevelNode::getError)
         .ifPresent(processingContext.getErrors()::add);
   }
