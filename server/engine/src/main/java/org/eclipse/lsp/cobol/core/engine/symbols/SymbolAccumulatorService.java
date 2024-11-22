@@ -370,7 +370,7 @@ public class SymbolAccumulatorService implements VariableAccumulator {
   }
 
   private static Optional<ProgramNode> getProgramContainingFunctionDeclaration(String functionName, ProgramNode programNode) {
-    while (!programNode.getRepository().containsKey(functionName)) {
+    while (!programNode.getRepository().containsKey(functionName.toUpperCase(Locale.ROOT))) {
       Optional<ProgramNode> nearestProgram = programNode.getProgram();
       if (nearestProgram.isPresent()) {
         programNode = nearestProgram.get();
