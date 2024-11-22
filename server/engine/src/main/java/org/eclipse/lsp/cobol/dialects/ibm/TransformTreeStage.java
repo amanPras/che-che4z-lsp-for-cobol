@@ -255,6 +255,7 @@ public class TransformTreeStage implements Stage<AnalysisContext, ProcessingResu
     ctx.register(ProcessingPhase.POST_DEFINITION, SectionNode.class, new ImplicitVariablesProcessor());
     ctx.register(ProcessingPhase.POST_DEFINITION, FunctionDeclaration.class, new ProgramRepositoryEnricher(symbolAccumulatorService));
 
+    // Phase PRE USAGE
     ctx.register(ProcessingPhase.PRE_USAGE, QualifiedReferenceNode.class, new FunctionUsageReferenceEnricher(symbolAccumulatorService));
 
     // Phase USAGE
