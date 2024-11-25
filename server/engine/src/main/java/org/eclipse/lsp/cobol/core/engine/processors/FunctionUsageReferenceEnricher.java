@@ -72,5 +72,6 @@ public class FunctionUsageReferenceEnricher implements Processor<QualifiedRefere
     functionReference.setDefinitions(functionInfo.getDefinition());
     functionInfo.getReferences().add(functionReference.getLocality().toLocation());
     node.getParent().getChildren().add(indexOfQualifiedNode, functionReference);
+    functionReference.setParent(node.getParent());
   }
 }
