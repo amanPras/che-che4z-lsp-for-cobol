@@ -349,19 +349,28 @@ public class SymbolAccumulatorService implements VariableAccumulator {
    * @param isFunctionPrefixed
    * @return the block reference or null if not found
    */
-  public FunctionInfo getFunctionReference(
-      String functionName, ProgramNode programNode, boolean isFunctionPrefixed) {
-    Optional<ProgramNode> programContainingFunctionDeclaration = getProgramContainingFunctionDeclaration(functionName, programNode);
-    if (!programContainingFunctionDeclaration.isPresent() && !isFunctionPrefixed) return null;
-    boolean isDeclaredIntrinsic = programContainingFunctionDeclaration
-            .map(ProgramNode::getRepository)
-            .map(repo -> repo.get(functionName.toUpperCase(Locale.ROOT)))
-            .orElse(false);
-    if (isDeclaredIntrinsic) {
-        return implicitFunctions.get(functionName.toUpperCase());
-    } else {
-        return userDefinedFunctions.getOrDefault(functionName.toUpperCase(), implicitFunctions.get(functionName.toUpperCase()));
+  public FunctionInfo getFunctionReference(String functionName, ProgramNode programNode, boolean isFunctionPrefixed) {
+    Optional<ProgramNode> programContainingFunction = getProgramContainingFunctionDeclaration(functionName, programNode);
+
+    if (!programContainingFunction.isPresent() && !isFunctionPrefixed) {
+      return null;
     }
+
+    String upperCaseFunctionName = functionName.toUpperCase(Locale.ROOT);
+    boolean isDeclaredIntrinsic = programContainingFunction
+            .map(ProgramNode::getRepository)
+            .map(repo -> repo.get(upperCaseFunctionName))
+            .orElse(false);
+
+    if (isDeclaredIntrinsic) {
+      return implicitFunctions.get(upperCaseFunctionName);
+    }
+
+    if (programContainingFunction.isPresent()) {
+      return userDefinedFunctions.get(upperCaseFunctionName);
+    }
+
+    return userDefinedFunctions.getOrDefault(upperCaseFunctionName, implicitFunctions.get(upperCaseFunctionName));
   }
 
   /**
