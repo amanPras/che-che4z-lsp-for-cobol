@@ -340,14 +340,19 @@ public class SymbolAccumulatorService implements VariableAccumulator {
 
   /**
    * Search for a function reference
-   *
+   * If a function is prefixed and not declared we try to look for user defined function
+   * If not found, try to resolve as intrinsic function
+   * Null if no reference is found.
+   * In case a function is declared within program, try to resolve as per declaration
    * @param functionName the functionName of the function
    * @param programNode
+   * @param isFunctionPrefixed
    * @return the block reference or null if not found
    */
-  public FunctionInfo getFunctionReference(String functionName, ProgramNode programNode) {
+  public FunctionInfo getFunctionReference(
+      String functionName, ProgramNode programNode, boolean isFunctionPrefixed) {
     Optional<ProgramNode> programContainingFunctionDeclaration = getProgramContainingFunctionDeclaration(functionName, programNode);
-    if (!programContainingFunctionDeclaration.isPresent()) return null;
+    if (!programContainingFunctionDeclaration.isPresent() && !isFunctionPrefixed) return null;
     boolean isDeclaredIntrinsic = programContainingFunctionDeclaration
             .map(ProgramNode::getRepository)
             .map(repo -> repo.get(functionName.toUpperCase(Locale.ROOT)))
@@ -355,7 +360,7 @@ public class SymbolAccumulatorService implements VariableAccumulator {
     if (isDeclaredIntrinsic) {
         return implicitFunctions.get(functionName.toUpperCase());
     } else {
-        return userDefinedFunctions.get(functionName.toUpperCase());
+        return userDefinedFunctions.getOrDefault(functionName.toUpperCase(), implicitFunctions.get(functionName.toUpperCase()));
     }
   }
 

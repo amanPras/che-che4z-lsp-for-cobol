@@ -60,7 +60,7 @@ public class FunctionUsageReferenceEnricher implements Processor<QualifiedRefere
       return;
     }
     SymbolAccumulatorService.FunctionInfo functionInfo =
-        symbolAccumulatorService.getFunctionReference(dataNameNode.getName(), program.get());
+        symbolAccumulatorService.getFunctionReference(dataNameNode.getName(), program.get(), false);
 
     if (functionInfo == null) {
       return;

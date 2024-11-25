@@ -150,7 +150,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     String name = fnCtx.getText();
 
     return retrieveLocality(fnCtx, extendedDocument, copybooks)
-        .map(l -> new FunctionReference(l, name))
+        .map(l -> new FunctionReference(l, name, true))
         .map(Node.class::cast)
         .map(ImmutableList::of)
         .orElse(ImmutableList.of());

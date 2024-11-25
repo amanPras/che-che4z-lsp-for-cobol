@@ -28,16 +28,14 @@ public class FunctionReferenceEnricher implements Processor<FunctionReference> {
 
   @Override
   public void accept(FunctionReference node, ProcessingContext processingContext) {
-    if (node.isFunctionPrefixed()) {
       node.getProgram()
           .map(
               programNode ->
-                  symbolAccumulatorService.getFunctionReference(node.getName(), programNode))
+                  symbolAccumulatorService.getFunctionReference(node.getName(), programNode, node.isFunctionPrefixed()))
           .ifPresent(
               fi -> {
                 node.setDefinitions(fi.getDefinition());
                 node.setUsages(fi.getReferences());
               });
     }
-  }
 }
