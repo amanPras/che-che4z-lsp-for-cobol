@@ -80,17 +80,17 @@ public class TestCicsDelete {
 
   private static final String GROUP_TWO_TIMER_VALID = "DELETE TIMER({$varFour})";
 
-  private static final String GROUP_THREE_CONTAINER_BTS_VALID = "DELETE CONTAINER({$varFour}) RETCODE({$varOne})";
+  private static final String GROUP_THREE_CONTAINER_BTS_VALID = "DELETE CONTAINER({$varFour})";
 
-  private static final String GROUP_THREE_CONTAINER_BTS_ACTIVITY_VALID = "DELETE CONTAINER({$varFour}) ACTIVITY({$varFive}) RETCODE({$varOne})";
+  private static final String GROUP_THREE_CONTAINER_BTS_ACTIVITY_VALID = "DELETE CONTAINER({$varFour}) ACTIVITY({$varFive})";
 
-  private static final String GROUP_THREE_CONTAINER_BTS_ACQACTIVITY_VALID = "DELETE CONTAINER({$varFour}) ACQACTIVITY RETCODE({$varOne})";
+  private static final String GROUP_THREE_CONTAINER_BTS_ACQACTIVITY_VALID = "DELETE CONTAINER({$varFour}) ACQACTIVITY";
 
-  private static final String GROUP_THREE_CONTAINER_BTS_PROCESS_VALID = "DELETE CONTAINER({$varFour}) PROCESS RETCODE({$varOne})";
+  private static final String GROUP_THREE_CONTAINER_BTS_PROCESS_VALID = "DELETE CONTAINER({$varFour}) PROCESS";
 
-  private static final String GROUP_THREE_CONTAINER_BTS_ACQPROCESS_VALID = "DELETE CONTAINER({$varFour}) ACQPROCESS RETCODE({$varOne})";
+  private static final String GROUP_THREE_CONTAINER_BTS_ACQPROCESS_VALID = "DELETE CONTAINER({$varFour}) ACQPROCESS ";
 
-  private static final String GROUP_THREE_CONTAINER_CHANNEL_VALID = "DELETE CONTAINER({$varFour}) CHANNEL({$varSix}) RETCODE({$varOne})";
+  private static final String GROUP_THREE_CONTAINER_CHANNEL_VALID = "DELETE CONTAINER({$varFour}) CHANNEL({$varSix})";
 
   private static final String GROUP_FOUR_DELETE_COUNTER_VALID = "DELETE COUNTER({$varFour})";
 
