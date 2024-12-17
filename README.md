@@ -176,6 +176,11 @@ You can store your copybooks locally in folders in your workspace and specify th
 3. Specify the paths of the folders containing copybooks under **Cpy-manager: Paths-local**.
    - **Tip:** We recommend that you specify relative paths from the workspace root. To obtain the relative path of a folder in your workspace, right-click it in the folder tree and select **Copy Relative Path**.
    - You can use [Glob](https://www.npmjs.com/package/glob) wildcards, such as * to substitute one whole level of the path. For example, specifying the path `*/copybooks` searches all subfolders named "copybooks" in  subfolders of your workspace root, while the path `copybooks/*` searches all subfolders one level below the `copybooks` folder in the workspace root. For more information on available wildcards, see the [Glob Primer](https://www.npmjs.com/package/glob#Glob-Primer)
+   - Following [vscode predefined variables](https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables) are supported as well
+     - ${fileBasenameNoExtension} - the current opened file's basename with no file extension
+     - ${fileDirname} - the current opened file's folder path
+     - ${fileDirnameBasename} - the current opened file's folder name
+     - ${workspaceFolder} - the path of the folder opened in VS Code
    - The folders are searched in the order they are listed, or in alphabetical order if multiple paths are indexed by a wildcard. If two folders contain a copybook with the same file name, the one from the folder higher on the list is used.
 4. (Optional) Under **Cpy-manager: Copybook-extensions**, specify the file extensions used for your copybooks. The default supported file extensions are `.cpy` and `.copy`.
 5. Open a file or folder.  
