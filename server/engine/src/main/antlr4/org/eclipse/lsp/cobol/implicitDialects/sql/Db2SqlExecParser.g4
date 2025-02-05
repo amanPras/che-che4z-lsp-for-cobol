@@ -216,7 +216,7 @@ dbs_alter_table_bit_timestamp: TIMESTAMP (LPARENCHAR INTEGERLITERAL RPARENCHAR)?
 dbs_alter_table_bit_xml: XML (LPARENCHAR XMLSCHEMA dbs_alter_table_bit_xmlspec (ELEMENT dbs_sql_identifier)? (dbs_comma_separator dbs_alter_table_bit_xmlspec (ELEMENT dbs_sql_identifier)?)* RPARENCHAR)?;
 dbs_alter_table_bit_xmlspec: (ID dbs_registered_xml_schema_name | (URL dbs_host_variable | NO NAMESPACE) (LOCATION dbs_schema_location)?);
 dbs_alter_table_defclause: WITH? DEFAULT (dbs_constant | SESSION_USER | USER | CURRENT SQLID | NULL | dbs_cast_function_name LPARENCHAR (dbs_constant | SESSION_USER | USER | CURRENT SQLID | NULL) RPARENCHAR)?;
-common_reference_clause: REFERENCES dbs_table_name (LPARENCHAR dbs_column_name_without_alias  (dbs_comma_separator dbs_column_name)* RPARENCHAR)? (ON DELETE (RESTRICT | NO ACTION | CASCADE |
+common_reference_clause: REFERENCES dbs_table_name (LPARENCHAR dbs_column_name_without_alias  (dbs_comma_separator dbs_column_name_without_alias)* RPARENCHAR)? (ON DELETE (RESTRICT | NO ACTION | CASCADE |
                             SET NULL))? (NOT? ENFORCED)? (ENABLE QUERY OPTIMIZATION)?;
 //dbs_alter_table_generated: GENERATED ((ALWAYS | BY DEFAULT)? (common_as_identity_clause | FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP)? | ALWAYS? (AS TRANSACTION START ID |
 //                            AS ROW (BEGIN|START|END) | AS LPARENCHAR dbs_non_deterministic_expression RPARENCHAR));
