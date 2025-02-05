@@ -376,6 +376,38 @@ class TestSqlAllAlterStatements {
           + "              KEY LABEL SECUREKEY01;\n"
           + "            END-EXEC.";
 
+  public static final String ALTER_TABLE11 = TEXT
+          + "           exec sql\n"
+          + "           alter TABLE DSN8C10.DEPT ADD PARTITION BY\n"
+          + "            (col asc, col2 desc) (PARTITION 3 ending (MAXVALUE))\n"
+          + "           end-exec.";
+
+  public static final String ALTER_TABLE12 = TEXT
+          + "           exec sql\n"
+          + "           alter TABLE DSN8C10.DEPT add column abc 'xyz.join'\n"
+          + "           end-exec.";
+
+  public static final String ALTER_TABLE13 = TEXT
+          + "           exec sql\n"
+          + "           ALTER TABLE DSN8C10.DEPT\n"
+          + "           ADD CONSTRAINT CHK_DEPT_DEPTNO\n"
+          + "           CHECK (DEPTNO BETWEEN 'A00' AND 'Z99')\n"
+          + "           end-exec.";
+
+  public static final String ALTER_TABLE14 = TEXT
+          + "           exec sql\n"
+          + "           alter TABLE DSN8C10.DEPT\n"
+          + "            CONSTRAINT xyz \n"
+          + "           UNIQUE (col1, BUSINESS_TIME WITHOUT OVERLAPS)\n"
+          + "           end-exec.";
+
+  public static final String ALTER_TABLE15 = TEXT
+          + "           exec sql\n"
+          + "           alter TABLE DSN8C10.DEPT\n"
+          + "           ALTER PARTITIONING TO PARTITION BY range (col1 desc) \n"
+          + "           (PARTITION 3 ending (MAXVALUE))\n"
+          + "           end-exec.";
+
   // ALTER TABLESPACE
   private static final String ALTER_TABLESPACE =
       TEXT
@@ -519,6 +551,11 @@ class TestSqlAllAlterStatements {
         ALTER_TABLE8,
         ALTER_TABLE9,
         ALTER_TABLE10,
+        ALTER_TABLE11,
+        ALTER_TABLE12,
+        ALTER_TABLE13,
+        ALTER_TABLE14,
+        ALTER_TABLE15,
         ALTER_TABLESPACE,
         ALTER_TABLESPACE2,
         ALTER_TABLESPACE3,

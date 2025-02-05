@@ -192,10 +192,13 @@ dbs_alter_sequence_loop: (RESTART (WITH INTEGERLITERAL)? | (INCREMENT BY|MINVALU
 dbs_alter_stogroup: STOGROUP dbs_stogroup_name (NO KEY LABEL | KEY LABEL dbs_sql_identifier | (ADD|REMOVE) VOLUMES LPARENCHAR (dbs_sql_identifier (dbs_comma_separator dbs_sql_identifier)* |
                     SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE (dbs_comma_separator SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE)*) RPARENCHAR)+ (DATACLAS dbs_host_variable)? (MGMTCLAS dbs_sql_identifier)? (STORCLAS dbs_sql_identifier)?;//*ALTER TABLE */
 dbs_alter_table: TABLE dbs_table_name (dbs_alter_table_add | dbs_alter_table_alter | dbs_alter_table_rename | dbs_alter_table_drop | dbs_alter_table_rotate | DATA CAPTURE (NONE|CHANGES) | NOT? VOLATILE CARDINALITY? |
-                (ACTIVATE|DEACTIVATE) (ROW|COLUMN) ACCESS CONTROL | APPEND (NO|YES) | AUDIT (NONE|CHANGES|ALL) | VALIDPROC (dbs_program_name | NULL) | ENABLE ARCHIVE USE dbs_table_name | DISABLE ARCHIVE | NO KEY LABEL | KEY LABEL dbs_sql_identifier)+;
-dbs_alter_table_add: ADD (COLUMN? dbs_alter_table_coldef | dbs_alter_table_unique | dbs_alter_table_check | PARTITION (BY dbs_alter_table_partitioning | dbs_alter_table_partition)? |
-                     SYSTEM? VERSIONING USE HISTORY TABLE dbs_alias_name (ON DELETE ADD EXTRA ROW)? | (MATERIALIZED? QUERY)? dbs_alter_table_mq | CLONE dbs_clone_table_name | RESTRICT ON DROP) | ADD? dbs_alter_table_referential;
-dbs_alter_table_coldef: dbs_column_name_without_alias (dbs_distinct_type_name | dbs_alter_table_bit)? (dbs_alter_table_defclause | NOT NULL | dbs_alter_table_check | common_reference_clause | dbs_alter_table_generated |
+                (ACTIVATE|DEACTIVATE) (ROW|COLUMN) ACCESS CONTROL | APPEND (NO|YES) | AUDIT (NONE|CHANGES|ALL) | VALIDPROC (dbs_program_name | NULL)
+                | ENABLE ARCHIVE USE dbs_table_name | DISABLE ARCHIVE | NO KEY LABEL | KEY LABEL dbs_sql_identifier)+;
+dbs_alter_table_add: ADD (COLUMN? dbs_alter_table_coldef | dbs_alter_table_check_constraint | PARTITION (BY dbs_alter_table_partitioning | dbs_alter_table_partition?) |
+                     SYSTEM? VERSIONING USE HISTORY TABLE dbs_alias_name (ON DELETE ADD EXTRA ROW)? | (MATERIALIZED? QUERY)? dbs_alter_table_mq | CLONE dbs_clone_table_name | RESTRICT ON DROP)
+                     | ADD? (dbs_alter_table_unique_constraint | dbs_alter_table_referential)
+                     ;
+dbs_alter_table_coldef: dbs_column_name_without_alias (dbs_alter_table_bit | dbs_distinct_type_name) (dbs_alter_table_defclause | NOT NULL | dbs_alter_table_check_constraint | common_reference_clause | dbs_alter_table_generated |
                         IMPLICITLY HIDDENCHAR | AS SECURITY LABEL | FIELDPROC dbs_program_name (LPARENCHAR dbs_constant (dbs_comma_separator dbs_constant)* RPARENCHAR)? | INLINE LENGTH INTEGERLITERAL)*;
 dbs_alter_table_bit: (dbs_alter_table_bit_int | dbs_alter_table_bit_decimal | dbs_alter_table_bit_float | dbs_alter_table_bit_decfloat | dbs_alter_table_bit_char | dbs_alter_table_bit_clob | dbs_alter_table_bit_varchar |
                      dbs_alter_table_bit_graphic | dbs_alter_table_bit_binary | DATE | TIME | dbs_alter_table_bit_timestamp | ROWID | dbs_alter_table_bit_xml);
@@ -215,22 +218,33 @@ dbs_alter_table_bit_timestamp: TIMESTAMP (LPARENCHAR INTEGERLITERAL RPARENCHAR)?
 dbs_alter_table_bit_xml: XML (LPARENCHAR XMLSCHEMA dbs_alter_table_bit_xmlspec (ELEMENT dbs_sql_identifier)? (dbs_comma_separator dbs_alter_table_bit_xmlspec (ELEMENT dbs_sql_identifier)?)* RPARENCHAR)?;
 dbs_alter_table_bit_xmlspec: (ID dbs_registered_xml_schema_name | (URL dbs_host_variable | NO NAMESPACE) (LOCATION dbs_schema_location)?);
 dbs_alter_table_defclause: WITH? DEFAULT (dbs_constant | SESSION_USER | USER | CURRENT SQLID | NULL | dbs_cast_function_name LPARENCHAR (dbs_constant | SESSION_USER | USER | CURRENT SQLID | NULL) RPARENCHAR)?;
-dbs_alter_table_check: (CONSTRAINT dbs_constraint_name)? CHECK LPARENCHAR dbs_search_condition RPARENCHAR;
-common_reference_clause: REFERENCES dbs_table_name (LPARENCHAR dbs_column_name_without_alias (PERIOD BUSINESS_TIME)? (dbs_comma_separator dbs_column_name (PERIOD BUSINESS_TIME)?)* RPARENCHAR)? (ON DELETE (RESTRICT | NO ACTION | CASCADE |
+dbs_alter_table_check_constraint: (CONSTRAINT dbs_constraint_name)? CHECK LPARENCHAR dbs_search_condition RPARENCHAR;
+common_reference_clause: REFERENCES dbs_table_name (LPARENCHAR dbs_column_name_without_alias  (dbs_comma_separator dbs_column_name)* RPARENCHAR)? (ON DELETE (RESTRICT | NO ACTION | CASCADE |
                             SET NULL))? (NOT? ENFORCED)? (ENABLE QUERY OPTIMIZATION)?;
-dbs_alter_table_generated: GENERATED ((ALWAYS | BY DEFAULT)? (common_as_identity_clause | FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP)? | ALWAYS? (AS TRANSACTION START ID |
-                            AS ROW (BEGIN|START|END) | AS LPARENCHAR dbs_non_deterministic_expression RPARENCHAR)?);
+//dbs_alter_table_generated: GENERATED ((ALWAYS | BY DEFAULT)? (common_as_identity_clause | FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP)? | ALWAYS? (AS TRANSACTION START ID |
+//                            AS ROW (BEGIN|START|END) | AS LPARENCHAR dbs_non_deterministic_expression RPARENCHAR));
+// optional argument to GENERATED as per doc : https://www.ibm.com/docs/en/db2-for-zos/13?topic=statements-alter-table
+// is removed, as it was not compiling. e.g. alter TABLE DSN8C10.DEPT ADD col smallint generated
+dbs_alter_table_generated: GENERATED dbs_alter_table_generated_options;
+dbs_alter_table_generated_options: ALWAYS? dbs_alter_table_generated_options_always_subclause
+                                    | BY DEFAULT dbs_generated_opts;
+dbs_alter_table_generated_options_always_subclause: dbs_generated_opts
+                                    | AS TRANSACTION START ID
+                                    | AS ROW (BEGIN|START|END)
+                                    | AS LPARENCHAR dbs_non_deterministic_expression RPARENCHAR
+                                    ;
+dbs_generated_opts: common_as_identity_clause | FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP;
 common_as_identity_clause: AS IDENTITY (LPARENCHAR dbs_alter_table_asid_loop (dbs_comma_separator? dbs_alter_table_asid_loop)* RPARENCHAR)?;
 dbs_alter_table_asid_loop: (START WITH INTEGERLITERAL | INCREMENT BY INTEGERLITERAL | NO MINVALUE | MINVALUE INTEGERLITERAL | NO? CYCLE | NO CACHE | CACHE INTEGERLITERAL | NO? ORDER);
-dbs_alter_table_unique: (CONSTRAINT dbs_constraint_name)? (PRIMARY KEY | UNIQUE) LPARENCHAR dbs_column_name_without_alias (dbs_comma_separator dbs_column_name)* (dbs_comma_separator BUSINESS_TIME WITHOUT OVERLAPS)? RPARENCHAR;
+dbs_alter_table_unique_constraint: (CONSTRAINT dbs_constraint_name)? (PRIMARY KEY | UNIQUE) LPARENCHAR dbs_column_name_without_alias (dbs_comma_separator dbs_column_name)* (dbs_comma_separator BUSINESS_TIME WITHOUT OVERLAPS)? RPARENCHAR;
 dbs_alter_table_referential: (CONSTRAINT dbs_constraint_name)? FOREIGN KEY LPARENCHAR dbs_column_name_without_alias (PERIOD BUSINESS_TIME)? (dbs_comma_separator dbs_column_name (PERIOD BUSINESS_TIME)?)* RPARENCHAR common_reference_clause;
 dbs_alter_table_partitioning: RANGE? LPARENCHAR dbs_column_name_without_alias (NULLS LAST)? (ASC|DESC)? (dbs_comma_separator dbs_column_name (NULLS LAST)? (ASC|DESC)?)* RPARENCHAR
                               LPARENCHAR dbs_alter_table_partition (dbs_comma_separator dbs_alter_table_partition)* RPARENCHAR;
 dbs_alter_table_partition: PARTITION INTEGERLITERAL ENDING AT? LPARENCHAR (dbs_constant | MAXVALUE | MINVALUE) (dbs_comma_separator (dbs_constant | MAXVALUE | MINVALUE))* RPARENCHAR INCLUSIVE?;
 dbs_alter_table_mq: LPARENCHAR dbs_fullselect RPARENCHAR DATA INITIALLY DEFERRED REFRESH DEFERRED (MAINTAINED BY (SYSTEM|USER) ((ENABLE|DISABLE) QUERY OPTIMIZATION)? |
                     (ENABLE|DISABLE) QUERY OPTIMIZATION (MAINTAINED BY (SYSTEM|USER))?);
-dbs_alter_table_alter: ALTER (COLUMN? dbs_alter_table_colalt | PARTITION INTEGERLITERAL dbs_alter_table_partition | MATERIALIZED? QUERY dbs_alter_table_mq);
-dbs_alter_table_colalt: dbs_column_name_without_alias (DROP DEFAULT | SET (DATA TYPE dbs_alter_table_bit (INLINE LENGTH INTEGERLITERAL)? | dbs_alter_table_defclause | INLINE LENGTH INTEGERLITERAL | dbs_alter_table_idalt |
+dbs_alter_table_alter: ALTER (COLUMN? dbs_alter_table_colalt | dbs_alter_table_partition | MATERIALIZED? QUERY dbs_alter_table_mq | PARTITIONING TO PARTITION BY dbs_alter_table_partitioning);
+dbs_alter_table_colalt: dbs_column_name_without_alias (DROP DEFAULT | dbs_alter_table_idalt | SET (DATA TYPE dbs_alter_table_bit (INLINE LENGTH INTEGERLITERAL)? | dbs_alter_table_defclause | INLINE LENGTH INTEGERLITERAL |
                         GENERATED ((ALWAYS | BY DEFAULT) dbs_alter_table_idalt? | ALWAYS? (AS TRANSACTION START ID | AS ROW (BEGIN|START|END)))));
 dbs_alter_table_idalt: (RESTART (WITH INTEGERLITERAL)? | SET (INCREMENT BY INTEGERLITERAL | NO MINVALUE | MINVALUE INTEGERLITERAL | NO? CYCLE | NO CACHE | CACHE dbs_integer_constant | NO? ORDER))+;
 dbs_alter_table_rename: RENAME COLUMN dbs_column_name_without_alias TO dbs_column_name_without_alias;
@@ -1402,7 +1416,7 @@ dbs_expression_operator: (CONCAT | PIPECHAR | PIPECHAR2 | SLASHCHAR | ASTERISKCH
 dbs_expressions: dbs_expression (dbs_expression_operator dbs_expression)* (AS common_built_in_type_core)?;
 
 //https://www.ibm.com/support/knowledgecenter/SSEPEK_12.0.0/sqlref/src/tpc/db2z_predicatesoverview.html
-dbs_predicate_condition: (EQUALCHAR | ERRORCHAR EQUALCHAR | LESSTHANCHAR | MORETHANCHAR | MORETHANOREQUAL | LESSTHANOREQUAL | NOTEQUALCHAR);
+dbs_predicate_condition: (EQUALCHAR | LESSTHANCHAR | MORETHANCHAR | MORETHANOREQUAL | LESSTHANOREQUAL | NOTEQUALCHAR | NOTLESSTHANCHAR | NOTMORETHANCHAR );
 dbs_quantified_predicate: dbs_expression dbs_predicate_condition (SOME|ANY|ALL)  LPARENCHAR dbs_select RPARENCHAR;
 dbs_array_exists_predicate: ARRAY_EXISTS LPARENCHAR dbs_sql_identifier dbs_comma_separator INTEGERLITERAL RPARENCHAR;
 dbs_basic_and_distinct_predicate: dbs_expressions (dbs_predicate_condition | IS NOT? DISTINCT FROM) dbs_expressions;
@@ -1581,10 +1595,10 @@ dbs_special_name: ABSOLUTE | ACCELERATION | ACCELERATOR | ACCESS | ACCESSCTRL | 
                 | OPTION | OPTIONAL | OPTIONS | OR | ORDER | ORDINALITY | ORGANIZE | ORIGINAL | OUT | OUTCOME | OUTER
                 | OUTPUT | OVER | OVERLAPS | OVERRIDING | OWNER | OWNERSHIP | PACKADM | PACKAGE | PACKAGE_NAME
                 | PACKAGE_SCHEMA | PACKAGE_VERSION | PACKAGESET | PADDED | PAGE | PAGENUM | PARALLEL | PARAMETER
-                | PART | PARTITION | PARTITIONED | PASSING | PASSWORD | PATH | PCTFREE | PENDING | PERIOD | PERMISSION
-                | PIECESIZE | PLAN | PORTION | POSITIONING | PRECEDING | PRECISION | PREPARE | PRESERVE | PREVIOUS
-                | PRIMARY | PRIOR | PRIQTY | PRIVILEGES | PROCEDURE | PROFILE | PROGRAM | PUBLIC | QUALIFIER | QUERY
-                | QUERYNO | QUOTED_NONE | RANGE | RANK | RATIO_TO_REPORT | READ | READS | RECORDS | RECOVER
+                | PART | PARTITION | PARTITIONED | PARTITIONING | PASSING | PASSWORD | PATH | PCTFREE | PENDING | PERIOD
+                | PERMISSION | PIECESIZE | PLAN | PORTION | POSITIONING | PRECEDING | PRECISION | PREPARE | PRESERVE
+                | PREVIOUS | PRIMARY | PRIOR | PRIQTY | PRIVILEGES | PROCEDURE | PROFILE | PROGRAM | PUBLIC | QUALIFIER
+                | QUERY | QUERYNO | QUOTED_NONE | RANGE | RANK | RATIO_TO_REPORT | READ | READS | RECORDS | RECOVER
                 | RECOVERDB | REF | REFERENCES | REFERENCING | REFRESH | REGENERATE | REGISTERS | RELATIVE | RELEASE
                 | REMOVE | RENAME | REOPT | REORG | REPAIR | REQUIRED | RESET | RESIDENT | RESIGNAL | RESOLUTION
                 | RESPECT | RESTART | RESTRICT | RIGHT | RESULT | RESULT_SET_LOCATOR | RETAIN | RETURN | RETURNED_SQLSTATE
@@ -1754,7 +1768,8 @@ dbs_database_name: dbs_sql_identifier; //TODO check identifier must start with a
 dbs_host_variable:  dbs_host_identifier (INDICATOR?  dbs_host_identifier)?;
 dbs_host_label: COLONCHAR? dbs_sql_identifier;
 dbs_descriptor_name: dbs_host_variable;// dbs_descriptor_name: COLONCHAR? (SQLD | SQLDABC | SQLN | SQLVAR | SQLDA | IDENTIFIER);
-dbs_distinct_type_name: dbs_sql_identifier (DOT_FS dbs_sql_identifier)?; // {validateLength($T.text, "Distinct type name", 128);};
+//dbs_distinct_type_name: dbs_sql_identifier (DOT_FS dbs_sql_identifier)?; // {validateLength($T.text, "Distinct type name", 128);};
+dbs_distinct_type_name: dbs_generic_identifier_without_inbuild_function_names | CHAR_STRING_LITERAL_SINGLE_QUOTE;
 dbs_external_program_name:  dbs_procedure_name;
 dbs_procedure_name: dbs_alias_name | dbs_host_identifier; // {validateLength($T.text, "Procedure name", 128);};
 dbs_profile_name: dbs_sql_identifier;
