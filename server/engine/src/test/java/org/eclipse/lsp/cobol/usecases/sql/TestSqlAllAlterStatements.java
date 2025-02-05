@@ -60,7 +60,7 @@ class TestSqlAllAlterStatements {
   private static final String ALTER_DB =
       TEXT
           + "            EXEC SQL ALTER DATABASE ABCDE BUFFERPOOL BP2\n"
-          + "            INDEXBP BP2 END-EXEC.";
+          + "            INDEXBP BP2 STOGROUP stgrp CCSID 5348 END-EXEC.";
   // ALTER FUNCTION statement
   private static final String ALTER_FUNCTION_EXT =
       TEXT
@@ -408,6 +408,12 @@ class TestSqlAllAlterStatements {
           + "           (PARTITION 3 ending (MAXVALUE))\n"
           + "           end-exec.";
 
+  public static final String ALTER_TABLE16 = TEXT
+          + "           exec sql\n"
+          + "             alter TABLE DSN8C10.DEPT\n"
+          + "             ALTER PARTITION 3 ending (MAXVALUE)\n"
+          + "           end-exec.";
+
   // ALTER TABLESPACE
   private static final String ALTER_TABLESPACE =
       TEXT
@@ -556,6 +562,7 @@ class TestSqlAllAlterStatements {
         ALTER_TABLE13,
         ALTER_TABLE14,
         ALTER_TABLE15,
+        ALTER_TABLE16,
         ALTER_TABLESPACE,
         ALTER_TABLESPACE2,
         ALTER_TABLESPACE3,
