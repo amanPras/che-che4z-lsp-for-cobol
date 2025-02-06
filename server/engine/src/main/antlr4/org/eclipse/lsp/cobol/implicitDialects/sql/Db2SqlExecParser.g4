@@ -96,14 +96,7 @@ dbs_alter_function: (dbs_alter_function_external | dbs_alter_function_compiled |
 dbs_alter_function_sqlTable : SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR ((common_built_in_type_source |
                               dbs_distinct_type_name) (dbs_comma_separator (common_built_in_type_source | dbs_distinct_type_name))*)? RPARENCHAR)?
                               RESTRICT dbs_alter_function_inlineopts;
-dbs_alter_function_external: (SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR ((common_built_in_type_source |
-                             dbs_distinct_type_name) (AS LOCATOR)? (dbs_comma_separator (common_built_in_type_source | dbs_distinct_type_name) (AS LOCATOR)?)*)? RPARENCHAR)?) dbs_alter_function_extopts;
-dbs_alter_function_extopts: (EXTERNAL NAME dbs_external_program_name | LANGUAGE dbs_function_language | PARAMETER STYLE dbs_function_parameter_style | NOT? DETERMINISTIC |
-                            (RETURNS NULL|CALLED) ON NULL INPUT | ((MODIFIES|READS) dbs_exact_match_identifier_sql DATA | (CONTAINS|NO) dbs_exact_match_identifier_sql) | NO? EXTERNAL ACTION | (PACKAGE PATH dbs_package_path | NO PACKAGE PATH) |
-                            (NO SCRATCHPAD | SCRATCHPAD INTEGERLITERAL) | NO? FINAL CALL | (ALLOW|DISALLOW) PARALLEL | NO? DBINFO | CARDINALITY INTEGERLITERAL | (NO COLLID | COLLID dbs_collection_id) | WLM ENVIRONMENT |
-                            (dbs_sql_identifier | LPARENCHAR dbs_sql_identifier dbs_comma_separator ASTERISKCHAR RPARENCHAR) | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | STAY RESIDENT (YES|NO) | PROGRAM TYPE (SUB|MAIN) |
-                            SECURITY (DB2|USER|DEFINER) | (STOP AFTER (SYSTEM DEFAULT|INTEGERLITERAL) FAILURES | CONTINUE AFTER FAILURE) | RUN OPTIONS  dbs_string_constant | (INHERIT|DEFAULT) SPECIAL REGISTERS |
-                            STATIC DISPATCH | NOT? SECURED)+; /*random ordering req */
+dbs_alter_function_external: (SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR (ext_data_type (AS LOCATOR)? (dbs_comma_separator ext_data_type (AS LOCATOR)?)*)? RPARENCHAR)?) (EXTERNAL NAME dbs_external_program_name | dbs_options_list_ext_common_in_create_alter)+;
 dbs_alter_function_compiled: (SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR (dbs_generic_name (common_built_in_type_source | XML | data_type_arr_or_distinct) (dbs_comma_separator dbs_generic_name (common_built_in_type_source |
                              XML | data_type_arr_or_distinct))*)? RPARENCHAR)?) (dbs_alter_function_alter | dbs_alter_function_replace | dbs_alter_function_add | dbs_alter_function_activate | dbs_alter_function_regen | dbs_alter_function_drop);
 dbs_alter_function_alter: ALTER? (ACTIVE VERSION | ALL VERSIONS | VERSION dbs_routine_version_id) dbs_alter_function_compopts;
@@ -1197,9 +1190,10 @@ dbs_option_list: ((LANGUAGE dbs_exact_match_identifier_sql) | option_specific | 
                  option_reopt| option_validate | option_rounding | option_format_date | option_decimal | option_for_update | option_format_time| option_secured| option_sensitive_business|
                  option_sensitive_system | option_sensitive_archive | option_app_compat | option_concentrate_statements)+;
 
-dbs_option_list_ext: (option_specific| option_parameter | EXTERNAL option_name? | option_language | parameter_style dbs_function_parameter_style | option_deterministic |  FENCED | (option_returned_null | option_called) |
-                     option_sqldata3 | option_action | option_package_path | option_scratch| option_final_call| option_allow_parallel| option_dbinfo | option_collid |  option_wlm_env_short | option_asutime |
-                     option_stay_resident | option_program_type | option_security | option_after | option_run | option_registers | option_dispatch | option_secured)+;
+dbs_option_list_ext: (option_specific| option_parameter | EXTERNAL option_name? | FENCED | dbs_options_list_ext_common_in_create_alter)+;
+dbs_options_list_ext_common_in_create_alter: option_language | parameter_style dbs_function_parameter_style | option_deterministic | (option_returned_null | option_called) |
+                     option_sqldata3 | option_action | option_package_path | option_scratch| option_final_call| option_allow_parallel| option_dbinfo | option_collid |  option_wlm_env | option_asutime |
+                     option_stay_resident | option_program_type | option_security | option_after | option_run | option_registers | option_dispatch | option_secured | CARDINALITY INTEGERLITERAL;
 
 dbs_option_list_proc_ext: (option_specific | option_dynamic | option_parameter| EXTERNAL option_name| option_language | option_sql| option_parameter_style| option_deterministic|
                           option_package_path | FENCED| option_dbinfo| option_collid | option_wlm_env | option_asutime | option_stay_resident|  option_program_type| option_security|
@@ -1274,7 +1268,7 @@ option_reopt: REOPT (NONE | ALWAYS | ONCE);
 option_rounding: ROUNDING (DEC_ROUND_CEILING | DEC_ROUND_DOWN | DEC_ROUND_FLOOR | DEC_ROUND_HALF_DOWN | DEC_ROUND_HALF_EVEN | DEC_ROUND_HALF_UP | DEC_ROUND_UP);
 option_run: RUN OPTIONS dbs_string_constant;
 option_scratch: (NO SCRATCHPAD | SCRATCHPAD INTEGERLITERAL?);
-option_security: SECURITY (DB2 | (USER | DEFINER));
+option_security: SECURITY (DB2 | USER | DEFINER);
 option_secured: NOT? SECURED;
 option_sensitive_archive: ARCHIVE SENSITIVE SENSITIVE no_or_yes;
 option_sensitive_business: BUSINESS_TIME SENSITIVE no_or_yes;

@@ -70,6 +70,22 @@ class TestSqlAllAlterStatements {
       TEXT
           + "            EXEC SQL ALTER FUNCTION ENGLES.CENTER (CHAR(25), DEC(5,2),\n"
           + "             INTEGER) RETURNS NULL ON NULL INPUT END-EXEC.";
+
+  /**
+   * This compiles even though <a href="https://www.ibm.com/docs/en/db2-for-zos/13?topic=statements-alter-function-external">doc</a> says it otherwise.
+   * <pre>CARDINALITY is not supported for external scalar functions.</pre>
+   */
+  public static final String ALTER_FUNCTION_EXT3 =
+      TEXT
+          + "           exec sql\n"
+          + "            alter FUNCTION CENTER (INTEGER, FLOAT)\n"
+          + "               EXTERNAL NAME 'MIDDLE'\n"
+          + "               LANGUAGE C\n"
+          + "               PARAMETER STYLE SQL\n"
+          + "               WLM ENVIRONMENT (env, *)\n"
+          + "               CARDINALITY 3\n"
+          + "           end-exec.";
+
   // ALTER FUNCTION (compiled SQL scalar)
   private static final String ALTER_FUNCTION_COMPILED =
       TEXT
@@ -483,6 +499,7 @@ class TestSqlAllAlterStatements {
         ALTER_DB,
         ALTER_FUNCTION_EXT,
         ALTER_FUNCTION_EXT2,
+        ALTER_FUNCTION_EXT3,
         ALTER_FUNCTION_COMPILED,
         ALTER_FUNCTION_COMPILED2,
         ALTER_FUNCTION_COMPILED3,
