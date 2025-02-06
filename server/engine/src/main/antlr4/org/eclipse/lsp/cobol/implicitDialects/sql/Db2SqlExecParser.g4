@@ -1191,7 +1191,7 @@ dbs_option_list: ((LANGUAGE dbs_exact_match_identifier_sql) | option_specific | 
                  option_sensitive_system | option_sensitive_archive | option_app_compat | option_concentrate_statements)+;
 
 dbs_option_list_ext: (option_specific| option_parameter | EXTERNAL option_name? | FENCED | dbs_options_list_ext_common_in_create_alter)+;
-dbs_options_list_ext_common_in_create_alter: option_language | parameter_style dbs_function_parameter_style | option_deterministic | (option_returned_null | option_called) |
+dbs_options_list_ext_common_in_create_alter: option_language | parameter_style dbs_function_parameter_style | option_deterministic | option_returned_null | option_called |
                      option_sqldata3 | option_action | option_package_path | option_scratch| option_final_call| option_allow_parallel| option_dbinfo | option_collid |  option_wlm_env | option_asutime |
                      option_stay_resident | option_program_type | option_security | option_after | option_run | option_registers | option_dispatch | option_secured | CARDINALITY INTEGERLITERAL;
 
