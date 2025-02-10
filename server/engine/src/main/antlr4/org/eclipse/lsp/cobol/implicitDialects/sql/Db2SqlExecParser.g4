@@ -1464,7 +1464,7 @@ dbs_inbuild_functions : ASCII  | AVG | BLOB | BIGINT | BINARY | CARDINALITY | CH
                         | VARCHAR | VARGRAPHIC | VARIANCE | XMLNAMESPACES | XMLTABLE | YEAR;
 
 db2sql_data_types: db2sql_unpack_data_types | VARCHAR | VARBINARY CLOB | BLOB | DBCLOB |
-                    NATIONAL | ASCII | EBCDIC | DBCLOB | ROWID;
+                    NATIONAL | ASCII | EBCDIC | DBCLOB | ROWID | GRAPHIC | INT | FLOAT | DEC | NUMERIC | DECFLOAT;
 
 db2sql_unpack_data_types: SMALLINT | INTEGER | BIGINT | REAL | DOUBLE | DECIMAL | CHAR | CHARACTER | VARBINARY | BINARY | TIMESTAMP | DATE | TIME;
 
