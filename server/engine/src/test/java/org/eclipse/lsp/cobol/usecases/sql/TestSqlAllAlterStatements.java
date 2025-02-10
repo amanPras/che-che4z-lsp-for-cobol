@@ -87,7 +87,7 @@ class TestSqlAllAlterStatements {
           + "           end-exec.";
 
   // ALTER FUNCTION (compiled SQL scalar)
-  private static final String ALTER_FUNCTION_COMPILED =
+  private static final String ALTER_EXTERNAL_FUNCTION =
       TEXT
           + "            EXEC SQL ALTER FUNCTION MY_UDF1 DETERMINISTIC \n"
           + "            END-EXEC.";
@@ -538,12 +538,7 @@ class TestSqlAllAlterStatements {
         ALTER_FUNCTION_EXT,
         ALTER_FUNCTION_EXT2,
         ALTER_FUNCTION_EXT3,
-        ALTER_FUNCTION_COMPILED,
-        ALTER_FUNCTION_COMPILED2,
-        ALTER_FUNCTION_COMPILED3,
-        ALTER_FUNCTION_COMPILED4,
-        ALTER_FUNCTION_COMPILED5,
-        ALTER_FUNCTION_COMPILED6,
+        ALTER_EXTERNAL_FUNCTION,
         ALTER_FUNCTION_INLINED,
         ALTER_FUNCTION_SQL_TABLE,
         ALTER_INDEX,

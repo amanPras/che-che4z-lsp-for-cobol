@@ -98,29 +98,6 @@ class TestSqlAllCreateStatements {
           + "           CCSID ASCII;\n"
           + "           END-EXEC.";
 
-  // CREATE FUNCTION (compiled SQL scalar)
-  private static final String CREATE_FUNCTION_COMPILED =
-      TEXT
-          + "           CREATE FUNCTION REVERSE(INSTR VARCHAR(4000))\n"
-          + "             RETURNS VARCHAR(4000)\n"
-          + "             DETERMINISTIC NO EXTERNAL ACTION CONTAINS SQL\n"
-          + "             BEGIN\n"
-          + "             DECLARE REVSTR, RESTSTR VARCHAR(4000) DEFAULT \"\";\n"
-          + "             DECLARE LEN INT;\n"
-          + "             IF INSTR IS NULL THEN\n"
-          + "             RETURN NULL;\n"
-          + "             END IF;\n"
-          + "             SET (RESTSTR, LEN) = (INSTR, LENGTH(INSTR));\n"
-          + "             WHILE LEN > 0 DO\n"
-          + "             SET (REVSTR, RESTSTR, LEN)\n"
-          + "               = (SUBSTR(RESTSTR, 1, 1) CONCAT REVSTR,\n"
-          + "               SUBSTR(RESTSTR, 2, LEN - 1),\n"
-          + "               LEN - 1);\n"
-          + "             END WHILE;\n"
-          + "            RETURN REVSTR;\n"
-          + "            END\n"
-          + "           END-EXEC.";
-
   // CREATE FUNCTION external scalar
   private static final String CREATE_FUNCTION_EXT =
       TEXT
@@ -886,6 +863,7 @@ class TestSqlAllCreateStatements {
           + "            CREATE TRIGGER NEW_HIRE\n"
           + "                  AFTER INSERT ON EMPLOYEE\n"
           + "                  FOR EACH ROW\n"
+          + "                  MODE DB2SQL\n"
           + "                  BEGIN ATOMIC\n"
           + "                    UPDATE COMPANY_STATS SET NBEMP = NBEMP + 1;\n"
           + "                  END\n"
@@ -897,13 +875,12 @@ class TestSqlAllCreateStatements {
           + "                 AFTER UPDATE OF ON_HAND, MAX_STOCKED ON PARTS\n"
           + "                 REFERENCING NEW AS NROW\n"
           + "                 FOR EACH ROW\n"
+          + "                  MODE DB2SQL\n"
           + "                 WHEN (NROW.ON_HAND < 0.10 * NROW.MAX_STOCKED)\n"
           + "                 BEGIN ATOMIC\n"
-          + "                   DECLARE QTY_ORDERED INTEGER;\n"
-          + "            \n"
+          + "                   insert into tab (QTY_ORDERED)\n"
           + "                   VALUES(ISSUE_SHIP_REQUEST(NROW.MAX_STOCKED \n"
-          + "                   - NROW.ON_HAND, NROW.PARTNO))\n"
-          + "                     INTO QTY_ORDERED;\n"
+          + "                   - NROW.ON_HAND, NROW.PARTNO));\n"
           + "                 END\n"
           + "           END-EXEC.";
 
@@ -913,12 +890,10 @@ class TestSqlAllCreateStatements {
           + "                 AFTER UPDATE OF ON_HAND, MAX_STOCKED ON PARTS\n"
           + "                 REFERENCING NEW_TABLE AS NTABLE\n"
           + "                 FOR EACH STATEMENT\n"
+          + "                  MODE DB2SQL\n"
           + "                   BEGIN ATOMIC\n"
-          + "                     DECLARE QTY_ORDERED INTEGER;\n"
-          + "            \n"
           + "                     SELECT ISSUE_SHIP_REQUEST(MAX_STOCKED - \n"
           + "                        ON_HAND, PARTNO) \n"
-          + "                       INTO QTY_ORDERED\n"
           + "                       FROM NTABLE\n"
           + "                     WHERE (ON_HAND < 0.10 * MAX_STOCKED);\n"
           + "                 END\n"
@@ -931,6 +906,7 @@ class TestSqlAllCreateStatements {
           + "                REFERENCING OLD AS OLD_EMP\n"
           + "                            NEW AS NEW_EMP\n"
           + "                FOR EACH ROW\n"
+          + "                  MODE DB2SQL\n"
           + "                WHEN (NEW_EMP.SALARY > (OLD_EMP.SALARY * 1.20))\n"
           + "                  BEGIN ATOMIC\n"
           + "                    SIGNAL SQLSTATE '75001' \n"
@@ -1056,7 +1032,6 @@ class TestSqlAllCreateStatements {
         CREATE_AUX_TABLE,
         CREATE_DB,
         CREATE_DB2,
-        CREATE_FUNCTION_COMPILED,
         CREATE_FUNCTION_EXT,
         CREATE_FUNCTION_EXT2,
         CREATE_FUNCTION_EXT3,
