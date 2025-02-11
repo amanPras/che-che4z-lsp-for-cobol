@@ -120,25 +120,20 @@ dbs_alter_mask: MASK dbs_mask_name (ENABLE | DISABLE | REGENERATE (USING APPLICA
 dbs_alter_permission: PERMISSION dbs_permission_name (ENABLE | DISABLE | REGENERATE (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?);
 
 /*ALTER PROCEDURE */
-dbs_alter_procedure: PROCEDURE dbs_procedure_name (dbs_alter_procedure_external | dbs_alter_procedure_alter // | dbs_alter_procedure_replace
-                    // | dbs_alter_procedure_add
-                    | dbs_alter_procedure_activate | dbs_alter_procedure_regen | dbs_alter_procedure_drop);
-dbs_alter_procedure_external: (DYNAMIC RESULT SETS INTEGERLITERAL | EXTERNAL NAME (dbs_external_program_name | dbs_sql_identifier) | LANGUAGE dbs_procedure_language | PARAMETER STYLE (dbs_function_parameter_style |
-                              GENERAL (WITH NULLS)?) | NOT? DETERMINISTIC | (PACKAGE PATH dbs_package_path | NO PACKAGE PATH) | ((MODIFIES|READS) dbs_exact_match_identifier_sql DATA | (CONTAINS|NO) dbs_exact_match_identifier_sql) | NO? DBINFO | (NO COLLID |
-                              COLLID dbs_collection_id) | WLM ENVIRONMENT (dbs_sql_identifier | LPARENCHAR dbs_sql_identifier dbs_comma_separator ASTERISKCHAR RPARENCHAR) | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | STAY RESIDENT (YES|NO) |
-                              PROGRAM TYPE (SUB|MAIN) | SECURITY (DB2|USER|DEFINER) | RUN OPTIONS dbs_string_constant | COMMIT ON RETURN (YES|NO) | (INHERIT|DEFAULT) SPECIAL REGISTERS | CALLED ON NULL INPUT |
-                              (STOP AFTER (SYSTEM DEFAULT|INTEGERLITERAL) FAILURES | CONTINUE AFTER FAILURE) | (DISALLOW|ALLOW|DISABLE) DEBUG MODE)+; /*random ordering req */
-dbs_alter_procedure_alter: ALTER? (ACTIVE VERSION | ALL VERSIONS | VERSION dbs_routine_version_id)? dbs_alter_procedure_options;
-dbs_alter_procedure_options: (NOT? DETERMINISTIC | ((MODIFIES|READS) dbs_exact_match_identifier_sql DATA | CONTAINS dbs_exact_match_identifier_sql) | CALLED ON NULL INPUT | DYNAMIC RESULT SETS INTEGERLITERAL | (DISALLOW|ALLOW|DISABLE) DEBUG MODE |
-                                PARAMETER CCSID (ASCII|EBCDIC|UNICODE) | QUALIFIER dbs_schema_name | PACKAGE OWNER dbs_authorization_name | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | ((COMMIT ON RETURN (YES|NO)) |
-                                AUTONOMOUS) | (INHERIT|DEFAULT) SPECIAL REGISTERS | WLM ENVIRONMENT FOR DEBUG MODE dbs_sql_identifier | (DEFER|NODEFER) PREPARE | CURRENT DATA (YES|NO) | option_degree |
-                                CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME) | DYNAMICRULES (RUN|BIND|DEFINERUN|DEFINEBIND|INVOKERUN|INVOKEBIND) | APPLICATION ENCODING SCHEME (ASCII|EBCDIC|UNICODE) |
-                                (WITH|WITHOUT) EXPLAIN | (WITH|WITHOUT) IMMEDIATE WRITE | ISOLATION LEVEL (CS|RS|RR|UR) | (WITH|WITHOUT) KEEP DYNAMIC | OPTHINT (DOUBLEQUOTE|dbs_string_constant) | dbs_exact_match_identifier_sql PATH (dbs_schema_name | SYSTEM PATH |
-                                SESSION? USER) (dbs_comma_separator (dbs_schema_name | SYSTEM PATH | SESSION? USER))* | RELEASE AT (COMMIT | DEALLOCATE) | QUERY ACCELERATION (NONE|ELIGIBLE|ALL|ENABLE (WITH FAILBACK)?) | GET_ACCEL_ARCHIVE (YES|NO) |
-                                ACCELERATION WAITFORDATA dbs_nnnn_m | ACCELERATOR dbs_accelerator_name | REOPT (NONE|ALWAYS|ONCE) | VALIDATE (RUN|BIND) |
-                                ROUNDING (DEC_ROUND_CEILING|DEC_ROUND_DOWN|DEC_ROUND_FLOOR|DEC_ROUND_HALF_DOWN|DEC_ROUND_HALF_EVEN|DEC_ROUND_HALF_UP|DEC_ROUND_UP) | DATE FORMAT (ISO|EUR|USA|JIS|LOCAL) |
-                                option_decimal | FOR UPDATE CLAUSE (REQUIRED|OPTIONAL) | TIME FORMAT (ISO|EUR|USA|JIS|LOCAL) | BUSINESS_TIME SENSITIVE (YES|NO) | SYSTEM_TIME SENSITIVE (YES|NO) |
-                                ARCHIVE SENSITIVE (YES|NO) | APPLCOMPAT dbs_applcompat_value | CONCENTRATE STATEMENTS (OFF|WITH LITERALS))*; /*random ordering req */
+dbs_alter_procedure: dbs_procedure_alter_external;
+
+dbs_procedure_alter_external: PROCEDURE dbs_procedure_name dbs_option_list_proc_ext_altr_create+;
+//dbs_alter_procedure_alter: ALTER? (ACTIVE VERSION | ALL VERSIONS | VERSION dbs_routine_version_id)? dbs_alter_procedure_options;
+//dbs_alter_procedure_options: (NOT? DETERMINISTIC | ((MODIFIES|READS) dbs_exact_match_identifier_sql DATA | CONTAINS dbs_exact_match_identifier_sql) | CALLED ON NULL INPUT | DYNAMIC RESULT SETS INTEGERLITERAL | (DISALLOW|ALLOW|DISABLE) DEBUG MODE |
+//                                PARAMETER CCSID (ASCII|EBCDIC|UNICODE) | QUALIFIER dbs_schema_name | PACKAGE OWNER dbs_authorization_name | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | ((COMMIT ON RETURN (YES|NO)) |
+//                                AUTONOMOUS) | (INHERIT|DEFAULT) SPECIAL REGISTERS | WLM ENVIRONMENT FOR DEBUG MODE dbs_sql_identifier | (DEFER|NODEFER) PREPARE | CURRENT DATA (YES|NO) | option_degree |
+//                                CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME) | DYNAMICRULES (RUN|BIND|DEFINERUN|DEFINEBIND|INVOKERUN|INVOKEBIND) | APPLICATION ENCODING SCHEME (ASCII|EBCDIC|UNICODE) |
+//                                (WITH|WITHOUT) EXPLAIN | (WITH|WITHOUT) IMMEDIATE WRITE | ISOLATION LEVEL (CS|RS|RR|UR) | (WITH|WITHOUT) KEEP DYNAMIC | OPTHINT (DOUBLEQUOTE|dbs_string_constant) | dbs_exact_match_identifier_sql PATH (dbs_schema_name | SYSTEM PATH |
+//                                SESSION? USER) (dbs_comma_separator (dbs_schema_name | SYSTEM PATH | SESSION? USER))* | RELEASE AT (COMMIT | DEALLOCATE) | QUERY ACCELERATION (NONE|ELIGIBLE|ALL|ENABLE (WITH FAILBACK)?) | GET_ACCEL_ARCHIVE (YES|NO) |
+//                                ACCELERATION WAITFORDATA dbs_nnnn_m | ACCELERATOR dbs_accelerator_name | REOPT (NONE|ALWAYS|ONCE) | VALIDATE (RUN|BIND) |
+//                                ROUNDING (DEC_ROUND_CEILING|DEC_ROUND_DOWN|DEC_ROUND_FLOOR|DEC_ROUND_HALF_DOWN|DEC_ROUND_HALF_EVEN|DEC_ROUND_HALF_UP|DEC_ROUND_UP) | DATE FORMAT (ISO|EUR|USA|JIS|LOCAL) |
+//                                option_decimal | FOR UPDATE CLAUSE (REQUIRED|OPTIONAL) | TIME FORMAT (ISO|EUR|USA|JIS|LOCAL) | BUSINESS_TIME SENSITIVE (YES|NO) | SYSTEM_TIME SENSITIVE (YES|NO) |
+//                                ARCHIVE SENSITIVE (YES|NO) | APPLCOMPAT dbs_applcompat_value | CONCENTRATE STATEMENTS (OFF|WITH LITERALS))*; /*random ordering req */
 //dbs_alter_procedure_replace: REPLACE (ACTIVE VERSION | VERSION dbs_routine_version_id)? (LPARENCHAR dbs_alter_procedure_paramdec (dbs_comma_separator dbs_alter_procedure_paramdec)* RPARENCHAR)? dbs_alter_procedure_options dbs_sql_procedure_statement;
 //dbs_alter_procedure_paramdec: (IN|OUT|INOUT)? dbs_parameter_name (dbs_alter_procedure_bit | data_type_arr_or_distinct);
 //dbs_alter_procedure_bit: (dbs_alter_procedure_bit_int | dbs_alter_procedure_bit_decimal | dbs_alter_procedure_bit_float | dbs_alter_procedure_bit_decfloat | dbs_alter_procedure_bit_char | dbs_alter_procedure_bit_clob |
@@ -157,9 +152,9 @@ dbs_alter_procedure_bit_graphic: (GRAPHIC (LPARENCHAR INTEGERLITERAL RPARENCHAR)
 //dbs_alter_procedure_bit_binary: (BINARY (LPARENCHAR INTEGERLITERAL RPARENCHAR)? | (BINARY VARYING | VARBINARY) LPARENCHAR INTEGERLITERAL RPARENCHAR | (BINARY LARGE OBJECT | BLOB) (LPARENCHAR kmg_blob_parameter RPARENCHAR)?);
 dbs_alter_procedure_bit_timestamp: TIMESTAMP (LPARENCHAR INTEGERLITERAL RPARENCHAR)? option_timezone?;
 //dbs_alter_procedure_add: ADD VERSION dbs_routine_version_id (LPARENCHAR dbs_alter_procedure_paramdec (dbs_comma_separator dbs_alter_procedure_paramdec)* RPARENCHAR)? dbs_alter_procedure_options dbs_sql_procedure_statement;
-dbs_alter_procedure_activate: ACTIVATE VERSION dbs_routine_version_id;
-dbs_alter_procedure_regen: REGENERATE (ACTIVE VERSION | VERSION dbs_routine_version_id)? (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?;
-dbs_alter_procedure_drop: DROP VERSION dbs_routine_version_id;
+//dbs_alter_procedure_activate: ACTIVATE VERSION dbs_routine_version_id;
+//dbs_alter_procedure_regen: REGENERATE (ACTIVE VERSION | VERSION dbs_routine_version_id)? (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?;
+//dbs_alter_procedure_drop: DROP VERSION dbs_routine_version_id;
 
 /*ALTER SEQUENCE */
 dbs_alter_sequence: SEQUENCE dbs_sequence_name dbs_alter_sequence_loop (dbs_comma_separator? dbs_alter_sequence_loop)*;
@@ -426,7 +421,8 @@ dbs_create_mask: MASK dbs_mask_name ON dbs_table_name (AS? dbs_correlation_name)
 dbs_create_permission: PERMISSION dbs_permission_name ON dbs_table_name (AS? dbs_correlation_name)? FOR ROWS WHERE dbs_search_condition ENFORCED FOR ALL ACCESS  (DISABLE | ENABLE)?;
 
 //CREATE PROCEDURE - EXTERNAL
-dbs_create_procedure_ext: (OR REPLACE)? PROCEDURE? dbs_procedure_name  (LPARENCHAR dbs_create_procedure_ext_pdecl (dbs_comma_separator dbs_create_procedure_ext_pdecl)* RPARENCHAR)? dbs_option_list_proc_ext;
+dbs_create_procedure_ext: (OR REPLACE)? PROCEDURE dbs_procedure_name  (LPARENCHAR dbs_create_procedure_ext_args_signature? RPARENCHAR)? dbs_option_list_proc_ext;
+dbs_create_procedure_ext_args_signature: dbs_create_procedure_ext_pdecl (dbs_comma_separator dbs_create_procedure_ext_pdecl)*;
 dbs_create_procedure_ext_pdecl: (IN | OUT | INOUT)? dbs_parameter_name? dbs_create_procedure_ext_ptype;
 dbs_create_procedure_ext_ptype:  (common_built_in_type | dbs_distinct_type_name) (AS LOCATOR)?  | TABLE LIKE dbs_alias_name AS LOCATOR; //built-in-type change
 
@@ -1167,9 +1163,11 @@ dbs_options_list_ext_common_in_create_alter: option_language | parameter_style d
                      option_sqldata3 | option_action | option_package_path | option_scratch| option_final_call| option_allow_parallel| option_dbinfo | option_collid |  option_wlm_env | option_asutime |
                      option_stay_resident | option_program_type | option_security | option_after | option_run | option_registers | option_dispatch | option_secured | CARDINALITY INTEGERLITERAL;
 
-dbs_option_list_proc_ext: (option_specific | option_dynamic | option_parameter| EXTERNAL option_name| option_language | option_sql| option_parameter_style| option_deterministic|
-                          option_package_path | FENCED| option_dbinfo| option_collid | option_wlm_env | option_asutime | option_stay_resident|  option_program_type| option_security|
-                          option_after | option_run | option_commit |  option_registers | option_called | option_debug_mode)+;
+dbs_option_list_proc_ext: (option_specific | option_parameter| FENCED | dbs_option_list_proc_ext_altr_create)+;
+
+dbs_option_list_proc_ext_altr_create: option_dynamic | EXTERNAL option_name | option_language | option_parameter_style | option_deterministic | option_package_path
+                        | option_sql | option_dbinfo | option_collid | option_wlm_env | option_asutime | option_stay_resident | option_program_type
+                        | option_security | option_run | option_commit | option_registers | option_called | option_after | option_debug_mode;
 
 dbs_option_list_ext_table: (option_specific | option_parameter | EXTERNAL option_name | option_language | parameter_style dbs_exact_match_identifier_sql | option_deterministic| FENCED| (option_returned_null | option_called)|
                            option_sqldata| option_action | option_package_path| option_scratch | option_final_call | DISALLOW PARALLEL | option_dbinfo| option_cardinality| option_collid|
@@ -1211,7 +1209,7 @@ option_dbinfo: NO? DBINFO;
 option_debug_mode: (DISALLOW | ALLOW | DISABLE) DEBUG MODE;
 option_decimal: DECIMAL LPARENCHAR dbs_decimal_15_31 (dbs_comma_separator dbs_char_s)? RPARENCHAR;
 //option_defer: (DEFER | NODEFER) PREPARE;
-option_degree: DEGREE  (T=INTEGERLITERAL  {validateLevel($T.text);} | ANY);
+//option_degree: DEGREE  (T=INTEGERLITERAL  {validateLevel($T.text);} | ANY);
 option_deterministic: NOT? DETERMINISTIC;
 option_dispatch: STATIC DISPATCH;
 option_dynamic: DYNAMIC RESULT SETS INTEGERLITERAL;
@@ -1586,7 +1584,7 @@ dbs_include_data_type: dbs_alter_procedure_bit_int | dbs_alter_procedure_bit_dec
 dbs_jobname_value: dbs_string_constant;
 dbs_insert_algorithm_level: INTEGERLITERAL {validateTokenWithRegex($INTEGERLITERAL.text, "^0*[12]$", "level 1 and 2 are only allowed");};
 dbs_create_algorithm_level: INTEGERLITERAL {validateTokenWithRegex($INTEGERLITERAL.text, "^0*[0-2]$", "level 0, 1 and 2 are only allowed");};
-dbs_nnnn_m: NUMERICLITERAL {validateTokenWithRegex($NUMERICLITERAL.text, "^\\d{4}\\.\\d$", "a DECIMAL(5,1) numeric-constant is only allowed");};
+//dbs_nnnn_m: NUMERICLITERAL {validateTokenWithRegex($NUMERICLITERAL.text, "^\\d{4}\\.\\d$", "a DECIMAL(5,1) numeric-constant is only allowed");};
 dbs_non_deterministic_expression: DATA CHANGE OPERATION | dbs_special_register | dbs_session_variable;
 dbs_session_variable : SYSIBM DOT_FS PACKAGE_NAME | SYSIBM DOT_FS PACKAGE_SCHEMA | SYSIBM DOT_FS PACKAGE_VERSION;
 dbs_obfuscated_statement_text: dbs_constant+ ;
@@ -1752,7 +1750,7 @@ dbs_pagenum_char_a_r: IDENTIFIER;
 dbs_char_s: IDENTIFIER;
 dbs_function_language: IDENTIFIER ;
 dbs_function_parameter_style: IDENTIFIER;
-dbs_procedure_language: IDENTIFIER;
+//dbs_procedure_language: IDENTIFIER;
 oneof_lang: IDENTIFIER;
 dbs_exact_match_identifier_sql: IDENTIFIER;
 dbs_k_m_g_identifier: IDENTIFIER;

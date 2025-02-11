@@ -114,16 +114,6 @@ public class Db2SqlExecValidatorVisitor extends Db2SqlExecParserBaseVisitor<List
   }
 
   @Override
-  public List<Node> visitDbs_procedure_language(
-      Db2SqlExecParser.Dbs_procedure_languageContext ctx) {
-    validateTokenWithRegex(
-        ctx,
-        "(?i)\\b(ASSEMBLE|C|COBOL|JAVA|PLI|REXX)\\b",
-        "unknown token. Supported tokens are JAVA, ASSEMBLE, C, COBOL, PLI, REXX");
-    return visitChildren(ctx);
-  }
-
-  @Override
   public List<Node> visitOneof_lang(Db2SqlExecParser.Oneof_langContext ctx) {
     validateTokenWithRegex(
         ctx,
