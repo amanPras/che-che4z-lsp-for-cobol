@@ -241,41 +241,7 @@ class TestSqlAllCreateStatements {
           + "           SOURCE SMITH.CENTER (INTEGER, FLOAT);\n"
           + "           END-EXEC.";
 
-  // CREATE FUNCTION (SQL table)
-  private static final String CREATE_FUNCTION_SQL_TABLE =
-      TEXT
-          + "           CREATE FUNCTION JTABLE (COLD_VALUE CHAR(9), T2_FLAG CHAR(1))\n"
-          + "               RETURNS TABLE (COLA INT, COLB INT, COLC INT)\n"
-          + "               LANGUAGE SQL\n"
-          + "               SPECIFIC DEPTINFO\n"
-          + "               NOT DETERMINISTIC\n"
-          + "               READS SQL DATA\n"
-          + "               RETURN\n"
-          + "                   SELECT A.COLA, B.COLB, B.COLC\n"
-          + "                   FROM TABLE1 AS A\n"
-          + "                   LEFT OUTER JOIN\n"
-          + "                   TABLE2 AS B\n"
-          + "                   ON A.COL1 = B.COL1 AND T2_FLAG = 'Y'\n"
-          + "                   WHERE A.COLD = COLD_VALUE;\n"
-          + "           END-EXEC.";
-
-  // CREATE FUNCTION (SQL table)
-  private static final String CREATE_FUNCTION_SQL_TABLE2 =
-      TEXT
-          + "           CREATE FUNCTION DEPTEMPLOYEES (DEPTNO CHAR(3))\n"
-          + "               RETURNS TABLE (EMPNO CHAR(6), LASTNAME VARCHAR(15),\n"
-          + "                                FIRSTNAME VARCHAR(12))\n"
-          + "               LANGUAGE SQL\n"
-          + "               READS SQL DATA\n"
-          + "               NO EXTERNAL ACTION\n"
-          + "               DETERMINISTIC\n"
-          + "               RETURN\n"
-          + "                 SELECT EMPNO, LASTNAME, FIRSTNME\n"
-          + "                 FROM YEMP\n"
-          + "                        WHERE YEMP.WORKDEPT = DEPTEMPLOYEES.DEPTNO;\n"
-          + "           END-EXEC.";
-
-  // CREATE GLOBAL TEMPORARY TABLE
+    // CREATE GLOBAL TEMPORARY TABLE
   private static final String CREATE_GLOBAL_TMP_TABLE =
       TEXT
           + "           CREATE GLOBAL TEMPORARY TABLE CURRENTMAP\n"
@@ -1043,8 +1009,6 @@ class TestSqlAllCreateStatements {
         CREATE_FUNCTION_INLINED,
         CREATE_FUNCTION_SOURCED,
         CREATE_FUNCTION_SOURCED2,
-//        CREATE_FUNCTION_SQL_TABLE,
-//        CREATE_FUNCTION_SQL_TABLE2,
         CREATE_GLOBAL_TMP_TABLE,
         CREATE_GLOBAL_TMP_TABLE2,
         CREATE_INDEX,
