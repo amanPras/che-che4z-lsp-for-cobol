@@ -250,18 +250,16 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.arch == 'x64'
         with:
           java-version: ${{ env.graalvm-version }}
-          components: 'native-image'
           distribution: 'graalvm-community'
           native-image-musl: 'true'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ## uncomment me if you need native image job reports
           # native-image-job-reports: 'true'
           cache: 'maven'
-      - uses: graalvm/setup-graalvm@v1
+      - uses: graalvm/setup-graalvm@v1.2.8
         if: matrix.os != 'ubuntu-latest' || matrix.arch != 'x64'
         with:
           java-version: ${{ env.graalvm-version }}
-          components: 'native-image'
           distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ## uncomment me if you need native image job reports
