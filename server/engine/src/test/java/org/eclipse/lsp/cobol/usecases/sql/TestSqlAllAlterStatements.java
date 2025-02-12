@@ -192,7 +192,33 @@ class TestSqlAllAlterStatements {
           + "              ALTER PROCEDURE SYSPROC.MYPROC WLM ENVIRONMENT PARTSEC\n"
           + "            END-EXEC.";
 
-    // ALTER SEQUENCE
+  // ALTER PROCEDURE SQL external
+  private static final String ALTER_PROCEDURE_SQL_NATIVE =
+          TEXT
+                  + "            EXEC SQL\n"
+                  + "            ALTER PROCEDURE UPDATE_SALARY_1\n"
+                  + "            ALTER ACTIVE VERSION\n"
+                  + "            NOT DETERMINISTIC\n"
+                  + "            CALLED ON NULL INPUT\n"
+                  + "            ALLOW DEBUG MODE\n"
+                  + "            ASUTIME LIMIT 10\n"
+                  + "            END-EXEC.";
+
+  private static final String ALTER_PROCEDURE_SQL_NATIVE4 =
+          TEXT
+                  + "            EXEC SQL\n"
+                  + "            ALTER PROCEDURE UPDATE_SALARY_1\n"
+                  + "            ACTIVATE VERSION V3\n"
+                  + "            END-EXEC.";
+
+  private static final String ALTER_PROCEDURE_SQL_NATIVE5 =
+          TEXT
+                  + "            EXEC SQL\n"
+                  + "            ALTER PROCEDURE UPDATE_SALARY_1\n"
+                  + "            REGENERATE ACTIVE VERSION\n"
+                  + "            END-EXEC.";
+
+  // ALTER SEQUENCE
   private static final String ALTER_SEQUENCE =
       TEXT
           + "            EXEC SQL\n"
@@ -462,6 +488,9 @@ class TestSqlAllAlterStatements {
         ALTER_PERMISSION,
         ALTER_PERMISSION2,
         ALTER_PROCEDURE_EXT,
+        ALTER_PROCEDURE_SQL_NATIVE,
+        ALTER_PROCEDURE_SQL_NATIVE4,
+        ALTER_PROCEDURE_SQL_NATIVE5,
         ALTER_SEQUENCE,
         ALTER_STOGROUP,
         ALTER_STOGROUP2,

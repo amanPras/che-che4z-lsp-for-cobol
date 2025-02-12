@@ -138,9 +138,13 @@ dbs_alter_mask: MASK dbs_mask_name (ENABLE | DISABLE | REGENERATE (USING APPLICA
 dbs_alter_permission: PERMISSION dbs_permission_name (ENABLE | DISABLE | REGENERATE (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?);
 
 /*ALTER PROCEDURE */
-dbs_alter_procedure: dbs_procedure_alter_external;
+dbs_alter_procedure: PROCEDURE dbs_procedure_name (dbs_procedure_alter_external
+                    | dbs_alter_procedure_alter_sql_native
+                    | dbs_alter_procedure_activate_sql_native
+                    | dbs_alter_procedure_regen_sql_native
+                    | dbs_alter_procedure_drop_sql_native);
 
-dbs_procedure_alter_external: PROCEDURE dbs_procedure_name dbs_option_list_proc_ext_altr_create+;
+dbs_procedure_alter_external: dbs_option_list_proc_ext_altr_create+;
 dbs_alter_procedure_bit_int: (SMALLINT | INT | INTEGER | BIGINT);
 dbs_alter_procedure_bit_decimal: (DECIMAL | DEC | NUMERIC) (LPARENCHAR INTEGERLITERAL (dbs_comma_separator INTEGERLITERAL)? RPARENCHAR)?;
 dbs_alter_procedure_bit_float: (FLOAT (LPARENCHAR INTEGERLITERAL RPARENCHAR)? | REAL | DOUBLE PRECISION?);
@@ -153,6 +157,20 @@ dbs_alter_procedure_bit_cloba: (LPARENCHAR kmg_blob_parameter RPARENCHAR)? (FOR 
 dbs_alter_procedure_bit_graphic: (GRAPHIC (LPARENCHAR INTEGERLITERAL RPARENCHAR)? | VARGRAPHIC LPARENCHAR INTEGERLITERAL RPARENCHAR | DBCLOB (LPARENCHAR kmg_blob_parameter RPARENCHAR)?) (CCSID oneof_encoding)?;
 dbs_alter_procedure_bit_timestamp: TIMESTAMP (LPARENCHAR INTEGERLITERAL RPARENCHAR)? option_timezone?;
 
+dbs_alter_procedure_alter_sql_native: ALTER? (ACTIVE VERSION | ALL VERSIONS | VERSION dbs_routine_version_id)? dbs_alter_procedure_options;
+dbs_alter_procedure_activate_sql_native: ACTIVATE VERSION dbs_routine_version_id;
+dbs_alter_procedure_regen_sql_native: REGENERATE (ACTIVE VERSION | VERSION dbs_routine_version_id)? (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?;
+dbs_alter_procedure_drop_sql_native: DROP VERSION dbs_routine_version_id;
+dbs_alter_procedure_options: (NOT? DETERMINISTIC | ((MODIFIES|READS) dbs_exact_match_identifier_sql DATA | CONTAINS dbs_exact_match_identifier_sql) | CALLED ON NULL INPUT | DYNAMIC RESULT SETS INTEGERLITERAL | (DISALLOW|ALLOW|DISABLE) DEBUG MODE |
+                                PARAMETER CCSID (ASCII|EBCDIC|UNICODE) | QUALIFIER dbs_schema_name | PACKAGE OWNER dbs_authorization_name | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | ((COMMIT ON RETURN (YES|NO)) |
+                                AUTONOMOUS) | (INHERIT|DEFAULT) SPECIAL REGISTERS | WLM ENVIRONMENT FOR DEBUG MODE dbs_sql_identifier | (DEFER|NODEFER) PREPARE | CURRENT DATA (YES|NO) | option_degree |
+                                CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME) | DYNAMICRULES (RUN|BIND|DEFINERUN|DEFINEBIND|INVOKERUN|INVOKEBIND) | APPLICATION ENCODING SCHEME (ASCII|EBCDIC|UNICODE) |
+                                (WITH|WITHOUT) EXPLAIN | (WITH|WITHOUT) IMMEDIATE WRITE | ISOLATION LEVEL (CS|RS|RR|UR) | (WITH|WITHOUT) KEEP DYNAMIC | OPTHINT (DOUBLEQUOTE|dbs_string_constant) | dbs_exact_match_identifier_sql PATH (dbs_schema_name | SYSTEM PATH |
+                                SESSION? USER) (dbs_comma_separator (dbs_schema_name | SYSTEM PATH | SESSION? USER))* | RELEASE AT (COMMIT | DEALLOCATE) | QUERY ACCELERATION (NONE|ELIGIBLE|ALL|ENABLE (WITH FAILBACK)?) | GET_ACCEL_ARCHIVE (YES|NO) |
+                                ACCELERATION WAITFORDATA dbs_nnnn_m | ACCELERATOR dbs_accelerator_name | REOPT (NONE|ALWAYS|ONCE) | VALIDATE (RUN|BIND) |
+                                ROUNDING (DEC_ROUND_CEILING|DEC_ROUND_DOWN|DEC_ROUND_FLOOR|DEC_ROUND_HALF_DOWN|DEC_ROUND_HALF_EVEN|DEC_ROUND_HALF_UP|DEC_ROUND_UP) | DATE FORMAT (ISO|EUR|USA|JIS|LOCAL) |
+                                option_decimal | FOR UPDATE CLAUSE (REQUIRED|OPTIONAL) | TIME FORMAT (ISO|EUR|USA|JIS|LOCAL) | BUSINESS_TIME SENSITIVE (YES|NO) | SYSTEM_TIME SENSITIVE (YES|NO) |
+                                ARCHIVE SENSITIVE (YES|NO) | APPLCOMPAT dbs_applcompat_value | CONCENTRATE STATEMENTS (OFF|WITH LITERALS))*; /*random ordering req */
 /*ALTER SEQUENCE */
 dbs_alter_sequence: SEQUENCE dbs_sequence_name dbs_alter_sequence_loop (dbs_comma_separator? dbs_alter_sequence_loop)*;
 dbs_alter_sequence_loop: (RESTART (WITH INTEGERLITERAL)? | (INCREMENT BY|MINVALUE|MAXVALUE) INTEGERLITERAL | NO (MINVALUE|MAXVALUE) | NO? (CYCLE|ORDER) | NO CACHE | CACHE dbs_integer_constant);
