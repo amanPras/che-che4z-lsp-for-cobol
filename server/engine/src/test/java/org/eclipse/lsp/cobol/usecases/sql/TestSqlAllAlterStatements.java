@@ -92,6 +92,31 @@ class TestSqlAllAlterStatements {
           + "            EXEC SQL ALTER FUNCTION MY_UDF1 DETERMINISTIC \n"
           + "            END-EXEC.";
 
+  private static final String ALTER_FUNCTION_COMPILED2 =
+          TEXT
+                  + "            EXEC SQL ALTER FUNCTION REVERSE\n"
+                  + "            ALTER ACTIVE VERSION\n"
+                  + "            NOT DETERMINISTIC\n"
+                  + "            ALLOW DEBUG MODE END-EXEC.";
+
+  private static final String ALTER_FUNCTION_COMPILED5 =
+          TEXT
+                  + "            EXEC SQL ALTER FUNCTION REVERSE(INSTR VARCHAR(4000))\n"
+                  + "            ACTIVATE VERSION V3\n"
+                  + "            END-EXEC.";
+
+  private static final String ALTER_FUNCTION_COMPILED6 =
+          TEXT
+                  + "            EXEC SQL ALTER FUNCTION REVERSE(INSTR VARCHAR(4000))\n"
+                  + "            REGENERATE ACTIVE VERSION\n"
+                  + "            END-EXEC.";
+
+  private static final String ALTER_FUNCTION_SQL_TABLE =
+          TEXT
+                  + "            EXEC SQL ALTER FUNCTION GET_TABLE\n"
+                  + "            RESTRICT CARDINALITY 10000\n"
+                  + "            END-EXEC.";
+
   // ALTER FUNCTION (inlined SQL scalar)
   private static final String ALTER_FUNCTION_INLINED =
       TEXT
@@ -424,6 +449,10 @@ class TestSqlAllAlterStatements {
         ALTER_FUNCTION_EXT3,
         ALTER_EXTERNAL_FUNCTION,
         ALTER_FUNCTION_INLINED,
+        ALTER_FUNCTION_COMPILED2,
+        ALTER_FUNCTION_COMPILED5,
+        ALTER_FUNCTION_COMPILED6,
+        ALTER_FUNCTION_SQL_TABLE,
         ALTER_INDEX,
         ALTER_INDEX2,
         ALTER_INDEX3,

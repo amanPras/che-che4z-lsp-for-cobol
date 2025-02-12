@@ -114,6 +114,13 @@ class TestSqlAllCreateStatements {
           + "               NO EXTERNAL ACTION;\n"
           + "           END-EXEC.";
 
+  public static final String CREATE_FUNCTION_EXT_NO_OPTIONS =
+          TEXT
+          + "                 CREATE FUNCTION REVERSE(INSTR VARCHAR(4000))\n"
+          + "                 RETURNS VARCHAR(4000)\n"
+          + "                 return null \n"
+          + "           END-EXEC.";
+
   private static final String CREATE_FUNCTION_EXT2 =
       TEXT
           + "           CREATE FUNCTION CENTER (INTEGER, FLOAT)\n"
@@ -999,6 +1006,7 @@ class TestSqlAllCreateStatements {
         CREATE_DB,
         CREATE_DB2,
         CREATE_FUNCTION_EXT,
+        CREATE_FUNCTION_EXT_NO_OPTIONS,
         CREATE_FUNCTION_EXT2,
         CREATE_FUNCTION_EXT3,
         CREATE_FUNCTION_EXT4,
