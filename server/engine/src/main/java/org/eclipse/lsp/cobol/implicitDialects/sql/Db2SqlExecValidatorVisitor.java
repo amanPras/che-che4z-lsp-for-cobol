@@ -123,13 +123,6 @@ public class Db2SqlExecValidatorVisitor extends Db2SqlExecParserBaseVisitor<List
   }
 
   @Override
-  public List<Node> visitDbs_exact_match_identifier_sql(
-      Db2SqlExecParser.Dbs_exact_match_identifier_sqlContext ctx) {
-    validateValue(ctx, "SQL");
-    return visitChildren(ctx);
-  }
-
-  @Override
   public List<Node> visitDbs_k_m_g_identifier(Db2SqlExecParser.Dbs_k_m_g_identifierContext ctx) {
     validateTokenWithRegex(ctx, "(?i)\\b(K|M|G)\\b", "unknown token. Supported tokens is K, M, G");
     return visitChildren(ctx);

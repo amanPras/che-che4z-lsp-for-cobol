@@ -92,12 +92,14 @@ dbs_alter: ALTER (dbs_alter_database | dbs_alter_function | dbs_alter_index | db
 dbs_alter_database: DATABASE dbs_database_name (BUFFERPOOL dbs_bp_name | INDEXBP dbs_bp_name | STOGROUP dbs_stogroup_name | CCSID INTEGERLITERAL)+;
 
 /*ALTER FUNCTION */
-dbs_alter_function: (dbs_alter_function_external | dbs_alter_function_inline | dbs_alter_function_compiled | dbs_alter_function_sqlTable);
-
+dbs_alter_function: (dbs_alter_function_external | dbs_alter_function_compiled | dbs_alter_function_inline | dbs_alter_function_sqlTable);
+dbs_alter_function_sqlTable : SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR ((common_built_in_type_source |
+                              dbs_distinct_type_name) (dbs_comma_separator (common_built_in_type_source | dbs_distinct_type_name))*)? RPARENCHAR)?
+                              RESTRICT dbs_alter_function_inlineopts;
 dbs_alter_function_external: (SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR (ext_data_type (AS LOCATOR)? (dbs_comma_separator ext_data_type (AS LOCATOR)?)*)? RPARENCHAR)?) (EXTERNAL NAME dbs_external_program_name | dbs_options_list_ext_common_in_create_alter)+;
 dbs_alter_function_inline: (SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR ((common_built_in_type_source | XML | dbs_distinct_type_name) (dbs_comma_separator (common_built_in_type_source |
                             XML | dbs_distinct_type_name))*)? RPARENCHAR)?) dbs_alter_function_inlineopts; /*this is for both "inlined SQL scalar" and "SQL table" as they are basically identical - only two extra options in "table" */
-dbs_alter_function_inlineopts: (NOT? DETERMINISTIC | NO? EXTERNAL ACTION | (CONTAINS dbs_exact_match_identifier_sql|READS dbs_exact_match_identifier_sql DATA) | STATIC DISPATCH | CALLED ON NULL INPUT | NOT? SECURED | INHERIT SPECIAL REGISTERS | CARDINALITY INTEGERLITERAL)+; /*random ordering req */
+dbs_alter_function_inlineopts: (NOT? DETERMINISTIC | NO? EXTERNAL ACTION | (CONTAINS SQL | READS SQL DATA) | STATIC DISPATCH | CALLED ON NULL INPUT | NOT? SECURED | INHERIT SPECIAL REGISTERS | CARDINALITY INTEGERLITERAL)+; /*random ordering req */
 
 dbs_alter_function_compiled: (SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR (dbs_generic_name (common_built_in_type_source | XML | data_type_arr_or_distinct) (dbs_comma_separator dbs_generic_name (common_built_in_type_source |
                              XML | data_type_arr_or_distinct))*)? RPARENCHAR)?) (dbs_alter_function_alter | dbs_alter_function_activate | dbs_alter_function_regen | dbs_alter_function_drop);
@@ -106,19 +108,15 @@ dbs_alter_function_activate: ACTIVATE VERSION dbs_routine_version_id;
 dbs_alter_function_regen: REGENERATE (ACTIVE VERSION | VERSION dbs_routine_version_id) (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?;
 dbs_alter_function_drop: DROP VERSION dbs_routine_version_id;
 
-dbs_alter_function_compopts: (NOT? DETERMINISTIC | NO? EXTERNAL ACTION | ((READS|MODIFIES) dbs_exact_match_identifier_sql DATA | CONTAINS dbs_exact_match_identifier_sql) | (CALLED|RETURNS NULL) ON NULL INPUT | STATIC DISPATCH | (ALLOW|DISALLOW) PARALLEL |
+dbs_alter_function_compopts: (NOT? DETERMINISTIC | NO? EXTERNAL ACTION | ((READS|MODIFIES) SQL DATA | CONTAINS SQL) | (CALLED|RETURNS NULL) ON NULL INPUT | STATIC DISPATCH | (ALLOW|DISALLOW) PARALLEL |
                              (DISALLOW|ALLOW|DISABLE) DEBUG MODE | QUALIFIER dbs_schema_name | PACKAGE OWNER dbs_authorization_name | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | (INHERIT|DEFAULT) SPECIAL REGISTERS |
                              WLM ENVIRONMENT FOR DEBUG MODE dbs_sql_identifier | CURRENT DATA (YES|NO) | option_degree | CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME) |
                              DYNAMICRULES (RUN|BIND|DEFINEBIND|DEFINERUN|INVOKEBIND|INVOKERUN) | APPLICATION ENCODING SCHEME (ASCII|EBCDIC|UNICODE) | (WITH|WITHOUT) EXPLAIN | (WITH|WITHOUT) IMMEDIATE WRITE |
-                             ISOLATION LEVEL (CS|RS|RR|UR) | OPTHINT (DOUBLEQUOTE|dbs_string_constant) | dbs_exact_match_identifier_sql PATH (dbs_schema_name | SESSION? USER | SYSTEM PATH) (dbs_comma_separator (dbs_schema_name | SESSION? USER | SYSTEM PATH))* |
+                             ISOLATION LEVEL (CS|RS|RR|UR) | OPTHINT (DOUBLEQUOTE|dbs_string_constant) | SQL PATH (dbs_schema_name | SESSION? USER | SYSTEM PATH) (dbs_comma_separator (dbs_schema_name | SESSION? USER | SYSTEM PATH))* |
                              QUERY ACCELERATION (NONE|ELIGIBLE|ALL|ENABLE (WITH FAILBACK)?) | GET_ACCEL_ARCHIVE (YES|NO) | ACCELERATION WAITFORDATA dbs_nnnn_m | ACCELERATOR dbs_accelerator_name | REOPT (NONE|ALWAYS|ONCE) |
                              VALIDATE (RUN|BIND) | ROUNDING (DEC_ROUND_CEILING|DEC_ROUND_DOWN|DEC_ROUND_FLOOR|DEC_ROUND_HALF_DOWN|DEC_ROUND_HALF_EVEN|DEC_ROUND_HALF_UP|DEC_ROUND_UP) | DATE FORMAT (ISO|EUR|USA|JIS|LOCAL) |
                              NOT? SECURED | BUSINESS_TIME SENSITIVE (YES|NO) | SYSTEM_TIME SENSITIVE (YES|NO) | ARCHIVE SENSITIVE (YES|NO) | APPLCOMPAT dbs_applcompat_value | (OFF | CONCENTRATE STATEMENTS (WITH LITERALS)?))+; /*random ordering req*/
 dbs_nnnn_m: NUMERICLITERAL {validateTokenWithRegex($NUMERICLITERAL.text, "^\\d{4}\\.\\d$", "a DECIMAL(5,1) numeric-constant is only allowed");};
-
-dbs_alter_function_sqlTable : SPECIFIC FUNCTION dbs_specific_name | FUNCTION dbs_function_name (LPARENCHAR ((common_built_in_type_source |
-                              dbs_distinct_type_name) (dbs_comma_separator (common_built_in_type_source | dbs_distinct_type_name))*)? RPARENCHAR)?
-                              RESTRICT dbs_alter_function_inlineopts;
 /*ALTER INDEX */
 dbs_alter_index: INDEX dbs_index_name (REGENERATE (USING APPLICATION COMPATIBILITY dbs_applcompat_value)? /*included as a separate piped option due to nb 2 in IBM doc*/ |
                  (BUFFERPOOL dbs_bp_name | CLOSE (YES|NO) | COPY (YES|NO) | DSSIZE dbs_dsize_parameter | PIECESIZE dbs_pieceSize | dbs_alter_index_using | dbs_alter_index_free |
@@ -161,11 +159,11 @@ dbs_alter_procedure_alter_sql_native: ALTER? (ACTIVE VERSION | ALL VERSIONS | VE
 dbs_alter_procedure_activate_sql_native: ACTIVATE VERSION dbs_routine_version_id;
 dbs_alter_procedure_regen_sql_native: REGENERATE (ACTIVE VERSION | VERSION dbs_routine_version_id)? (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?;
 dbs_alter_procedure_drop_sql_native: DROP VERSION dbs_routine_version_id;
-dbs_alter_procedure_options: (NOT? DETERMINISTIC | ((MODIFIES|READS) dbs_exact_match_identifier_sql DATA | CONTAINS dbs_exact_match_identifier_sql) | CALLED ON NULL INPUT | DYNAMIC RESULT SETS INTEGERLITERAL | (DISALLOW|ALLOW|DISABLE) DEBUG MODE |
+dbs_alter_procedure_options: (NOT? DETERMINISTIC | ((MODIFIES|READS) SQL DATA | CONTAINS SQL) | CALLED ON NULL INPUT | DYNAMIC RESULT SETS INTEGERLITERAL | (DISALLOW|ALLOW|DISABLE) DEBUG MODE |
                                 PARAMETER CCSID (ASCII|EBCDIC|UNICODE) | QUALIFIER dbs_schema_name | PACKAGE OWNER dbs_authorization_name | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | ((COMMIT ON RETURN (YES|NO)) |
                                 AUTONOMOUS) | (INHERIT|DEFAULT) SPECIAL REGISTERS | WLM ENVIRONMENT FOR DEBUG MODE dbs_sql_identifier | (DEFER|NODEFER) PREPARE | CURRENT DATA (YES|NO) | option_degree |
                                 CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME) | DYNAMICRULES (RUN|BIND|DEFINERUN|DEFINEBIND|INVOKERUN|INVOKEBIND) | APPLICATION ENCODING SCHEME (ASCII|EBCDIC|UNICODE) |
-                                (WITH|WITHOUT) EXPLAIN | (WITH|WITHOUT) IMMEDIATE WRITE | ISOLATION LEVEL (CS|RS|RR|UR) | (WITH|WITHOUT) KEEP DYNAMIC | OPTHINT (DOUBLEQUOTE|dbs_string_constant) | dbs_exact_match_identifier_sql PATH (dbs_schema_name | SYSTEM PATH |
+                                (WITH|WITHOUT) EXPLAIN | (WITH|WITHOUT) IMMEDIATE WRITE | ISOLATION LEVEL (CS|RS|RR|UR) | (WITH|WITHOUT) KEEP DYNAMIC | OPTHINT (DOUBLEQUOTE|dbs_string_constant) | SQL PATH (dbs_schema_name | SYSTEM PATH |
                                 SESSION? USER) (dbs_comma_separator (dbs_schema_name | SYSTEM PATH | SESSION? USER))* | RELEASE AT (COMMIT | DEALLOCATE) | QUERY ACCELERATION (NONE|ELIGIBLE|ALL|ENABLE (WITH FAILBACK)?) | GET_ACCEL_ARCHIVE (YES|NO) |
                                 ACCELERATION WAITFORDATA dbs_nnnn_m | ACCELERATOR dbs_accelerator_name | REOPT (NONE|ALWAYS|ONCE) | VALIDATE (RUN|BIND) |
                                 ROUNDING (DEC_ROUND_CEILING|DEC_ROUND_DOWN|DEC_ROUND_FLOOR|DEC_ROUND_HALF_DOWN|DEC_ROUND_HALF_EVEN|DEC_ROUND_HALF_UP|DEC_ROUND_UP) | DATE FORMAT (ISO|EUR|USA|JIS|LOCAL) |
@@ -248,7 +246,7 @@ dbs_alter_trigger: TRIGGER dbs_trigger_name (dbs_alter_trigger_alter | dbs_alter
 dbs_alter_trigger_alter: ALTER? (ACTIVE VERSION | VERSION dbs_trigger_version_id)? dbs_alter_trigger_options;
 dbs_alter_trigger_options: ((DISALLOW | ALLOW | DISABLE) DEBUG MODE | QUALIFIER dbs_schema_name | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | WLM ENVIRONMENT FOR DEBUG MODE dbs_sql_identifier | CURRENT DATA (YES|NO) |
                             CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME) | DYNAMICRULES (RUN|BIND) | APPLICATION ENCODING SCHEME oneof_encoding | (WITH|WITHOUT) EXPLAIN |
-                            (WITH|WITHOUT) IMMEDIATE WRITE | ISOLATION LEVEL (CS|RS|RR|UR) | OPTHINT (DOUBLEQUOTE | dbs_string_constant) | dbs_exact_match_identifier_sql PATH (SYSTEM PATH | SESSION? USER | dbs_schema_name) (dbs_comma_separator (SYSTEM PATH |
+                            (WITH|WITHOUT) IMMEDIATE WRITE | ISOLATION LEVEL (CS|RS|RR|UR) | OPTHINT (DOUBLEQUOTE | dbs_string_constant) | SQL PATH (SYSTEM PATH | SESSION? USER | dbs_schema_name) (dbs_comma_separator (SYSTEM PATH |
                             SESSION? USER | dbs_schema_name))* | RELEASE AT (COMMIT|DEALLOCATE) | ROUNDING (DEC_ROUND_CEILING | DEC_ROUND_DOWN | DEC_ROUND_FLOOR | DEC_ROUND_HALF_DOWN | DEC_ROUND_HALF_EVEN |
                             DEC_ROUND_HALF_UP | DEC_ROUND_UP) | DATE FORMAT (ISO|EUR|USA|JIS|LOCAL) | DECIMAL LPARENCHAR dbs_decimal_15_31 (dbs_comma_separator INTEGERLITERAL)? RPARENCHAR | TIME FORMAT (ISO|EUR|USA|JIS|LOCAL) |
                             FOR UPDATE CLAUSE (REQUIRED|OPTIONAL) | NOT? SECURED | BUSINESS_TIME SENSITIVE (YES|NO) | SYSTEM_TIME SENSITIVE (YES|NO) | ARCHIVE SENSITIVE (YES|NO) | APPLCOMPAT dbs_applcompat_value |
@@ -812,7 +810,7 @@ dbs_prepare: PREPARE dbs_statement_name (INTO dbs_descriptor_name (USING (NAMES 
 dbs_refresh: REFRESH TABLE dbs_table_name (QUERYNO INTEGERLITERAL)?;
 
 /* RELEASE (both) */
-dbs_release: RELEASE (dbs_location_name | CURRENT | ALL dbs_exact_match_identifier_sql? | TO? SAVEPOINT dbs_savepoint_name | dbs_host_variable);
+dbs_release: RELEASE (dbs_location_name | CURRENT | ALL SQL? | TO? SAVEPOINT dbs_savepoint_name | dbs_host_variable);
 
 dbs_savepoint_name: T=dbs_savepoint_name_rule {validateLength($T.text, "Savepoint name", 128);};
 dbs_savepoint_name_rule: NUMERICLITERAL+ | dbs_sql_identifier;
@@ -1150,7 +1148,7 @@ common_short_bit_varchara: LPARENCHAR INTEGERLITERAL RPARENCHAR (FOR BIT DATA)?;
 common_short_bit_graphic: (GRAPHIC | VARGRAPHIC) (LPARENCHAR INTEGERLITERAL RPARENCHAR)?;
 common_short_bit_binary: (BINARY VARYING? | VARBINARY) (LPARENCHAR INTEGERLITERAL RPARENCHAR)?;
 
-sql_data_type: dbs_exact_match_identifier_sql (VARCHAR (LPARENCHAR INTEGERLITERAL RPARENCHAR) | DECFLOAT (LPARENCHAR dbs_decfloat_integer RPARENCHAR)? | DATE | TIMESTAMP (LPARENCHAR dbs_integer12 RPARENCHAR)? );
+sql_data_type: SQL (VARCHAR (LPARENCHAR INTEGERLITERAL RPARENCHAR) | DECFLOAT (LPARENCHAR dbs_decfloat_integer RPARENCHAR)? | DATE | TIMESTAMP (LPARENCHAR dbs_integer12 RPARENCHAR)? );
 
 dbs_option_list_ext: (option_specific| option_parameter | EXTERNAL option_name? | FENCED | dbs_options_list_ext_common_in_create_alter)+;
 dbs_options_list_ext_common_in_create_alter: option_language | parameter_style dbs_function_parameter_style | option_deterministic | option_returned_null | option_called |
@@ -1163,7 +1161,7 @@ dbs_option_list_proc_ext_altr_create: option_dynamic | EXTERNAL option_name | op
                         | option_sql | option_dbinfo | option_collid | option_wlm_env | option_asutime | option_stay_resident | option_program_type
                         | option_security | option_run | option_commit | option_registers | option_called | option_after | option_debug_mode;
 
-dbs_option_list_ext_table: (option_specific | option_parameter | EXTERNAL option_name | option_language | parameter_style dbs_exact_match_identifier_sql | option_deterministic| FENCED| (option_returned_null | option_called)|
+dbs_option_list_ext_table: (option_specific | option_parameter | EXTERNAL option_name | option_language | parameter_style SQL | option_deterministic| FENCED| (option_returned_null | option_called)|
                            option_sqldata| option_action | option_package_path| option_scratch | option_final_call | DISALLOW PARALLEL | option_dbinfo| option_cardinality| option_collid|
                            option_wlm_env_short | option_asutime | option_stay_resident |  option_program_type | option_security| option_run | option_registers | option_dispatch | option_after | option_secured)+;
 
@@ -1172,7 +1170,7 @@ dbs_option_list_trigger: (option_debug_mode | option_qualifier | option_asutime 
                          option_rounding | option_format_date | option_decimal | option_format_time | option_for_update | option_secured |  option_sensitive_business |
                          option_sensitive_system | option_sensitive_archive | option_app_compat | option_concentrate_statements)+;
 
-dbs_option_list_inl_def:  (option_specific | option_parameter | option_deterministic| option_action| option_sqldata_common| option_dispatch| option_called| option_secured | LANGUAGE dbs_exact_match_identifier_sql)*;
+dbs_option_list_inl_def:  (option_specific | option_parameter | option_deterministic| option_action| option_sqldata_common| option_dispatch| option_called| option_secured | LANGUAGE SQL)*;
 option_action: NO?  EXTERNAL ACTION;
 option_after: (STOP AFTER (SYSTEM DEFAULT FAILURES | INTEGERLITERAL FAILURES) | CONTINUE AFTER FAILURE);
 option_allow_parallel: (ALLOW | DISALLOW) PARALLEL;
@@ -1221,13 +1219,13 @@ option_sensitive_archive: ARCHIVE SENSITIVE no_or_yes;
 option_sensitive_business: BUSINESS_TIME SENSITIVE no_or_yes;
 option_sensitive_system: SYSTEM_TIME SENSITIVE  no_or_yes;
 option_specific: SPECIFIC dbs_specific_name;
-option_sqldata_common: (READS dbs_exact_match_identifier_sql DATA | CONTAINS dbs_exact_match_identifier_sql);
-option_sqldata: (option_sqldata_common | NO dbs_exact_match_identifier_sql);
-option_sqldata2: (MODIFIES dbs_exact_match_identifier_sql DATA | option_sqldata_common);
-option_sqldata3: (option_sqldata2 | NO (dbs_exact_match_identifier_sql | EXTERNAL ACTION));
-option_sql: (MODIFIES dbs_exact_match_identifier_sql DATA | READS dbs_exact_match_identifier_sql DATA | CONTAINS dbs_exact_match_identifier_sql | NO dbs_exact_match_identifier_sql);
+option_sqldata_common: (READS SQL DATA | CONTAINS SQL);
+option_sqldata: (option_sqldata_common | NO SQL);
+option_sqldata2: (MODIFIES SQL DATA | option_sqldata_common);
+option_sqldata3: (option_sqldata2 | NO (SQL | EXTERNAL ACTION));
+option_sql: (MODIFIES SQL DATA | READS SQL DATA | CONTAINS SQL | NO SQL);
 option_sql_body: (dbs_schema_name | SYSTEM PATH | SESSION? USER);
-option_sql_path: dbs_exact_match_identifier_sql PATH option_sql_body (dbs_comma_separator option_sql_body)*;
+option_sql_path: SQL PATH option_sql_body (dbs_comma_separator option_sql_body)*;
 option_stay_resident: STAY RESIDENT no_or_yes;
 option_timezone: without_or_with TIME ZONE;
 option_write_imd: without_or_with IMMEDIATE WRITE;
@@ -1349,8 +1347,8 @@ dbs_inbuild_functions : ASCII  | AVG | BLOB | BIGINT | BINARY | CARDINALITY | CH
                         | ROW_NUMBER | TRANSLATE | TRIM | TRUNCATE | UNICODE | UNPACK | UPPER | VALUE | VARBINARY
                         | VARCHAR | VARGRAPHIC | VARIANCE | XMLNAMESPACES | XMLTABLE | YEAR;
 
-db2sql_data_types: db2sql_unpack_data_types | VARCHAR | VARBINARY CLOB | BLOB | DBCLOB |
-                    NATIONAL | ASCII | EBCDIC | DBCLOB | ROWID | GRAPHIC | INT | FLOAT | DEC | NUMERIC | DECFLOAT;
+db2sql_data_types: db2sql_unpack_data_types | VARCHAR | GRAPHIC | VARBINARY CLOB | BLOB | DBCLOB |  INT |
+                    FLOAT | DEC | NUMERIC | DECFLOAT | NATIONAL | ASCII | EBCDIC | DBCLOB | ROWID;
 
 db2sql_unpack_data_types: SMALLINT | INTEGER | BIGINT | REAL | DOUBLE | DECIMAL | CHAR | CHARACTER | VARBINARY | BINARY | TIMESTAMP | DATE | TIME;
 
@@ -1443,7 +1441,7 @@ dbs_special_name: ABSOLUTE | ACCELERATION | ACCELERATOR | ACCESS | ACCESSCTRL | 
                 | SCHEME | SCRATCHPAD | SCROLL | SECONDS | SECQTY | SECTION | SECURED | SECURITY | SEGSIZE | SELECT
                 | SELECTIVITY | SENSITIVE | SEQUENCE | SERVAUTH | SERVER | SERVER_NAME | SESSION | SESSION_USER | SET
                 | SETS | SHARE | SIGNAL | SIZE | SKIPCHAR | SOME | SOURCE | SPECIAL | SPECIFIC | SQLADM | SQLCA
-                | SQLCODE | SQLD | SQLDA | SQLDABC | SQLERROR | SQLEXCEPTION | SQLID | SQLN | SQLSTATE | SQLVAR
+                | SQL | SQLCODE | SQLD | SQLDA | SQLDABC | SQLERROR | SQLEXCEPTION | SQLID | SQLN | SQLSTATE | SQLVAR
                 | SQLWARNING | STABILIZED | STACKED | START | STARTDB | STARTING | STATEMENT | STATEMENTS | STATIC
                 | STATS | STAY | STMTCACHE | STMTID | STMTTOKEN | STOGROUP | STOP | STOPALL | STOPDB | STORAGE
                 | STORCLAS | STORES | STOSPACE | STRUCTURE | STYLE | SUB | SYNONYM | SYSADM | SYSCTRL | SYSDEFLT
@@ -1628,14 +1626,13 @@ dbs_integer1200: INTEGERLITERAL;
 dbs_integer1208: INTEGERLITERAL;
 dbs_decfloat_integer: INTEGERLITERAL ;
 dbs_decimal_15_31: INTEGERLITERAL;
-dbs_pagenum_char_a_r: IDENTIFIER;
-dbs_char_s: IDENTIFIER;
-dbs_function_language: IDENTIFIER ;
-dbs_function_parameter_style: IDENTIFIER;
-oneof_lang: IDENTIFIER;
-dbs_exact_match_identifier_sql: IDENTIFIER;
-dbs_k_m_g_identifier: IDENTIFIER;
-kmg_blob_parameter: INTEGERLITERAL dbs_k_m_g_identifier? | IDENTIFIER;
-dbs_dsize_parameter: INTEGERLITERAL IDENTIFIER | IDENTIFIER;
+dbs_pagenum_char_a_r: dbs_sql_identifier;
+dbs_char_s: dbs_sql_identifier;
+dbs_function_language: dbs_sql_identifier ;
+dbs_function_parameter_style: dbs_sql_identifier;
+oneof_lang: dbs_sql_identifier;
+dbs_k_m_g_identifier: dbs_sql_identifier;
+kmg_blob_parameter: INTEGERLITERAL dbs_k_m_g_identifier? | dbs_sql_identifier;
+dbs_dsize_parameter: INTEGERLITERAL dbs_sql_identifier | dbs_sql_identifier;
 dbs_maxPartition: INTEGERLITERAL;
 /////
