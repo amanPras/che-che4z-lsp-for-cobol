@@ -256,7 +256,7 @@ jobs:
           ## uncomment me if you need native image job reports
           # native-image-job-reports: 'true'
           cache: 'maven'
-      - uses: graalvm/setup-graalvm@v1.2.8
+      - uses: graalvm/setup-graalvm@v1
         if: matrix.os != 'ubuntu-latest' || matrix.arch != 'x64'
         with:
           java-version: ${{ env.graalvm-version }}
