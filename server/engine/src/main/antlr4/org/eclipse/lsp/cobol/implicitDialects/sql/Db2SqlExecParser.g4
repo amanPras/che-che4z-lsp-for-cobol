@@ -85,8 +85,19 @@ dbs_declare_variable_for: FOR (SBCS|MIXED|BIT) DATA;
 dbs_allocate: ALLOCATE dbs_cursor_name CURSOR FOR RESULT SET dbs_host_variable;
 
 /*ALTER (all) */
-dbs_alter: ALTER (dbs_alter_database | dbs_alter_function | dbs_alter_index | dbs_alter_mask | dbs_alter_permission | dbs_alter_procedure | dbs_alter_sequence | dbs_alter_stogroup |
-                 dbs_alter_table | dbs_alter_tablespace | dbs_alter_trigger | dbs_alter_trusted | dbs_alter_view);
+dbs_alter: ALTER ( dbs_alter_database
+                 | dbs_alter_function
+                 | dbs_alter_index
+                 | dbs_alter_mask
+                 | dbs_alter_permission
+                 | dbs_alter_procedure
+                 | dbs_alter_sequence
+                 | dbs_alter_stogroup
+                 | dbs_alter_table
+                 | dbs_alter_tablespace
+                 | dbs_alter_trigger
+                 | dbs_alter_trusted
+                 | dbs_alter_view );
 
 /*ALTER DATABASE */
 dbs_alter_database: DATABASE dbs_database_name (BUFFERPOOL dbs_bp_name | INDEXBP dbs_bp_name | STOGROUP dbs_stogroup_name | CCSID INTEGERLITERAL)+;
@@ -242,7 +253,10 @@ dbs_alter_tablespace_alter: (ALTER PARTITION INTEGERLITERAL dbs_alter_tablespace
 dbs_alter_tablespace_loop: (dbs_alter_tablespace_using | dbs_alter_tablespace_free | dbs_alter_tablespace_gbpcache | COMPRESS (YES|NO) | DSSIZE dbs_dsize_parameter | TRACKMOD (YES|NO))+;
 
 /*ALTER TRIGGER */
-dbs_alter_trigger: TRIGGER dbs_trigger_name (dbs_alter_trigger_alter | dbs_alter_trigger_replace? | dbs_alter_trigger_add | dbs_alter_trigger_activate | dbs_alter_trigger_regen | dbs_alter_trigger_drop?);
+dbs_alter_trigger: TRIGGER dbs_trigger_name (dbs_alter_trigger_alter
+                                           | dbs_alter_trigger_activate
+                                           | dbs_alter_trigger_regen
+                                           | dbs_alter_trigger_drop);
 dbs_alter_trigger_alter: ALTER? (ACTIVE VERSION | VERSION dbs_trigger_version_id)? dbs_alter_trigger_options;
 dbs_alter_trigger_options: ((DISALLOW | ALLOW | DISABLE) DEBUG MODE | QUALIFIER dbs_schema_name | ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL) | WLM ENVIRONMENT FOR DEBUG MODE dbs_sql_identifier | CURRENT DATA (YES|NO) |
                             CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME) | DYNAMICRULES (RUN|BIND) | APPLICATION ENCODING SCHEME oneof_encoding | (WITH|WITHOUT) EXPLAIN |
@@ -251,11 +265,6 @@ dbs_alter_trigger_options: ((DISALLOW | ALLOW | DISABLE) DEBUG MODE | QUALIFIER 
                             DEC_ROUND_HALF_UP | DEC_ROUND_UP) | DATE FORMAT (ISO|EUR|USA|JIS|LOCAL) | DECIMAL LPARENCHAR dbs_decimal_15_31 (dbs_comma_separator INTEGERLITERAL)? RPARENCHAR | TIME FORMAT (ISO|EUR|USA|JIS|LOCAL) |
                             FOR UPDATE CLAUSE (REQUIRED|OPTIONAL) | NOT? SECURED | BUSINESS_TIME SENSITIVE (YES|NO) | SYSTEM_TIME SENSITIVE (YES|NO) | ARCHIVE SENSITIVE (YES|NO) | APPLCOMPAT dbs_applcompat_value |
                             CONCENTRATE STATEMENTS (OFF | WITH LITERALS))*; /*random ordering req */
-dbs_alter_trigger_replace: REPLACE (ACTIVE VERSION | VERSION dbs_trigger_version_id)? dbs_alter_trigger_spec;
-dbs_alter_trigger_spec: ((NO CASCADE)? BEFORE | AFTER | INSTEAD OF) (INSERT | DELETE | UPDATE (OF dbs_column_name (dbs_comma_separator dbs_column_name)*)?) ON dbs_alias_name
-                        (REFERENCING ((OLD|NEW) ROW? AS? dbs_correlation_name | (OLD_TABLE | NEW_TABLE) AS? dbs_table_name)+)? (FOR EACH (STATEMENT|ROW))? dbs_alter_trigger_options
-                        (WHEN LPARENCHAR dbs_search_condition RPARENCHAR)? dbs_triggered_sql_statement; // (dbs_sql_control_statement | dbs_triggered_sql_statement);
-dbs_alter_trigger_add: ADD VERSION dbs_trigger_version_id dbs_alter_trigger_spec;
 dbs_alter_trigger_activate: ACTIVATE VERSION dbs_trigger_version_id;
 dbs_alter_trigger_regen: REGENERATE (ACTIVE VERSION | VERSION dbs_trigger_version_id)? (USING APPLICATION COMPATIBILITY dbs_applcompat_value)?;
 dbs_alter_trigger_drop: DROP VERSION dbs_trigger_version_id;
@@ -334,12 +343,27 @@ dbs_connect: CONNECT (TO (dbs_location_name | dbs_host_variable) dbs_connect_aut
 dbs_connect_authorization: USER dbs_host_variable USING dbs_host_variable;
 
 /*CREATE (all) */
-dbs_create: CREATE (dbs_create_alias | dbs_create_aux_table | dbs_create_db | dbs_create_function | dbs_create_global_temp_table | dbs_create_index | dbs_create_lob_tablespace | dbs_create_mask |
-            dbs_create_permission |  dbs_create_procedure_ext //| dbs_create_procedure_native_sql
-            | dbs_create_role |
-            dbs_create_sequence | dbs_create_stogroup | dbs_create_table | dbs_create_tablespace | dbs_create_trigger_advanced |
-            dbs_create_trigger_basic | dbs_create_trusted_context | dbs_create_type_array | dbs_create_type_distinct |
-            dbs_create_variable | dbs_create_view);
+dbs_create: CREATE (dbs_create_alias
+            | dbs_create_aux_table
+            | dbs_create_db
+            | dbs_create_function
+            | dbs_create_global_temp_table
+            | dbs_create_index
+            | dbs_create_lob_tablespace
+            | dbs_create_mask
+            | dbs_create_permission
+            | dbs_create_procedure_ext
+            | dbs_create_role
+            | dbs_create_sequence
+            | dbs_create_stogroup
+            | dbs_create_table
+            | dbs_create_tablespace
+            | dbs_create_trigger_basic
+            | dbs_create_trusted_context
+            | dbs_create_type_array
+            | dbs_create_type_distinct
+            | dbs_create_variable
+            | dbs_create_view);
 
 //CREATE ALIAS
 dbs_create_alias: PUBLIC? ALIAS table_seq_alias;
@@ -504,15 +528,10 @@ free_block: (FREEPAGE  INTEGERLITERAL | PCTFREE (dbs_smallint (FOR UPDATE dbs_sm
 locksize_block_tbl: LOCKSIZE (ANY | TABLESPACE | PAGE | ROW);
 
 //CREATE TRIGGER ADVANCED
-dbs_create_trigger_advanced: (OR REPLACE)? TRIGGER dbs_trigger_name (trigger_definition | WRAPPED dbs_obfuscated_statement_text);
-trigger_definition: (VERSION (V1 | dbs_trigger_version_id))? trigger_activation_time trigger_event ON dbs_alias_name
-            referencing_opts?  trigger_granularity dbs_option_list_trigger? triggered_action;
 referencing_opts: REFERENCING (OLD ROW? AS? dbs_correlation_name | NEW ROW? AS? dbs_correlation_name | OLD_TABLE AS? dbs_table_name | NEW_TABLE AS? dbs_sql_identifier)+;
 trigger_activation_time: (NO CASCADE)? BEFORE | AFTER | INSTEAD OF;
 trigger_event: INSERT | DELETE | UPDATE (OF dbs_column_name (dbs_comma_separator dbs_column_name)*)?;
 trigger_granularity: (FOR EACH (STATEMENT | ROW))?;
-triggered_action: (WHEN LPARENCHAR dbs_search_condition RPARENCHAR)? sql_trigger_body;
-sql_trigger_body: dbs_triggered_sql_statement_adv ; //dbs_sql_control_statement | dbs_triggered_sql_statement_adv;
 
 //CREATE TRIGGER BASIC
 dbs_create_trigger_basic: TRIGGER dbs_trigger_name (trigger_definition_basic | WRAPPED dbs_obfuscated_statement_text);
@@ -1165,28 +1184,15 @@ dbs_option_list_ext_table: (option_specific | option_parameter | EXTERNAL option
                            option_sqldata| option_action | option_package_path| option_scratch | option_final_call | DISALLOW PARALLEL | option_dbinfo| option_cardinality| option_collid|
                            option_wlm_env_short | option_asutime | option_stay_resident |  option_program_type | option_security| option_run | option_registers | option_dispatch | option_after | option_secured)+;
 
-dbs_option_list_trigger: (option_debug_mode | option_qualifier | option_asutime | option_wlm_env_debug | option_current_data | option_concurrency | option_dynamic_rules | (DYNAMICRULES (RUN | BIND)) |
-                         option_app_enc | option_explain | option_write_imd | option_isolation_level | option_opthint | option_sql_path | option_release |
-                         option_rounding | option_format_date | option_decimal | option_format_time | option_for_update | option_secured |  option_sensitive_business |
-                         option_sensitive_system | option_sensitive_archive | option_app_compat | option_concentrate_statements)+;
-
 dbs_option_list_inl_def:  (option_specific | option_parameter | option_deterministic| option_action| option_sqldata_common| option_dispatch| option_called| option_secured | LANGUAGE SQL)*;
 option_action: NO?  EXTERNAL ACTION;
 option_after: (STOP AFTER (SYSTEM DEFAULT FAILURES | INTEGERLITERAL FAILURES) | CONTINUE AFTER FAILURE);
 option_allow_parallel: (ALLOW | DISALLOW) PARALLEL;
 option_asutime: ASUTIME (NO LIMIT | LIMIT INTEGERLITERAL);
-option_app_enc: APPLICATION ENCODING SCHEME oneof_encoding;
-option_app_compat: APPLCOMPAT dbs_applcompat_value;
 option_called: CALLED ON NULL INPUT;
 option_cardinality: CARDINALITY INTEGERLITERAL;
 option_collid: (NO COLLID | COLLID dbs_collection_id);
 option_commit: COMMIT ON RETURN  no_or_yes;
-option_concentrate_statements: CONCENTRATE STATEMENTS (OFF | WITH LITERALS);
-option_concurrency: CONCURRENT ACCESS RESOLUTION (USE CURRENTLY COMMITTED | WAIT FOR OUTCOME);
-option_current_data: CURRENT DATA no_or_yes;
-option_format_date: DATE option_format_opts;
-option_format_time: TIME option_format_opts;
-option_format_opts: FORMAT (ISO | EUR | USA | JIS | LOCAL);
 option_dbinfo: NO? DBINFO;
 option_debug_mode: (DISALLOW | ALLOW | DISABLE) DEBUG MODE;
 option_decimal: DECIMAL LPARENCHAR dbs_decimal_15_31 (dbs_comma_separator dbs_char_s)? RPARENCHAR;
@@ -1194,44 +1200,29 @@ option_degree: DEGREE  (T=INTEGERLITERAL  {validateLevel($T.text);} | ANY);
 option_deterministic: NOT? DETERMINISTIC;
 option_dispatch: STATIC DISPATCH;
 option_dynamic: DYNAMIC RESULT SETS INTEGERLITERAL;
-option_dynamic_rules: DYNAMICRULES (RUN | BIND | DEFINEBIND | DEFINERUN | INVOKEBIND | INVOKERUN);
-option_explain: without_or_with EXPLAIN;
 option_final_call: NO? FINAL CALL;
-option_for_update: OR UPDATE CLAUSE (REQUIRED |  OPTIONAL);
-option_isolation_level: ISOLATION LEVEL cs_rs_rr_ur;
 option_language: LANGUAGE oneof_lang;
 option_name: NAME ( dbs_string_constant | dbs_sql_identifier);
-option_opthint: OPTHINT CHAR_STRING_LITERAL_SINGLE_QUOTE;
 option_package_path: (NO PACKAGE PATH | PACKAGE PATH dbs_package_path);
 option_parameter: PARAMETER (CCSID oneof_encoding | VARCHAR (NULTERM | STRUCTURE))*;
 option_parameter_style: parameter_style ( dbs_function_parameter_style | GENERAL | GENERAL WITH NULLS);
-option_qualifier: QUALIFIER dbs_schema_name;
 option_program_type: program_type (SUB | MAIN);
-option_release: RELEASE AT (COMMIT |  DEALLOCATE);
 option_registers: (INHERIT | DEFAULT ) SPECIAL REGISTERS;
 option_returned_null: RETURNS NULL ON NULL INPUT;
-option_rounding: ROUNDING (DEC_ROUND_CEILING | DEC_ROUND_DOWN | DEC_ROUND_FLOOR | DEC_ROUND_HALF_DOWN | DEC_ROUND_HALF_EVEN | DEC_ROUND_HALF_UP | DEC_ROUND_UP);
 option_run: RUN OPTIONS dbs_string_constant;
 option_scratch: (NO SCRATCHPAD | SCRATCHPAD INTEGERLITERAL?);
 option_security: SECURITY (DB2 | USER | DEFINER);
 option_secured: NOT? SECURED;
-option_sensitive_archive: ARCHIVE SENSITIVE no_or_yes;
-option_sensitive_business: BUSINESS_TIME SENSITIVE no_or_yes;
-option_sensitive_system: SYSTEM_TIME SENSITIVE  no_or_yes;
 option_specific: SPECIFIC dbs_specific_name;
 option_sqldata_common: (READS SQL DATA | CONTAINS SQL);
 option_sqldata: (option_sqldata_common | NO SQL);
 option_sqldata2: (MODIFIES SQL DATA | option_sqldata_common);
 option_sqldata3: (option_sqldata2 | NO (SQL | EXTERNAL ACTION));
 option_sql: (MODIFIES SQL DATA | READS SQL DATA | CONTAINS SQL | NO SQL);
-option_sql_body: (dbs_schema_name | SYSTEM PATH | SESSION? USER);
-option_sql_path: SQL PATH option_sql_body (dbs_comma_separator option_sql_body)*;
 option_stay_resident: STAY RESIDENT no_or_yes;
 option_timezone: without_or_with TIME ZONE;
-option_write_imd: without_or_with IMMEDIATE WRITE;
 option_wlm_env: wlm_env (dbs_sql_identifier | LPARENCHAR dbs_sql_identifier dbs_comma_separator ASTERISKCHAR RPARENCHAR);
 option_wlm_env_short: wlm_env (dbs_sql_identifier | LPARENCHAR dbs_sql_identifier RPARENCHAR);
-option_wlm_env_debug: wlm_env FOR DEBUG MODE dbs_sql_identifier;
 no_or_yes: (NO | YES);
 oneof_encoding: (ASCII | EBCDIC | UNICODE);
 parameter_style: PARAMETER STYLE;
@@ -1239,7 +1230,6 @@ program_type: PROGRAM TYPE;
 wlm_env: WLM ENVIRONMENT;
 without_or_with: (WITHOUT | WITH);
 yes_or_no: (YES | NO);
-cs_rs_rr_ur: (CS | RS | RR | UR);
 
 dbs_select_into_suffix: INTO (target_variable_names_loop | dbs_array_variable) dbs_from_clause dbs_where_clause? dbs_groupby_clause? dbs_having_clause?
                                         dbs_orderby_clause? dbs_offset_clause?  dbs_fetch_clause?  (dbs_select_statement_isolation_clause | dbs_select_statement_skip_locked_data)* dbs_select_statement_queryno_clause?;
@@ -1561,8 +1551,6 @@ dbs_trigger_version_id: dbs_sql_identifier;
 dbs_triggered_sql_statement : dbs_call | dbs_delete | dbs_select_statement_common_table_expression | dbs_fullselect | dbs_insert | dbs_merge | dbs_refresh |
                                dbs_set | dbs_signal | dbs_truncate | dbs_update | dbs_values_statement;
 dbs_values_statement : VALUES  (LPARENCHAR dbs_expression (dbs_comma_separator dbs_expression)* RPARENCHAR | dbs_expression) ;
-dbs_triggered_sql_statement_adv: dbs_call | dbs_delete | dbs_get_diagnostics_statement | dbs_insert | dbs_merge | dbs_refresh |
-                                 dbs_set | dbs_signal | dbs_truncate | dbs_update | dbs_values_into;
 dbs_triggered_sql_statement_basic: dbs_triggered_sql_statement;
 dbs_version_id: dbs_host_variable | dbs_sql_identifier | dbs_string_constant;
 dbs_view_name: dbs_host_variable | dbs_alias_name;

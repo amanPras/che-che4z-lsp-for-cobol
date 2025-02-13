@@ -897,6 +897,21 @@ class TestSqlAllCreateStatements {
           + "                  FROM WEATHER;\n"
           + "           END-EXEC.";
 
+  public static final String CREATE_TRIGGER_BASIC =
+      TEXT
+          + "             create TRIGGER salary_update_trigger\n"
+          + "           AFTER UPDATE OF salary ON employees\n"
+          + "           REFERENCING NEW AS n OLD AS o\n"
+          + "           FOR EACH ROW MODE DB2SQL\n"
+          + "           WHEN (n.salary > 1.1 * o.salary) \n"
+          + "           BEGIN ATOMIC\n"
+          + "           INSERT INTO salary_audit (emp_id)\n"
+          + "           VALUES ((n.emp_id));\n"
+          + "           INSERT INTO salary_audit (emp_id, name)\n"
+          + "           VALUES (n.emp_id, kkl);\n"
+          + "           END\n"
+          + "           END-EXEC.";
+
   // CREATE TRUSTED CONTEXT
   private static final String CREATE_TRUSTED_CONTEXT =
       TEXT
@@ -1060,6 +1075,7 @@ class TestSqlAllCreateStatements {
         CREATE_TRIGGER_ADV3,
         CREATE_TRIGGER_ADV4,
         CREATE_TRIGGER_ADV5,
+        CREATE_TRIGGER_BASIC,
         CREATE_TRUSTED_CONTEXT,
         CREATE_TRUSTED_CONTEXT2,
         CREATE_TYPE_ARRAY,
