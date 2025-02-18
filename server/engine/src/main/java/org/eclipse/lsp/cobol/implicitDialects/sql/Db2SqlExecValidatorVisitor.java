@@ -56,6 +56,14 @@ public class Db2SqlExecValidatorVisitor extends Db2SqlExecParserBaseVisitor<List
   }
 
   @Override
+  public List<Node> visitDbs_minus_one(Db2SqlExecParser.Dbs_minus_oneContext ctx) {
+    if (!ctx.INTEGERLITERAL().getText().equals("1")) {
+      addSyntaxError(ctx, "parsers.validValueMsg", ctx.getText(), "-1");
+    }
+    return visitChildren(ctx);
+  }
+
+  @Override
   public List<Node> visitDbs_integer1200(Db2SqlExecParser.Dbs_integer1200Context ctx) {
     validateValue(ctx, "1200");
     return visitChildren(ctx);
@@ -152,6 +160,12 @@ public class Db2SqlExecValidatorVisitor extends Db2SqlExecParserBaseVisitor<List
   @Override
   public List<Node> visitDbs_smallint(Db2SqlExecParser.Dbs_smallintContext ctx) {
     validateTextInRange(ctx, -2, 100);
+    return visitChildren(ctx);
+  }
+
+  @Override
+  public List<Node> visitDbs_dsize_parameter(Db2SqlExecParser.Dbs_dsize_parameterContext ctx) {
+    validateTokenWithRegex(ctx, "\\d+\\s*[Gg]", "db2SqlParser.size");
     return visitChildren(ctx);
   }
 

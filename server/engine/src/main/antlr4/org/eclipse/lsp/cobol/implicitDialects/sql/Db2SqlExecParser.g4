@@ -238,20 +238,25 @@ dbs_alter_table_drop: DROP (COLUMN? dbs_column_name_without_alias RESTRICT | PRI
 dbs_alter_table_rotate: ROTATE PARTITION (FIRST | INTEGERLITERAL) TO LAST ENDING AT? LPARENCHAR (dbs_constant | MAXVALUE | MINVALUE) (dbs_comma_separator (dbs_constant | MAXVALUE | MINVALUE))* RPARENCHAR INCLUSIVE? RESET;
 
 /*ALTER TABLESPACE */
-dbs_alter_tablespace: TABLESPACE (dbs_database_name DOT_FS)? dbs_table_space_name (DROP PENDING CHANGES | DSSIZE dbs_dsize_parameter | SEGSIZE INTEGERLITERAL | PAGENUM RELATIVE |
-                      dbs_alter_tablespace_move /*these first five are piped separately from the big loop due to note 1 in IBM doc*/
-                      | (BUFFERPOOL dbs_bp_name | CCSID INTEGERLITERAL | CLOSE (YES|NO) | COMPRESS (YES|NO) |
-                      INSERT ALGORITHM dbs_insert_algorithm_level | LOCKMAX (SYSTEM | INTEGERLITERAL) | LOCKSIZE (ANY | TABLESPACE | TABLE | PAGE | ROW | LOB)
-                      | NOT? LOGGED | MAXROWS INTEGERLITERAL | MAXPARTITIONS dbs_maxPartition |
-                      MEMBER CLUSTER (YES|NO) | TRACKMOD (YES|NO) | dbs_alter_tablespace_using | dbs_alter_tablespace_free | dbs_alter_tablespace_gbpcache)+) dbs_alter_tablespace_alter?;
+dbs_alter_tablespace: TABLESPACE (dbs_database_name DOT_FS)? dbs_table_space_name (dbs_alter_tablespace_unique_options |  dbs_alter_tablespace_mul_opts);
+dbs_alter_tablespace_unique_options: DROP PENDING CHANGES | DSSIZE dbs_dsize_parameter | SEGSIZE INTEGERLITERAL | PAGENUM RELATIVE | dbs_alter_tablespace_move;
+dbs_alter_tablespace_mul_opts: (
+                                 dbs_create_alter_tablespace_opts_common
+                                 | DROP PENDING CHANGES
+                                 | LOCKSIZE (TABLE | LOB)
+                                 | MAXPARTITIONS dbs_maxPartition
+                                 | MEMBER CLUSTER yes_or_no
+                                 | PAGENUM RELATIVE
+                                 | CCSID INTEGERLITERAL
+                                 | dbs_alter_tablespace_using
+                                )+ dbs_alter_tablespace_alter?;
 
 dbs_alter_tablespace_move: MOVE TABLE dbs_table_name TO TABLESPACE (dbs_database_name DOT_FS)? dbs_table_space_name;
-dbs_alter_tablespace_using: (USING (VCAT dbs_catalog_name | STOGROUP dbs_stogroup_name) | (PRIQTY | SECQTY) MINUSCHAR? INTEGERLITERAL | ERASE (YES|NO))+;
+dbs_alter_tablespace_using: (USING (VCAT dbs_catalog_name | STOGROUP dbs_stogroup_name) | (PRIQTY | SECQTY) (INTEGERLITERAL |  dbs_minus_one) | ERASE (YES|NO))+;
 dbs_alter_tablespace_free: (FREEPAGE INTEGERLITERAL | PCTFREE dbs_smallint? (FOR UPDATE dbs_smallint)?)+;
 dbs_alter_tablespace_gbpcache: GBPCACHE (CHANGED | ALL | SYSTEM | NONE);
 dbs_alter_tablespace_alter: (ALTER PARTITION INTEGERLITERAL dbs_alter_tablespace_loop)+;
-dbs_alter_tablespace_loop: (dbs_alter_tablespace_using | dbs_alter_tablespace_free | dbs_alter_tablespace_gbpcache | COMPRESS (YES|NO) | DSSIZE dbs_dsize_parameter | TRACKMOD (YES|NO))+;
-
+dbs_alter_tablespace_loop: (dbs_alter_tablespace_using | dbs_alter_tablespace_free | dbs_alter_tablespace_gbpcache | compress_opt | DSSIZE dbs_dsize_parameter | TRACKMOD (YES|NO))+;
 /*ALTER TRIGGER */
 dbs_alter_trigger: TRIGGER dbs_trigger_name (dbs_alter_trigger_alter
                                            | dbs_alter_trigger_activate
@@ -439,7 +444,7 @@ dbs_create_lob_tablespace_def: (IN dbs_database_name | BUFFERPOOL dbs_bp_name | 
                             LOCKMAX (SYSTEM | INTEGERLITERAL) | locksize_block | NOT? LOGGED | using_block)*; /*java fix */
 gbpcache_block: GBPCACHE (CHANGED | ALL | SYSTEM | NONE);
 locksize_block: LOCKSIZE (ANY | LOB);
-using_block: USING (VCAT dbs_catalog_name | STOGROUP dbs_stogroup_name (PRIQTY INTEGERLITERAL | SECQTY INTEGERLITERAL | ERASE yes_or_no?)*);
+using_block: USING (VCAT dbs_catalog_name | STOGROUP dbs_stogroup_name (PRIQTY (INTEGERLITERAL | dbs_minus_one) | SECQTY (INTEGERLITERAL | dbs_minus_one) | ERASE yes_or_no?)*);
 
 //CREATE MASK
 dbs_create_mask: MASK dbs_mask_name ON dbs_table_name (AS? dbs_correlation_name)? FOR COLUMN dbs_column_name_without_alias RETURN dbs_case_expression (DISABLE | ENABLE)?;
@@ -501,7 +506,7 @@ materialized_query_def: common_loop_and_fullselect refreshable_table_options;
 refreshable_table_options: DATA INITIALLY DEFERRED REFRESH DEFERRED ( MAINTAINED BY(SYSTEM |USER) | (ENABLE | DISABLE) QUERY OPTIMIZATION)*;
 dbs_create_table_data_def: in_clause_def | partitioning_clause | organization_clause | EDITPROC dbs_program_name (WITH | WITHOUT) ROW ATTRIBUTES  | VALIDPROC  dbs_program_name | AUDIT (NONE | CHANGES | ALL)
                     | OBID INTEGERLITERAL | DATA CAPTURE (NONE | CHANGES)? | WITH RESTRICT ON DROP | CCSID oneof_encoding |  NOT? VOLATILE CARDINALITY? |
-                    NOT? LOGGED | COMPRESS (NO | YES (FIXEDLENGTH | HUFFMAN)?) | APPEND no_or_yes | DSSIZE dbs_dsize_parameter | BUFFERPOOL dbs_bp_name |  MEMBER CLUSTER |
+                    NOT? LOGGED | compress_opt | APPEND no_or_yes | DSSIZE dbs_dsize_parameter | BUFFERPOOL dbs_bp_name |  MEMBER CLUSTER |
                     TRACKMOD yes_or_no  | PAGENUM dbs_pageset_pagenum_param | (NO KEY LABEL | KEY LABEL dbs_sql_identifier) ;
 in_clause_def: (IN (dbs_database_name DOT_FS)? dbs_table_space_name | IN DATABASE dbs_database_name | IN ACCELERATOR dbs_accelerator_name);
 partitioning_clause:  PARTITION BY (RANGE? partitioning_clause_arguments
@@ -516,16 +521,37 @@ organization_clause: ORGANIZE BY HASH UNIQUE column_loop partition_hash_space?;
 
 //CREATE TABLESPACE
 dbs_create_tablespace: TABLESPACE dbs_table_space_name dbs_create_tablespace_opts*;
-dbs_create_tablespace_opts : IN (DSNDB04  | dbs_database_name) | BUFFERPOOL dbs_bp_name | partition_by_growth_spec  | partition_by_range_spec |
-               SEGSIZE INTEGERLITERAL | DSSIZE dbs_dsize_parameter  | CCSID oneof_encoding | CLOSE yes_or_no | COMPRESS no_or_yes | DEFINE no_or_yes | free_block  |  gbpcache_block
-               | INSERT ALGORITHM dbs_create_algorithm_level | LOCKMAX (SYSTEM | INTEGERLITERAL) | locksize_block_tbl  | TRACKMOD yes_or_no | using_block;
+dbs_create_tablespace_opts : IN (DSNDB04  | dbs_database_name)
+               | partition_by_growth_spec
+               | partition_by_range_spec
+               | DEFINE no_or_yes
+               | locksize_block_tbl
+               | MAXROWS INTEGERLITERAL
+               | MEMBER CLUSTER
+               | DSSIZE dbs_dsize_parameter
+               | CCSID oneof_encoding
+               | SEGSIZE INTEGERLITERAL
+               | dbs_create_alter_tablespace_opts_common
+               | using_block;
+dbs_create_alter_tablespace_opts_common: BUFFERPOOL dbs_bp_name
+               | CLOSE yes_or_no
+               | compress_opt
+               | INSERT ALGORITHM dbs_create_algorithm_level
+               | LOCKMAX (SYSTEM | INTEGERLITERAL)
+               | locksize_block_tbl
+               | NOT? LOGGED
+               | TRACKMOD yes_or_no
+               | free_block
+               | gbpcache_block
+               | LOCKPART yes_or_no;
 partition_by_growth_spec: MAXPARTITIONS dbs_maxPartition (NUMPARTS INTEGERLITERAL)?;
 partition_by_range_spec: NUMPARTS INTEGERLITERAL partition_by_range_spec_body*;
 partition_by_range_spec_body: LPARENCHAR partitions_opts (dbs_comma_separator partitions_opts)*  RPARENCHAR | PAGENUM (dbs_pageset_pagenum_param | ABSOLUTE | RELATIVE);
-partitions_opts: PARTITION INTEGERLITERAL (using_block | free_block | gbpcache_block | COMPRESS  yes_or_no | ERASE yes_or_no? | TRACKMOD yes_or_no
+partitions_opts: PARTITION INTEGERLITERAL (using_block | free_block | gbpcache_block | compress_opt | ERASE yes_or_no? | TRACKMOD yes_or_no
                | DSSIZE dbs_dsize_parameter)+;
 free_block: (FREEPAGE  INTEGERLITERAL | PCTFREE (dbs_smallint (FOR UPDATE dbs_smallint)?)?)+;
 locksize_block_tbl: LOCKSIZE (ANY | TABLESPACE | PAGE | ROW);
+compress_opt: COMPRESS (NO | YES (FIXEDLENGTH | HUFFMAN)?);
 
 //CREATE TRIGGER ADVANCED
 referencing_opts: REFERENCING (OLD ROW? AS? dbs_correlation_name | NEW ROW? AS? dbs_correlation_name | OLD_TABLE AS? dbs_table_name | NEW_TABLE AS? dbs_sql_identifier)+;
@@ -1554,7 +1580,6 @@ dbs_values_statement : VALUES  (LPARENCHAR dbs_expression (dbs_comma_separator d
 dbs_triggered_sql_statement_basic: dbs_triggered_sql_statement;
 dbs_version_id: dbs_host_variable | dbs_sql_identifier | dbs_string_constant;
 dbs_view_name: dbs_host_variable | dbs_alias_name;
-dbs_pieceSize : dbs_sql_identifier;
 dbs_comma_separator: (COMMASEPARATORDB2 | COMMACHAR);
 dbs_semicolon_end: SEMICOLON_FS | SEMICOLONSEPARATORSQL;
 
@@ -1620,7 +1645,9 @@ dbs_function_language: dbs_sql_identifier ;
 dbs_function_parameter_style: dbs_sql_identifier;
 oneof_lang: dbs_sql_identifier;
 dbs_k_m_g_identifier: dbs_sql_identifier;
+dbs_pieceSize : dbs_sql_identifier;
 kmg_blob_parameter: INTEGERLITERAL dbs_k_m_g_identifier? | dbs_sql_identifier;
 dbs_dsize_parameter: INTEGERLITERAL dbs_sql_identifier | dbs_sql_identifier;
 dbs_maxPartition: INTEGERLITERAL;
+dbs_minus_one: MINUSCHAR INTEGERLITERAL;
 /////

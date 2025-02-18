@@ -830,6 +830,14 @@ class TestSqlAllCreateStatements {
           + "                 DEFINE NO; \n"
           + "           END-EXEC.";
 
+  public static final String CREATE_TABLESPACE5 =
+      TEXT
+          + "            create tablespace amsm lockmax 23 define yes member \n"
+          + "            cluster dssize 23G TRACKMOD YES\n"
+          + "            compress yes huffman lockpart yes\n"
+          + "            numparts 2 (partition 2 using STOGROUP stgname PRIQTY -1)\n"
+          + "           END-EXEC.";
+
   // CREATE TRIGGER ADVANCED
   private static final String CREATE_TRIGGER_ADV =
       TEXT
@@ -1070,6 +1078,7 @@ class TestSqlAllCreateStatements {
         CREATE_TABLESPACE2,
         CREATE_TABLESPACE3,
         CREATE_TABLESPACE4,
+        CREATE_TABLESPACE5,
         CREATE_TRIGGER_ADV,
         CREATE_TRIGGER_ADV2,
         CREATE_TRIGGER_ADV3,
