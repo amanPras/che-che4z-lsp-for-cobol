@@ -520,7 +520,7 @@ organization_clause: ORGANIZE BY HASH UNIQUE column_loop partition_hash_space?;
 
 //CREATE TABLESPACE
 dbs_create_tablespace: TABLESPACE dbs_table_space_name dbs_create_tablespace_opts*;
-dbs_create_tablespace_opts : IN (DSNDB04  | dbs_database_name)
+dbs_create_tablespace_opts : IN dbs_database_name
                | partition_by_growth_spec
                | partition_by_range_spec
                | DEFINE no_or_yes
@@ -1420,7 +1420,7 @@ dbs_special_name: ABSOLUTE | ACCELERATION | ACCELERATOR | ACCESS | ACCESSCTRL | 
                 | DEC_ROUND_HALF_DOWN | DEC_ROUND_HALF_EVEN | DEC_ROUND_HALF_UP | DEC_ROUND_UP | DECLARE | DEFAULT
                 | DEFAULTS | DEFER | DEFERRED | DEFINE | DEFINEBIND | DEFINER | DEFINERUN | DEGREE | DELETE
                 | DENSE_RANK | DEPENDENT | DESC | DESCRIBE | DESCRIPTOR | DETERMINISTIC | DIAGNOSTICS | DISABLE
-                | DISALLOW | DISPATCH | DISPLAY | DISPLAYDB | DISTINCT | DROP | DROPIN | DSNDB04 | DSSIZE
+                | DISALLOW | DISPATCH | DISPLAY | DISPLAYDB | DISTINCT | DROP | DROPIN | DSSIZE
                 | DYNAMIC | DYNAMICRULES | EACH | EBCDIC | EDITPROC | ELEMENT | ELIGIBLE | ELSE | EMPTY
                 | ENABLE | ENCODING | ENCRYPTION | END | ENDING | ENFORCED | ENVIRONMENT | ERASE | ESCAPE | EUR
                 | EVERY | EXCHANGE | EXCLUDE | EXCLUDING | EXCLUSIVE | EXECUTE | EXISTS | EXPLAIN | EXTERNAL
