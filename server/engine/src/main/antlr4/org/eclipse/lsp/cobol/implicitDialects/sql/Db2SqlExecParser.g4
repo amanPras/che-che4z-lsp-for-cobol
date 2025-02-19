@@ -242,7 +242,6 @@ dbs_alter_tablespace: TABLESPACE (dbs_database_name DOT_FS)? dbs_table_space_nam
 dbs_alter_tablespace_unique_options: DROP PENDING CHANGES | DSSIZE dbs_dsize_parameter | SEGSIZE INTEGERLITERAL | PAGENUM RELATIVE | dbs_alter_tablespace_move;
 dbs_alter_tablespace_mul_opts: (
                                  dbs_create_alter_tablespace_opts_common
-                                 | DROP PENDING CHANGES
                                  | LOCKSIZE (TABLE | LOB)
                                  | MAXPARTITIONS dbs_maxPartition
                                  | MEMBER CLUSTER yes_or_no
@@ -526,7 +525,6 @@ dbs_create_tablespace_opts : IN (DSNDB04  | dbs_database_name)
                | partition_by_range_spec
                | DEFINE no_or_yes
                | locksize_block_tbl
-               | MAXROWS INTEGERLITERAL
                | MEMBER CLUSTER
                | DSSIZE dbs_dsize_parameter
                | CCSID oneof_encoding
@@ -539,6 +537,7 @@ dbs_create_alter_tablespace_opts_common: BUFFERPOOL dbs_bp_name
                | INSERT ALGORITHM dbs_create_algorithm_level
                | LOCKMAX (SYSTEM | INTEGERLITERAL)
                | locksize_block_tbl
+               | MAXROWS INTEGERLITERAL
                | NOT? LOGGED
                | TRACKMOD yes_or_no
                | free_block
