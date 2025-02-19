@@ -168,6 +168,16 @@ class TestSqlAllAlterStatements {
           + "            PCTFREE 25;\n"
           + "            END-EXEC.";
 
+  public static final String ALTER_INDEX5 =
+      TEXT
+          + "           EXEC SQL\n"
+          + "           alter index inxnm \n"
+          + "           bufferpool sdjks\n"
+          + "           add column (col1 ASC)\n"
+          + "           alter partition 2 ending (MAXVALUE) inclusive dssize 3G,\n"
+          + "           alter partition 4 ending (MINVALUE) inclusive dssize 3G\n"
+          + "           END-EXEC.";
+
   // ALTER MASK
   private static final String ALTER_MASK =
       TEXT + "            EXEC SQL ALTER MASK M1 ENABLE\n" + "            END-EXEC.";
@@ -483,6 +493,7 @@ class TestSqlAllAlterStatements {
         ALTER_INDEX2,
         ALTER_INDEX3,
         ALTER_INDEX4,
+        ALTER_INDEX5,
         ALTER_MASK,
         ALTER_MASK2,
         ALTER_PERMISSION,
