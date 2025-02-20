@@ -640,6 +640,13 @@ class TestSqlAllCreateStatements {
           + "                 KEY LABEL STG01KLABEL;\n"
           + "           END-EXEC.";
 
+  public static final String CREATE_STOGROUP3 =
+      TEXT
+          + "               create STOGROUP DSNCG100\n"
+          + "                 VOLUMES ('*','*') VCAT DSNCAT\n"
+          + "                 DATACLAS taco\n"
+          + "           END-EXEC.";
+
   // CREATE TABLE
   private static final String CREATE_TABLE =
       TEXT
@@ -1064,6 +1071,7 @@ class TestSqlAllCreateStatements {
         CREATE_SEQUENCE2,
         CREATE_STOGROUP,
         CREATE_STOGROUP2,
+        CREATE_STOGROUP3,
         CREATE_TABLE,
         CREATE_TABLE2,
         CREATE_TABLE3,

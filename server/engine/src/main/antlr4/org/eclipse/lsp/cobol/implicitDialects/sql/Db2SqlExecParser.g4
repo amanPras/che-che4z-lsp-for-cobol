@@ -185,8 +185,7 @@ dbs_alter_sequence: SEQUENCE dbs_sequence_name dbs_alter_sequence_loop (dbs_comm
 dbs_alter_sequence_loop: (RESTART (WITH INTEGERLITERAL)? | dbs_sequence_create_alter_opts);
 
 /*ALTER STOGROUP */
-dbs_alter_stogroup: STOGROUP dbs_stogroup_name (NO KEY LABEL | KEY LABEL dbs_sql_identifier | (ADD|REMOVE) VOLUMES LPARENCHAR (dbs_sql_identifier (dbs_comma_separator dbs_sql_identifier)* |
-                    SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE (dbs_comma_separator SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE)*) RPARENCHAR)+ (DATACLAS dbs_host_variable)? (MGMTCLAS dbs_sql_identifier)? (STORCLAS dbs_sql_identifier)?;//*ALTER TABLE */
+dbs_alter_stogroup: STOGROUP dbs_stogroup_name ((ADD|REMOVE) VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR)+ dbs_volume_cat;//*ALTER TABLE */
 dbs_alter_table: TABLE dbs_table_name (dbs_alter_table_add | dbs_alter_table_alter | dbs_alter_table_rename | dbs_alter_table_drop | dbs_alter_table_rotate | DATA CAPTURE (NONE|CHANGES) | NOT? VOLATILE CARDINALITY? |
                 (ACTIVATE|DEACTIVATE) (ROW|COLUMN) ACCESS CONTROL | APPEND (NO|YES) | AUDIT (NONE|CHANGES|ALL) | VALIDPROC (dbs_program_name | NULL)
                 | ENABLE ARCHIVE USE dbs_table_name | DISABLE ARCHIVE | NO KEY LABEL | KEY LABEL dbs_sql_identifier)+;
@@ -465,9 +464,9 @@ dbs_create_sequence: SEQUENCE dbs_sequence_name dbs_create_sequence_body*;
 dbs_create_sequence_body: AS (INTEGER | dbs_distinct_type_name | common_bit_int | common_bit_decimal) | START WITH INTEGERLITERAL | dbs_sequence_create_alter_opts;
 dbs_sequence_create_alter_opts: (INCREMENT BY|MINVALUE|MAXVALUE) INTEGERLITERAL | NO (MINVALUE|MAXVALUE) | NO? (CYCLE|ORDER) | NO CACHE | CACHE INTEGERLITERAL;
 //CREATE STOGROUP
-dbs_create_stogroup: STOGROUP dbs_stogroup_name (VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR)? VCAT dbs_volume_cat;
-dbs_volume_loop:  dbs_sql_identifier (dbs_comma_separator dbs_sql_identifier)* | ASTERISKCHAR (dbs_comma_separator ASTERISKCHAR)*;
-dbs_volume_cat: dbs_catalog_name (DATACLAS dbs_host_variable)? (MGMTCLAS dbs_sql_identifier)? (STORCLAS dbs_sql_identifier)? (NO KEY LABEL | KEY LABEL dbs_sql_identifier)?;
+dbs_create_stogroup: STOGROUP dbs_stogroup_name (VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR)? VCAT dbs_catalog_name dbs_volume_cat;
+dbs_volume_loop:  dbs_sql_identifier (dbs_comma_separator dbs_sql_identifier)* | SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE (dbs_comma_separator SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE)*;
+dbs_volume_cat: (DATACLAS dbs_sql_identifier)? (MGMTCLAS dbs_sql_identifier)? (STORCLAS dbs_sql_identifier)? (NO KEY LABEL | KEY LABEL dbs_sql_identifier)?;
 
 //CREATE SYNONYM deprecated, use CREATE ALIAS
 
