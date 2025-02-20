@@ -592,7 +592,7 @@ dbs_create_variable: VARIABLE dbs_object_name (common_built_in_type_core | dbs_a
 
 //CREATE VIEW
 dbs_create_view: VIEW dbs_view_name column_loop? AS tbl_expr_loop?  dbs_fullselect (WITH (CASCADED | LOCAL)? CHECK OPTION)?;
-tbl_expr_loop: WITH dbs_select_statement_common_table_expression dbs_comma_separator dbs_select_statement_common_table_expression*;
+tbl_expr_loop: WITH dbs_select_statement_common_table_expression (dbs_comma_separator dbs_select_statement_common_table_expression)*;
 
 /*DECLARE (all) */
 dbs_declare: DECLARE dbs_declare_global;
