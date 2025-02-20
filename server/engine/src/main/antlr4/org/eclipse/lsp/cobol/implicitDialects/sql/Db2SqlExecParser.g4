@@ -182,7 +182,7 @@ dbs_alter_procedure_options: (NOT? DETERMINISTIC | ((MODIFIES|READS) SQL DATA | 
                                 ARCHIVE SENSITIVE (YES|NO) | APPLCOMPAT dbs_applcompat_value | CONCENTRATE STATEMENTS (OFF|WITH LITERALS))*; /*random ordering req */
 /*ALTER SEQUENCE */
 dbs_alter_sequence: SEQUENCE dbs_sequence_name dbs_alter_sequence_loop (dbs_comma_separator? dbs_alter_sequence_loop)*;
-dbs_alter_sequence_loop: (RESTART (WITH INTEGERLITERAL)? | (INCREMENT BY|MINVALUE|MAXVALUE) INTEGERLITERAL | NO (MINVALUE|MAXVALUE) | NO? (CYCLE|ORDER) | NO CACHE | CACHE dbs_integer_constant);
+dbs_alter_sequence_loop: (RESTART (WITH INTEGERLITERAL)? | dbs_sequence_create_alter_opts);
 
 /*ALTER STOGROUP */
 dbs_alter_stogroup: STOGROUP dbs_stogroup_name (NO KEY LABEL | KEY LABEL dbs_sql_identifier | (ADD|REMOVE) VOLUMES LPARENCHAR (dbs_sql_identifier (dbs_comma_separator dbs_sql_identifier)* |
@@ -462,8 +462,8 @@ dbs_create_role: ROLE dbs_role_name;
 
 //CREATE SEQUENCE
 dbs_create_sequence: SEQUENCE dbs_sequence_name dbs_create_sequence_body*;
-dbs_create_sequence_body: AS (INTEGER | dbs_distinct_type_name | common_bit_int | common_bit_decimal) | START WITH INTEGERLITERAL | INCREMENT BY INTEGERLITERAL |
-                (NO MINVALUE | MINVALUE INTEGERLITERAL) | (NO MAXVALUE | MAXVALUE INTEGERLITERAL) | NO? CYCLE | (CACHE dbs_integer_constant | NO CACHE) | NO? ORDER;
+dbs_create_sequence_body: AS (INTEGER | dbs_distinct_type_name | common_bit_int | common_bit_decimal) | START WITH INTEGERLITERAL | dbs_sequence_create_alter_opts;
+dbs_sequence_create_alter_opts: (INCREMENT BY|MINVALUE|MAXVALUE) INTEGERLITERAL | NO (MINVALUE|MAXVALUE) | NO? (CYCLE|ORDER) | NO CACHE | CACHE INTEGERLITERAL;
 //CREATE STOGROUP
 dbs_create_stogroup: STOGROUP dbs_stogroup_name (VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR)? VCAT dbs_volume_cat;
 dbs_volume_loop:  dbs_sql_identifier (dbs_comma_separator dbs_sql_identifier)* | ASTERISKCHAR (dbs_comma_separator ASTERISKCHAR)*;
