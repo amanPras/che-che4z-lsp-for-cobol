@@ -647,6 +647,13 @@ class TestSqlAllCreateStatements {
           + "                 DATACLAS taco\n"
           + "           END-EXEC.";
 
+  public static final String CREATE_STOGROUP4 =
+      TEXT
+          + "             create STOGROUP DSNCG100\n"
+          + "                 VOLUMES ('*','*') VCAT DSNCAT\n"
+          + "                 NO KEY LABEL\n"
+          + "                 DATACLAS taco\n"
+          + "           END-EXEC.";
   // CREATE TABLE
   private static final String CREATE_TABLE =
       TEXT
@@ -950,6 +957,18 @@ class TestSqlAllCreateStatements {
           + "                WITH USE FOR SALLY\n"
           + "           END-EXEC.";
 
+  public static final String CREATE_TRUSTED_CONTEXT3 =
+      TEXT
+          + "             CREATE TRUSTED CONTEXT CTX1\n"
+          + "                 BASED UPON CONNECTION USING SYSTEM AUTHID ADMF001\n"
+          + "                 ATTRIBUTES (\n"
+          + "                 address \"2 . 4 . 5 . 62\",\n"
+          + "                 ENCRYPTION \"LOW\",\n"
+          + "                 SERVAUTH \"23\"\n"
+          + "                 )\n"
+          + "                 ENABLE NO DEFAULT SECURITY LABEL\n"
+          + "                 with use for autnm security label sclbl\n"
+          + "           END-EXEC.";
   // CREATE TYPE array
   private static final String CREATE_TYPE_ARRAY =
       TEXT
@@ -1072,6 +1091,7 @@ class TestSqlAllCreateStatements {
         CREATE_STOGROUP,
         CREATE_STOGROUP2,
         CREATE_STOGROUP3,
+        CREATE_STOGROUP4,
         CREATE_TABLE,
         CREATE_TABLE2,
         CREATE_TABLE3,
@@ -1095,6 +1115,7 @@ class TestSqlAllCreateStatements {
         CREATE_TRIGGER_BASIC,
         CREATE_TRUSTED_CONTEXT,
         CREATE_TRUSTED_CONTEXT2,
+        CREATE_TRUSTED_CONTEXT3,
         CREATE_TYPE_ARRAY,
         CREATE_TYPE_ARRAY2,
         CREATE_TYPE_ARRAY3,

@@ -185,7 +185,7 @@ dbs_alter_sequence: SEQUENCE dbs_sequence_name dbs_alter_sequence_loop (dbs_comm
 dbs_alter_sequence_loop: (RESTART (WITH INTEGERLITERAL)? | dbs_sequence_create_alter_opts);
 
 /*ALTER STOGROUP */
-dbs_alter_stogroup: STOGROUP dbs_stogroup_name ((ADD|REMOVE) VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR)+ dbs_volume_cat;//*ALTER TABLE */
+dbs_alter_stogroup: STOGROUP dbs_stogroup_name ((ADD|REMOVE) VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR | dbs_volume_cat)+;//*ALTER TABLE */
 dbs_alter_table: TABLE dbs_table_name (dbs_alter_table_add | dbs_alter_table_alter | dbs_alter_table_rename | dbs_alter_table_drop | dbs_alter_table_rotate | DATA CAPTURE (NONE|CHANGES) | NOT? VOLATILE CARDINALITY? |
                 (ACTIVATE|DEACTIVATE) (ROW|COLUMN) ACCESS CONTROL | APPEND (NO|YES) | AUDIT (NONE|CHANGES|ALL) | VALIDPROC (dbs_program_name | NULL)
                 | ENABLE ARCHIVE USE dbs_table_name | DISABLE ARCHIVE | NO KEY LABEL | KEY LABEL dbs_sql_identifier)+;
@@ -274,18 +274,12 @@ dbs_alter_trigger_drop: DROP VERSION dbs_trigger_version_id;
 
 /*ALTER TRUSTED CONTEXT */
 dbs_alter_trusted: TRUSTED CONTEXT dbs_context_name (dbs_alter_trusted_alter | dbs_alter_trusted_add | dbs_alter_trusted_drop | dbs_alter_trusted_replace)+;
-dbs_alter_trusted_alter: (ALTER (SYSTEM AUTHID dbs_authorization_name | NO DEFAULT ROLE | DEFAULT ROLE dbs_role_name (WITHOUT ROLE AS OBJECT OWNER | WITH ROLE AS OBJECT OWNER AND QUALIFIER)? |
-                         NO DEFAULT SECURITY LABEL | DEFAULT SECURITY LABEL dbs_seclabel_name | ATTRIBUTES LPARENCHAR (JOBNAME dbs_jobname_value RPARENCHAR | (ADDRESS dbs_address_value |
-                         ENCRYPTION dbs_encryption_value | SERVAUTH dbs_sql_identifier) (dbs_comma_separator (ADDRESS dbs_address_value | ENCRYPTION dbs_encryption_value | SERVAUTH dbs_sql_identifier))* RPARENCHAR))| ALTER? (ENABLE |DISABLE))+;
+dbs_alter_trusted_alter: ALTER (SYSTEM AUTHID dbs_authorization_name | dbs_trusted_context_create_alter_opts)+;
 dbs_alter_trusted_add: ADD (dbs_alter_trusted_add_attributes | dbs_alter_trusted_add_use);
-dbs_alter_trusted_add_attributes: ATTRIBUTES LPARENCHAR (JOBNAME dbs_jobname_value RPARENCHAR | (ADDRESS dbs_address_value |
-                                    SERVAUTH dbs_sql_identifier) (dbs_comma_separator (ADDRESS dbs_address_value | SERVAUTH dbs_sql_identifier))* RPARENCHAR);
+dbs_alter_trusted_add_attributes: ATTRIBUTES LPARENCHAR (jobname_opt_loop_body (dbs_comma_separator jobname_opt_loop_body)* | attribute_addr_serverauth (dbs_comma_separator attribute_addr_serverauth)* RPARENCHAR);
 dbs_alter_trusted_add_use: USE FOR dbs_alter_trusted_useloop (dbs_comma_separator dbs_alter_trusted_useloop)*;
-dbs_alter_trusted_useloop: (dbs_authorization_name dbs_alter_trusted_useopts | EXTERNAL SECURITY PROFILE dbs_profile_name dbs_alter_trusted_useopts | PUBLIC (WITH | WITHOUT) AUTHENTICATION);
-dbs_alter_trusted_useopts: (ROLE dbs_role_name)? (SECURITY LABEL dbs_seclabel_name)? ((WITH|WITHOUT) AUTHENTICATION)?;
-dbs_alter_trusted_drop: DROP (dbs_alter_trusted_drop_attributes | dbs_alter_trusted_drop_use);
-dbs_alter_trusted_drop_attributes: ATTRIBUTES LPARENCHAR (JOBNAME dbs_jobname_value? RPARENCHAR | (ADDRESS dbs_address_value? | SERVAUTH dbs_sql_identifier?) (dbs_comma_separator (ADDRESS dbs_address_value? |
-                                    SERVAUTH dbs_sql_identifier?))* RPARENCHAR);
+dbs_alter_trusted_useloop: (dbs_authorization_name | EXTERNAL SECURITY PROFILE dbs_profile_name) trusted_context_user_options? | PUBLIC (WITH | WITHOUT) AUTHENTICATION;
+dbs_alter_trusted_drop: DROP (dbs_alter_trusted_add_attributes | dbs_alter_trusted_drop_use);
 dbs_alter_trusted_drop_use: USE FOR (dbs_authorization_name | EXTERNAL SECURITY PROFILE dbs_profile_name | PUBLIC) (dbs_comma_separator (dbs_authorization_name | EXTERNAL SECURITY PROFILE dbs_profile_name | PUBLIC))*;
 dbs_alter_trusted_replace: REPLACE dbs_alter_trusted_add_use;
 
@@ -464,9 +458,9 @@ dbs_create_sequence: SEQUENCE dbs_sequence_name dbs_create_sequence_body*;
 dbs_create_sequence_body: AS (INTEGER | dbs_distinct_type_name | common_bit_int | common_bit_decimal) | START WITH INTEGERLITERAL | dbs_sequence_create_alter_opts;
 dbs_sequence_create_alter_opts: (INCREMENT BY|MINVALUE|MAXVALUE) INTEGERLITERAL | NO (MINVALUE|MAXVALUE) | NO? (CYCLE|ORDER) | NO CACHE | CACHE INTEGERLITERAL;
 //CREATE STOGROUP
-dbs_create_stogroup: STOGROUP dbs_stogroup_name (VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR)? VCAT dbs_catalog_name dbs_volume_cat;
+dbs_create_stogroup: STOGROUP dbs_stogroup_name (VOLUMES LPARENCHAR dbs_volume_loop RPARENCHAR)? VCAT dbs_catalog_name dbs_volume_cat*;
 dbs_volume_loop:  dbs_sql_identifier (dbs_comma_separator dbs_sql_identifier)* | SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE (dbs_comma_separator SINGLEQUOTE ASTERISKCHAR SINGLEQUOTE)*;
-dbs_volume_cat: (DATACLAS dbs_sql_identifier)? (MGMTCLAS dbs_sql_identifier)? (STORCLAS dbs_sql_identifier)? (NO KEY LABEL | KEY LABEL dbs_sql_identifier)?;
+dbs_volume_cat: DATACLAS dbs_sql_identifier| MGMTCLAS dbs_sql_identifier | STORCLAS dbs_sql_identifier | NO KEY LABEL | KEY LABEL dbs_sql_identifier;
 
 //CREATE SYNONYM deprecated, use CREATE ALIAS
 
@@ -564,15 +558,21 @@ triggered_action_basic: (WHEN dbs_search_condition)? sql_trigger_body_basic;
 sql_trigger_body_basic:  (dbs_triggered_sql_statement_basic | BEGIN ATOMIC (dbs_triggered_sql_statement_basic dbs_semicolon_end)+ END);
 
 //CREATE TRUSTED CONTEXT
-dbs_create_trusted_context: TRUSTED CONTEXT dbs_context_name BASED UPON CONNECTION USING SYSTEM AUTHID dbs_authorization_name (NO DEFAULT ROLE |
-           DEFAULT ROLE dbs_role_name (WITHOUT ROLE AS OBJECT OWNER | WITH ROLE AS OBJECT OWNER AND QUALIFIER)? |
-           DISABLE | ENABLE | NO DEFAULT SECURITY LABEL | DEFAULT SECURITY LABEL dbs_seclabel_name | ATTRIBUTES attributes_opt | with_user_opt)+;
+dbs_create_trusted_context: TRUSTED CONTEXT dbs_context_name BASED UPON CONNECTION USING SYSTEM AUTHID dbs_authorization_name (dbs_trusted_context_create_alter_opts | with_user_opt)+;
+dbs_trusted_context_create_alter_opts: NO DEFAULT ROLE
+                            | DEFAULT ROLE dbs_role_name (WITHOUT ROLE AS OBJECT OWNER | WITH ROLE AS OBJECT OWNER AND QUALIFIER)?
+                            | DISABLE
+                            | ENABLE
+                            | NO DEFAULT SECURITY LABEL
+                            | DEFAULT SECURITY LABEL dbs_seclabel_name
+                            | ATTRIBUTES attributes_opt;
 attributes_opt: LPARENCHAR (attributes_opt_loop_body (dbs_comma_separator attributes_opt_loop_body)* | jobname_opt_loop_body (dbs_comma_separator jobname_opt_loop_body)*) RPARENCHAR;
-attributes_opt_loop_body: ADDRESS dbs_address_value | ENCRYPTION dbs_encryption_value | SERVAUTH dbs_jobname_value;
+attributes_opt_loop_body: attribute_addr_serverauth | ENCRYPTION dbs_encryption_value;
+attribute_addr_serverauth: (ADDRESS | SERVAUTH) CHAR_STRING_LITERAL_DOUBLE_QUOTE;
 jobname_opt_loop_body: JOBNAME dbs_jobname_value;
 with_user_opt:  (WITH USE FOR with_user_loop_body (dbs_comma_separator with_user_loop_body)*);
-with_user_loop_body: dbs_authorization_name user_options | EXTERNAL SECURITY PROFILE dbs_profile_name user_options | PUBLIC without_or_with AUTHENTICATION;
-user_options: ((ROLE dbs_role_name)? ( dbs_seclabel_name)? (without_or_with AUTHENTICATION)?);
+with_user_loop_body: dbs_authorization_name trusted_context_user_options* | EXTERNAL SECURITY PROFILE dbs_profile_name trusted_context_user_options* | PUBLIC without_or_with AUTHENTICATION;
+trusted_context_user_options: ROLE dbs_role_name |  SECURITY LABEL dbs_seclabel_name | without_or_with AUTHENTICATION;
 
 //CREATE TYPE ARRAY
 dbs_create_type_array: TYPE dbs_array_type_name AS common_built_in_type_core ARRAY LSQUAREBRACKET (dbs_integer_constant | common_built_in_type2)? RSQUAREBRACKET  ; //TODO: Add validation for max value of 2147483647
@@ -1379,8 +1379,6 @@ CURRENT TEMPORAL BUSINESS_TIME | CURRENT TEMPORAL SYSTEM_TIME | (CURRENT TIME | 
 (CURRENT TIME ZONE| CURRENT TIMEZONE | CURRENT_TIMEZONE) | ENCRYPTION PASSWORD | (SESSION TIME ZONE | SESSION TIMEZONE) |
 SESSION_USER );
 
-dbs_ip4: INTEGERLITERAL DOT_FS INTEGERLITERAL DOT_FS INTEGERLITERAL DOT_FS INTEGERLITERAL+ | CHAR_STRING_LITERAL_DOUBLE_QUOTE;  // TODO check this
-dbs_address_value: dbs_ip4 | dbs_host_identifier ;  // TODO check this
 dbs_applcompat_value: FUNCTION_LEVEL_10 | FUNCTION_LEVEL_11 | FUNCTION_LEVEL_12;
 dbs_array_variable: dbs_sql_identifier LSQUAREBRACKET (dbs_expressions) RSQUAREBRACKET;
 dbs_attr_host_variable: dbs_host_identifier | NUMERICLITERAL ; // VARCHAR(128)
@@ -1479,7 +1477,6 @@ dbs_function_name: (dbs_sql_identifier DOT_FS)? dbs_sql_identifier; //must not b
 //dbs_imptkmod_param: YES | NO;
 dbs_include_data_type: dbs_alter_procedure_bit_int | dbs_alter_procedure_bit_decimal | dbs_alter_procedure_bit_float | dbs_alter_procedure_bit_decfloat | dbs_alter_procedure_bit_char | dbs_alter_procedure_bit_graphic | dbs_alter_procedure_bit_varchar | DATE | TIME | dbs_alter_procedure_bit_timestamp;
 dbs_jobname_value: dbs_string_constant;
-dbs_insert_algorithm_level: INTEGERLITERAL {validateTokenWithRegex($INTEGERLITERAL.text, "^0*[12]$", "level 1 and 2 are only allowed");};
 dbs_create_algorithm_level: INTEGERLITERAL {validateTokenWithRegex($INTEGERLITERAL.text, "^0*[0-2]$", "level 0, 1 and 2 are only allowed");};
 dbs_non_deterministic_expression: DATA CHANGE OPERATION | dbs_special_register | dbs_session_variable;
 dbs_session_variable : SYSIBM DOT_FS PACKAGE_NAME | SYSIBM DOT_FS PACKAGE_SCHEMA | SYSIBM DOT_FS PACKAGE_VERSION;

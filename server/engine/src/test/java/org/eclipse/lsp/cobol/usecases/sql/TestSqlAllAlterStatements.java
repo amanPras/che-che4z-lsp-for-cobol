@@ -431,7 +431,7 @@ class TestSqlAllAlterStatements {
       TEXT
           + "            EXEC SQL\n"
           + "            ALTER TRUSTED CONTEXT CTX3\n"
-          + "             DISABLE\n"
+          + "             ALTER DISABLE\n"
           + "             ADD USE FOR BILL;\n"
           + "            END-EXEC.";
 
@@ -452,6 +452,27 @@ class TestSqlAllAlterStatements {
           + "             ENCRYPTION \"LOW\");\n"
           + "            END-EXEC.";
 
+  public static final String ALTER_TRUSTED_CONTEXT5 =
+      TEXT
+          + "            EXEC SQL\n"
+          + "             ALTER TRUSTED CONTEXT CTX1\n"
+          + "                drop\n"
+          + "                 ATTRIBUTES (\n"
+          + "                  ADDRESS \"huu\",\n"
+          + "                 SERVAUTH \"JOB989L\"\n"
+          + "                 )\n"
+          + "           END-EXEC.";
+
+  public static final String ALTER_TRUSTED_CONTEXT6 =
+      TEXT
+          + "            EXEC SQL\n"
+          + "             alter TRUSTED CONTEXT CTX1\n"
+          + "                add\n"
+          + "                 ATTRIBUTES (\n"
+          + "                 address \"2 . 4 . 5 . 62\",\n"
+          + "                 SERVAUTH \"23\"\n"
+          + "                 )\n"
+          + "           END-EXEC.";
   // ALTER VIEW
   private static final String ALTER_VIEW =
       TEXT
@@ -522,6 +543,8 @@ class TestSqlAllAlterStatements {
         ALTER_TRUSTED_CONTEXT2,
         ALTER_TRUSTED_CONTEXT3,
         ALTER_TRUSTED_CONTEXT4,
+        ALTER_TRUSTED_CONTEXT5,
+        ALTER_TRUSTED_CONTEXT6,
         ALTER_VIEW,
         ALTER_VIEW2);
   }
