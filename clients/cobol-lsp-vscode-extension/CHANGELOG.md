@@ -6,6 +6,7 @@ All notable changes to the COBOL Language Support extension are documented in th
 #### Added
 - Better support for repository paragraph
 - Support for User-defined-functions
+- Support for additional CICS commands
 
 #### Fixed
 - Code optimization
