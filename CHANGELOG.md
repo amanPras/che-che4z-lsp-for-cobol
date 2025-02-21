@@ -41,7 +41,6 @@ All notable changes to the COBOL Language Support extension are documented in th
 * Copybooks are not resolved after downloaded from Endevor ([#2641](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/2641)) ([a3a0266](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/a3a0266f8bbe2d6bb05f5fb6e702d30cc0dbee06))
 * Correct grammar to align with IBM compiler ([8483bc2](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/8483bc2cd8d53bdedd9295fa2a1e028ebf114546))
 * DB2 decimal "1." case support ([9debfba](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/9debfbafac15a21986029035522101ea4b464691))
-* DB2TRAN grammar and test cases ([#2737](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/2737)) ([5b37788](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/5b3778858166915cab11b5480a7cb5bf5016b969))
 * Decode file name for analysis process notification ([3c6157c](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/3c6157cc822d62ee50b1e0f61c323c821b08b8e1))
 * Defects found in CICS INQUIRE ([#2661](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/2661)) ([a9c3d1d](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/a9c3d1d27f12febd2e35474a9b7dc70e87c6fb64))
 * Disable program bugs ([#2710](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/2710)) ([b0631d1](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/b0631d131a759261814e78bbff8c54f484d63ce4))
@@ -167,9 +166,6 @@ All notable changes to the COBOL Language Support extension are documented in th
 * Remove quadratic node check ([8fe79ad](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/8fe79ad7f19ba957eb38dc293d0e0e9aae451b29))
 * Restrict ELSE processing ([3f7406c](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/3f7406c07b596929911add5224bf0eb4681ac239))
 * Track current program for tree processors ([213832e](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/213832e515f9036e82a260422e4059874ded1d54))
-
-### Reverts
-* Revert "fix: DB2TRAN grammar and test cases (#2737)" (#2740) ([70c8897](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/70c88973871f50e87cf026f12d3c9c147f9528d0)), closes [#2737](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/2737) [#2740](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/2740)
 
 ## [2.3.0](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.2.0...2.3.0) (2024-10-24)
 
