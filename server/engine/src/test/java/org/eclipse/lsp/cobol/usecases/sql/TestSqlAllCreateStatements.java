@@ -972,36 +972,37 @@ class TestSqlAllCreateStatements {
   // CREATE TYPE array
   private static final String CREATE_TYPE_ARRAY =
       TEXT
-          + "            CREATE TYPE PHONENUMBERS AS DECIMAL(10,0) ARRAY[50];\n"
+          + "            CREATE TYPE PHONENUMBERS AS DECIMAL(10,0) ARRAY??(50??)\n"
           + "           END-EXEC.";
 
   private static final String CREATE_TYPE_ARRAY2 =
       TEXT
-          + "            CREATE TYPE GENERIC.NUMBERS AS DECFLOAT(34) ARRAY[];\n"
+          + "            CREATE TYPE GENERIC.NUMBERS AS DECFLOAT(34) ARRAY??(??)\n"
           + "           END-EXEC.";
 
   private static final String CREATE_TYPE_ARRAY3 =
       TEXT
           + "            CREATE TYPE PERSONAL_PHONENUMBERS AS DECIMAL(16,0) \n"
-          + "                     ARRAY[VARCHAR(8)];\n"
+          + "                     ARRAY??(VARCHAR(8)??)\n"
           + "           END-EXEC.";
 
   private static final String CREATE_TYPE_ARRAY4 =
       TEXT
-          + "            CREATE TYPE CAPITALSARRAY AS VARCHAR(30) ARRAY[VARCHAR(20)];\n"
+          + "                       CREATE TYPE CAPITALSARRAY AS VARCHAR(30) \n"
+          + "                       ARRAY??(VARCHAR(20)??)\n"
           + "           END-EXEC.";
 
   private static final String CREATE_TYPE_ARRAY5 =
       TEXT
-          + "            CREATE TYPE PRODUCTS AS VARCHAR(40) ARRAY[INTEGER];\n"
+          + "            CREATE TYPE PRODUCTS AS VARCHAR(40) ARRAY??(INTEGER??)\n"
           + "           END-EXEC.";
 
   // CREATE TYPE distinct
   private static final String CREATE_TYPE_DISTINCT =
-      TEXT + "            CREATE TYPE SHOESIZE AS INTEGER;\n" + "           END-EXEC.";
+      TEXT + "            CREATE TYPE SHOESIZE AS INTEGER\n" + "           END-EXEC.";
 
   private static final String CREATE_TYPE_DISTINCT2 =
-      TEXT + "            CREATE TYPE MILES AS DOUBLE;\n" + "           END-EXEC.";
+      TEXT + "            CREATE TYPE MILES AS DOUBLE\n" + "           END-EXEC.";
 
   // CREATE VARIABLE
   private static final String CREATE_VARIABLE =
