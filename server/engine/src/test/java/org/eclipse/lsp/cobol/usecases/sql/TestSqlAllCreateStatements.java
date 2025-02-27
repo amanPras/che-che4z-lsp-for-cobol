@@ -972,7 +972,7 @@ class TestSqlAllCreateStatements {
   // CREATE TYPE array
   private static final String CREATE_TYPE_ARRAY =
       TEXT
-          + "            CREATE TYPE PHONENUMBERS AS DECIMAL(10,0) ARRAY??(50??)\n"
+          + "            CREATE TYPE PHONENUMBERS AS DECIMAL(10,0) ARRAY[50]\n"
           + "           END-EXEC.";
 
   private static final String CREATE_TYPE_ARRAY2 =
@@ -989,7 +989,7 @@ class TestSqlAllCreateStatements {
   private static final String CREATE_TYPE_ARRAY4 =
       TEXT
           + "                       CREATE TYPE CAPITALSARRAY AS VARCHAR(30) \n"
-          + "                       ARRAY??(VARCHAR(20)??)\n"
+          + "                       ARRAY[VARCHAR(20)]\n"
           + "           END-EXEC.";
 
   private static final String CREATE_TYPE_ARRAY5 =
