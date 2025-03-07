@@ -253,11 +253,15 @@ async function loadProcessorGroupSettings<T extends string | string[]>(
   configObject: T,
   dialect: string = "COBOL",
 ): Promise<T> {
+  const docURI = Uri.parse(documentUri);
+  if (docURI.scheme !== "file") {
+    return configObject;
+  }
   const pgCfg: ProcessorGroup | undefined = loadProcessorsConfigForDocument(
     documentUri,
-    await readProcessorGroupsFileContent(Uri.parse(documentUri)),
-    await readProgramConfigFileContent(Uri.parse(documentUri)),
-    decodeBridgeJson(await loadBridgeJsonContent(Uri.parse(documentUri))),
+    await readProcessorGroupsFileContent(docURI),
+    await readProgramConfigFileContent(docURI),
+    decodeBridgeJson(await loadBridgeJsonContent(docURI)),
   );
   if (pgCfg === undefined) {
     return configObject;
