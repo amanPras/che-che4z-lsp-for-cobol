@@ -120,6 +120,7 @@ describe("Processor groups configuration provides lib path", () => {
       .spyOn(glob, "globSync")
       .mockImplementation(
         (config: string | string[], _options: glob.GlobOptions) => {
+          if (config.length === 0) return [];
           if (config[0] === "/copy") return ["/copy-resolved-from-glob"];
           else throw Error("some issue with input param");
         },
@@ -134,6 +135,16 @@ describe("Processor groups configuration provides lib path", () => {
 
     const result = await loadProcessorGroupCopybookPathsConfig(item, []);
     expect(result).toStrictEqual(["/copy-resolved-from-glob"]);
+  });
+
+  it("Processor groups configuration are not read for virtual document", async () => {
+    const item = {
+      scopeUri: "zowe-ds:///my/workspace" + "/TEST.cob",
+      section: "cobol-lsp.cpy-manager.paths-local",
+    };
+
+    const result = await loadProcessorGroupCopybookPathsConfig(item, []);
+    expect(result).toStrictEqual([]);
   });
 });
 
