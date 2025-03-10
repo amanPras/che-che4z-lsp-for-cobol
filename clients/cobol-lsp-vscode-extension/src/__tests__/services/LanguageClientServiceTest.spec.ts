@@ -28,6 +28,7 @@ import { registerEvent } from "../../services/reporter";
 
 jest.mock("../../services/reporter");
 jest.mock("../../services/copybook/CopybookURI");
+jest.mock("../../services/BridgeForGitLoader");
 
 jest.mock("vscode", () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return

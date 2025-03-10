@@ -14,7 +14,7 @@
 import * as t from "io-ts";
 import { isLeft } from "fp-ts/Either";
 import { PathReporter } from "io-ts/PathReporter";
-import { workspace, Uri } from "vscode";
+import { workspace, Uri, FileSystemWatcher } from "vscode";
 import { TextDecoder } from "util";
 
 const ElementMetadata = t.type({
@@ -33,7 +33,11 @@ const B4GTypeMetadataModel = t.type({
   fileExtension: t.string,
 });
 
+const docToBridgeJsonMap: Map<string, string | undefined> = new Map();
+const bridgeJsonToDocMap: Map<string, string[]> = new Map();
 export type B4GTypeMetadata = t.TypeOf<typeof B4GTypeMetadataModel>;
+
+const BRIDGE4GIT_CONFIG_FILE = "**/.bridge.json";
 
 export function decodeBridgeJson(json: unknown): B4GTypeMetadata | undefined {
   if (json === undefined) {
@@ -56,12 +60,17 @@ export function decodeBridgeJson(json: unknown): B4GTypeMetadata | undefined {
 export async function loadBridgeJsonContent(
   documentUri: Uri,
 ): Promise<unknown> {
+  if (docToBridgeJsonMap.has(documentUri.toString()))
+    return docToBridgeJsonMap.get(documentUri.toString());
   const b4gPath = Uri.joinPath(documentUri, "../.bridge.json");
   try {
-    return JSON.parse(
-      new TextDecoder().decode(await workspace.fs.readFile(b4gPath)),
+    const result = new TextDecoder().decode(
+      await workspace.fs.readFile(b4gPath),
     );
+    updateCache(documentUri, result, b4gPath);
+    return JSON.parse(result);
   } catch (e) {
+    updateCache(documentUri, undefined, b4gPath);
     if (
       e &&
       typeof e === "object" &&
@@ -71,5 +80,70 @@ export async function loadBridgeJsonContent(
       console.error(e);
     }
     return undefined;
+  }
+}
+const watcherChangeEventHandler = async (uri: Uri) => {
+  if (bridgeJsonToDocMap.has(uri.toString())) {
+    await reloadBridgeJsonContent(uri);
+  }
+};
+
+export function setupBridge4GitWatcher(): FileSystemWatcher {
+  const bridge4GitWatcher = workspace.createFileSystemWatcher(
+    BRIDGE4GIT_CONFIG_FILE,
+  );
+  const events: Array<
+    keyof Pick<FileSystemWatcher, "onDidChange" | "onDidCreate" | "onDidDelete">
+  > = ["onDidChange", "onDidCreate", "onDidDelete"];
+  events.forEach((event) =>
+    bridge4GitWatcher[event](watcherChangeEventHandler),
+  );
+  return bridge4GitWatcher;
+}
+
+async function reloadBridgeJsonContent(b4gPath: Uri) {
+  try {
+    const result = new TextDecoder().decode(
+      await workspace.fs.readFile(b4gPath),
+    );
+    reloadCache(result, b4gPath);
+  } catch (e) {
+    reloadCache(undefined, b4gPath);
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      e.code !== "FileNotFound"
+    ) {
+      console.error(e);
+    }
+    return undefined;
+  }
+}
+
+function updateCache(
+  documentUri: Uri,
+  result: string | undefined,
+  b4gPath: Uri,
+) {
+  docToBridgeJsonMap.set(documentUri.toString(), result);
+  if (bridgeJsonToDocMap.has(b4gPath.toString())) {
+    const existingArray = bridgeJsonToDocMap.get(b4gPath.toString())!;
+    existingArray.push(documentUri.toString());
+  } else {
+    bridgeJsonToDocMap.set(b4gPath.toString(), [documentUri.toString()]);
+  }
+}
+
+function reloadCache(result: string | undefined, b4gPath: Uri) {
+  if (bridgeJsonToDocMap.has(b4gPath.toString())) {
+    const existingDoc = bridgeJsonToDocMap.get(b4gPath.toString())!;
+    docToBridgeJsonMap.forEach((val, key) => {
+      if (existingDoc.includes(key.toString())) {
+        docToBridgeJsonMap.set(key, result);
+      }
+    });
+  } else {
+    bridgeJsonToDocMap.set(b4gPath.toString(), []);
   }
 }

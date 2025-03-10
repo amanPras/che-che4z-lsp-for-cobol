@@ -30,6 +30,7 @@ import { JavaCheck } from "./JavaCheck";
 import { NativeExecutableService } from "./nativeLanguageClient/nativeExecutableService";
 import { SettingsService } from "./Settings";
 import { registerEvent } from "./reporter";
+import { setupBridge4GitWatcher } from "./BridgeForGitLoader";
 
 const extensionId = "BroadcomMFD.cobol-language-support";
 
@@ -155,6 +156,7 @@ export class LanguageClientService {
           vscode.workspace.createFileSystemWatcher(
             new vscode.RelativePattern(this.storagePath, "**/*"),
           ),
+          setupBridge4GitWatcher(),
         ],
       },
     };

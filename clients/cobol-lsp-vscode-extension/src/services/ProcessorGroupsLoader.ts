@@ -20,6 +20,15 @@ import { TextDecoder } from "util";
 const PG_FOLDER = ".cobolplugin";
 const PGR_PGM_FILE = "pgm_conf.json";
 const PG_PROC_FILE = "proc_grps.json";
+const DEFAULT_PROCESSOR_GROUP_CONFIG = "[]";
+const DEFAULT_PROCESSOR_CONFIG = '{ "pgms": [] }';
+type WorkspaceConfigEntry =
+  | [string | undefined, string | undefined]
+  | undefined;
+const workspaceConfiguration: Map<
+  string,
+  [string | undefined, string | undefined]
+> = new Map();
 
 const ProgramsConfigModel = t.type({
   pgms: t.array(
@@ -73,29 +82,24 @@ export async function readProgramConfigFileContent(
   if (ws === undefined) {
     return EMPTY;
   }
+  const wsUriString = ws.uri.toString();
   const pgmCfgPath = Uri.joinPath(ws.uri, PG_FOLDER, PGR_PGM_FILE);
-  try {
-    const json: unknown = JSON.parse(
-      new TextDecoder().decode(await workspace.fs.readFile(pgmCfgPath)),
-    );
-    const decoded = ProgramsConfigModel.decode(json);
-    if (isLeft(decoded)) {
-      throw Error(
-        `Could not validate data: ${PathReporter.report(decoded).join("\n")}`,
-      );
-    }
-    return decoded.right;
-  } catch (e) {
-    if (
-      e &&
-      typeof e === "object" &&
-      "code" in e &&
-      e.code !== "FileNotFound"
-    ) {
-      console.error(e);
-    }
-    return EMPTY;
+  let programConfig: string;
+  const cachedValue = workspaceConfiguration.get(wsUriString);
+
+  if (cachedValue && cachedValue[1]) {
+    programConfig = cachedValue[1];
+  } else {
+    programConfig = await readFileAndCache(wsUriString, pgmCfgPath, 1);
   }
+  const json: unknown = JSON.parse(programConfig);
+  const decoded = ProgramsConfigModel.decode(json);
+  if (isLeft(decoded)) {
+    throw Error(
+      `Could not validate data: ${PathReporter.report(decoded).join("\n")}`,
+    );
+  }
+  return decoded.right;
 }
 
 export async function readProcessorGroupsFileContent(
@@ -106,14 +110,25 @@ export async function readProcessorGroupsFileContent(
     return [];
   }
 
+  const wsUriString = ws.uri.toString();
   const procCfgPath = Uri.joinPath(ws.uri, PG_FOLDER, PG_PROC_FILE);
   try {
     const ProcessorGrpupsModel = t.type({
       pgroups: t.array(ProcessorGroupModel),
     });
-    const json: unknown = JSON.parse(
-      new TextDecoder().decode(await workspace.fs.readFile(procCfgPath)),
-    );
+    let processorGroupConfig: string;
+    const cachedValue = workspaceConfiguration.get(wsUriString);
+
+    if (cachedValue && cachedValue[0]) {
+      processorGroupConfig = cachedValue[0];
+    } else {
+      processorGroupConfig = await readFileAndCache(
+        wsUriString,
+        procCfgPath,
+        0,
+      );
+    }
+    const json: unknown = JSON.parse(processorGroupConfig);
 
     const decoded = ProcessorGrpupsModel.decode(json);
     if (isLeft(decoded)) {
@@ -132,5 +147,53 @@ export async function readProcessorGroupsFileContent(
       console.error(e);
     }
     return [];
+  }
+}
+
+async function readFileAndCache(
+  wsUriString: string,
+  pgmCfgPath: Uri,
+  cacheIndex: 0 | 1,
+): Promise<string> {
+  try {
+    const fileContent = new TextDecoder().decode(
+      await workspace.fs.readFile(pgmCfgPath),
+    );
+    // Update the cache with the new value
+    const config = workspaceConfiguration.get(wsUriString);
+    const newConfig: WorkspaceConfigEntry =
+      cacheIndex === 0
+        ? [fileContent, config ? config[1] : undefined]
+        : [config ? config[0] : undefined, fileContent];
+    workspaceConfiguration.set(wsUriString, newConfig);
+    return fileContent;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      e.code !== "FileNotFound"
+    ) {
+      console.error(e);
+    }
+    if (!workspaceConfiguration.has(wsUriString)) {
+      const emptyValue: WorkspaceConfigEntry =
+        cacheIndex === 0
+          ? [DEFAULT_PROCESSOR_GROUP_CONFIG, undefined]
+          : [undefined, DEFAULT_PROCESSOR_CONFIG];
+      workspaceConfiguration.set(wsUriString, emptyValue);
+    } else {
+      const config = workspaceConfiguration.get(wsUriString);
+      if (config) {
+        config[cacheIndex] =
+          cacheIndex === 0
+            ? DEFAULT_PROCESSOR_GROUP_CONFIG
+            : DEFAULT_PROCESSOR_CONFIG;
+        workspaceConfiguration.set(wsUriString, config);
+      }
+    }
+    return cacheIndex === 0
+      ? DEFAULT_PROCESSOR_GROUP_CONFIG
+      : DEFAULT_PROCESSOR_CONFIG;
   }
 }
