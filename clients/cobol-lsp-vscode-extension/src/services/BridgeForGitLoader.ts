@@ -33,7 +33,8 @@ const B4GTypeMetadataModel = t.type({
   fileExtension: t.string,
 });
 
-const docToBridgeJsonContentMap: Map<string, string | undefined> = new Map();
+const docToBridgeJsonContentMap: Map<string, B4GTypeMetadata | undefined> =
+  new Map();
 const bridgeJsonToDocUriMap: Map<string, string[]> = new Map();
 export type B4GTypeMetadata = t.TypeOf<typeof B4GTypeMetadataModel>;
 
@@ -60,15 +61,15 @@ export function decodeBridgeJson(json: unknown): B4GTypeMetadata | undefined {
 export async function loadBridgeJsonContent(
   documentUri: Uri,
 ): Promise<unknown> {
-  if (docToBridgeJsonContentMap.has(documentUri.toString()))
-    return docToBridgeJsonContentMap.get(documentUri.toString());
+  const docUriString = documentUri.toString();
+  if (docToBridgeJsonContentMap.has(docUriString)) {
+    return docToBridgeJsonContentMap.get(docUriString);
+  }
   const b4gPath = Uri.joinPath(documentUri, "../.bridge.json");
   try {
-    const result = new TextDecoder().decode(
-      await workspace.fs.readFile(b4gPath),
-    );
-    updateCache(documentUri, result, b4gPath);
-    return JSON.parse(result);
+    const bridge4GitDataJson = await readBridge4GitJson(b4gPath);
+    updateCache(documentUri, bridge4GitDataJson, b4gPath);
+    return bridge4GitDataJson;
   } catch (e) {
     updateCache(documentUri, undefined, b4gPath);
     if (
@@ -88,6 +89,13 @@ const watcherChangeEventHandler = async (uri: Uri) => {
   }
 };
 
+async function readBridge4GitJson(b4gPath: Uri) {
+  const bridge4GitDataString = new TextDecoder().decode(
+    await workspace.fs.readFile(b4gPath),
+  );
+  return JSON.parse(bridge4GitDataString);
+}
+
 export function setupBridge4GitWatcher(): FileSystemWatcher {
   const bridge4GitWatcher = workspace.createFileSystemWatcher(
     BRIDGE4GIT_CONFIG_FILE,
@@ -103,10 +111,8 @@ export function setupBridge4GitWatcher(): FileSystemWatcher {
 
 async function reloadBridgeJsonContent(b4gPath: Uri) {
   try {
-    const result = new TextDecoder().decode(
-      await workspace.fs.readFile(b4gPath),
-    );
-    reloadCache(result, b4gPath);
+    const bridge4GitDataJson = await readBridge4GitJson(b4gPath);
+    reloadCache(bridge4GitDataJson, b4gPath);
   } catch (e) {
     reloadCache(undefined, b4gPath);
     if (
@@ -123,22 +129,28 @@ async function reloadBridgeJsonContent(b4gPath: Uri) {
 
 function updateCache(
   documentUri: Uri,
-  result: string | undefined,
+  result: B4GTypeMetadata | undefined,
   b4gPath: Uri,
 ) {
-  docToBridgeJsonContentMap.set(documentUri.toString(), result);
-  if (bridgeJsonToDocUriMap.has(b4gPath.toString())) {
-    const existingArray = bridgeJsonToDocUriMap.get(b4gPath.toString())!;
-    existingArray.push(documentUri.toString());
+  const documentUriString = documentUri.toString();
+  const b4gPathString = b4gPath.toString();
+
+  docToBridgeJsonContentMap.set(documentUriString, result);
+
+  if (bridgeJsonToDocUriMap.has(b4gPathString)) {
+    const existingArray = bridgeJsonToDocUriMap.get(b4gPathString)!;
+    if (!existingArray.includes(documentUriString)) {
+      existingArray.push(documentUriString);
+    }
   } else {
-    bridgeJsonToDocUriMap.set(b4gPath.toString(), [documentUri.toString()]);
+    bridgeJsonToDocUriMap.set(b4gPathString, [documentUriString]);
   }
 }
 
-function reloadCache(result: string | undefined, b4gPath: Uri) {
+function reloadCache(result: B4GTypeMetadata | undefined, b4gPath: Uri) {
   if (bridgeJsonToDocUriMap.has(b4gPath.toString())) {
     const existingDoc = bridgeJsonToDocUriMap.get(b4gPath.toString())!;
-    docToBridgeJsonContentMap.forEach((val, key) => {
+    docToBridgeJsonContentMap.forEach((_val, key) => {
       if (existingDoc.includes(key.toString())) {
         docToBridgeJsonContentMap.set(key, result);
       }

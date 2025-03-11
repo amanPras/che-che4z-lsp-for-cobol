@@ -54,6 +54,6 @@ export class Uri {
   }
 
   toString(): string {
-    return "file://" + this.path;
+    return `${this.scheme}://${this.path}`;
   }
 }

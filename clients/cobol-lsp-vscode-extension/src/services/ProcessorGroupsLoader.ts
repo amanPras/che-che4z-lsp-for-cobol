@@ -25,11 +25,12 @@ const DEFAULT_PROCESSOR_CONFIG = '{ "pgms": [] }';
 type WorkspaceConfigEntry =
   | [string | undefined, string | undefined]
   | undefined;
-const workspaceConfiguration: Map<
-  string,
-  [string | undefined, string | undefined]
-> = new Map();
+const workspaceConfiguration: Map<string, WorkspaceConfigEntry> = new Map();
 
+enum ProcessorIndex {
+  PROCESSOR_GROUP = 0,
+  PROCESSOR_CONFIG = 1,
+}
 const ProgramsConfigModel = t.type({
   pgms: t.array(
     t.type({
@@ -87,10 +88,14 @@ export async function readProgramConfigFileContent(
   let programConfig: string;
   const cachedValue = workspaceConfiguration.get(wsUriString);
 
-  if (cachedValue && cachedValue[1]) {
-    programConfig = cachedValue[1];
+  if (cachedValue && cachedValue[ProcessorIndex.PROCESSOR_CONFIG]) {
+    programConfig = cachedValue[ProcessorIndex.PROCESSOR_CONFIG];
   } else {
-    programConfig = await readFileAndCache(wsUriString, pgmCfgPath, 1);
+    programConfig = await readFileAndCache(
+      wsUriString,
+      pgmCfgPath,
+      ProcessorIndex.PROCESSOR_CONFIG,
+    );
   }
   const json: unknown = JSON.parse(programConfig);
   const decoded = ProgramsConfigModel.decode(json);
@@ -119,13 +124,13 @@ export async function readProcessorGroupsFileContent(
     let processorGroupConfig: string;
     const cachedValue = workspaceConfiguration.get(wsUriString);
 
-    if (cachedValue && cachedValue[0]) {
-      processorGroupConfig = cachedValue[0];
+    if (cachedValue && cachedValue[ProcessorIndex.PROCESSOR_GROUP]) {
+      processorGroupConfig = cachedValue[ProcessorIndex.PROCESSOR_GROUP];
     } else {
       processorGroupConfig = await readFileAndCache(
         wsUriString,
         procCfgPath,
-        0,
+        ProcessorIndex.PROCESSOR_GROUP,
       );
     }
     const json: unknown = JSON.parse(processorGroupConfig);
@@ -153,7 +158,7 @@ export async function readProcessorGroupsFileContent(
 async function readFileAndCache(
   wsUriString: string,
   pgmCfgPath: Uri,
-  cacheIndex: 0 | 1,
+  cacheIndex: ProcessorIndex,
 ): Promise<string> {
   try {
     const fileContent = new TextDecoder().decode(
@@ -162,9 +167,15 @@ async function readFileAndCache(
     // Update the cache with the new value
     const config = workspaceConfiguration.get(wsUriString);
     const newConfig: WorkspaceConfigEntry =
-      cacheIndex === 0
-        ? [fileContent, config ? config[1] : undefined]
-        : [config ? config[0] : undefined, fileContent];
+      cacheIndex === ProcessorIndex.PROCESSOR_GROUP
+        ? [
+            fileContent,
+            config ? config[ProcessorIndex.PROCESSOR_CONFIG] : undefined,
+          ]
+        : [
+            config ? config[ProcessorIndex.PROCESSOR_GROUP] : undefined,
+            fileContent,
+          ];
     workspaceConfiguration.set(wsUriString, newConfig);
     return fileContent;
   } catch (e) {
@@ -178,7 +189,7 @@ async function readFileAndCache(
     }
     if (!workspaceConfiguration.has(wsUriString)) {
       const emptyValue: WorkspaceConfigEntry =
-        cacheIndex === 0
+        cacheIndex === ProcessorIndex.PROCESSOR_GROUP
           ? [DEFAULT_PROCESSOR_GROUP_CONFIG, undefined]
           : [undefined, DEFAULT_PROCESSOR_CONFIG];
       workspaceConfiguration.set(wsUriString, emptyValue);
@@ -186,13 +197,13 @@ async function readFileAndCache(
       const config = workspaceConfiguration.get(wsUriString);
       if (config) {
         config[cacheIndex] =
-          cacheIndex === 0
+          cacheIndex === ProcessorIndex.PROCESSOR_GROUP
             ? DEFAULT_PROCESSOR_GROUP_CONFIG
             : DEFAULT_PROCESSOR_CONFIG;
         workspaceConfiguration.set(wsUriString, config);
       }
     }
-    return cacheIndex === 0
+    return cacheIndex === ProcessorIndex.PROCESSOR_GROUP
       ? DEFAULT_PROCESSOR_GROUP_CONFIG
       : DEFAULT_PROCESSOR_CONFIG;
   }

@@ -254,9 +254,6 @@ async function loadProcessorGroupSettings<T extends string | string[]>(
   dialect: string = "COBOL",
 ): Promise<T> {
   const docURI = Uri.parse(documentUri);
-  if (docURI.scheme !== "file") {
-    return configObject;
-  }
   const pgCfg: ProcessorGroup | undefined = loadProcessorsConfigForDocument(
     documentUri,
     await readProcessorGroupsFileContent(docURI),
