@@ -33,8 +33,8 @@ const B4GTypeMetadataModel = t.type({
   fileExtension: t.string,
 });
 
-const docToBridgeJsonMap: Map<string, string | undefined> = new Map();
-const bridgeJsonToDocMap: Map<string, string[]> = new Map();
+const docToBridgeJsonContentMap: Map<string, string | undefined> = new Map();
+const bridgeJsonToDocUriMap: Map<string, string[]> = new Map();
 export type B4GTypeMetadata = t.TypeOf<typeof B4GTypeMetadataModel>;
 
 const BRIDGE4GIT_CONFIG_FILE = "**/.bridge.json";
@@ -60,8 +60,8 @@ export function decodeBridgeJson(json: unknown): B4GTypeMetadata | undefined {
 export async function loadBridgeJsonContent(
   documentUri: Uri,
 ): Promise<unknown> {
-  if (docToBridgeJsonMap.has(documentUri.toString()))
-    return docToBridgeJsonMap.get(documentUri.toString());
+  if (docToBridgeJsonContentMap.has(documentUri.toString()))
+    return docToBridgeJsonContentMap.get(documentUri.toString());
   const b4gPath = Uri.joinPath(documentUri, "../.bridge.json");
   try {
     const result = new TextDecoder().decode(
@@ -83,7 +83,7 @@ export async function loadBridgeJsonContent(
   }
 }
 const watcherChangeEventHandler = async (uri: Uri) => {
-  if (bridgeJsonToDocMap.has(uri.toString())) {
+  if (bridgeJsonToDocUriMap.has(uri.toString())) {
     await reloadBridgeJsonContent(uri);
   }
 };
@@ -126,24 +126,24 @@ function updateCache(
   result: string | undefined,
   b4gPath: Uri,
 ) {
-  docToBridgeJsonMap.set(documentUri.toString(), result);
-  if (bridgeJsonToDocMap.has(b4gPath.toString())) {
-    const existingArray = bridgeJsonToDocMap.get(b4gPath.toString())!;
+  docToBridgeJsonContentMap.set(documentUri.toString(), result);
+  if (bridgeJsonToDocUriMap.has(b4gPath.toString())) {
+    const existingArray = bridgeJsonToDocUriMap.get(b4gPath.toString())!;
     existingArray.push(documentUri.toString());
   } else {
-    bridgeJsonToDocMap.set(b4gPath.toString(), [documentUri.toString()]);
+    bridgeJsonToDocUriMap.set(b4gPath.toString(), [documentUri.toString()]);
   }
 }
 
 function reloadCache(result: string | undefined, b4gPath: Uri) {
-  if (bridgeJsonToDocMap.has(b4gPath.toString())) {
-    const existingDoc = bridgeJsonToDocMap.get(b4gPath.toString())!;
-    docToBridgeJsonMap.forEach((val, key) => {
+  if (bridgeJsonToDocUriMap.has(b4gPath.toString())) {
+    const existingDoc = bridgeJsonToDocUriMap.get(b4gPath.toString())!;
+    docToBridgeJsonContentMap.forEach((val, key) => {
       if (existingDoc.includes(key.toString())) {
-        docToBridgeJsonMap.set(key, result);
+        docToBridgeJsonContentMap.set(key, result);
       }
     });
   } else {
-    bridgeJsonToDocMap.set(b4gPath.toString(), []);
+    bridgeJsonToDocUriMap.set(b4gPath.toString(), []);
   }
 }
