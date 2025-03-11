@@ -40,7 +40,7 @@ export type B4GTypeMetadata = t.TypeOf<typeof B4GTypeMetadataModel>;
 
 const BRIDGE4GIT_CONFIG_FILE = "**/.bridge.json";
 
-export function decodeBridgeJson(json: unknown): B4GTypeMetadata | undefined {
+function decodeBridgeJson(json: unknown): B4GTypeMetadata | undefined {
   if (json === undefined) {
     return undefined;
   }
@@ -60,7 +60,7 @@ export function decodeBridgeJson(json: unknown): B4GTypeMetadata | undefined {
 
 export async function loadBridgeJsonContent(
   documentUri: Uri,
-): Promise<unknown> {
+): Promise<B4GTypeMetadata | undefined> {
   const docUriString = documentUri.toString();
   if (docToBridgeJsonContentMap.has(docUriString)) {
     return docToBridgeJsonContentMap.get(docUriString);

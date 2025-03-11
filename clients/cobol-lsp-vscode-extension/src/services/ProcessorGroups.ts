@@ -23,11 +23,7 @@ import {
   normalizePath,
 } from "./util/FSUtils";
 import { DialectsConfiguration, SettingsService } from "./Settings";
-import {
-  B4GTypeMetadata,
-  decodeBridgeJson,
-  loadBridgeJsonContent,
-} from "./BridgeForGitLoader";
+import { B4GTypeMetadata, loadBridgeJsonContent } from "./BridgeForGitLoader";
 import {
   Preprocessor,
   ProcessorGroup,
@@ -127,7 +123,7 @@ export async function loadProcessorGroupDialectConfig(
       item.scopeUri,
       await readProcessorGroupsFileContent(Uri.parse(item.scopeUri)),
       await readProgramConfigFileContent(Uri.parse(item.scopeUri)),
-      decodeBridgeJson(await loadBridgeJsonContent(Uri.parse(item.scopeUri))),
+      await loadBridgeJsonContent(Uri.parse(item.scopeUri)),
     );
     if (pgCfg === undefined || pgCfg.preprocessor == undefined) {
       return dialectConfig;
@@ -258,7 +254,7 @@ async function loadProcessorGroupSettings<T extends string | string[]>(
     documentUri,
     await readProcessorGroupsFileContent(docURI),
     await readProgramConfigFileContent(docURI),
-    decodeBridgeJson(await loadBridgeJsonContent(docURI)),
+    await loadBridgeJsonContent(docURI),
   );
   if (pgCfg === undefined) {
     return configObject;
