@@ -67,7 +67,8 @@ export async function loadBridgeJsonContent(
   }
   const b4gPath = Uri.joinPath(documentUri, "../.bridge.json");
   try {
-    const bridge4GitDataJson = await readBridge4GitJson(b4gPath);
+    const bridge4GitDataJson: B4GTypeMetadata | undefined =
+      await readBridge4GitJson(b4gPath);
     updateCache(documentUri, bridge4GitDataJson, b4gPath);
     return bridge4GitDataJson;
   } catch (e) {
@@ -93,7 +94,8 @@ async function readBridge4GitJson(b4gPath: Uri) {
   const bridge4GitDataString = new TextDecoder().decode(
     await workspace.fs.readFile(b4gPath),
   );
-  return JSON.parse(bridge4GitDataString);
+  const bridge4GitDataJson: unknown = JSON.parse(bridge4GitDataString);
+  return decodeBridgeJson(bridge4GitDataJson);
 }
 
 export function setupBridge4GitWatcher(): FileSystemWatcher {
@@ -111,7 +113,8 @@ export function setupBridge4GitWatcher(): FileSystemWatcher {
 
 async function reloadBridgeJsonContent(b4gPath: Uri) {
   try {
-    const bridge4GitDataJson = await readBridge4GitJson(b4gPath);
+    const bridge4GitDataJson: B4GTypeMetadata | undefined =
+      await readBridge4GitJson(b4gPath);
     reloadCache(bridge4GitDataJson, b4gPath);
   } catch (e) {
     reloadCache(undefined, b4gPath);
