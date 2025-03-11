@@ -42,9 +42,6 @@ describe("CopybooksPathGenerator tests", () => {
   it("creates dataset path", () => {
     expect(
       CopybookURI.createDatasetPath([profile], dataset, "downloadFolder"),
-    ).toEqual({
-      path: "downloadFolder/zowe/copybooks/profile/dataset",
-      scheme: "file",
-    });
+    ).toEqual({ path: "downloadFolder/zowe/copybooks/profile/dataset" });
   });
 });

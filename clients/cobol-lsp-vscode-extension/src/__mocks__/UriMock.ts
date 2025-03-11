@@ -1,13 +1,8 @@
 export class Uri {
-  constructor(
-    public path: string,
-    public scheme: string = "file",
-  ) {}
+  constructor(public path: string) {}
   static parse(str: string): Uri {
-    const splitPath = str.split("://");
-    const scheme = splitPath.length > 1 ? splitPath[0] : "file";
-    const path = splitPath.length > 1 ? splitPath[1] : str;
-    return new Uri(path, scheme);
+    const path = str.startsWith("file://") ? removeSchema(str) : str;
+    return new Uri(path);
   }
 
   static file(str: string): Uri {
@@ -54,6 +49,10 @@ export class Uri {
   }
 
   toString(): string {
-    return `${this.scheme}://${this.path}`;
+    return "file://" + this.path;
   }
+}
+
+function removeSchema(uri: string): string {
+  return uri.substring("file://".length);
 }

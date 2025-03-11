@@ -55,23 +55,18 @@ describe("e4e copybook downloader tests", () => {
           ),
         ).toEqual({
           path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance\\pgm\\Copy",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "C:\\Users\\Developer\\globalStorage\\e4e",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance\\pgm",
-          scheme: "file",
         });
       });
     });
@@ -91,23 +86,18 @@ describe("e4e copybook downloader tests", () => {
           ),
         ).toEqual({
           path: "/home/developer/globalStorage/e4e/copybooks/Instance.Instance/pgm/Copy",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "/home/developer/globalStorage/e4e",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "/home/developer/globalStorage/e4e/copybooks",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "/home/developer/globalStorage/e4e/copybooks/Instance.Instance",
-          scheme: "file",
         });
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith({
           path: "/home/developer/globalStorage/e4e/copybooks/Instance.Instance/pgm",
-          scheme: "file",
         });
       });
     });
@@ -222,7 +212,6 @@ describe("e4e copybook downloader tests", () => {
       expect(vscode.workspace.fs.writeFile).toHaveBeenCalledWith(
         {
           path: "/storagePath/e4e/copybooks/instance.profile/dataset/copybook",
-          scheme: "file",
         },
         Buffer.from("content"),
       );
