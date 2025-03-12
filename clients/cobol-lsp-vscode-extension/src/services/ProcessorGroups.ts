@@ -294,15 +294,21 @@ export function setUpProgramConfigWatcher() {
   watcher.onDidDelete((_uri) =>
     clearWorkspaceConfigCache(ProcessorIndex.PROGRAM_CONFIG),
   );
+  watcher.onDidCreate((_uri) =>
+    clearWorkspaceConfigCache(ProcessorIndex.PROGRAM_CONFIG),
+  );
   return watcher;
 }
 
-export function setUpPProcessorGroupConfigWatcher() {
+export function setUpProcessorGroupConfigWatcher() {
   const watcher = workspace.createFileSystemWatcher("**/proc_grps.json");
   watcher.onDidChange((_uri) =>
     clearWorkspaceConfigCache(ProcessorIndex.PROCESSOR_GROUP),
   );
   watcher.onDidDelete((_uri) =>
+    clearWorkspaceConfigCache(ProcessorIndex.PROCESSOR_GROUP),
+  );
+  watcher.onDidCreate((_uri) =>
     clearWorkspaceConfigCache(ProcessorIndex.PROCESSOR_GROUP),
   );
   return watcher;

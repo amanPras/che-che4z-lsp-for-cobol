@@ -32,7 +32,7 @@ import { SettingsService } from "./Settings";
 import { registerEvent } from "./reporter";
 import { setupBridge4GitWatcher } from "./BridgeForGitLoader";
 import {
-  setUpPProcessorGroupConfigWatcher,
+  setUpProcessorGroupConfigWatcher,
   setUpProgramConfigWatcher,
 } from "./ProcessorGroups";
 
@@ -156,7 +156,7 @@ export class LanguageClientService {
       synchronize: {
         fileEvents: [
           setUpProgramConfigWatcher(),
-          setUpPProcessorGroupConfigWatcher(),
+          setUpProcessorGroupConfigWatcher(),
           vscode.workspace.createFileSystemWatcher(
             new vscode.RelativePattern(this.storagePath, "**/*"),
           ),
