@@ -67,8 +67,7 @@ export async function loadBridgeJsonContent(
   }
   const b4gPath = Uri.joinPath(documentUri, "../.bridge.json");
   try {
-    const bridge4GitDataJson: B4GTypeMetadata | undefined =
-      await readBridge4GitJson(b4gPath);
+    const bridge4GitDataJson = await readBridge4GitJson(b4gPath);
     updateCache(documentUri, bridge4GitDataJson, b4gPath);
     return bridge4GitDataJson;
   } catch (e) {
@@ -102,19 +101,15 @@ export function setupBridge4GitWatcher(): FileSystemWatcher {
   const bridge4GitWatcher = workspace.createFileSystemWatcher(
     BRIDGE4GIT_CONFIG_FILE,
   );
-  const events: Array<
-    keyof Pick<FileSystemWatcher, "onDidChange" | "onDidCreate" | "onDidDelete">
-  > = ["onDidChange", "onDidCreate", "onDidDelete"];
-  events.forEach((event) =>
-    bridge4GitWatcher[event](watcherChangeEventHandler),
-  );
+  bridge4GitWatcher.onDidChange(watcherChangeEventHandler);
+  bridge4GitWatcher.onDidCreate(watcherChangeEventHandler);
+  bridge4GitWatcher.onDidDelete(watcherChangeEventHandler);
   return bridge4GitWatcher;
 }
 
 async function reloadBridgeJsonContent(b4gPath: Uri) {
   try {
-    const bridge4GitDataJson: B4GTypeMetadata | undefined =
-      await readBridge4GitJson(b4gPath);
+    const bridge4GitDataJson = await readBridge4GitJson(b4gPath);
     reloadCache(bridge4GitDataJson, b4gPath);
   } catch (e) {
     reloadCache(undefined, b4gPath);

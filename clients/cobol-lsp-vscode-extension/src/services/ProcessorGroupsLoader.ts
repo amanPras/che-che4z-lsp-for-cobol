@@ -21,15 +21,15 @@ const PG_FOLDER = ".cobolplugin";
 const PGR_PGM_FILE = "pgm_conf.json";
 const PG_PROC_FILE = "proc_grps.json";
 const DEFAULT_PROCESSOR_GROUP_CONFIG = "[]";
-const DEFAULT_PROCESSOR_CONFIG = '{ "pgms": [] }';
+const DEFAULT_PROGRAM_CONFIG = '{ "pgms": [] }';
 type WorkspaceConfigEntry =
   | [string | undefined, string | undefined]
   | undefined;
 const workspaceConfiguration: Map<string, WorkspaceConfigEntry> = new Map();
 
-enum ProcessorIndex {
+const enum ProcessorIndex {
   PROCESSOR_GROUP = 0,
-  PROCESSOR_CONFIG = 1,
+  PROGRAM_CONFIG = 1,
 }
 const ProgramsConfigModel = t.type({
   pgms: t.array(
@@ -88,13 +88,13 @@ export async function readProgramConfigFileContent(
   let programConfig: string;
   const cachedValue = workspaceConfiguration.get(wsUriString);
 
-  if (cachedValue && cachedValue[ProcessorIndex.PROCESSOR_CONFIG]) {
-    programConfig = cachedValue[ProcessorIndex.PROCESSOR_CONFIG];
+  if (cachedValue && cachedValue[ProcessorIndex.PROGRAM_CONFIG]) {
+    programConfig = cachedValue[ProcessorIndex.PROGRAM_CONFIG];
   } else {
     programConfig = await readFileAndCache(
       wsUriString,
       pgmCfgPath,
-      ProcessorIndex.PROCESSOR_CONFIG,
+      ProcessorIndex.PROGRAM_CONFIG,
     );
   }
   const json: unknown = JSON.parse(programConfig);
@@ -170,7 +170,7 @@ async function readFileAndCache(
       cacheIndex === ProcessorIndex.PROCESSOR_GROUP
         ? [
             fileContent,
-            config ? config[ProcessorIndex.PROCESSOR_CONFIG] : undefined,
+            config ? config[ProcessorIndex.PROGRAM_CONFIG] : undefined,
           ]
         : [
             config ? config[ProcessorIndex.PROCESSOR_GROUP] : undefined,
@@ -191,7 +191,7 @@ async function readFileAndCache(
       const emptyValue: WorkspaceConfigEntry =
         cacheIndex === ProcessorIndex.PROCESSOR_GROUP
           ? [DEFAULT_PROCESSOR_GROUP_CONFIG, undefined]
-          : [undefined, DEFAULT_PROCESSOR_CONFIG];
+          : [undefined, DEFAULT_PROGRAM_CONFIG];
       workspaceConfiguration.set(wsUriString, emptyValue);
     } else {
       const config = workspaceConfiguration.get(wsUriString);
@@ -199,12 +199,12 @@ async function readFileAndCache(
         config[cacheIndex] =
           cacheIndex === ProcessorIndex.PROCESSOR_GROUP
             ? DEFAULT_PROCESSOR_GROUP_CONFIG
-            : DEFAULT_PROCESSOR_CONFIG;
+            : DEFAULT_PROGRAM_CONFIG;
         workspaceConfiguration.set(wsUriString, config);
       }
     }
     return cacheIndex === ProcessorIndex.PROCESSOR_GROUP
       ? DEFAULT_PROCESSOR_GROUP_CONFIG
-      : DEFAULT_PROCESSOR_CONFIG;
+      : DEFAULT_PROGRAM_CONFIG;
   }
 }
