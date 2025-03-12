@@ -25,8 +25,10 @@ import {
 import { DialectsConfiguration, SettingsService } from "./Settings";
 import { B4GTypeMetadata, loadBridgeJsonContent } from "./BridgeForGitLoader";
 import {
+  clearWorkspaceConfigCache,
   Preprocessor,
   ProcessorGroup,
+  ProcessorIndex,
   ProgramsConfig,
   readProcessorGroupsFileContent,
   readProgramConfigFileContent,
@@ -282,4 +284,26 @@ async function loadProcessorGroupSettings<T extends string | string[]>(
     console.error(JSON.stringify(e));
     return configObject;
   }
+}
+
+export function setUpProgramConfigWatcher() {
+  const watcher = workspace.createFileSystemWatcher("**/pgm_conf.json");
+  watcher.onDidChange((_uri) =>
+    clearWorkspaceConfigCache(ProcessorIndex.PROGRAM_CONFIG),
+  );
+  watcher.onDidDelete((_uri) =>
+    clearWorkspaceConfigCache(ProcessorIndex.PROGRAM_CONFIG),
+  );
+  return watcher;
+}
+
+export function setUpPProcessorGroupConfigWatcher() {
+  const watcher = workspace.createFileSystemWatcher("**/proc_grps.json");
+  watcher.onDidChange((_uri) =>
+    clearWorkspaceConfigCache(ProcessorIndex.PROCESSOR_GROUP),
+  );
+  watcher.onDidDelete((_uri) =>
+    clearWorkspaceConfigCache(ProcessorIndex.PROCESSOR_GROUP),
+  );
+  return watcher;
 }

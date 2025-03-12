@@ -31,6 +31,10 @@ import { NativeExecutableService } from "./nativeLanguageClient/nativeExecutable
 import { SettingsService } from "./Settings";
 import { registerEvent } from "./reporter";
 import { setupBridge4GitWatcher } from "./BridgeForGitLoader";
+import {
+  setUpPProcessorGroupConfigWatcher,
+  setUpProgramConfigWatcher,
+} from "./ProcessorGroups";
 
 const extensionId = "BroadcomMFD.cobol-language-support";
 
@@ -151,8 +155,8 @@ export class LanguageClientService {
       outputChannel: this.outputChannel,
       synchronize: {
         fileEvents: [
-          vscode.workspace.createFileSystemWatcher("**/pgm_conf.json"),
-          vscode.workspace.createFileSystemWatcher("**/proc_grps.json"),
+          setUpProgramConfigWatcher(),
+          setUpPProcessorGroupConfigWatcher(),
           vscode.workspace.createFileSystemWatcher(
             new vscode.RelativePattern(this.storagePath, "**/*"),
           ),

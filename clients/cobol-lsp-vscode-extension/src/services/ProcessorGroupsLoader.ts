@@ -20,14 +20,13 @@ import { TextDecoder } from "util";
 const PG_FOLDER = ".cobolplugin";
 const PGR_PGM_FILE = "pgm_conf.json";
 const PG_PROC_FILE = "proc_grps.json";
-const DEFAULT_PROCESSOR_GROUP_CONFIG = "[]";
-const DEFAULT_PROGRAM_CONFIG = '{ "pgms": [] }';
-type WorkspaceConfigEntry =
-  | [string | undefined, string | undefined]
-  | undefined;
-const workspaceConfiguration: Map<string, WorkspaceConfigEntry> = new Map();
+const EMPTY_PROGRAM_CONFIG = { pgms: [] };
+const workspaceConfigs: [
+  Map<string, ProcessorGroup[]>,
+  Map<string, ProgramsConfig>,
+] = [new Map<string, ProcessorGroup[]>(), new Map<string, ProgramsConfig>()];
 
-const enum ProcessorIndex {
+export const enum ProcessorIndex {
   PROCESSOR_GROUP = 0,
   PROGRAM_CONFIG = 1,
 }
@@ -77,34 +76,18 @@ export type ProcessorGroup = t.TypeOf<typeof ProcessorGroupModel>;
 export async function readProgramConfigFileContent(
   documentUri: Uri,
 ): Promise<ProgramsConfig> {
-  const EMPTY = { pgms: [] };
-
   const ws = workspace.getWorkspaceFolder(documentUri);
   if (ws === undefined) {
-    return EMPTY;
+    return EMPTY_PROGRAM_CONFIG;
   }
   const wsUriString = ws.uri.toString();
   const pgmCfgPath = Uri.joinPath(ws.uri, PG_FOLDER, PGR_PGM_FILE);
-  let programConfig: string;
-  const cachedValue = workspaceConfiguration.get(wsUriString);
 
-  if (cachedValue && cachedValue[ProcessorIndex.PROGRAM_CONFIG]) {
-    programConfig = cachedValue[ProcessorIndex.PROGRAM_CONFIG];
+  if (workspaceConfigs[ProcessorIndex.PROGRAM_CONFIG].has(wsUriString)) {
+    return workspaceConfigs[ProcessorIndex.PROGRAM_CONFIG].get(wsUriString)!;
   } else {
-    programConfig = await readFileAndCache(
-      wsUriString,
-      pgmCfgPath,
-      ProcessorIndex.PROGRAM_CONFIG,
-    );
+    return await readProgranConfigAndCache(wsUriString, pgmCfgPath);
   }
-  const json: unknown = JSON.parse(programConfig);
-  const decoded = ProgramsConfigModel.decode(json);
-  if (isLeft(decoded)) {
-    throw Error(
-      `Could not validate data: ${PathReporter.report(decoded).join("\n")}`,
-    );
-  }
-  return decoded.right;
 }
 
 export async function readProcessorGroupsFileContent(
@@ -117,30 +100,36 @@ export async function readProcessorGroupsFileContent(
 
   const wsUriString = ws.uri.toString();
   const procCfgPath = Uri.joinPath(ws.uri, PG_FOLDER, PG_PROC_FILE);
+  if (workspaceConfigs[ProcessorIndex.PROCESSOR_GROUP].has(wsUriString)) {
+    return workspaceConfigs[ProcessorIndex.PROCESSOR_GROUP].get(wsUriString)!;
+  } else {
+    return await readProcessorGroupsFileAndCache(wsUriString, procCfgPath);
+  }
+}
+
+async function readProcessorGroupsFileAndCache(
+  wsUriString: string,
+  procCfgPath: Uri,
+): Promise<ProcessorGroup[]> {
   try {
+    const fileContent = new TextDecoder().decode(
+      await workspace.fs.readFile(procCfgPath),
+    );
+    // update new cache
     const ProcessorGrpupsModel = t.type({
       pgroups: t.array(ProcessorGroupModel),
     });
-    let processorGroupConfig: string;
-    const cachedValue = workspaceConfiguration.get(wsUriString);
-
-    if (cachedValue && cachedValue[ProcessorIndex.PROCESSOR_GROUP]) {
-      processorGroupConfig = cachedValue[ProcessorIndex.PROCESSOR_GROUP];
-    } else {
-      processorGroupConfig = await readFileAndCache(
-        wsUriString,
-        procCfgPath,
-        ProcessorIndex.PROCESSOR_GROUP,
-      );
-    }
-    const json: unknown = JSON.parse(processorGroupConfig);
-
+    const json: unknown = JSON.parse(fileContent);
     const decoded = ProcessorGrpupsModel.decode(json);
     if (isLeft(decoded)) {
       throw Error(
         `Could not validate data: ${PathReporter.report(decoded).join("\n")}`,
       );
     }
+    workspaceConfigs[ProcessorIndex.PROCESSOR_GROUP].set(
+      wsUriString,
+      decoded.right.pgroups,
+    );
     return decoded.right.pgroups;
   } catch (e) {
     if (
@@ -151,33 +140,32 @@ export async function readProcessorGroupsFileContent(
     ) {
       console.error(e);
     }
+    workspaceConfigs[ProcessorIndex.PROCESSOR_GROUP].set(wsUriString, []);
     return [];
   }
 }
 
-async function readFileAndCache(
+async function readProgranConfigAndCache(
   wsUriString: string,
   pgmCfgPath: Uri,
-  cacheIndex: ProcessorIndex,
-): Promise<string> {
+): Promise<ProgramsConfig> {
   try {
     const fileContent = new TextDecoder().decode(
       await workspace.fs.readFile(pgmCfgPath),
     );
-    // Update the cache with the new value
-    const config = workspaceConfiguration.get(wsUriString);
-    const newConfig: WorkspaceConfigEntry =
-      cacheIndex === ProcessorIndex.PROCESSOR_GROUP
-        ? [
-            fileContent,
-            config ? config[ProcessorIndex.PROGRAM_CONFIG] : undefined,
-          ]
-        : [
-            config ? config[ProcessorIndex.PROCESSOR_GROUP] : undefined,
-            fileContent,
-          ];
-    workspaceConfiguration.set(wsUriString, newConfig);
-    return fileContent;
+    // update new cache
+    const json: unknown = JSON.parse(fileContent);
+    const decoded = ProgramsConfigModel.decode(json);
+    if (isLeft(decoded)) {
+      throw Error(
+        `Could not validate data: ${PathReporter.report(decoded).join("\n")}`,
+      );
+    }
+    workspaceConfigs[ProcessorIndex.PROGRAM_CONFIG].set(
+      wsUriString,
+      decoded.right,
+    );
+    return decoded.right;
   } catch (e) {
     if (
       e &&
@@ -187,24 +175,14 @@ async function readFileAndCache(
     ) {
       console.error(e);
     }
-    if (!workspaceConfiguration.has(wsUriString)) {
-      const emptyValue: WorkspaceConfigEntry =
-        cacheIndex === ProcessorIndex.PROCESSOR_GROUP
-          ? [DEFAULT_PROCESSOR_GROUP_CONFIG, undefined]
-          : [undefined, DEFAULT_PROGRAM_CONFIG];
-      workspaceConfiguration.set(wsUriString, emptyValue);
-    } else {
-      const config = workspaceConfiguration.get(wsUriString);
-      if (config) {
-        config[cacheIndex] =
-          cacheIndex === ProcessorIndex.PROCESSOR_GROUP
-            ? DEFAULT_PROCESSOR_GROUP_CONFIG
-            : DEFAULT_PROGRAM_CONFIG;
-        workspaceConfiguration.set(wsUriString, config);
-      }
-    }
-    return cacheIndex === ProcessorIndex.PROCESSOR_GROUP
-      ? DEFAULT_PROCESSOR_GROUP_CONFIG
-      : DEFAULT_PROGRAM_CONFIG;
+    workspaceConfigs[ProcessorIndex.PROGRAM_CONFIG].set(
+      wsUriString,
+      EMPTY_PROGRAM_CONFIG,
+    );
+    return EMPTY_PROGRAM_CONFIG;
   }
+}
+
+export function clearWorkspaceConfigCache(configIndex: ProcessorIndex) {
+  workspaceConfigs[configIndex].clear();
 }
