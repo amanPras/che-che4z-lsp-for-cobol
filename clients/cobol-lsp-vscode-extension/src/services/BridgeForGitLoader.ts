@@ -60,16 +60,14 @@ export async function loadBridgeJsonContent(
   documentUri: Uri,
 ): Promise<B4GTypeMetadata | undefined> {
   const b4gPath = Uri.joinPath(documentUri, "../.bridge.json");
-  if (!bridge4GitCacheMap.has(b4gPath.toString())) {
-    await reloadBridgeJsonContent(b4gPath);
+  if (bridge4GitCacheMap.has(b4gPath.toString())) {
+    return bridge4GitCacheMap.get(b4gPath.toString());
   }
-  return bridge4GitCacheMap.get(b4gPath.toString());
+  return reloadBridgeJsonContent(b4gPath);
 }
 
-const watcherChangeEventHandler = async (uri: Uri) => {
-  if (bridge4GitCacheMap.has(uri.toString())) {
-    await reloadBridgeJsonContent(uri);
-  }
+const watcherChangeEventHandler = (uri: Uri) => {
+  bridge4GitCacheMap.delete(uri.toString());
 };
 
 async function readBridge4GitJson(b4gPath: Uri) {
