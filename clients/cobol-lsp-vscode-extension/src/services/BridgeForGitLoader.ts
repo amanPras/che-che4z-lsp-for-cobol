@@ -34,7 +34,6 @@ const B4GTypeMetadataModel = t.type({
 });
 
 const bridge4GitCacheMap: Map<string, B4GTypeMetadata | undefined> = new Map();
-const bridgeJsonToDocUriMap: Map<string, string[]> = new Map();
 export type B4GTypeMetadata = t.TypeOf<typeof B4GTypeMetadataModel>;
 
 const BRIDGE4GIT_CONFIG_FILE = "**/.bridge.json";
@@ -68,7 +67,7 @@ export async function loadBridgeJsonContent(
 }
 
 const watcherChangeEventHandler = async (uri: Uri) => {
-  if (bridgeJsonToDocUriMap.has(uri.toString())) {
+  if (bridge4GitCacheMap.has(uri.toString())) {
     await reloadBridgeJsonContent(uri);
   }
 };
