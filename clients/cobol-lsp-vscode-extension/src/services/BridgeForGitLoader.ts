@@ -92,6 +92,7 @@ async function reloadBridgeJsonContent(b4gPath: Uri) {
   try {
     const bridge4GitDataJson = await readBridge4GitJson(b4gPath);
     bridge4GitCacheMap.set(b4gPath.toString(), bridge4GitDataJson);
+    return bridge4GitDataJson;
   } catch (e) {
     bridge4GitCacheMap.set(b4gPath.toString(), undefined);
     if (
