@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -53,7 +54,7 @@ public class CICSErrorListener extends BaseErrorListener {
 
     SyntaxError error =
         SyntaxError.syntaxError()
-            .errorSource(ErrorSource.PARSING)
+            .errorSource(ErrorSource.PREPROCESSING.updateLevel(ErrorLevel.ERROR))
             .location(
                 Locality.builder()
                     .uri(uri)

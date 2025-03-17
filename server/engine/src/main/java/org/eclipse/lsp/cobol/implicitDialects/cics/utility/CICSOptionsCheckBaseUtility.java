@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -305,7 +306,7 @@ public abstract class CICSOptionsCheckBaseUtility {
             ErrorSeverity errorSeverity, @NonNull Locality locality, String message, String wrongToken) {
         SyntaxError error =
                 SyntaxError.syntaxError()
-                        .errorSource(ErrorSource.PARSING)
+                        .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                         .location(locality.toOriginalLocation())
                         .suggestion(message + wrongToken)
                         .severity(errorSeverity)

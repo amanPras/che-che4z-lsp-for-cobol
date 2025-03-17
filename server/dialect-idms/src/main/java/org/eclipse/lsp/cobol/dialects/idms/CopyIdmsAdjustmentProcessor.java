@@ -18,6 +18,7 @@ package org.eclipse.lsp.cobol.dialects.idms;
 import com.google.common.collect.ImmutableList;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
@@ -109,7 +110,7 @@ public class CopyIdmsAdjustmentProcessor {
             .location(Locality.builder().uri(uri).range(rangeForError).build().toOriginalLocation())
             .suggestion(messageService.getMessage(message))
             .severity(WARNING)
-            .errorSource(ErrorSource.DIALECT)
+            .errorSource(ErrorSource.DIALECT.updateLevel(ErrorLevel.SEMANTICS))
             .relatedInformation(
                 new DiagnosticRelatedInformation(sourceLocality.toLocation(), "Copy IDMS source"))
             .build());

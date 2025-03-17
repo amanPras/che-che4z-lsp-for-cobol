@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -43,7 +44,7 @@ public class ParserListener extends BaseErrorListener {
 
     SyntaxError error =
         SyntaxError.syntaxError()
-            .errorSource(ErrorSource.PARSING)
+            .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.ERROR))
             .suggestion(msg)
             .severity(ErrorSeverity.ERROR)
             .build();

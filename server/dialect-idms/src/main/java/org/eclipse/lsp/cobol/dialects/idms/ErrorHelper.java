@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.dialects.idms;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.error.ErrorCodes;
@@ -50,7 +51,7 @@ class ErrorHelper {
   public SyntaxError circularDependency(MessageService messageService, Locality locality, String copybookName) {
     SyntaxError error =
         SyntaxError.syntaxError()
-            .errorSource(ErrorSource.DIALECT)
+            .errorSource(ErrorSource.DIALECT.updateLevel(ErrorLevel.FATAL))
             .location(locality.toOriginalLocation())
             .suggestion(
                 messageService.getMessage(

@@ -18,6 +18,7 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -46,7 +47,7 @@ public class CompilerDirectivesErrorListener extends BaseErrorListener {
     Range range = CompilerDirectivesUtils.shiftRange(new Range(start, end), startPosition);
     Location location = new Location(analysisContext.getExtendedDocument().getUri(), range);
     SyntaxError error = SyntaxError.syntaxError()
-            .errorSource(ErrorSource.PARSING)
+            .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.ERROR))
             .suggestion(msg)
             .location(new OriginalLocation(location, null))
             .severity(ErrorSeverity.ERROR)

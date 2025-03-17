@@ -31,6 +31,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.OutlineNodeNames;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
@@ -398,7 +399,7 @@ public class SectionNodeProcessorHelper {
     if (precedingVariable == null || precedingVariable.getLevel() == LEVEL_66)
       errors =
           ImmutableList.of(
-              variable.getError(MessageTemplate.of(PREVIOUS_WITHOUT_PIC_FOR_88, variableName)));
+              variable.getError(MessageTemplate.of(PREVIOUS_WITHOUT_PIC_FOR_88, variableName), ErrorLevel.SEMANTICS));
     return new ResultWithErrors<>(variable, errors);
   }
 
@@ -577,7 +578,7 @@ public class SectionNodeProcessorHelper {
         .stream()
         .filter(list -> list.size() > 1)
         .flatMap(List::stream)
-        .map(variable -> variable.getError(MessageTemplate.of(GLOBAL_TOO_MANY_DEFINITIONS)))
+        .map(variable -> variable.getError(MessageTemplate.of(GLOBAL_TOO_MANY_DEFINITIONS), ErrorLevel.SEMANTICS))
         .collect(Collectors.toList());
   }
 
@@ -589,7 +590,7 @@ public class SectionNodeProcessorHelper {
         .map(
             variable ->
                 variable.getError(
-                    MessageTemplate.of(NUMBER_NOT_ALLOWED_AT_TOP, variable.getName())))
+                    MessageTemplate.of(NUMBER_NOT_ALLOWED_AT_TOP, variable.getName()), ErrorLevel.SEMANTICS))
         .collect(Collectors.toList());
   }
 
@@ -607,7 +608,7 @@ public class SectionNodeProcessorHelper {
   private List<SyntaxError> processRenamesBoundaries(
       RenameItemNode variable, GroupItemNode group, VariableDefinitionNode definitionNode) {
     if (group == null)
-      return ImmutableList.of(variable.getError(MessageTemplate.of(NO_STRUCTURE_BEFORE_RENAME)));
+      return ImmutableList.of(variable.getError(MessageTemplate.of(NO_STRUCTURE_BEFORE_RENAME), ErrorLevel.SEMANTICS));
     List<SyntaxError> errors = new ArrayList<>();
     Integer renamesIndex =
         processRenamesClauseAndGetIndex(variable, definitionNode.getRenamesClause(), group)
@@ -616,7 +617,7 @@ public class SectionNodeProcessorHelper {
         processRenamesClauseAndGetIndex(variable, definitionNode.getRenamesThruClause(), group)
             .unwrap(errors::addAll);
     if (renamesIndex != -1 && renamesThruIndex != -1 && renamesIndex >= renamesThruIndex)
-      errors.add(variable.getError(MessageTemplate.of(INCORRECT_CHILDREN_ORDER)));
+      errors.add(variable.getError(MessageTemplate.of(INCORRECT_CHILDREN_ORDER), ErrorLevel.SEMANTICS));
     return errors;
   }
 
@@ -645,13 +646,13 @@ public class SectionNodeProcessorHelper {
         } else {
           errors.add(
               variable.getError(
-                  MessageTemplate.of(CHILD_TO_RENAME_NOT_FOUND, renames.get(1).getName())));
+                  MessageTemplate.of(CHILD_TO_RENAME_NOT_FOUND, renames.get(1).getName()), ErrorLevel.SEMANTICS));
         }
       }
     } else
       errors =
           ImmutableList.of(
-              variable.getError(MessageTemplate.of(CHILD_TO_RENAME_NOT_FOUND, renamesName)));
+              variable.getError(MessageTemplate.of(CHILD_TO_RENAME_NOT_FOUND, renamesName), ErrorLevel.SEMANTICS));
     return new ResultWithErrors<>(renamesIndex, errors);
   }
 

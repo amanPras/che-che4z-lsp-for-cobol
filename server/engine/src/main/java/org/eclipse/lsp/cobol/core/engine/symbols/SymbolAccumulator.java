@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.core.engine.symbols;
 
 import com.google.common.collect.ImmutableList;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -114,7 +115,7 @@ public class SymbolAccumulator implements VariableAccumulator {
       if (definitions.isEmpty()) {
         return Optional.of(
           SyntaxError.syntaxError()
-              .errorSource(ErrorSource.PARSING)
+              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
               .messageTemplate(
                   MessageTemplate.of("semantics.paragraphNotDefined", node.getName()))
               .severity(ErrorSeverity.ERROR)
@@ -135,7 +136,7 @@ public class SymbolAccumulator implements VariableAccumulator {
       } else {
         return Optional.of(
                 SyntaxError.syntaxError()
-                        .errorSource(ErrorSource.PARSING)
+                        .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                         .messageTemplate(
                                 MessageTemplate.of("semantics.ambiguous", node.getName()))
                         .severity(ErrorSeverity.ERROR)

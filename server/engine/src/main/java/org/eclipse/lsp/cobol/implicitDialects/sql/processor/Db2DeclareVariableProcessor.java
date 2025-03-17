@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.implicitDialects.sql.processor;
 
 import lombok.AllArgsConstructor;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -54,7 +55,7 @@ public class Db2DeclareVariableProcessor implements Processor<Db2DeclareVariable
             SyntaxError.syntaxError()
                 .location(node.getLocality().toOriginalLocation())
                 .severity(ErrorSeverity.ERROR)
-                .errorSource(ErrorSource.DIALECT)
+                .errorSource(ErrorSource.DIALECT.updateLevel(ErrorLevel.SEMANTICS))
                 .suggestion(messageService.getMessage("db2Parser.validation.declareVar"))
                 .build());
   }

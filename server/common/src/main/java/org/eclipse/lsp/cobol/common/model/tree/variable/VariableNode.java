@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -72,8 +73,8 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
    * @param messageTemplate a message template for error
    * @return the error with the variable locality
    */
-  public SyntaxError getError(MessageTemplate messageTemplate) {
-    return getError(messageTemplate, ERROR);
+  public SyntaxError getError(MessageTemplate messageTemplate, ErrorLevel level) {
+    return getError(messageTemplate, ERROR, level);
   }
 
   /**
@@ -83,14 +84,25 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
    * @param severity severity of the error
    * @return the error with the variable locality
    */
-  public SyntaxError getError(MessageTemplate messageTemplate, ErrorSeverity severity) {
+  public SyntaxError getError(MessageTemplate messageTemplate, ErrorSeverity severity, ErrorLevel errorLevel) {
     return SyntaxError.syntaxError()
-        .errorSource(ErrorSource.PARSING)
+        .errorSource(ErrorSource.PARSING.updateLevel(errorLevel))
         .severity(severity)
         .location(getLocalityForError().toOriginalLocation())
         .messageTemplate(messageTemplate)
         .build();
   }
+
+//  /**
+//   * Construct an error for that Variable
+//   *
+//   * @param messageTemplate a message template for error
+//   * @param severity severity of the error
+//   * @return the error with the variable locality
+//   */
+//  public SyntaxError getError(MessageTemplate messageTemplate, ErrorSeverity severity) {
+//    return getError(messageTemplate, severity, ErrorLevel.ERROR);
+//  }
 
   /**
    * Add usage node to this variable definition. The method also updates definition for the usage

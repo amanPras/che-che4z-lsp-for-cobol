@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.core.engine.directives;
 
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -53,7 +54,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
       Range range = CompilerDirectivesUtils.shiftRange(r, startPosition);
       Location location = new Location(analysisContext.getExtendedDocument().getUri(), range);
       analysisContext.getAccumulatedErrors().add(SyntaxError.syntaxError()
-              .errorSource(ErrorSource.PARSING)
+              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
               .errorCode(() -> "IGYOS4003-E")
               .location(new OriginalLocation(location, null))
               .suggestion(messageService.getMessage("compilerDirective.deprecatedDirectiveUse", ctx.getText()))
@@ -69,7 +70,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
       Range range = CompilerDirectivesUtils.shiftRange(r, startPosition);
       Location location = new Location(analysisContext.getExtendedDocument().getUri(), range);
       analysisContext.getAccumulatedErrors().add(SyntaxError.syntaxError()
-              .errorSource(ErrorSource.PARSING)
+              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
               .errorCode(() -> "IGYOS4013-I")
               .location(new OriginalLocation(location, null))
               .suggestion(messageService.getMessage("compilerDirective.info.deprecatedDirectiveUse", ctx.getText()))
@@ -85,7 +86,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
       Range range = CompilerDirectivesUtils.shiftRange(r, startPosition);
       Location location = new Location(analysisContext.getExtendedDocument().getUri(), range);
       analysisContext.getAccumulatedErrors().add(SyntaxError.syntaxError()
-              .errorSource(ErrorSource.PARSING)
+              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
               .errorCode(() -> "IGYOS4008-W")
               .location(new OriginalLocation(location, null))
               .suggestion(messageService.getMessage("compilerDirective.warning.deprecatedDirectiveUse", ctx.getText()))

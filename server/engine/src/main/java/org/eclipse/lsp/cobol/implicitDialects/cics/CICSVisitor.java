@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -95,7 +96,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
         changeContextToDialectStatement(ctx);
         if (ctx.stop.getType() != CICSLexer.END_EXEC) {
             SyntaxError error = SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .location(getTokenEndLocality(ctx.stop).toOriginalLocation())
                     .suggestion(messageService.getMessage("cicsParser.missingEndExec"))
                     .severity(ErrorSeverity.ERROR)
@@ -363,7 +364,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
     private void throwException(String wrongToken, @NonNull Locality locality, String message) {
         SyntaxError error =
                 SyntaxError.syntaxError()
-                        .errorSource(ErrorSource.PARSING)
+                        .errorSource(ErrorSource.PREPROCESSING.updateLevel(ErrorLevel.SEMANTICS))
                         .location(locality.toOriginalLocation())
                         .suggestion(message + wrongToken)
                         .severity(ErrorSeverity.WARNING)

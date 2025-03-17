@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.dialects.daco.processors;
 
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -29,7 +30,7 @@ public class DaCoObsoleteNodeCheck implements Processor<SortTableNode> {
         ctx.getErrors()
                 .add(
                         SyntaxError.syntaxError()
-                                .errorSource(ErrorSource.PARSING)
+                                .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                                 .severity(ErrorSeverity.WARNING)
                                 .location(node.getLocality().toOriginalLocation())
                                 .messageTemplate(MessageTemplate.of("cobolParser.ObsoleteCode"))

@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.implicitDialects.cics.processor;
 
 import lombok.AllArgsConstructor;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -54,7 +55,7 @@ public class CICSExecBlockProcessor implements Processor<ExecCicsNode> {
                     SyntaxError.syntaxError()
                             .location(execCicsNode.getLocality().toOriginalLocation())
                             .severity(ErrorSeverity.ERROR)
-                            .errorSource(ErrorSource.PARSING)
+                            .errorSource(ErrorSource.PREPROCESSING.updateLevel(ErrorLevel.SEMANTICS))
                             .suggestion(messageService.getMessage("cics.invalidExecBlock"))
                             .build());
   }

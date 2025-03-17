@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.core.engine.processors;
 
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -31,7 +32,7 @@ public class ExitPerformValidator implements Processor<ExitPerformNode> {
       if (!exitPerformNode.isInsideInlinePerform()) {
           processingContext.getErrors()
                   .add(SyntaxError.syntaxError()
-                          .errorSource(ErrorSource.PARSING)
+                          .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                           .location(exitPerformNode.getLocality().toOriginalLocation())
                           .severity(ErrorSeverity.WARNING)
                           .messageTemplate(MessageTemplate.of("semantic.exitPerformIsIgnored"))

@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.dialects.daco.processors;
 
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -54,7 +55,7 @@ public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
     if (protoCandidates.size() != 1) {
       errors.add(
           SyntaxError.syntaxError()
-              .errorSource(ErrorSource.DIALECT)
+              .errorSource(ErrorSource.DIALECT.updateLevel(ErrorLevel.SEMANTICS))
               .location(node.getLocality().toOriginalLocation())
               .suggestion("Can't find source for " + node.getPrototypeName())
               .severity(ErrorSeverity.ERROR)

@@ -16,6 +16,7 @@ package org.eclipse.lsp.cobol.core.engine.processors;
 
 import static org.eclipse.lsp.cobol.common.VariableConstants.*;
 
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.tree.variable.VariableWithLevelNode;
 import org.eclipse.lsp.cobol.common.processor.ProcessingContext;
@@ -35,11 +36,11 @@ public class VariableWithLevelCheck implements Processor<VariableWithLevelNode> 
     int areaAFinish = programLayout.getSequenceLength() + programLayout.getIndicatorLength() + programLayout.getAreaALength() - 1;
     if ((node.getLevel() == LEVEL_01 || node.getLevel() == LEVEL_77)
         && node.getLocality().getRange().getStart().getCharacter() > areaAFinish) {
-      ctx.getErrors().add(node.getError(MessageTemplate.of(AREA_A_WARNING, node.getName())));
+      ctx.getErrors().add(node.getError(MessageTemplate.of(AREA_A_WARNING, node.getName()), ErrorLevel.FATAL));
     }
 
     if (node.isSpecifiedGlobal() && node.getLevel() != LEVEL_01) {
-      ctx.getErrors().add(node.getError(MessageTemplate.of(GLOBAL_NON_01_LEVEL_MSG)));
+      ctx.getErrors().add(node.getError(MessageTemplate.of(GLOBAL_NON_01_LEVEL_MSG), ErrorLevel.FATAL));
     }
   }
 }

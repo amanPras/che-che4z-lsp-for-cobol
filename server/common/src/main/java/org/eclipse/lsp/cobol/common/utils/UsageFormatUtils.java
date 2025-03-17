@@ -18,6 +18,7 @@ package org.eclipse.lsp.cobol.common.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.experimental.UtilityClass;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
@@ -76,7 +77,7 @@ public class UsageFormatUtils {
         if (isStringNode(variableNode))
           return ImmutableList.of(
               variableNode.getError(
-                  MessageTemplate.of(picAndUsageConflict), ErrorSeverity.WARNING));
+                  MessageTemplate.of(picAndUsageConflict), ErrorSeverity.WARNING, ErrorLevel.SEMANTICS));
         return Collections.emptyList();
       };
 
@@ -86,7 +87,7 @@ public class UsageFormatUtils {
             && isNumericNode(variableNode))
           return ImmutableList.of(
               variableNode.getError(
-                  MessageTemplate.of(picAndUsageConflict), ErrorSeverity.WARNING));
+                  MessageTemplate.of(picAndUsageConflict), ErrorSeverity.WARNING, ErrorLevel.SEMANTICS));
         return Collections.emptyList();
       };
 

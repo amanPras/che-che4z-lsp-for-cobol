@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.core.engine.processors;
 
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.NodeType;
 import org.eclipse.lsp.cobol.common.model.tree.ProgramNode;
@@ -43,7 +44,7 @@ public class VariableNameCheck implements Processor<VariableWithLevelNode> {
             x ->
                 MessageTemplate.of(
                     "variableNameCheck.notAllowedVariableName", variableWithLevelNode.getName()))
-        .map(variableWithLevelNode::getError)
+        .map(e -> variableWithLevelNode.getError(e, ErrorLevel.SEMANTICS))
         .ifPresent(processingContext.getErrors()::add);
   }
 }

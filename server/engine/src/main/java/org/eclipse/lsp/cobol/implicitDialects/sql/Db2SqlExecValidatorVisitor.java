@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -196,7 +197,7 @@ public class Db2SqlExecValidatorVisitor extends Db2SqlExecParserBaseVisitor<List
   void addSyntaxError(ParserRuleContext ctx, String messageKey, Object... messageArgs) {
     SyntaxError error =
         SyntaxError.syntaxError()
-            .errorSource(ErrorSource.PARSING)
+            .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
             .location(getTokenEndLocality(ctx.stop).toOriginalLocation())
             .suggestion(messageService.getMessage(messageKey, messageArgs))
             .severity(ErrorSeverity.ERROR)

@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.core.engine.processors;
 
 import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -96,7 +97,7 @@ public class FileOperationProcess implements Processor<FileOperationStatementNod
     if (!isFileOpen(programNode, filename, expectedFileKind)) {
       return Optional.of(
           SyntaxError.syntaxError()
-              .errorSource(ErrorSource.PARSING)
+              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
               .severity(ErrorSeverity.WARNING)
               .location(errorLocality.toOriginalLocation())
               .messageTemplate(MessageTemplate.of(messageTemplate))
@@ -166,7 +167,7 @@ public class FileOperationProcess implements Processor<FileOperationStatementNod
 
   private static void reportMissingFileDescription(FileOperationStatementNode node, ProcessingContext ctx) {
     ctx.getErrors().add(SyntaxError.syntaxError()
-            .errorSource(ErrorSource.PARSING)
+            .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
             .severity(ErrorSeverity.WARNING)
             .location(node.getFilename().getLocality().toOriginalLocation())
             .messageTemplate(MessageTemplate.of(getErrorMessageTemplateId(node.getNodeType())))

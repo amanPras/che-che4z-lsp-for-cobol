@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.core.engine.processors;
 
 import com.google.common.collect.ImmutableList;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -114,7 +115,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
       }
       ctx.getErrors().add(
               SyntaxError.syntaxError()
-                      .errorSource(ErrorSource.PARSING)
+                      .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                       .severity(ErrorSeverity.ERROR)
                       .location(identifier6.getLocality().toOriginalLocation())
                       .messageTemplate(
@@ -137,7 +138,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
       ctx.getErrors()
               .add(
                       SyntaxError.syntaxError()
-                              .errorSource(ErrorSource.PARSING)
+                              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                               .severity(ErrorSeverity.ERROR)
                               .location(phase.getConditionNames().getLocality().toOriginalLocation())
                               .messageTemplate(
@@ -168,7 +169,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
         ctx.getErrors()
                 .add(
                         SyntaxError.syntaxError()
-                                .errorSource(ErrorSource.PARSING)
+                                .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                                 .severity(ErrorSeverity.ERROR)
                                 .location(identifier5.getLocality().toOriginalLocation())
                                 .messageTemplate(
@@ -200,7 +201,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
         ctx.getErrors()
                 .add(
                         SyntaxError.syntaxError()
-                                .errorSource(ErrorSource.PARSING)
+                                .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                                 .severity(ErrorSeverity.ERROR)
                                 .location(identifier4.getLocality().toOriginalLocation())
                                 .messageTemplate(
@@ -219,7 +220,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
       ctx.getErrors()
               .add(
                       SyntaxError.syntaxError()
-                              .errorSource(ErrorSource.PARSING)
+                              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                               .severity(ErrorSeverity.ERROR)
                               .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                               .messageTemplate(
@@ -234,7 +235,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
       ctx.getErrors()
               .add(
                       SyntaxError.syntaxError()
-                              .errorSource(ErrorSource.PARSING)
+                              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                               .severity(ErrorSeverity.ERROR)
                               .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                               .messageTemplate(
@@ -251,7 +252,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
         ctx.getErrors()
                 .add(
                         SyntaxError.syntaxError()
-                                .errorSource(ErrorSource.PARSING)
+                                .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                                 .severity(ErrorSeverity.ERROR)
                                 .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                                 .messageTemplate(
@@ -272,7 +273,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
         if (!isValidGroupItem) {
           ctx.getErrors().add(
                   SyntaxError.syntaxError()
-                          .errorSource(ErrorSource.PARSING)
+                          .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                           .severity(ErrorSeverity.ERROR)
                           .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                           .messageTemplate(
@@ -293,7 +294,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
       ctx.getErrors()
               .add(
                       SyntaxError.syntaxError()
-                              .errorSource(ErrorSource.PARSING)
+                              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                               .severity(ErrorSeverity.ERROR)
                               .location(identifier2Nodes.get(0).getLocality().toOriginalLocation())
                               .messageTemplate(
@@ -314,7 +315,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
         ctx.getErrors()
                 .add(
                         SyntaxError.syntaxError()
-                                .errorSource(ErrorSource.PARSING)
+                                .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                                 .severity(ErrorSeverity.ERROR)
                                 .location(identifier2Nodes.get(0).getLocality().toOriginalLocation())
                                 .messageTemplate(
@@ -348,7 +349,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
       ctx.getErrors()
               .add(
                       SyntaxError.syntaxError()
-                              .errorSource(ErrorSource.PARSING)
+                              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                               .severity(ErrorSeverity.ERROR)
                               .location(nodes.get(0).getLocality().toOriginalLocation())
                               .messageTemplate(
@@ -403,7 +404,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier1.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -420,7 +421,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier1Definitions.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(MessageTemplate.of("jsonParseProcess.identifier.typeError"))
@@ -436,7 +437,7 @@ public class JsonGenerateProcess implements Processor<JsonGenerateNode> {
       ctx.getErrors()
               .add(
                       SyntaxError.syntaxError()
-                              .errorSource(ErrorSource.PARSING)
+                              .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                               .severity(ErrorSeverity.ERROR)
                               .location(identifier1.get(0).getLocality().toOriginalLocation())
                               .messageTemplate(

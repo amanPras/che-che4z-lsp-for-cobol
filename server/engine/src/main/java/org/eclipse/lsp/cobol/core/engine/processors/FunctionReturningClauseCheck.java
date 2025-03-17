@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.core.engine.processors;
 
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.processor.ProcessingContext;
 import org.eclipse.lsp.cobol.common.processor.Processor;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
@@ -36,7 +37,7 @@ public class FunctionReturningClauseCheck implements Processor<ProcedureDivision
     ctx.getErrors()
         .add(
             SyntaxError.syntaxError()
-                .errorSource(ErrorSource.PARSING)
+                .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                 .location(proc.clausesLocation.toOriginalLocation())
                 .severity(ErrorSeverity.ERROR)
                 .messageTemplate(MessageTemplate.of("CobolVisitor.functionReturningMsg"))

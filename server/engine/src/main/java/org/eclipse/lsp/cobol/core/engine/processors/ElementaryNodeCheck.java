@@ -16,6 +16,7 @@ package org.eclipse.lsp.cobol.core.engine.processors;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
@@ -50,7 +51,7 @@ public class ElementaryNodeCheck implements Processor<ElementaryNode> {
       return ImmutableList.of(
           node.getError(
               MessageTemplate.of(SEMANTICS_NO_PIC_CLAUSE, node.getUsageFormat().toString()),
-              ErrorSeverity.WARNING));
+              ErrorSeverity.WARNING, ErrorLevel.SEMANTICS));
     }
 
     return UsageFormatUtils.picAndUsageClauseValidator
@@ -75,7 +76,7 @@ public class ElementaryNodeCheck implements Processor<ElementaryNode> {
               MessageTemplate.of(
                   SEMANTIC_IMPROPER_USE_BLANK_WHEN_ZERO_AND_SIGN_CLAUSE,
                   getInCompatibleClause(node)),
-              ErrorSeverity.WARNING));
+              ErrorSeverity.WARNING, ErrorLevel.SEMANTICS));
     }
     return Collections.emptyList();
   }

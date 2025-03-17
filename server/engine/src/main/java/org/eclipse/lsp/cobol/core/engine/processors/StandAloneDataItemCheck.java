@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.core.engine.processors;
 
 import com.google.common.collect.ImmutableList;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.tree.variable.UsageFormat;
 import org.eclipse.lsp.cobol.common.processor.ProcessingContext;
@@ -44,7 +45,7 @@ public class StandAloneDataItemCheck implements Processor<StandAloneDataItemNode
   public void accept(StandAloneDataItemNode node, ProcessingContext ctx) {
     if (node.getPicClause().isEmpty()
         && !USAGE_FOR_NO_MANDATORY_PIC_CLAUSE.contains(node.getUsageFormat())) {
-      ctx.getErrors().add(node.getError(MessageTemplate.of(EMPTY_STRUCTURE_MSG, node.getName())));
+      ctx.getErrors().add(node.getError(MessageTemplate.of(EMPTY_STRUCTURE_MSG, node.getName()), ErrorLevel.SEMANTICS));
     }
   }
 }

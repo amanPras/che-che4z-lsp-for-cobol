@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.core.engine.processors;
 
 import org.eclipse.lsp.cobol.common.VariableConstants;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.tree.Node;
 import org.eclipse.lsp.cobol.common.model.NodeType;
@@ -41,7 +42,7 @@ public class GroupItemCheck implements Processor<GroupItemNode> {
     if (node.getUsageFormat() == UsageFormat.UNDEFINED
         && !node.isRedefines()
         && node.getChildren().stream().noneMatch(Node.hasType(NodeType.VARIABLE))) {
-      ctx.getErrors().add(node.getError(MessageTemplate.of(EMPTY_STRUCTURE_MSG, node.getName())));
+      ctx.getErrors().add(node.getError(MessageTemplate.of(EMPTY_STRUCTURE_MSG, node.getName()), ErrorLevel.SEMANTICS));
     }
 
     final List<Node> children = node.getChildren();
@@ -65,7 +66,7 @@ public class GroupItemCheck implements Processor<GroupItemNode> {
           || childE.getLevel() >= nextVariableLevel)
         continue;
 
-      ctx.getErrors().add(childE.getError(MessageTemplate.of(PICTURE_NOT_ALLOWED, childE.getName())));
+      ctx.getErrors().add(childE.getError(MessageTemplate.of(PICTURE_NOT_ALLOWED, childE.getName()), ErrorLevel.SEMANTICS));
     }
   }
 }

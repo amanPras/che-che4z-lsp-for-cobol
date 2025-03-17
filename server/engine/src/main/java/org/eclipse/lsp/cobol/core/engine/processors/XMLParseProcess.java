@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.core.engine.processors;
 
 import com.google.common.collect.ImmutableList;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -170,7 +171,7 @@ public class XMLParseProcess implements Processor<XMLParseNode> {
     ctx.getErrors()
         .add(
             SyntaxError.syntaxError()
-                .errorSource(ErrorSource.PARSING)
+                .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                 .severity(ErrorSeverity.ERROR)
                 .location(location)
                 .messageTemplate(messageTemplate)
@@ -184,7 +185,7 @@ public class XMLParseProcess implements Processor<XMLParseNode> {
           .getErrors()
           .add(
               SyntaxError.syntaxError()
-                  .errorSource(ErrorSource.PARSING)
+                  .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                   .severity(ErrorSeverity.HINT)
                   .location(xmlParseNode.getXmlValidatingContext().getLocality().toOriginalLocation())
                   .messageTemplate(
@@ -202,7 +203,7 @@ public class XMLParseProcess implements Processor<XMLParseNode> {
             .getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.HINT)
                     .location(
                         xmlParseNode.getXmlNationalContext().getLocality().toOriginalLocation())
@@ -218,7 +219,7 @@ public class XMLParseProcess implements Processor<XMLParseNode> {
               .getErrors()
               .add(
                   SyntaxError.syntaxError()
-                      .errorSource(ErrorSource.PARSING)
+                      .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                       .severity(ErrorSeverity.HINT)
                       .location(
                           xmlParseNode.getEncodingLocality().getLocality().toOriginalLocation())
@@ -239,7 +240,7 @@ public class XMLParseProcess implements Processor<XMLParseNode> {
             .getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.HINT)
                     .location(xmlParseNode.getEncodingLocality().getLocality().toOriginalLocation())
                     .messageTemplate(

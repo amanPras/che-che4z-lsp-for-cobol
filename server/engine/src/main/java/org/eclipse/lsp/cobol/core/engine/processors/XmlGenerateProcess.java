@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.core.engine.processors;
 
 import com.google.common.collect.ImmutableList;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -166,7 +167,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
             ctx.getErrors()
                 .add(
                     SyntaxError.syntaxError()
-                        .errorSource(ErrorSource.PARSING)
+                        .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                         .severity(ErrorSeverity.ERROR)
                         .location(identifier8.getLocality().toOriginalLocation())
                         .messageTemplate(
@@ -206,7 +207,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
             ctx.getErrors()
                 .add(
                     SyntaxError.syntaxError()
-                        .errorSource(ErrorSource.PARSING)
+                        .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                         .severity(ErrorSeverity.ERROR)
                         .location(identifier7.getLocality().toOriginalLocation())
                         .messageTemplate(
@@ -245,7 +246,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
             ctx.getErrors()
                 .add(
                     SyntaxError.syntaxError()
-                        .errorSource(ErrorSource.PARSING)
+                        .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                         .severity(ErrorSeverity.ERROR)
                         .location(identifier6.getLocality().toOriginalLocation())
                         .messageTemplate(
@@ -276,7 +277,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier5Nodes.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -293,7 +294,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier5Nodes.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -309,7 +310,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier5Nodes.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -340,7 +341,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier4Nodes.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -356,7 +357,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier4Nodes.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -372,7 +373,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier4Nodes.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -399,7 +400,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
       ctx.getErrors()
           .add(
               SyntaxError.syntaxError()
-                  .errorSource(ErrorSource.PARSING)
+                  .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                   .severity(ErrorSeverity.ERROR)
                   .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                   .messageTemplate(
@@ -416,7 +417,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
       ctx.getErrors()
           .add(
               SyntaxError.syntaxError()
-                  .errorSource(ErrorSource.PARSING)
+                  .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                   .severity(ErrorSeverity.ERROR)
                   .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                   .messageTemplate(
@@ -432,7 +433,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
           ctx.getErrors()
               .add(
                   SyntaxError.syntaxError()
-                      .errorSource(ErrorSource.PARSING)
+                      .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                       .severity(ErrorSeverity.ERROR)
                       .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                       .messageTemplate(
@@ -456,7 +457,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
           ctx.getErrors()
               .add(
                   SyntaxError.syntaxError()
-                      .errorSource(ErrorSource.PARSING)
+                      .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                       .severity(ErrorSeverity.ERROR)
                       .location(identifier3Nodes.get(0).getLocality().toOriginalLocation())
                       .messageTemplate(
@@ -482,7 +483,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
       ctx.getErrors()
           .add(
               SyntaxError.syntaxError()
-                  .errorSource(ErrorSource.PARSING)
+                  .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                   .severity(ErrorSeverity.ERROR)
                   .location(identifier2Nodes.get(0).getLocality().toOriginalLocation())
                   .messageTemplate(
@@ -505,7 +506,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier2Nodes.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -543,7 +544,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
       ctx.getErrors()
           .add(
               SyntaxError.syntaxError()
-                  .errorSource(ErrorSource.PARSING)
+                  .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                   .severity(ErrorSeverity.ERROR)
                   .location(nodes.get(0).getLocality().toOriginalLocation())
                   .messageTemplate(
@@ -605,7 +606,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
         ctx.getErrors()
             .add(
                 SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .severity(ErrorSeverity.ERROR)
                     .location(identifier1.get(0).getLocality().toOriginalLocation())
                     .messageTemplate(
@@ -630,7 +631,7 @@ public class XmlGenerateProcess implements Processor<XmlGenerateNode> {
       ctx.getErrors()
           .add(
               SyntaxError.syntaxError()
-                  .errorSource(ErrorSource.PARSING)
+                  .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                   .severity(ErrorSeverity.ERROR)
                   .location(identifier1.get(0).getLocality().toOriginalLocation())
                   .messageTemplate(

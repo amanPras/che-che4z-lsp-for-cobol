@@ -15,7 +15,7 @@
 package org.eclipse.lsp.cobol.core.engine.processors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.processor.ProcessingContext;
@@ -38,7 +38,7 @@ public class FileDescriptionProcess implements Processor<FileDescriptionNode> {
     if (StringUtils.isBlank(node.getFileControlClause())) {
       SyntaxError error =
           node.getError(
-              MessageTemplate.of(FD_WITHOUT_FILE_CONTROL, node.getName()), ErrorSeverity.ERROR);
+              MessageTemplate.of(FD_WITHOUT_FILE_CONTROL, node.getName()), ErrorLevel.ERROR);
       ctx.getErrors().add(error);
     }
     ctx.getErrors().addAll(SectionNodeProcessorHelper.processNodeWithVariableDefinitions(node));

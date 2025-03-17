@@ -25,6 +25,7 @@ import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.CobolProgramLayout;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -747,7 +748,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
                       if (fileControls.containsKey(filename.toUpperCase())) {
                         SyntaxError error =
                                 SyntaxError.syntaxError()
-                                        .errorSource(ErrorSource.PARSING)
+                                        .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                                         .suggestion(
                                                 messageService.getMessage("CobolVisitor.duplicateFileName", filename))
                                         .severity(ErrorSeverity.ERROR)
@@ -1665,7 +1666,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
   private void reportSubroutineNotDefined(String name, Locality locality) {
     SyntaxError error =
             SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .suggestion(messageService.getMessage("CobolVisitor.subroutineNotFound", name))
                     .severity(ErrorSeverity.INFO)
                     .location(getIntervalPosition(locality, locality).toOriginalLocation())
@@ -1690,7 +1691,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     if (locality == null) return;
     SyntaxError error =
             SyntaxError.syntaxError()
-                    .errorSource(ErrorSource.PARSING)
+                    .errorSource(ErrorSource.PARSING.updateLevel(ErrorLevel.SEMANTICS))
                     .suggestion(messageService.getMessage("CobolVisitor.misspelledWord", suggestion))
                     .severity(ErrorSeverity.WARNING)
                     .location(locality.toOriginalLocation())
