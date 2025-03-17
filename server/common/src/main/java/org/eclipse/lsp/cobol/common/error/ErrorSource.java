@@ -15,23 +15,38 @@
 
 package org.eclipse.lsp.cobol.common.error;
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * This enum represents the source where error is generated during parsing and analysis.
  */
-@AllArgsConstructor
 public enum ErrorSource {
-  PARSING("(parsing)"),
-  PREPROCESSING("(preprocessing)"),
+  PARSING("(parsing)", ErrorLevel.FATAL),
+  PREPROCESSING("(preprocessing)", ErrorLevel.FATAL),
   DIALECT("(dialect)"),
-  EXTENDED_DOCUMENT("(extended document)"),
+  EXTENDED_DOCUMENT("(extended document)", ErrorLevel.FATAL),
   COPYBOOK("(copybook)"),
   WORKSPACE_SETTINGS("(workspace setting)");
 
   private static final String COBOL_LANG_SUPPORT_LABEL = "COBOL Language Support";
 
   private String label;
+  @Getter private ErrorLevel level;
+
+  ErrorSource(String label) {
+    this.label = label;
+    this.level = ErrorLevel.ERROR;
+  }
+
+  ErrorSource(String label, ErrorLevel level) {
+    this.label = label;
+    this.level = level;
+  }
+
+  public ErrorSource updateLevel(ErrorLevel level) {
+    this.level = level;
+    return this;
+  }
 
   public String getText() {
     return COBOL_LANG_SUPPORT_LABEL + " " + label;

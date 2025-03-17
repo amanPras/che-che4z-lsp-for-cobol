@@ -31,6 +31,7 @@ import org.eclipse.lsp.cobol.common.benchmark.BenchmarkService;
 import org.eclipse.lsp.cobol.common.benchmark.BenchmarkSession;
 import org.eclipse.lsp.cobol.common.dialects.TrueDialectService;
 import org.eclipse.lsp.cobol.common.error.ErrorCodes;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
@@ -156,6 +157,14 @@ public class CobolLanguageEngine {
     PipelineResult pipelineResult = pipeline.run(ctx);
     StageResult<?> result = pipelineResult.getLastStageResult();
 
+    //TODO: to be removed and logic needs to be updated .
+    //      Filter diagnostics based on the client flag
+    List<SyntaxError> filteredError = ctx.getAccumulatedErrors()
+            .stream()
+            .filter(err -> !EnumSet.of(ErrorLevel.SEMANTICS, ErrorLevel.ERROR).contains(err.getErrorSource().getLevel()))
+            .collect(toList());
+    ctx.getAccumulatedErrors().clear();
+    ctx.getAccumulatedErrors().addAll(filteredError);
     session.attr("uri", ctx.getExtendedDocument().getUri());
     session.attr("language", ctx.getLanguageId().getId());
     session.attr("lines", String.valueOf(ctx.getExtendedDocument().toString().split("\n").length));
@@ -213,7 +222,7 @@ public class CobolLanguageEngine {
             SyntaxError.syntaxError()
                 .severity(ErrorSeverity.ERROR)
                 .suggestion(messageService.getMessage("workspaceError.ServerType"))
-                .errorSource(WORKSPACE_SETTINGS)
+                .errorSource(WORKSPACE_SETTINGS.updateLevel(ErrorLevel.FATAL))
                 .errorCode(ErrorCodes.INCOMPATIBLE_SERVER_TYPE)
                 .location(
                     new OriginalLocation(
