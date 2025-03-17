@@ -118,7 +118,7 @@ public class QualifiedReferenceUpdateVariableUsage implements Processor<Qualifie
                                     foundDefinitions.isEmpty() ? NOT_DEFINED_ERROR : AMBIGUOUS_REFERENCE_ERROR,
                                     dataName))
                     .build();
-    ctx.getErrors().add(error);
+//    ctx.getErrors().add(error);
     LOG.debug("Syntax error by QualifiedReferenceNode " + error.toString());
   }
 

@@ -36,6 +36,6 @@ public class CodeBlockUsage implements Processor<CodeBlockUsageNode> {
       return;
     }
     Optional<SyntaxError> syntaxError = symbolAccumulator.registerCodeBlockUsage(ctx.getCurrentProgramNode(), node);
-    syntaxError.ifPresent(error -> ctx.getErrors().add(error));
+//    syntaxError.ifPresent(error -> ctx.getErrors().add(error));
   }
 }
