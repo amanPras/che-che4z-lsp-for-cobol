@@ -552,9 +552,9 @@
           "description": "List of preprocessors used by the LSPConfig",
           "uniqueItems": true
         },
-        "cobol-lsp.diagnostics.level" : {
-            "type": "string",
-            "enum": [
+        "cobol-lsp.diagnostics.level": {
+          "type": "string",
+          "enum": [
             "FATAL",
             "ERROR",
             "SEMANTICS"
