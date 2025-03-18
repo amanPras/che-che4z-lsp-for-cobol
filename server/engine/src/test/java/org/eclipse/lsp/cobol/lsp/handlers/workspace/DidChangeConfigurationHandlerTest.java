@@ -32,6 +32,7 @@ import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService;
 import org.eclipse.lsp.cobol.lsp.*;
 import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
 import org.eclipse.lsp.cobol.service.CobolLSPServerStateService;
@@ -71,7 +72,7 @@ class DidChangeConfigurationHandlerTest {
                         localeStore,
                         keywords,
                         messageService,
-                        asyncAnalysisService, getMockLayoutStore(), copybookService);
+                        asyncAnalysisService, getMockLayoutStore(), copybookService, mock(ErrorFinalizerService.class));
 
 
         when(copybookNameService.copybookLocalFolders(null))
@@ -115,7 +116,8 @@ class DidChangeConfigurationHandlerTest {
                         messageService,
                         asyncAnalysisService,
                         getMockLayoutStore(),
-                        copybookService);
+                        copybookService,
+                        mock(ErrorFinalizerService.class));
 
         String path = "foo/bar";
 
@@ -160,7 +162,7 @@ class DidChangeConfigurationHandlerTest {
                         keywords,
                         messageService,
                         asyncAnalysisService,
-                        getMockLayoutStore(), copybookService);
+                        getMockLayoutStore(), copybookService, mock(ErrorFinalizerService.class));
 
         ArgumentCaptor<List<String>> watcherCaptor = forClass(List.class);
         String path = "foo/bar";
@@ -210,7 +212,8 @@ class DidChangeConfigurationHandlerTest {
                         messageService,
                         asyncAnalysisService,
                         getMockLayoutStore(),
-                        copybookService);
+                        copybookService,
+                        mock(ErrorFinalizerService.class));
         ArgumentCaptor<List<String>> watcherCaptor = forClass(List.class);
         JsonArray arr = new JsonArray();
         String path = "foo/bar";

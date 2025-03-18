@@ -14,8 +14,10 @@
  */
 package org.eclipse.lsp.cobol.core.engine.errors;
 
+import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -38,6 +40,7 @@ import static java.util.stream.Collectors.toList;
 public class ErrorFinalizerService {
 
   private final MessageService messageService;
+  private ErrorLevel diagnosticsLevel =  ErrorLevel.SEMANTICS;
 
   @Inject
   public ErrorFinalizerService(MessageService messageService) {
@@ -62,10 +65,14 @@ public class ErrorFinalizerService {
    * @param copybooksRepository - copybook repository
    */
   public void processLateErrors(AnalysisContext ctx, CopybooksRepository copybooksRepository) {
-    ctx.getAccumulatedErrors().addAll(collectErrorsForCopybooks(ctx.getAccumulatedErrors(), copybooksRepository));
-    List<SyntaxError> distinct = ctx.getAccumulatedErrors().stream().distinct().collect(toList());
-    ctx.getAccumulatedErrors().clear();
-    ctx.getAccumulatedErrors().addAll(distinct);
+    List<SyntaxError> accumulatedErrors = ctx.getAccumulatedErrors()
+            .stream()
+            .filter(this::filterBasedOnDiagnoticsLevel)
+            .collect(toList());
+    accumulatedErrors.addAll(collectErrorsForCopybooks(accumulatedErrors, copybooksRepository));
+    List<SyntaxError> distinct = accumulatedErrors.stream().distinct().collect(toList());
+    accumulatedErrors.clear();
+    accumulatedErrors.addAll(distinct);
   }
 
   private List<SyntaxError> collectErrorsForCopybooks(
@@ -113,4 +120,36 @@ public class ErrorFinalizerService {
         && !processedErrors.contains(err));
   }
 
+  /**
+   * Filter diagnostic based on the diagnostic level provided by the client
+   * @param syntaxError syntax error to be processed
+   * @return true if diagnostics is within the clients diagnostic level, false otherwise
+   */
+  public boolean filterBasedOnDiagnoticsLevel(SyntaxError syntaxError) {
+    return getAllowedLevels().contains(syntaxError.getErrorSource().getLevel());
+  }
+
+  private EnumSet<ErrorLevel> getAllowedLevels() {
+    switch (this.diagnosticsLevel) {
+      case ERROR:
+        return EnumSet.of(ErrorLevel.ERROR, ErrorLevel.FATAL);
+      case FATAL:
+        return EnumSet.of(ErrorLevel.FATAL);
+      default:
+        return EnumSet.of(ErrorLevel.SEMANTICS, ErrorLevel.ERROR, ErrorLevel.FATAL);
+    }
+  }
+
+  /**
+   * update the diagnostics level set by client
+   * @param levels {@link ErrorLevel}
+   */
+  public void updateDiagnosticsLevel(List<Object> levels) {
+    if (levels != null && !levels.isEmpty()) {
+      if (levels.get(0) instanceof JsonPrimitive) {
+        JsonPrimitive level = (JsonPrimitive) levels.get(0);
+        this.diagnosticsLevel = ErrorLevel.valueOf(level.getAsString());
+      }
+    }
+  }
 }

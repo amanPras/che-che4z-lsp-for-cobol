@@ -29,6 +29,7 @@ import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectService;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
+import org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService;
 import org.eclipse.lsp.cobol.service.AnalysisService;
 import org.eclipse.lsp.cobol.service.WatcherService;
 import org.eclipse.lsp.cobol.service.copybooks.CopybookNameService;
@@ -69,7 +70,7 @@ class InitializedHandlerTest {
             settingsService,
             localeStore,
             mock(AnalysisService.class),
-            messageService, codeLayoutStore);
+            messageService, codeLayoutStore, mock(ErrorFinalizerService.class));
     initializedHandler.initialized(new InitializedParams());
     verify(watchingService).watchConfigurationChange();
     verify(settingsService).fetchConfiguration(LOCALE.label);

@@ -157,14 +157,6 @@ public class CobolLanguageEngine {
     PipelineResult pipelineResult = pipeline.run(ctx);
     StageResult<?> result = pipelineResult.getLastStageResult();
 
-    //TODO: to be removed and logic needs to be updated .
-    //      Filter diagnostics based on the client flag
-    List<SyntaxError> filteredError = ctx.getAccumulatedErrors()
-            .stream()
-            .filter(err -> !EnumSet.of(ErrorLevel.SEMANTICS, ErrorLevel.ERROR).contains(err.getErrorSource().getLevel()))
-            .collect(toList());
-    ctx.getAccumulatedErrors().clear();
-    ctx.getAccumulatedErrors().addAll(filteredError);
     session.attr("uri", ctx.getExtendedDocument().getUri());
     session.attr("language", ctx.getLanguageId().getId());
     session.attr("lines", String.valueOf(ctx.getExtendedDocument().toString().split("\n").length));
@@ -180,6 +172,7 @@ public class CobolLanguageEngine {
                   .symbolTableMap(ImmutableMap.of())
                   .build(),
               ctx.getAccumulatedErrors().stream()
+                   .filter(errorFinalizerService::filterBasedOnDiagnoticsLevel)
                   .map(errorFinalizerService::localizeErrorMessage)
                   .collect(toList())),
           documentUri);
@@ -194,6 +187,7 @@ public class CobolLanguageEngine {
                   .symbolTableMap(processingResult.getSymbolTableMap())
                   .build(),
               ctx.getAccumulatedErrors().stream()
+                  .filter(errorFinalizerService::filterBasedOnDiagnoticsLevel)
                   .map(errorFinalizerService::localizeErrorMessage)
                   .collect(toList())),
           documentUri);
