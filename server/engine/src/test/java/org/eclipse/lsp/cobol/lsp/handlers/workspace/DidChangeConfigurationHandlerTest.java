@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
+import org.eclipse.lsp.cobol.common.error.ErrorLevel;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService;
@@ -62,6 +63,7 @@ class DidChangeConfigurationHandlerTest {
         Keywords keywords = mock(Keywords.class);
         MessageService messageService = mock(MessageService.class);
         AsyncAnalysisService asyncAnalysisService = mock(AsyncAnalysisService.class);
+        ErrorFinalizerService errorFinalizerService = mock(ErrorFinalizerService.class);
 
         DidChangeConfigurationHandler didChangeConfigurationHandler =
                 new DidChangeConfigurationHandler(
@@ -72,7 +74,7 @@ class DidChangeConfigurationHandlerTest {
                         localeStore,
                         keywords,
                         messageService,
-                        asyncAnalysisService, getMockLayoutStore(), copybookService, mock(ErrorFinalizerService.class));
+                        asyncAnalysisService, getMockLayoutStore(), copybookService, errorFinalizerService);
 
 
         when(copybookNameService.copybookLocalFolders(null))
@@ -85,6 +87,8 @@ class DidChangeConfigurationHandlerTest {
                 .thenReturn(completedFuture(ImmutableList.of(CobolLanguageId.COBOL.getLayout())));
         when(watchingService.getWatchingFolders()).thenReturn(emptyList());
         when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
+        when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+                .thenReturn(completedFuture((ImmutableList.of(ErrorLevel.SEMANTICS))));
 
         didChangeConfigurationHandler.didChangeConfiguration(new DidChangeConfigurationParams(new Object()));
         verify(watchingService).addWatchers(emptyList());
@@ -131,6 +135,8 @@ class DidChangeConfigurationHandlerTest {
                 .thenReturn(completedFuture(ImmutableList.of(CobolLanguageId.COBOL.getLayout())));
         when(watchingService.getWatchingFolders()).thenReturn(singletonList(path));
         when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
+        when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+                .thenReturn(completedFuture((ImmutableList.of(ErrorLevel.SEMANTICS))));
 
         didChangeConfigurationHandler.didChangeConfiguration(new DidChangeConfigurationParams(new Object()));
         verify(watchingService).addWatchers(emptyList());
@@ -177,6 +183,8 @@ class DidChangeConfigurationHandlerTest {
                 .thenReturn(completedFuture(ImmutableList.of(CobolLanguageId.COBOL.getLayout())));
         when(watchingService.getWatchingFolders()).thenReturn(emptyList());
         when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
+        when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+                .thenReturn(completedFuture((ImmutableList.of(ErrorLevel.SEMANTICS))));
 
         didChangeConfigurationHandler.didChangeConfiguration(new DidChangeConfigurationParams(new Object()));
 
@@ -229,6 +237,8 @@ class DidChangeConfigurationHandlerTest {
         when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
         when(settingsService.fetchConfiguration(COBOL_PROGRAM_LAYOUT.label))
                 .thenReturn(completedFuture(ImmutableList.of(CobolLanguageId.COBOL.getLayout())));
+        when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+                .thenReturn(completedFuture((ImmutableList.of(ErrorLevel.SEMANTICS))));
 
         didChangeConfigurationHandler.didChangeConfiguration(new DidChangeConfigurationParams(localeStore));
         verify(watchingService).addWatchers(emptyList());

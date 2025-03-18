@@ -71,8 +71,8 @@ public class ErrorFinalizerService {
             .collect(toList());
     accumulatedErrors.addAll(collectErrorsForCopybooks(accumulatedErrors, copybooksRepository));
     List<SyntaxError> distinct = accumulatedErrors.stream().distinct().collect(toList());
-    accumulatedErrors.clear();
-    accumulatedErrors.addAll(distinct);
+    ctx.getAccumulatedErrors().clear();
+    ctx.getAccumulatedErrors().addAll(distinct);
   }
 
   private List<SyntaxError> collectErrorsForCopybooks(
