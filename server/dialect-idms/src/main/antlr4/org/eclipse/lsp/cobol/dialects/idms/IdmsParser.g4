@@ -15,8 +15,7 @@
 parser grammar IdmsParser;
 options {tokenVocab = IdmsLexer;  superClass = MessageServiceParser;}
 
-startRule: .*? idmsRules* EOF;
-idmsRules: (idmsStatements | idmsSections | idmsIfStatement | ifStatement | copyIdmsStatement) .*?;
+startRule: (idmsStatements | idmsSections | idmsIfStatement | ifStatement | copyIdmsStatement | .)* EOF;
 
 idmsSections
    : idmsControlSection | schemaSection | mapSection

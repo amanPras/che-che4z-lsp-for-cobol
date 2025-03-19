@@ -15,8 +15,7 @@
 parser grammar IdmsCopyParser;
 options {tokenVocab = IdmsCopyLexer;  superClass = MessageServiceParser;}
 
-startRule: .*? idmsCopybookRules* EOF;
-idmsCopybookRules: (dataDescriptionEntry | copyIdmsStatement | fileDescriptionEntry) .*?;
+startRule: (dataDescriptionEntry | copyIdmsStatement | fileDescriptionEntry | .)* EOF;
 
 dataDescriptionEntry
    : dataDescriptionEntryFormat1
