@@ -19,7 +19,7 @@ startRule:
    (
       (dataDescriptionEntry | copyIdmsStatement | COPY | LEVEL_NUMBER | LEVEL_NUMBER_66 | LEVEL_NUMBER_77 | LEVEL_NUMBER_88 )
       | (fileDescriptionEntry | FD | SD)
-      ~(COPY | LEVEL_NUMBER | LEVEL_NUMBER_66 | LEVEL_NUMBER_77 | LEVEL_NUMBER_88 | FD | SD)
+      | ~(COPY | LEVEL_NUMBER | LEVEL_NUMBER_66 | LEVEL_NUMBER_77 | LEVEL_NUMBER_88 | FD | SD)
    )*
    EOF;
 
