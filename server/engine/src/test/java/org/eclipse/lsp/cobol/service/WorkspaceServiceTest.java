@@ -76,7 +76,7 @@ class WorkspaceServiceTest {
             null,
             null,
             messageService,
-            asyncAnalysisService, getMockLayoutStore(), copybookService);
+            asyncAnalysisService, getMockLayoutStore(), copybookService, null);
     ExecuteCommandHandler executeCommandHandler = new ExecuteCommandHandler(stateService, asyncAnalysisService);
     DidChangeWatchedFilesHandler didChangeWatchedFilesHandler = mock(DidChangeWatchedFilesHandler.class);
 
@@ -120,7 +120,7 @@ class WorkspaceServiceTest {
             null,
             null,
             null,
-            asyncAnalysisService, getMockLayoutStore(), copybookService);
+            asyncAnalysisService, getMockLayoutStore(), copybookService, null);
     ExecuteCommandHandler executeCommandHandler = new ExecuteCommandHandler(stateService, asyncAnalysisService);
     DidChangeWatchedFilesHandler didChangeWatchedFilesHandler = mock(DidChangeWatchedFilesHandler.class);
 
@@ -219,7 +219,7 @@ class WorkspaceServiceTest {
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
-            stateService, null, copybookNameService, null, null, null, null, asyncAnalysisService, getMockLayoutStore(), copybookService);
+            stateService, null, copybookNameService, null, null, null, null, asyncAnalysisService, getMockLayoutStore(), copybookService, null);
 
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);

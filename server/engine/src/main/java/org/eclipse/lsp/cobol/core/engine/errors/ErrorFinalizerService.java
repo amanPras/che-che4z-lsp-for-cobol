@@ -135,7 +135,7 @@ public class ErrorFinalizerService {
     if (levels != null && !levels.isEmpty()) {
       if (levels.get(0) instanceof JsonElement) {
         JsonElement option = (JsonElement) levels.get(0);
-        this.filterDiagnostics = option.getAsBoolean();;
+        this.filterDiagnostics = option.getAsBoolean();
       }
     }
   }
