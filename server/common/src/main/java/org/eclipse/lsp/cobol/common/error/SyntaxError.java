@@ -14,6 +14,8 @@
  */
 package org.eclipse.lsp.cobol.common.error;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.Value;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
@@ -32,6 +34,7 @@ import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 @Builder(builderMethodName = "syntaxError", toBuilder = true)
 @Value
 public class SyntaxError {
+  static Pattern errorCodeMatcher = Pattern.compile("\\[(.*)?](.*)");
   OriginalLocation location;
   MessageTemplate messageTemplate;
   String suggestion;
@@ -39,4 +42,25 @@ public class SyntaxError {
   ErrorCode errorCode;
   ErrorSource errorSource;
   DiagnosticRelatedInformation relatedInformation;
+
+  public static class SyntaxErrorBuilder {
+    private ErrorCode errorCode;
+
+    public SyntaxError build() {
+      return getSyntaxError();
+    }
+
+    private SyntaxError getSyntaxError() {
+      if (this.messageTemplate != null) {
+        this.errorCode = messageTemplate::getTemplate;
+      } else if (this.suggestion != null) {
+        Matcher matcher = errorCodeMatcher.matcher(this.suggestion);
+        if (matcher.matches()) {
+          this.errorCode =  () -> matcher.group(1);
+          this.suggestion = matcher.group(2);
+        }
+      }
+      return new SyntaxError(location, messageTemplate, suggestion, severity, errorCode, errorSource, relatedInformation);
+    }
+  }
 }

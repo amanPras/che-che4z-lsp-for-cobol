@@ -62,8 +62,9 @@ public class ErrorFinalizerService {
    * @param copybooksRepository - copybook repository
    */
   public void processLateErrors(AnalysisContext ctx, CopybooksRepository copybooksRepository) {
-    ctx.getAccumulatedErrors().addAll(collectErrorsForCopybooks(ctx.getAccumulatedErrors(), copybooksRepository));
-    List<SyntaxError> distinct = ctx.getAccumulatedErrors().stream().distinct().collect(toList());
+    List<SyntaxError> accumulatedErrors = ctx.getAccumulatedErrors().stream().filter(this::filterDiagnotics).collect(toList());
+    accumulatedErrors.addAll(collectErrorsForCopybooks(accumulatedErrors, copybooksRepository));
+    List<SyntaxError> distinct = accumulatedErrors.stream().distinct().collect(toList());
     ctx.getAccumulatedErrors().clear();
     ctx.getAccumulatedErrors().addAll(distinct);
   }
@@ -113,4 +114,12 @@ public class ErrorFinalizerService {
         && !processedErrors.contains(err));
   }
 
+  /**
+   * Filter diagnostic based on the diagnostic level provided by the client
+   * @param syntaxError syntax error to be processed
+   * @return true if diagnostics is within the clients diagnostic level, false otherwise
+   */
+  public boolean filterDiagnotics(SyntaxError syntaxError) {
+    return messageService.getFatalErrors().contains(syntaxError.getErrorCode().getLabel());
+  }
 }

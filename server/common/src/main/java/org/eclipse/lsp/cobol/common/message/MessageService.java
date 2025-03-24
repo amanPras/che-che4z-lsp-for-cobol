@@ -14,6 +14,8 @@
  */
 package org.eclipse.lsp.cobol.common.message;
 
+import java.util.Set;
+
 /** This class sets the basic contract for any externalized message service to be implemented. */
 public interface MessageService {
 
@@ -38,4 +40,6 @@ public interface MessageService {
 
   /** Reload and updates the messages for Cobol and its dialect. */
   void reloadMessages();
+
+  Set<String> getFatalErrors();
 }
