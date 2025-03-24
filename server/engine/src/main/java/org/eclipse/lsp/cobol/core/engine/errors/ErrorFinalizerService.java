@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.core.engine.errors;
 
+import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
@@ -38,6 +39,7 @@ import static java.util.stream.Collectors.toList;
 public class ErrorFinalizerService {
 
   private final MessageService messageService;
+  private boolean filterDiagnostics = false;
 
   @Inject
   public ErrorFinalizerService(MessageService messageService) {
@@ -120,6 +122,21 @@ public class ErrorFinalizerService {
    * @return true if diagnostics is within the clients diagnostic level, false otherwise
    */
   public boolean filterDiagnotics(SyntaxError syntaxError) {
+    if (!this.filterDiagnostics) return true;
     return messageService.getFatalErrors().contains(syntaxError.getErrorCode().getLabel());
+  }
+
+
+  /**
+   * update the diagnostics level set by client
+   * @param levels
+   */
+  public void updateDiagnosticsLevel(List<Object> levels) {
+    if (levels != null && !levels.isEmpty()) {
+      if (levels.get(0) instanceof JsonElement) {
+        JsonElement option = (JsonElement) levels.get(0);
+        this.filterDiagnostics = option.getAsBoolean();;
+      }
+    }
   }
 }
