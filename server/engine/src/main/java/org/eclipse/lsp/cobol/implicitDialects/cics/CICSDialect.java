@@ -18,7 +18,6 @@ package org.eclipse.lsp.cobol.implicitDialects.cics;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.CharStreams;
@@ -48,8 +47,6 @@ public class CICSDialect implements CobolDialect {
   public static final String DIALECT_NAME = "cics";
   private final CopybookService copybookService;
   private final MessageService messageService;
-  private static CICSParser cicsParser = null;
-  private static CICSLexer cicsLexer = null;
 
   public CICSDialect(CopybookService copybookService, MessageService messageService) {
     this.copybookService = copybookService;
@@ -122,9 +119,9 @@ public class CICSDialect implements CobolDialect {
 
   private CICSParser.StartRuleContext parseCICS(
       String text, String programDocumentUri, List<SyntaxError> errors) {
-    CICSLexer lexer = getCicsLexer(text);
+    CICSLexer lexer = new CICSLexer(CharStreams.fromString(text));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
-    CICSParser parser = getCicsParser(tokens);
+    CICSParser parser = new CICSParser(tokens);
     CICSErrorListener listener = new CICSErrorListener(programDocumentUri);
     lexer.removeErrorListeners();
     lexer.addErrorListener(listener);
@@ -139,9 +136,9 @@ public class CICSDialect implements CobolDialect {
 
   private CICSParser.CompilerDirectiveContext parseCICSDirective(
           String text, String programDocumentUri, List<SyntaxError> errors) {
-    CICSLexer lexer = getCicsLexer(text);
+    CICSLexer lexer = new CICSLexer(CharStreams.fromString(text));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
-    CICSParser parser = getCicsParser(tokens);
+    CICSParser parser = new CICSParser(tokens);
     CICSErrorListener listener = new CICSErrorListener(programDocumentUri);
     lexer.removeErrorListeners();
     lexer.addErrorListener(listener);
@@ -153,25 +150,4 @@ public class CICSDialect implements CobolDialect {
     errors.addAll(listener.getErrors());
     return compilerDirectiveContext;
   }
-
-  private static CICSParser getCicsParser(CommonTokenStream tokens) {
-    if (Objects.isNull(cicsParser)) {
-      cicsParser = new CICSParser(tokens);
-    } else {
-      cicsParser.reset();
-      cicsParser.setTokenStream(tokens);
-    }
-    return cicsParser;
-  }
-
-  private static CICSLexer getCicsLexer(String text) {
-    if (Objects.isNull(cicsLexer)) {
-      cicsLexer = new CICSLexer(CharStreams.fromString(text));
-    } else {
-      cicsLexer.reset();
-      cicsLexer.setInputStream(CharStreams.fromString(text));
-    }
-    return cicsLexer;
-  }
-
 }
