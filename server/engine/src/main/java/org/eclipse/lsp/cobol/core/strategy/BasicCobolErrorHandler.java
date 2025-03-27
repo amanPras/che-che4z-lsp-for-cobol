@@ -20,9 +20,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
 import org.eclipse.lsp.cobol.core.CobolParser;
+import org.eclipse.lsp.cobol.core.MessageServiceParser;
 
 /**
  * This implementation of the error strategy customizes error messages that are extracted from the
@@ -46,15 +48,15 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
         this.errorMessageHelper = new ErrorMessageHelper(messageService);
     }
 
-    @Override
-    public void reportError(Parser recognizer, RecognitionException e) {
-        // if we've already reported an error and have not matched a token
-        // yet successfully, don't report any errors.
-        if (!inErrorRecoveryMode(recognizer)) {
-            beginErrorCondition(recognizer);
-            reportErrorByType(recognizer, e);
-        }
+  @Override
+  public void reportError(Parser recognizer, RecognitionException e) {
+    // if we've already reported an error and have not matched a token
+    // yet successfully, don't report any errors.
+    if (!inErrorRecoveryMode(recognizer)) {
+      beginErrorCondition(recognizer);
+      reportErrorByType(recognizer, e);
     }
+  }
 
     private void reportErrorByType(Parser recognizer, RecognitionException e) {
         if (e instanceof InputMismatchException) {
@@ -77,40 +79,41 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
         recognizer.notifyErrorListeners(e.getOffendingToken(), e.getMessage(), e);
     }
 
-    @Override
-    protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
-        Token token = e.getOffendingToken();
-        String msg =
-                errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
-        recognizer.notifyErrorListeners(token, msg, e);
-    }
+  @Override
+  protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
+    Pair<String, String> msg =
+        errorMessageHelper.getInputMismatchMessage(
+            recognizer, e, e.getOffendingToken(), getOffendingToken(e));
+    notifyToAppropriateListener(recognizer, e, msg);
+  }
 
-    @Override
-    protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
-        String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
-        recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
-    }
+  @Override
+  protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
+    String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
+    Pair<String, String> msg =
+        messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
+    notifyToAppropriateListener(recognizer, e, msg);
+  }
 
-    @Override
-    protected void reportUnwantedToken(Parser recognizer) {
-        if (inErrorRecoveryMode(recognizer)) {
-            return;
-        }
-        beginErrorCondition(recognizer);
-        Token currentToken = recognizer.getCurrentToken();
-        IntervalSet expectedTokens = recognizer.getExpectedTokens();
-        if (dotIsExpected(expectedTokens)
-                && !dotIsNext(recognizer.getInputStream())
-                && !errorCharIsNext(recognizer.getInputStream())) {
-            ((CobolParser) recognizer).notifyError("missing.period", currentToken.getText());
-        } else {
-            String msg =
-                    errorMessageHelper.getUnwantedTokenMessage(
-                            recognizer, currentToken, getTokenErrorDisplay(currentToken));
-            recognizer.notifyErrorListeners(currentToken, msg, null);
-        }
+  @Override
+  protected void reportUnwantedToken(Parser recognizer) {
+    if (inErrorRecoveryMode(recognizer)) {
+      return;
     }
+    beginErrorCondition(recognizer);
+    Token currentToken = recognizer.getCurrentToken();
+    IntervalSet expectedTokens = recognizer.getExpectedTokens();
+    if (dotIsExpected(expectedTokens)
+        && !dotIsNext(recognizer.getInputStream())
+        && !errorCharIsNext(recognizer.getInputStream())) {
+      ((CobolParser) recognizer).notifyError("missing.period", currentToken.getText());
+    } else {
+      Pair<String, String> msg =
+          errorMessageHelper.getUnwantedTokenMessage(
+              recognizer, currentToken, getTokenErrorDisplay(currentToken));
+      notifyToAppropriateListener(recognizer, null, currentToken, msg);
+    }
+  }
 
     private static boolean dotIsExpected(IntervalSet expectedTokensForRule) {
         return expectedTokensForRule.contains(CobolParser.DOT_FS)
@@ -129,23 +132,24 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
         return type == CobolParser.DOT_FS || type == CobolParser.DOT_FS2;
     }
 
-    @Override
-    protected void reportMissingToken(Parser recognizer) {
-        if (inErrorRecoveryMode(recognizer)) {
-            return;
-        }
-        if (dotIsExpected(recognizer.getExpectedTokens())) {
-            ((CobolParser) recognizer).notifyError("missing.period", recognizer.getCurrentToken().getText());
-            return;
-        }
-        beginErrorCondition(recognizer);
-        String msg =
-                messageService.getMessage(
-                        REPORT_MISSING_TOKEN,
-                        errorMessageHelper.getExpectedText(recognizer),
-                        ErrorMessageHelper.getRule(recognizer));
-        recognizer.notifyErrorListeners(getPreviousToken(recognizer), msg, null);
+  @Override
+  protected void reportMissingToken(Parser recognizer) {
+    if (inErrorRecoveryMode(recognizer)) {
+      return;
     }
+    if (dotIsExpected(recognizer.getExpectedTokens())) {
+      ((CobolParser) recognizer)
+          .notifyError("missing.period", recognizer.getCurrentToken().getText());
+      return;
+    }
+    beginErrorCondition(recognizer);
+    Pair<String, String> msg =
+        messageService.getMessage(
+            REPORT_MISSING_TOKEN,
+            errorMessageHelper.getExpectedText(recognizer),
+            ErrorMessageHelper.getRule(recognizer));
+    notifyToAppropriateListener(recognizer, null, getPreviousToken(recognizer), msg);
+  }
 
     private Token getPreviousToken(Parser recognizer) {
         if (recognizer.getCurrentToken().getText().trim().length() == 1) {
@@ -164,5 +168,20 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
 
     private String getOffendingToken(InputMismatchException e) {
         return getTokenErrorDisplay(e.getOffendingToken());
+    }
+
+    private static void notifyToAppropriateListener(
+            Parser recognizer, RecognitionException e, Pair<String, String> msg) {
+        notifyToAppropriateListener(recognizer, e, e.getOffendingToken(), msg);
+    }
+
+    private static void notifyToAppropriateListener(
+            Parser recognizer, RecognitionException e, Token token, Pair<String, String> msg) {
+        if (recognizer instanceof MessageServiceParser) {
+            MessageServiceParser cobolParser = (MessageServiceParser) recognizer;
+            cobolParser.notifyErrorListeners(token, msg, e);
+        } else {
+            recognizer.notifyErrorListeners(token, msg.getRight(), e);
+        }
     }
 }

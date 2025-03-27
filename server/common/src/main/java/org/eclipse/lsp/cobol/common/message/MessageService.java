@@ -14,29 +14,32 @@
  */
 package org.eclipse.lsp.cobol.common.message;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.Set;
 
 /** This class sets the basic contract for any externalized message service to be implemented. */
 public interface MessageService {
 
   /**
-   * Return a localized {@link String} based on passed key and params.
+   * Return a {@link Pair} of error code mapped to a localized {@link String} based on passed key and params.
    *
    * @param key Unique ID for each message in externalized message file.
    * @param parameters Arguments referenced by the format specifiers in the format * string in
    *     externalized message file.
    * @return {@link String}
    */
-  String getMessage(String key, Object... parameters);
+  Pair<String, String> getMessage(String key, Object... parameters);
 
   /**
-   * Localize the template and return it as a string. If the arguments of the template are instances
+   * Localize the template and return it as a {@link Pair} of error code mapped to the localized {@link String}
+   * If the arguments of the template are instances
    * of the {@link MessageTemplate} too, they also will be localized.
    *
    * @param template a {@link MessageTemplate} to localize
    * @return localized string
    */
-  String localizeTemplate(MessageTemplate template);
+  Pair<String, String> localizeTemplate(MessageTemplate template);
 
   /** Reload and updates the messages for Cobol and its dialect. */
   void reloadMessages();

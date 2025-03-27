@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collections;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.*;
@@ -584,7 +586,7 @@ class CopybookServiceTest {
     SyntaxError expectedSyntaxError =
         SyntaxError.syntaxError()
             .location(new OriginalLocation(null, VALID_CPY_NAME))
-            .suggestion("some suggestion")
+            .suggestion(Pair.of("generic", "some suggestion"))
             .severity(ErrorSeverity.ERROR)
             .build();
     when(preprocessor.cleanUpCode(anyString(), anyString()))

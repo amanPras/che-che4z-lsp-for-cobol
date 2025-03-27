@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.dialects.idms;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.ErrorCodes;
@@ -38,7 +39,7 @@ class ErrorHelperTest {
     MessageService messageService = mock(MessageService.class);
     Locality locality = Locality.builder().build();
     when(messageService.getMessage("GrammarPreprocessorListener.errorSuggestion", "copybook"))
-        .thenReturn("missing");
+        .thenReturn(Pair.of("generic", "missing"));
 
     SyntaxError result = ErrorHelper.missingCopybooks(messageService, locality, "copybook");
     checkSyntaxError(result, "missing", locality);
@@ -49,7 +50,7 @@ class ErrorHelperTest {
     MessageService messageService = mock(MessageService.class);
     Locality locality = Locality.builder().build();
     when(messageService.getMessage("IdmsCopybookVisitor.errorCircularDependency", "copybook"))
-        .thenReturn("circular");
+        .thenReturn(Pair.of("generic", "circular"));
 
     SyntaxError result = ErrorHelper.circularDependency(messageService, locality, "copybook");
     checkSyntaxError(result, "circular", locality);
@@ -61,7 +62,7 @@ class ErrorHelperTest {
     assertEquals(locality.toOriginalLocation(), result.getLocation());
     assertEquals(ErrorSeverity.ERROR, result.getSeverity());
     assertEquals(ErrorCodes.MISSING_COPYBOOK.getLabel(), result.getErrorCode().getLabel());
-    assertEquals(message, result.getSuggestion());
+    assertEquals(message, result.getSuggestionString());
   }
 
 }

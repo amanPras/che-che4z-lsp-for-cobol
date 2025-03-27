@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
@@ -1639,12 +1640,13 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     return new ProcedureName(targetName, sectionName);
   }
 
-  private void throwException(String wrongToken, @NonNull Locality locality, String message) {
+  private void throwException(String wrongToken, @NonNull Locality locality, Pair<String, String> message) {
+    Pair<String, String> suggestion = Pair.of(message.getKey(), message.getRight() + wrongToken);
     SyntaxError error =
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
                     .location(locality.toOriginalLocation())
-                    .suggestion(message + wrongToken)
+                    .suggestion(suggestion)
                     .severity(ErrorSeverity.WARNING)
                     .build();
 

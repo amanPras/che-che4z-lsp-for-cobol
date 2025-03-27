@@ -22,6 +22,7 @@ import org.eclipse.lsp.cobol.common.AnalysisConfig;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.action.CodeActionProvider;
 import org.eclipse.lsp.cobol.common.copybook.CopybookModel;
+import org.eclipse.lsp.cobol.common.error.ErrorCodes;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.model.tree.CompilerDirectiveNode;
 import org.eclipse.lsp.cobol.common.processor.ProcessorDescription;
@@ -139,6 +140,14 @@ public interface CobolDialect {
    * @return a list of {@link CompilerDirectiveNode}
    */
   default List<CompilerDirectiveNode> getCompilerDirectives(DialectProcessingContext context) {
+    return ImmutableList.of();
+  }
+
+  /**
+   * Returns a list of Fatal {@link ErrorCodes} that should never be suppressed.
+   * @return list of {@link ErrorCodes}
+   */
+  default List<ErrorCodes> getFatalErrorCodes() {
     return ImmutableList.of();
   }
 }

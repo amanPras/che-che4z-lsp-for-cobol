@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.ATNState;
 import org.antlr.v4.runtime.misc.IntervalSet;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
 import org.eclipse.lsp.cobol.implicitDialects.cics.CICSParser.AllCicsRuleContext;
@@ -92,9 +93,9 @@ public class CICSErrorStrategy extends DefaultErrorStrategy implements MessageSe
   @Override
   protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
     Token token = e.getOffendingToken();
-    String msg =
+    Pair<String, String> errorPair =
         errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
-    recognizer.notifyErrorListeners(token, msg, e);
+    notifyToAppropriateListener(recognizer, e, errorPair);
   }
 
   @Override
@@ -167,8 +168,8 @@ public class CICSErrorStrategy extends DefaultErrorStrategy implements MessageSe
   @Override
   protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
     String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-    String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
-    recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
+    Pair<String, String> errorPair = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
+    notifyToAppropriateListener(recognizer, e, errorPair);
   }
 
   @Override
@@ -178,8 +179,8 @@ public class CICSErrorStrategy extends DefaultErrorStrategy implements MessageSe
     }
     beginErrorCondition(recognizer);
     Token currentToken = recognizer.getCurrentToken();
-    String msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
-    recognizer.notifyErrorListeners(currentToken, msg, null);
+    Pair<String, String> errorPair = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
+    notifyToAppropriateListener(recognizer, null, currentToken, errorPair);
   }
 
   @Override
@@ -188,12 +189,27 @@ public class CICSErrorStrategy extends DefaultErrorStrategy implements MessageSe
       return;
     }
     beginErrorCondition(recognizer);
-    String msg =
+    Pair<String, String> msg =
         messageService.getMessage(
             REPORT_MISSING_TOKEN,
             errorMessageHelper.getExpectedText(recognizer),
             ErrorMessageHelper.getRule(recognizer));
-    recognizer.notifyErrorListeners(recognizer.getCurrentToken(), msg, null);
+    notifyToAppropriateListener(recognizer, null, recognizer.getCurrentToken(), msg);
+  }
+
+  private static void notifyToAppropriateListener(
+          Parser recognizer, RecognitionException e, Pair<String, String> msg) {
+    notifyToAppropriateListener(recognizer, e, e.getOffendingToken(), msg);
+  }
+
+  private static void notifyToAppropriateListener(
+          Parser recognizer, RecognitionException e, Token token, Pair<String, String> msg) {
+    if (recognizer instanceof MessageServiceParser) {
+      MessageServiceParser cicsParser = (MessageServiceParser) recognizer;
+      cicsParser.notifyErrorListeners(token, msg, e);
+    } else {
+      recognizer.notifyErrorListeners(token, msg.getRight(), e);
+    }
   }
 
   private String getOffendingToken(InputMismatchException e) {

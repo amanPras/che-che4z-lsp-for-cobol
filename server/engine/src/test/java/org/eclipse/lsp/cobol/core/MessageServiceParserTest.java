@@ -16,6 +16,7 @@
 package org.eclipse.lsp.cobol.core;
 
 import org.antlr.v4.runtime.Parser;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.WorkingFolderService;
@@ -57,10 +58,10 @@ class MessageServiceParserTest {
 
   @Test
   void whenValidMsgIdIsPassed_thenExpectStringExternalization() {
-    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Pair<String, String>> captor = ArgumentCaptor.forClass(Pair.class);
     ((MessageServiceParser) mockParser).notifyError("1");
     verify((MessageServiceParser) mockParser).notifyListeners(captor.capture());
-    assertEquals("This is a test.", captor.getValue());
+    assertEquals("This is a test.", captor.getValue().getValue());
   }
 
   @Test

@@ -20,6 +20,8 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.lsp.cobol.common.ErrorListenerForErrorCode;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -29,12 +31,13 @@ import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Error Listener
  */
 @Slf4j
-public class Db2ErrorListener extends BaseErrorListener {
+public class Db2ErrorListener extends BaseErrorListener implements ErrorListenerForErrorCode {
   private final String uri;
 
   @Getter private final List<SyntaxError> errors = new ArrayList<>();
@@ -43,46 +46,58 @@ public class Db2ErrorListener extends BaseErrorListener {
     this.uri = uri;
   }
 
-  @Override
-  public void syntaxError(
-      Recognizer<?, ?> recognizer,
-      Object offendingSymbol,
-      int line,
-      int charPositionInLine,
-      String msg,
-      RecognitionException e) {
+    @Override
+    public void syntaxError(
+            Recognizer<?, ?> recognizer,
+            Object offendingSymbol,
+            int line,
+            int charPositionInLine,
+            String msg,
+            RecognitionException e) {
+        buildAndAddError(offendingSymbol, line, charPositionInLine, builder -> builder.suggestionString(msg));
+    }
 
-    int offendingSymbolSize =
-        offendingSymbol instanceof String
-            ? getOffendingSymbolSize((String) offendingSymbol)
-            : getOffendingSymbolSize(offendingSymbol);
-    int offendingSymbolRelativeLine =
-        offendingSymbol instanceof String
-            ? ((String) offendingSymbol).split("\\r?\\n").length - 1
-            : 0;
+    @Override
+    public void syntaxError(Object offendingSymbol, int line, int charPositionInLine, Pair<String, String> errorPair, Exception e) {
+      buildAndAddError(offendingSymbol, line, charPositionInLine, builder -> builder.suggestion(errorPair));
+    }
 
-    SyntaxError error =
-        SyntaxError.syntaxError()
-            .errorSource(ErrorSource.PREPROCESSING)
-            .location(
-                Locality.builder()
-                    .uri(uri)
-                    .range(
-                        new Range(
-                            new Position(line - 1, charPositionInLine),
-                            new Position(
-                                line - 1 + offendingSymbolRelativeLine,
-                                offendingSymbolRelativeLine == 0
-                                    ? charPositionInLine + offendingSymbolSize
-                                    : offendingSymbolSize)))
-                    .build()
-                    .toOriginalLocation())
-            .suggestion(msg)
-            .severity(ErrorSeverity.ERROR)
-            .build();
-    LOG.debug("Syntax error by ParserListener " + error.toString());
-    errors.add(error);
+  private void buildAndAddError(Object offendingSymbol, int line, int charPositionInLine, Consumer<SyntaxError.SyntaxErrorBuilder> suggestionConsumer) {
+      int offendingSymbolSize =
+              offendingSymbol instanceof String
+                      ? getOffendingSymbolSize((String) offendingSymbol)
+                      : getOffendingSymbolSize(offendingSymbol);
+      int offendingSymbolRelativeLine =
+              offendingSymbol instanceof String
+                      ? ((String) offendingSymbol).split("\\r?\\n").length - 1
+                      : 0;
+      SyntaxError syntaxError = buildSyntaxError(line, charPositionInLine, offendingSymbolSize, offendingSymbolRelativeLine, suggestionConsumer);
+      LOG.debug("Syntax error by ParserListener " + syntaxError.toString());
+      errors.add(syntaxError);
   }
+
+    private SyntaxError buildSyntaxError(int line, int charPositionInLine, int offendingSymbolSize, int offendingSymbolRelativeLine,
+                                         Consumer<SyntaxError.SyntaxErrorBuilder> suggestionConsumer) {
+        final SyntaxError.SyntaxErrorBuilder builder = SyntaxError.syntaxError()
+                .errorSource(ErrorSource.PREPROCESSING)
+                .location(
+                        Locality.builder()
+                                .uri(uri)
+                                .range(
+                                        new Range(
+                                                new Position(line - 1, charPositionInLine),
+                                                new Position(
+                                                        line - 1 + offendingSymbolRelativeLine,
+                                                        offendingSymbolRelativeLine == 0
+                                                                ? charPositionInLine + offendingSymbolSize
+                                                                : offendingSymbolSize)))
+                                .build()
+                                .toOriginalLocation())
+                .severity(ErrorSeverity.ERROR);
+
+        suggestionConsumer.accept(builder);
+        return builder.build();
+    }
 
   private int getOffendingSymbolSize(Object offendingSymbol) {
       if (offendingSymbol instanceof CommonToken) {

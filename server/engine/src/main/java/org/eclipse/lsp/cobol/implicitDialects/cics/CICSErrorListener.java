@@ -20,6 +20,8 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.lsp.cobol.common.ErrorListenerForErrorCode;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -30,10 +32,11 @@ import org.eclipse.lsp4j.Range;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /** ANTLR error listener for CICS */
 @Slf4j
-public class CICSErrorListener extends BaseErrorListener {
+public class CICSErrorListener extends BaseErrorListener implements ErrorListenerForErrorCode {
   private final String uri;
 
   @Getter private final List<SyntaxError> errors = new ArrayList<>();
@@ -50,24 +53,32 @@ public class CICSErrorListener extends BaseErrorListener {
       int charPositionInLine,
       String msg,
       RecognitionException e) {
+    buildAndAddError(line, charPositionInLine, offendingSymbol, syntaxErrorBuilder -> syntaxErrorBuilder.suggestionString(msg));
+  }
 
-    SyntaxError error =
-        SyntaxError.syntaxError()
+  @Override
+  public void syntaxError(Object offendingSymbol, int line, int charPositionInLine, Pair<String, String> errorPair, Exception e) {
+    buildAndAddError(line, charPositionInLine, offendingSymbol, syntaxErrorBuilder -> syntaxErrorBuilder.suggestion(errorPair));
+  }
+
+  private void buildAndAddError(int line, int charPositionInLine, Object offendingSymbol,
+                                Consumer<SyntaxError.SyntaxErrorBuilder> suggestionConsumer) {
+    SyntaxError.SyntaxErrorBuilder builder = SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
             .location(
-                Locality.builder()
-                    .uri(uri)
-                    .range(
-                        new Range(
-                            new Position(line - 1, charPositionInLine),
-                            new Position(
-                                line - 1,
-                                charPositionInLine + getOffendingSymbolSize(offendingSymbol))))
-                    .build()
-                    .toOriginalLocation())
-            .suggestion(msg)
-            .severity(ErrorSeverity.ERROR)
-            .build();
+                    Locality.builder()
+                            .uri(uri)
+                            .range(
+                                    new Range(
+                                            new Position(line - 1, charPositionInLine),
+                                            new Position(
+                                                    line - 1,
+                                                    charPositionInLine + getOffendingSymbolSize(offendingSymbol))))
+                            .build()
+                            .toOriginalLocation())
+            .severity(ErrorSeverity.ERROR);
+    suggestionConsumer.accept(builder);
+    SyntaxError error = builder.build();
     LOG.debug("Syntax error by ParserListener " + error.toString());
     errors.add(error);
   }

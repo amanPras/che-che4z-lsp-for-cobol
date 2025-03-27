@@ -65,9 +65,13 @@ public class HandlerUtility {
   }
   private static Diagnostic toDiagnostic(SyntaxError err) {
     Diagnostic diagnostic = new Diagnostic();
+    String diagnosticsMessage = err.getSuggestionString();
+    if (diagnosticsMessage == null && err.getSuggestion() != null) {
+      diagnosticsMessage = err.getSuggestion().getValue();
+    }
     diagnostic.setSeverity(DiagnosticSeverity.forValue(err.getSeverity().ordinal() + 1));
     diagnostic.setSource(err.getErrorSource().getText());
-    diagnostic.setMessage(err.getSuggestion());
+    diagnostic.setMessage(diagnosticsMessage);
     diagnostic.setRange(err.getLocation().getLocation().getRange());
     diagnostic.setCode(ofNullable(err.getErrorCode()).map(ErrorCode::getLabel).orElse(null));
     diagnostic.setRelatedInformation(ofNullable(err.getRelatedInformation()).map(Collections::singletonList).orElse(null));

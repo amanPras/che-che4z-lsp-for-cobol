@@ -18,9 +18,17 @@
 package org.eclipse.lsp.cobol.dialects.idms;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.lsp.cobol.common.ErrorListenerForErrorCode;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
+import org.eclipse.lsp.cobol.common.utils.BasicUtils;
+
+import java.util.List;
 
 /**
  * Provide the support of message externalization for Parser.
@@ -45,18 +53,18 @@ public abstract class MessageServiceParser extends Parser {
    *     externalized message file.
    */
   public void notifyError(String messageId, String... parameters) {
-    String message = getMessageForParser(messageId, parameters);
-    notifyListeners(message);
+    Pair<String, String> errorPair = getMessageForParser(messageId, parameters);
+    notifyListeners(errorPair);
   }
 
   /**
-   * @param message Message string which needs to be passed to {@link
+   * @param errorPair Message string which needs to be passed to {@link
    *     org.antlr.v4.runtime.ANTLRErrorListener}
    *     <p>NOTE: This method is for testing only. Advised to use notifyErrorListeners instead.
    */
   @VisibleForTesting
-  public void notifyListeners(String message) {
-    super.notifyErrorListeners(message);
+  public void notifyListeners(Pair<String, String> errorPair) {
+    notifyErrorListeners(getCurrentToken(), errorPair, null);
   }
 
   /**
@@ -134,7 +142,32 @@ public abstract class MessageServiceParser extends Parser {
     }
   }
 
-  private String getMessageForParser(String messageKey, String... parameters) {
+  /**
+   * Notifies the error listeners about an exception occurred during parsing
+   * @param offendingToken offending token
+   * @param errorPair {@link Pair} of error code mapped to the corresponding error message/suggestion
+   * @param exception {@link Exception} encountered during parsing
+   */
+  public void notifyErrorListeners(
+          Token offendingToken, Pair<String, String> errorPair, RecognitionException exception) {
+    _syntaxErrors++;
+    int line = -1;
+    int charPositionInLine = -1;
+    line = offendingToken.getLine();
+    charPositionInLine = offendingToken.getCharPositionInLine();
+
+    ANTLRErrorListener listener = getErrorListenerDispatch();
+    List<? extends ANTLRErrorListener> errorListeners = getErrorListeners();
+    ErrorListenerForErrorCode errorCodeErrorListener =
+            BasicUtils.getFirstInstanceOfType(errorListeners, ErrorListenerForErrorCode.class);
+    if (errorCodeErrorListener != null) {
+      errorCodeErrorListener.syntaxError(offendingToken, line, charPositionInLine, errorPair, exception);
+    } else {
+      listener.syntaxError(this, offendingToken, line, charPositionInLine, errorPair.getRight(), exception);
+    }
+  }
+
+  private Pair<String, String> getMessageForParser(String messageKey, String... parameters) {
     return ((MessageServiceProvider) this.getErrorHandler())
         .getMessageService()
         .getMessage(messageKey, parameters);

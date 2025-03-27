@@ -139,7 +139,7 @@ public final class DaCoDialect implements CobolDialect {
   @Override
   public List<ProcessorDescription> getProcessors() {
     return ImmutableList.of(
-        new ProcessorDescription(DaCoCopyFromNode.class, ProcessingPhase.POST_DEFINITION, new DaCoCopyFromProcessor()),
+        new ProcessorDescription(DaCoCopyFromNode.class, ProcessingPhase.POST_DEFINITION, new DaCoCopyFromProcessor(messageService)),
         new ProcessorDescription(ProgramNode.class, ProcessingPhase.POST_DEFINITION, new DaCoImplicitCodeProcessor()),
         new ProcessorDescription(SortTableNode.class, ProcessingPhase.VALIDATION, new DaCoObsoleteNodeCheck())
     );

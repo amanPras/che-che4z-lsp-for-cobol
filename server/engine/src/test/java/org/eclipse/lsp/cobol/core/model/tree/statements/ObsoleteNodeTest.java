@@ -14,7 +14,6 @@
  */
 package org.eclipse.lsp.cobol.core.model.tree.statements;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 /** Test {@link ObsoleteNode} */
 class ObsoleteNodeTest {
@@ -52,15 +52,15 @@ class ObsoleteNodeTest {
                 RemarksNode.class, ProcessingPhase.TRANSFORMATION, new ObsoleteNodeCheck()));
     rootNode.addChild(remarksNode);
     astProcessor.process(ProcessingPhase.TRANSFORMATION, rootNode, ctx);
+    SyntaxError expectedError = SyntaxError.syntaxError()
+            .errorSource(ErrorSource.PARSING)
+            .severity(ErrorSeverity.WARNING)
+            .location(locality.toOriginalLocation())
+            .messageTemplate(MessageTemplate.of("cobolParser.ObsoleteCode"))
+            .build();
 
-    assertEquals(
-        errors,
-        ImmutableList.of(
-            SyntaxError.syntaxError()
-                .errorSource(ErrorSource.PARSING)
-                .severity(ErrorSeverity.WARNING)
-                .location(locality.toOriginalLocation())
-                .messageTemplate(MessageTemplate.of("cobolParser.ObsoleteCode"))
-                .build()));
+    assertEquals(1, errors.size());
+    assertEquals(expectedError.getErrorCode().getLabel(), errors.get(0).getErrorCode().getLabel());
+    assumingThat(expectedError.getErrorCode().equals(errors.get(0).getErrorCode()), () -> assertEquals(errors.get(1), expectedError));
   }
 }

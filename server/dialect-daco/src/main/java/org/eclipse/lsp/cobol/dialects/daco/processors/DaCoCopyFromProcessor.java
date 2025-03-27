@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.dialects.daco.processors;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
+import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.model.tree.Node;
 import org.eclipse.lsp.cobol.common.model.NodeType;
@@ -33,6 +34,12 @@ import java.util.stream.Collectors;
 
 /** Handle Copy From node */
 public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
+
+  private final MessageService messageService;
+
+  public DaCoCopyFromProcessor(MessageService messageService) {
+    this.messageService = messageService;
+  }
 
   @Override
   public void accept(DaCoCopyFromNode copyFromNode, ProcessingContext processingContext) {
@@ -56,7 +63,7 @@ public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .location(node.getLocality().toOriginalLocation())
-              .suggestion("Can't find source for " + node.getPrototypeName())
+              .suggestion(messageService.getMessage("Daco.missingResource", node.getPrototypeName()))
               .severity(ErrorSeverity.ERROR)
               .build());
       return;

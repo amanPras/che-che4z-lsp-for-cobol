@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.implicitDialects.cics.utility;
         import org.antlr.v4.runtime.ParserRuleContext;
 
         import org.antlr.v4.runtime.tree.TerminalNode;
+        import org.apache.commons.lang3.tuple.Pair;
         import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
         import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
         import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -309,7 +310,7 @@ public class CICSPerformSPOptionsCheckUtility extends CICSOptionsCheckBaseUtilit
                  child -> {
                         throwException(severity,
                                 getLocality(child),
-                                "Excessive options provided for: ",
+                                Pair.of("generic.cics", "Excessive options provided for: "),
                                 "DUMP");
                 });
     }
@@ -330,7 +331,7 @@ public class CICSPerformSPOptionsCheckUtility extends CICSOptionsCheckBaseUtilit
             throwException(
                     ErrorSeverity.ERROR,
                     getLocality(ctx),
-                    "Option ALL cannot be combined with individual resource types",
+                    Pair.of("generic.cics", "Option ALL cannot be combined with individual resource types"),
                     "");
         }
     }
