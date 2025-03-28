@@ -54,7 +54,7 @@ class DialectParserListener extends BaseErrorListener {
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.DIALECT)
-            .suggestion(msg)
+            .suggestionString(msg)
             .location(
                 Locality.builder()
                     .uri(uri)

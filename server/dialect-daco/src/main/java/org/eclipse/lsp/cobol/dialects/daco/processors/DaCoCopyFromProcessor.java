@@ -25,6 +25,7 @@ import org.eclipse.lsp.cobol.common.processor.ProcessingContext;
 import org.eclipse.lsp.cobol.common.processor.Processor;
 import org.eclipse.lsp.cobol.common.symbols.VariableAccumulator;
 import org.eclipse.lsp.cobol.dialects.daco.nodes.DaCoCopyFromNode;
+import org.eclipse.lsp.cobol.common.message.MessageService;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,12 @@ import java.util.stream.Collectors;
 
 /** Handle Copy From node */
 public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
+
+  private final MessageService messageService;
+
+  public DaCoCopyFromProcessor(MessageService messageService) {
+    this.messageService = messageService;
+  }
 
   @Override
   public void accept(DaCoCopyFromNode copyFromNode, ProcessingContext processingContext) {
@@ -56,7 +63,7 @@ public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .location(node.getLocality().toOriginalLocation())
-              .suggestion("Can't find source for " + node.getPrototypeName())
+              .suggestion(messageService.getMessage("Daco.missingResource", node.getPrototypeName()))
               .severity(ErrorSeverity.ERROR)
               .build());
       return;

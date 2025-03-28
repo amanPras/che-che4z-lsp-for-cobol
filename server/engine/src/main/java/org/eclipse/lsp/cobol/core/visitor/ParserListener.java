@@ -71,7 +71,7 @@ public class ParserListener extends BaseErrorListener {
                     .range(location.getRange())
                     .copybookId(copybooksRepository.getCopybookIdByUri(location.getUri()))
                     .build().toOriginalLocation())
-            .suggestion(msg)
+            .suggestionString(msg)
             .severity(getErrorSeverity(e))
             .build();
     LOG.debug("Syntax error by ParserListener " + error.toString());

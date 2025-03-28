@@ -81,14 +81,14 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
     protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
         Token token = e.getOffendingToken();
         String msg =
-                errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
+                errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e)).getValue();
         recognizer.notifyErrorListeners(token, msg, e);
     }
 
     @Override
     protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
         String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
+        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
         recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
     }
 
@@ -107,7 +107,7 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
         } else {
             String msg =
                     errorMessageHelper.getUnwantedTokenMessage(
-                            recognizer, currentToken, getTokenErrorDisplay(currentToken));
+                            recognizer, currentToken, getTokenErrorDisplay(currentToken)).getValue();
             recognizer.notifyErrorListeners(currentToken, msg, null);
         }
     }
@@ -143,7 +143,7 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
                 messageService.getMessage(
                         REPORT_MISSING_TOKEN,
                         errorMessageHelper.getExpectedText(recognizer),
-                        ErrorMessageHelper.getRule(recognizer));
+                        ErrorMessageHelper.getRule(recognizer)).getValue();
         recognizer.notifyErrorListeners(getPreviousToken(recognizer), msg, null);
     }
 

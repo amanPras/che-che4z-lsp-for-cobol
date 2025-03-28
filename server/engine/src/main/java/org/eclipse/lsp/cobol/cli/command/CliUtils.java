@@ -76,12 +76,13 @@ public class CliUtils {
    * @return Json object
    */
   public static JsonObject diagnosticToJson(SyntaxError syntaxError) {
+
     JsonObject diagnostic = new JsonObject();
     Optional.ofNullable(syntaxError.getErrorCode()).ifPresent(code -> diagnostic.add("code", new JsonPrimitive(code.getLabel())));
     Optional.ofNullable(syntaxError.getErrorSource()).ifPresent(es -> diagnostic.add("source", new JsonPrimitive(es.getText())));
     Optional.ofNullable(syntaxError.getLocation()).ifPresent(l -> diagnostic.add("location", GSON.toJsonTree(l)));
     Optional.ofNullable(syntaxError.getSeverity()).ifPresent(s -> diagnostic.add("severity", new JsonPrimitive(s.name())));
-    Optional.ofNullable(syntaxError.getSuggestion()).ifPresent(s -> diagnostic.add("suggestion", new JsonPrimitive(s)));
+    Optional.ofNullable(syntaxError.getSuggestionString()).ifPresent(s -> diagnostic.add("suggestion", new JsonPrimitive(s)));
     Optional.ofNullable(syntaxError.getRelatedInformation()).ifPresent(ri -> diagnostic.add("related", GSON.toJsonTree(ri)));
     return diagnostic;
   }

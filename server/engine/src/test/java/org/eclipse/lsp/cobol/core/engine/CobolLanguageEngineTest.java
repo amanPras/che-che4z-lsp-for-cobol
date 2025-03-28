@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.*;
 import org.eclipse.lsp.cobol.common.benchmark.BenchmarkService;
 import org.eclipse.lsp.cobol.common.benchmark.BenchmarkSession;
@@ -98,7 +99,8 @@ class CobolLanguageEngineTest {
                 mockMessageService,
                 mock(ErrorFinalizerService.class),
                 benchmarkService);
-    when(mockMessageService.getMessage(anyString(), anyString(), anyString())).thenReturn("");
+    when(mockMessageService.getMessage(anyString()))
+        .thenReturn(Pair.of("suggestion", "suggestion"));
     Locality locality =
             Locality.builder()
                     .uri(URI)
@@ -108,7 +110,7 @@ class CobolLanguageEngineTest {
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
                     .location(locality.toOriginalLocation())
-                    .suggestion("suggestion")
+                    .suggestionString("suggestion")
                     .severity(ERROR)
                     .build();
     SyntaxError eofError =
@@ -157,7 +159,7 @@ class CobolLanguageEngineTest {
   void testLanguageEngineRunWhenNativeServerWithDialects() {
     cobolErrorStrategy.setMessageService(mockMessageService);
     cobolErrorStrategy.setErrorMessageHelper(mockErrUtil);
-    when(mockMessageService.getMessage("workspaceError.ServerType")).thenReturn(ERROR_MSG);
+    when(mockMessageService.getMessage("workspaceError.ServerType")).thenReturn(Pair.of("err.msg", ERROR_MSG));
     System.setProperty("serverType", "NATIVE");
     BenchmarkService benchmarkService = mock(BenchmarkService.class);
     when(benchmarkService.startSession()).thenReturn(mock(BenchmarkSession.class));

@@ -71,14 +71,14 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
   protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
     Token token = e.getOffendingToken();
     String msg =
-        errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
+        errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e)).getValue();
     recognizer.notifyErrorListeners(token, msg, e);
   }
 
   @Override
   protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
     String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-    String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
+    String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
     recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
   }
 
@@ -89,7 +89,7 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
     }
     beginErrorCondition(recognizer);
     Token currentToken = recognizer.getCurrentToken();
-    String msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
+    String msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken).getValue();
     recognizer.notifyErrorListeners(currentToken, msg, null);
   }
 
@@ -103,7 +103,7 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
         messageService.getMessage(
             REPORT_MISSING_TOKEN,
             errorMessageHelper.getExpectedText(recognizer),
-            ErrorMessageHelper.getRule(recognizer));
+            ErrorMessageHelper.getRule(recognizer)).getValue();
     recognizer.notifyErrorListeners(recognizer.getCurrentToken(), msg, null);
   }
 

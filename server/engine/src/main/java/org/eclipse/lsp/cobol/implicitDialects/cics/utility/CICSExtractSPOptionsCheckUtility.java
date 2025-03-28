@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.implicitDialects.cics.utility;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -169,7 +170,8 @@ public class CICSExtractSPOptionsCheckUtility extends CICSOptionsCheckBaseUtilit
 
         if (distinctOptions > 1) {
             restypes.forEach(
-                    node -> throwException(ErrorSeverity.ERROR, getLocality(node), "Multiple RESTYPE options are not allowed", "")
+                    node -> throwException(ErrorSeverity.ERROR, getLocality(node),
+                            Pair.of("cics.multiple.occurrence", "Multiple RESTYPE options are not allowed"), "")
             );
         }
     }

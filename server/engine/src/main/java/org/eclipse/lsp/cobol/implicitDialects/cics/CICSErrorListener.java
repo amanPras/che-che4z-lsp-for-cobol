@@ -65,7 +65,7 @@ public class CICSErrorListener extends BaseErrorListener {
                                 charPositionInLine + getOffendingSymbolSize(offendingSymbol))))
                     .build()
                     .toOriginalLocation())
-            .suggestion(msg)
+            .suggestionString(msg)
             .severity(ErrorSeverity.ERROR)
             .build();
     LOG.debug("Syntax error by ParserListener " + error.toString());

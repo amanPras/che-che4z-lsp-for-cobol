@@ -15,6 +15,7 @@
 package org.eclipse.lsp.cobol.implicitDialects.cics.utility;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -189,7 +190,7 @@ public class CICSIgnoreOptionsCheckUtility extends CICSOptionsCheckBaseUtility {
                 .forEach(terminalNode -> throwException(
                         ErrorSeverity.ERROR,
                         getLocality(terminalNode),
-                        "Invalid option provided: ",
+                        Pair.of("cics.invalid.options", "Invalid option provided: "),
                         "NORMAL")
                 );
     }

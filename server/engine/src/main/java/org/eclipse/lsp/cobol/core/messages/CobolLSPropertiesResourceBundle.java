@@ -50,7 +50,13 @@ public class CobolLSPropertiesResourceBundle extends ResourceBundle {
   }
 
   private void loadNonFatalProperty(String basename, Locale locale) {
-    ResourceBundle bundle = ResourceBundle.getBundle(basename + "_nonfatal", locale);
+    ResourceBundle bundle;
+    try {
+      bundle = ResourceBundle.getBundle(basename + "_nonfatal", locale);
+    } catch (MissingResourceException missingResourceException) {
+      LOG.error("nonfatal resource not found, loading skipped");
+      return;
+    }
     Enumeration<String> keysEnumeration = bundle.getKeys();
     ArrayList<String> keysList = Collections.list(keysEnumeration);
     keysList.forEach(key -> this.properties.put(key, bundle.getString(key)));

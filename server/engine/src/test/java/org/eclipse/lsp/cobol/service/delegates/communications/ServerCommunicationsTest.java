@@ -24,6 +24,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
 import java.lang.reflect.Field;
 import java.util.*;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
@@ -84,13 +86,13 @@ class ServerCommunicationsTest {
     when(files.decodeURI(data)).thenReturn(data);
     when(files.getNameFromURI(data)).thenReturn(data);
     when(messageService.getMessage(anyString(), anyString()))
-        .thenReturn("No syntax errors detected in %s");
+        .thenReturn(Pair.of("generic", "No syntax errors detected in %s"));
     communications.notifyThatDocumentAnalysed(data);
     verify(client, timeout(TEST_TIMEOUT))
         .logMessage(
             eq(
                 new MessageParams(
-                    Info, messageService.getMessage("Communications.noSyntaxError", data))));
+                    Info, messageService.getMessage("Communications.noSyntaxError", data).getValue())));
   }
 
   /**
@@ -117,7 +119,8 @@ class ServerCommunicationsTest {
     String uri = UUID.randomUUID().toString();
     when(files.getNameFromURI(uri)).thenReturn(uri);
     when(files.decodeURI(uri)).thenReturn(uri);
-    when(messageService.getMessage("Communications.syntaxAnalysisInProgressTitle", uri)).thenReturn("TITLE");
+    when(messageService.getMessage("Communications.syntaxAnalysisInProgressTitle", uri))
+            .thenReturn(Pair.of("generic", "TITLE"));
     setUpProgressDataStructure(uri);
     ProgressParams expectedNotifyBeginParams = new ProgressParams();
     expectedNotifyBeginParams.setToken(uri);
@@ -186,13 +189,13 @@ class ServerCommunicationsTest {
     when(files.decodeURI(uri)).thenReturn(uri);
     when(files.getNameFromURI(uri)).thenReturn(fileName);
     when(messageService.getMessage(anyString(), anyString()))
-        .thenReturn("No syntax errors detected in %s");
+        .thenReturn(Pair.of("generic", "No syntax errors detected in %s"));
     communications.notifyThatDocumentAnalysed(uri);
     verify(client, timeout(TEST_TIMEOUT))
         .logMessage(
             eq(
                 new MessageParams(
                     MessageType.Info,
-                    messageService.getMessage("Communications.noSyntaxError", fileName))));
+                    messageService.getMessage("Communications.noSyntaxError", fileName).getValue())));
   }
 }

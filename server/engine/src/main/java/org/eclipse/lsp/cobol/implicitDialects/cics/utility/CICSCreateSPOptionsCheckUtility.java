@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.implicitDialects.cics.utility;
         import org.antlr.v4.runtime.ParserRuleContext;
 
         import org.antlr.v4.runtime.tree.TerminalNode;
+        import org.apache.commons.lang3.tuple.Pair;
         import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
         import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
         import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -138,7 +139,7 @@ public class CICSCreateSPOptionsCheckUtility extends CICSOptionsCheckBaseUtility
             if (Arrays.stream(COMMANDS_WITH_DISCARD_COMPLETE_OPTS).anyMatch(i -> i == tokenIndex)
         ) {
                 throwException(ErrorSeverity.ERROR, getLocality(ctx.children.get(index)),
-                        "",
+                        Pair.of("generic.empty", ""),
                         "Operand value not allowed");
             }
         }
@@ -151,7 +152,7 @@ public class CICSCreateSPOptionsCheckUtility extends CICSOptionsCheckBaseUtility
             int tokenIndex = ((TerminalNode) ctx.children.get(index)).getSymbol().getType();
             if (Arrays.stream(COMMANDS_WITH_DISCARD_COMPLETE_OPTS).anyMatch(i -> i == tokenIndex)
             ) {
-                throwException(ErrorSeverity.ERROR, getLocality(ctx.children.get(index)), "", "Operand value required");
+                throwException(ErrorSeverity.ERROR, getLocality(ctx.children.get(index)), Pair.of("generic.empty", ""), "Operand value required");
             }
         }
     }

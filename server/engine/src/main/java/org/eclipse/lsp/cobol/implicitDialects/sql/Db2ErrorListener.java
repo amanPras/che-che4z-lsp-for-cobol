@@ -77,7 +77,7 @@ public class Db2ErrorListener extends BaseErrorListener {
                                     : offendingSymbolSize)))
                     .build()
                     .toOriginalLocation())
-            .suggestion(msg)
+            .suggestionString(msg)
             .severity(ErrorSeverity.ERROR)
             .build();
     LOG.debug("Syntax error by ParserListener " + error.toString());

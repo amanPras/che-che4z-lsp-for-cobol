@@ -44,7 +44,7 @@ public class ParserListener extends BaseErrorListener {
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
-            .suggestion(msg)
+            .suggestionString(msg)
             .severity(ErrorSeverity.ERROR)
             .build();
     LOG.debug("Syntax error by ParserListener " + error.toString());

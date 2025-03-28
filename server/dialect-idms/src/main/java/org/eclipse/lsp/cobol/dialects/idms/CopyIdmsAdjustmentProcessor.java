@@ -103,11 +103,11 @@ public class CopyIdmsAdjustmentProcessor {
   }
 
   private List<SyntaxError> getWarningAtARange(
-      Range rangeForError, String uri, String message, Locality sourceLocality) {
+      Range rangeForError, String uri, Pair<String, String> errorPair, Locality sourceLocality) {
     return Collections.singletonList(
         SyntaxError.syntaxError()
             .location(Locality.builder().uri(uri).range(rangeForError).build().toOriginalLocation())
-            .suggestion(messageService.getMessage(message))
+            .suggestion(errorPair)
             .severity(WARNING)
             .errorSource(ErrorSource.DIALECT)
             .relatedInformation(

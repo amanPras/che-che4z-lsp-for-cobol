@@ -16,6 +16,7 @@
 package org.eclipse.lsp.cobol.implicitDialects.cics.utility;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -123,7 +124,7 @@ public class CICSWSAContextOptionsCheckUtility extends CICSOptionsCheckBaseUtili
                 throwException(
                         ErrorSeverity.ERROR,
                         getLocality(ctx),
-                        "Invalid parameters combination. Valid combination is: ",
+                        Pair.of("cics.invalid.options", "Invalid parameters combination. Valid combination is: "),
                         "EPRTYPE, EPRFIELD, (EPRINTO or EPRSET) and EPRLENGTH");
             }
             checkHasMutuallyExclusiveOptions("EPRINTO or EPRSET", ctx.EPRINTO(), ctx.EPRSET());

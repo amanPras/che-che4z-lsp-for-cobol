@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.DialectRegistryItem;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
@@ -92,17 +93,26 @@ public class PropertiesMessageService implements MessageService {
     updateResourceBundle();
   }
 
+//  @Override
+//  public String getMessageWithoutErrorCode(String key, Object... parameters) {
+//    try {
+//      return String.format((String) resourceBundle.handleGetObject(key), parameters);
+//    } catch (MissingResourceException e) {
+//      return key;
+//    }
+//  }
+
   @Override
-  public String getMessage(String key, Object... parameters) {
+  public Pair<String, String> getMessage(String key, Object... parameters) {
     try {
-      return "[" + key + "]" + String.format((String) resourceBundle.handleGetObject(key), parameters);
+      return Pair.of(key, String.format((String) resourceBundle.handleGetObject(key), parameters));
     } catch (MissingResourceException e) {
-      return key;
+      return Pair.of(key, key);
     }
   }
 
   @Override
-  public String localizeTemplate(MessageTemplate template) {
+  public Pair<String, String> localizeTemplate(MessageTemplate template) {
     Object[] parameters = processArgs(template.getArgs());
     return getMessage(
         template.getTemplate(),

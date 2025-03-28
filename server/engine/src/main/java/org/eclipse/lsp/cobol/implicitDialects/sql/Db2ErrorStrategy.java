@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
 
@@ -71,14 +72,14 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
     protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
         Token token = e.getOffendingToken();
         String msg =
-                errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
+                errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e)).getValue();
         recognizer.notifyErrorListeners(token, msg, e);
     }
 
     @Override
     protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
         String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
+        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
         recognizer.notifyErrorListeners(e.getStartToken(), msg, e);
     }
 
@@ -89,7 +90,7 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
         }
         beginErrorCondition(recognizer);
         Token currentToken = recognizer.getCurrentToken();
-        String msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
+        String msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken).getValue();
         recognizer.notifyErrorListeners(currentToken, msg, null);
     }
 
@@ -100,13 +101,13 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
         }
 
         beginErrorCondition(recognizer);
-        String msg = recognizer.getExpectedTokens().contains(Db2SqlLexer.END_EXEC)
+        Pair<String, String> errorPair = recognizer.getExpectedTokens().contains(Db2SqlLexer.END_EXEC)
                 ? messageService.getMessage(REPORT_MISSING_END_EXEC)
                 : messageService.getMessage(
                 REPORT_MISSING_TOKEN,
                 errorMessageHelper.getExpectedText(recognizer),
                 ErrorMessageHelper.getRule(recognizer));
-        recognizer.notifyErrorListeners(recognizer.getCurrentToken(), msg, null);
+        recognizer.notifyErrorListeners(recognizer.getCurrentToken(), errorPair.getValue(), null);
     }
 
     private String getOffendingToken(InputMismatchException e) {
@@ -121,7 +122,7 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
             int nodeCount = adjustConsumedNodes(recognizer, sqlCodeContext);
             ofNullable(sqlCodeContext.children).ifPresent(ch -> ch.subList(nodeCount, ch.size()).clear());
             Token missingSymbol = getMissingSymbol(recognizer);
-            recognizer.notifyErrorListeners(missingSymbol, messageService.getMessage(REPORT_MISSING_END_EXEC), null);
+            recognizer.notifyErrorListeners(missingSymbol, messageService.getMessage(REPORT_MISSING_END_EXEC).getValue(), null);
             return missingSymbol;
         }
         return super.recoverInline(recognizer);
