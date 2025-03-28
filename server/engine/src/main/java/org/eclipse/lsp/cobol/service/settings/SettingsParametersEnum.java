@@ -36,7 +36,7 @@ public enum SettingsParametersEnum {
   COMPILER_OPTIONS("compiler.options"),
   DIALECT_REGISTRY("dialect.registry"),
   COBOL_PROGRAM_LAYOUT("cobol.program.layout"),
-  COBOL_DIAGNOSTICS_LEVEL("diagnostics.level");
+  COBOL_DIAGNOSTICS_LEVEL("diagnostics.sensitivity");
 
   public final String label;
 

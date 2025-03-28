@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.lsp.cobol.core.engine.errors.DiagnosticSensitivity.NORMAL;
 
 /**
  * Process errors for copybooks statements
@@ -39,7 +40,7 @@ import static java.util.stream.Collectors.toList;
 public class ErrorFinalizerService {
 
   private final MessageService messageService;
-  private boolean filterDiagnostics = false;
+  private static DiagnosticSensitivity filterDiagnostics = NORMAL;
 
   @Inject
   public ErrorFinalizerService(MessageService messageService) {
@@ -64,7 +65,8 @@ public class ErrorFinalizerService {
    * @param copybooksRepository - copybook repository
    */
   public void processLateErrors(AnalysisContext ctx, CopybooksRepository copybooksRepository) {
-    List<SyntaxError> accumulatedErrors = ctx.getAccumulatedErrors().stream().filter(this::filterDiagnotics).collect(toList());
+    List<SyntaxError> accumulatedErrors = ctx.getAccumulatedErrors().stream()
+            .filter(err -> filterDiagnotics(err, messageService.getFatalErrors())).collect(toList());
     accumulatedErrors.addAll(collectErrorsForCopybooks(accumulatedErrors, copybooksRepository));
     List<SyntaxError> distinct = accumulatedErrors.stream().distinct().collect(toList());
     ctx.getAccumulatedErrors().clear();
@@ -119,11 +121,14 @@ public class ErrorFinalizerService {
   /**
    * Filter diagnostic based on the diagnostic level provided by the client
    * @param syntaxError syntax error to be processed
+   * @param fatalErrors
    * @return true if diagnostics is within the clients diagnostic level, false otherwise
    */
-  public boolean filterDiagnotics(SyntaxError syntaxError) {
-    if (!this.filterDiagnostics) return true;
-    return messageService.getFatalErrors().contains(syntaxError.getErrorCode().getLabel());
+  public static boolean filterDiagnotics(SyntaxError syntaxError, Set<String> fatalErrors) {
+    if (filterDiagnostics == NORMAL) return true;
+    return ofNullable(syntaxError.getErrorCode())
+            .map(errCode -> fatalErrors.contains(errCode.getLabel()))
+            .orElse(false);
   }
 
 
@@ -135,7 +140,7 @@ public class ErrorFinalizerService {
     if (levels != null && !levels.isEmpty()) {
       if (levels.get(0) instanceof JsonElement) {
         JsonElement option = (JsonElement) levels.get(0);
-        this.filterDiagnostics = option.getAsBoolean();
+        filterDiagnostics = DiagnosticSensitivity.valueOf(option.getAsString());
       }
     }
   }
