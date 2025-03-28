@@ -16,7 +16,6 @@ package org.eclipse.lsp.cobol.implicitDialects.cics.utility;
 
         import org.antlr.v4.runtime.ParserRuleContext;
 
-        import org.apache.commons.lang3.tuple.Pair;
         import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
         import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
         import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -271,7 +270,7 @@ public class CICSCsdSpOptionsCheckUtility extends CICSOptionsCheckBaseUtility {
         checkHasMutuallyExclusiveOptions("ATTRIBUTES or SET", ctx.ATTRIBUTES(), ctx.ATTRIBUTES(), ctx.SET());
         if (!ctx.ATTRLEN().isEmpty() && (ctx.ATTRIBUTES().isEmpty() && ctx.SET().isEmpty())) {
             throwException(
-                    ErrorSeverity.ERROR, getLocality(ctx), Pair.of("MISSING_ATTRBUTES_OR_SET", MISSING_ATTRBUTES_OR_SET), "");
+                    ErrorSeverity.ERROR, getLocality(ctx), MISSING_ATTRBUTES_OR_SET, "");
         }
         if (ctx.ATTRIBUTES().isEmpty()) checkAllOptionsArePresentOrAbsent("SET, ATTRLEN", ctx, ctx.SET(), ctx.ATTRLEN());
     }
@@ -291,7 +290,7 @@ public class CICSCsdSpOptionsCheckUtility extends CICSOptionsCheckBaseUtility {
         checkHasExactlyOneOption("ATTRIBUTES or SET", ctx, ctx.ATTRIBUTES(), ctx.SET());
         if (!ctx.ATTRLEN().isEmpty() && (ctx.ATTRIBUTES().isEmpty() && ctx.SET().isEmpty())) {
             throwException(
-                    ErrorSeverity.ERROR, getLocality(ctx), Pair.of("MISSING_ATTRBUTES_OR_SET", MISSING_ATTRBUTES_OR_SET), "");
+                    ErrorSeverity.ERROR, getLocality(ctx), MISSING_ATTRBUTES_OR_SET, "");
         }
         if (ctx.ATTRIBUTES().isEmpty()) checkAllOptionsArePresentOrAbsent("SET, ATTRLEN", ctx, ctx.SET(), ctx.ATTRLEN());
     }

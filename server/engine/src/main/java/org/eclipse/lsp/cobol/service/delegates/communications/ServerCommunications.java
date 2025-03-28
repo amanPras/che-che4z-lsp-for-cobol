@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
@@ -153,7 +152,7 @@ public class ServerCommunications implements Communications {
     WorkDoneProgressBegin workDoneProgressBegin = new WorkDoneProgressBegin();
     workDoneProgressBegin.setTitle(messageService.getMessage(
             "Communications.syntaxAnalysisInProgressTitle",
-            files.getNameFromURI(files.decodeURI(uri))).getValue());
+            files.getNameFromURI(files.decodeURI(uri))));
     workDoneProgressBegin.setCancellable(true);
     params.setValue(Either.forLeft(workDoneProgressBegin));
     getClient().notifyProgress(params);
@@ -198,8 +197,8 @@ public class ServerCommunications implements Communications {
     getClient().showMessage(new MessageParams(type, clean(message)));
   }
 
-  private void logMessage(MessageType type, Pair<String, String> message) {
-    getClient().logMessage(new MessageParams(type, clean(message.getValue())));
+  private void logMessage(MessageType type, String message) {
+    getClient().logMessage(new MessageParams(type, clean(message)));
   }
 
   private CobolLanguageClient getClient() {

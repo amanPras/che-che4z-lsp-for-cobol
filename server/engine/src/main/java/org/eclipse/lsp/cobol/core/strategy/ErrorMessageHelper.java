@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.CobolParser;
 
@@ -60,7 +59,7 @@ public class ErrorMessageHelper {
    * @param offendingTokens offending token string
    * @return error message string
    */
-  public Pair<String, String> getInputMismatchMessage(
+  public String getInputMismatchMessage(
       Parser recognizer, InputMismatchException e, Token token, String offendingTokens) {
     return token.getType() == EOF
         ? messageService.getMessage(END_OF_FILE_MESSAGE)
@@ -76,7 +75,7 @@ public class ErrorMessageHelper {
    * @param display a symbol to display in the report
    * @return error message string
    */
-  public Pair<String, String> getUnwantedTokenMessage(Parser recognizer, Token currentToken, String display) {
+  public String getUnwantedTokenMessage(Parser recognizer, Token currentToken, String display) {
     return currentToken.getType() == EOF
         ? messageService.getMessage(END_OF_FILE_MESSAGE)
         : createMessage(recognizer, display);
@@ -122,7 +121,7 @@ public class ErrorMessageHelper {
     return interval.size() > 1 ? String.format("{%s}", newMessage) : newMessage;
   }
 
-  private Pair<String, String> createMessage(Parser recognizer, String t) {
+  private String createMessage(Parser recognizer, String t) {
     String tokenName = SPECIAL_TOKEN_MAPPING.getOrDefault(t, t);
     return recognizer.getContext().getRuleIndex() == CobolParser.RULE_performInlineStatement
         ? messageService.getMessage(PERFORM_MISSING_END, tokenName)

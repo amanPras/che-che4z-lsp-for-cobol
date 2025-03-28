@@ -14,10 +14,10 @@
  */
 package org.eclipse.lsp.cobol.common.error;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
@@ -33,22 +33,15 @@ import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 // https://github.com/rzwitserloot/lombok/issues/2044
 @Builder(builderMethodName = "syntaxError", toBuilder = true)
 @Value
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SyntaxError {
-//  static Pattern errorCodeMatcher = Pattern.compile("\\[(.*)?](.*)");
-  @EqualsAndHashCode.Include OriginalLocation location;
-  @EqualsAndHashCode.Include MessageTemplate messageTemplate;
-  @EqualsAndHashCode.Include Pair<String, String> suggestion;
-  @EqualsAndHashCode.Include String suggestionString;
-  @EqualsAndHashCode.Include ErrorSeverity severity;
+  static Pattern errorCodeMatcher = Pattern.compile("\\[(.*)?](.*)");
+  OriginalLocation location;
+  MessageTemplate messageTemplate;
+  String suggestion;
+  ErrorSeverity severity;
   ErrorCode errorCode;
-  @EqualsAndHashCode.Include ErrorSource errorSource;
-  @EqualsAndHashCode.Include DiagnosticRelatedInformation relatedInformation;
-
-  @EqualsAndHashCode.Include
-  public String errorCodeLabel() {
-    return this.errorCode != null ? this.errorCode.getLabel() : null;
-  }
+  ErrorSource errorSource;
+  DiagnosticRelatedInformation relatedInformation;
 
   public static class SyntaxErrorBuilder {
     private ErrorCode errorCode;
@@ -59,12 +52,15 @@ public class SyntaxError {
 
     private SyntaxError getSyntaxError() {
       if (this.messageTemplate != null) {
-        this.errorCode =  this.errorCode!= null ? this.errorCode : messageTemplate::getTemplate;
+        this.errorCode = messageTemplate::getTemplate;
       } else if (this.suggestion != null) {
-          this.errorCode =  this.errorCode != null ? this.errorCode : this.suggestion::getKey;
-          this.suggestionString = this.suggestion.getRight();
+        Matcher matcher = errorCodeMatcher.matcher(this.suggestion);
+        if (matcher.matches()) {
+          this.errorCode =  () -> matcher.group(1);
+          this.suggestion = matcher.group(2);
+        }
       }
-      return new SyntaxError(location, messageTemplate, suggestion, suggestionString, severity, errorCode, errorSource, relatedInformation);
+      return new SyntaxError(location, messageTemplate, suggestion, severity, errorCode, errorSource, relatedInformation);
     }
   }
 }

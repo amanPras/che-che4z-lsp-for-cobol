@@ -18,13 +18,9 @@ package org.eclipse.lsp.cobol.implicitDialects.sql;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.antlr.v4.runtime.*;
-import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.lsp.cobol.common.ErrorListenerForErrorCode;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
-import org.eclipse.lsp.cobol.common.utils.BasicUtils;
 import org.eclipse.lsp.cobol.core.CobolParser;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,7 +49,7 @@ public abstract class MessageServiceParser extends Parser {
    *     externalized message file.
    */
   public void notifyError(String messageId, String... parameters) {
-    Pair<String, String> message = getMessageForParser(messageId, parameters);
+    String message = getMessageForParser(messageId, parameters);
     notifyListeners(message);
   }
 
@@ -65,8 +61,29 @@ public abstract class MessageServiceParser extends Parser {
    *    externalized message file.
    */
   public void notifyError(Token offendingToken, String messageId, String... parameters) {
-    Pair<String, String> message = getMessageForParser(messageId, parameters);
+    String message = getMessageForParser(messageId, parameters);
     notifyErrorListeners(offendingToken, message, null);
+  }
+
+  @Override
+  public void notifyErrorListeners(Token offendingToken, String msg, RecognitionException e) {
+    _syntaxErrors++;
+    int line;
+    int charPositionInLine;
+    ANTLRErrorListener listener = getErrorListenerDispatch();
+    line = offendingToken.getLine();
+    charPositionInLine = offendingToken.getCharPositionInLine();
+    if (e instanceof NoViableAltException) {
+      String errorStatement =
+          Optional.ofNullable(this.getInputStream())
+              .map(
+                  it ->
+                      it.getText(((NoViableAltException) e).getStartToken(), e.getOffendingToken()))
+              .orElse("");
+      listener.syntaxError(this, errorStatement, line, charPositionInLine, msg, e);
+    } else {
+      listener.syntaxError(this, offendingToken, line, charPositionInLine, msg, e);
+    }
   }
 
   /**
@@ -75,8 +92,8 @@ public abstract class MessageServiceParser extends Parser {
    *     <p>NOTE: This method is for testing only. Advised to use notifyErrorListeners instead.
    */
   @VisibleForTesting
-  public void notifyListeners(Pair<String, String> message) {
-    notifyErrorListeners(getCurrentToken(), message, null);
+  public void notifyListeners(String message) {
+    super.notifyErrorListeners(message);
   }
 
   /**
@@ -240,43 +257,7 @@ public abstract class MessageServiceParser extends Parser {
     }
   }
 
-  /**
-   * Notifies the error listeners about an exception occurred during parsing
-   * @param offendingToken offending token
-   * @param errorPair {@link Pair} of error code mapped to the corresponding error message/suggestion
-   * @param exception {@link Exception} encountered during parsing
-   */
-  public void notifyErrorListeners(
-          Token offendingToken, Pair<String, String> errorPair, RecognitionException exception) {
-    _syntaxErrors++;
-    int line;
-    int charPositionInLine;
-    ANTLRErrorListener listener = getErrorListenerDispatch();
-    line = offendingToken.getLine();
-    charPositionInLine = offendingToken.getCharPositionInLine();
-    Object errorStatement;
-    if (exception instanceof NoViableAltException) {
-       errorStatement =
-              Optional.ofNullable(this.getInputStream())
-                      .map(
-                              it ->
-                                      it.getText(((NoViableAltException) exception).getStartToken(), exception.getOffendingToken()))
-                      .orElse("");
-    } else {
-       errorStatement = offendingToken;
-    }
-
-    List<? extends ANTLRErrorListener> errorListeners = getErrorListeners();
-    ErrorListenerForErrorCode errorCodeErrorListener =
-            BasicUtils.getFirstInstanceOfType(errorListeners, ErrorListenerForErrorCode.class);
-    if (errorCodeErrorListener != null) {
-      errorCodeErrorListener.syntaxError(errorStatement, line, charPositionInLine, errorPair, exception);
-    } else {
-      listener.syntaxError(this, errorStatement, line, charPositionInLine, errorPair.getRight(), exception);
-    }
-  }
-
-  private Pair<String, String> getMessageForParser(String messageKey, String... parameters) {
+  private String getMessageForParser(String messageKey, String... parameters) {
     return ((MessageServiceProvider) this.getErrorHandler())
         .getMessageService()
         .getMessage(messageKey, (Object[]) parameters);

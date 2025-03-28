@@ -18,7 +18,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
 
@@ -71,16 +70,16 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
     @Override
     protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
         Token token = e.getOffendingToken();
-        Pair<String, String> msg =
+        String msg =
                 errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
-        notifyToAppropriateListener(recognizer, e, msg);
+        recognizer.notifyErrorListeners(token, msg, e);
     }
 
     @Override
     protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
         String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-        Pair<String, String> msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
-        notifyToAppropriateListener(recognizer, e, e.getStartToken(), msg);
+        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
+        recognizer.notifyErrorListeners(e.getStartToken(), msg, e);
     }
 
     @Override
@@ -90,8 +89,8 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
         }
         beginErrorCondition(recognizer);
         Token currentToken = recognizer.getCurrentToken();
-        Pair<String, String> msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
-        notifyToAppropriateListener(recognizer, null, currentToken, msg);
+        String msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
+        recognizer.notifyErrorListeners(currentToken, msg, null);
     }
 
     @Override
@@ -101,13 +100,13 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
         }
 
         beginErrorCondition(recognizer);
-        Pair<String, String> msg = recognizer.getExpectedTokens().contains(Db2SqlLexer.END_EXEC)
+        String msg = recognizer.getExpectedTokens().contains(Db2SqlLexer.END_EXEC)
                 ? messageService.getMessage(REPORT_MISSING_END_EXEC)
                 : messageService.getMessage(
                 REPORT_MISSING_TOKEN,
                 errorMessageHelper.getExpectedText(recognizer),
                 ErrorMessageHelper.getRule(recognizer));
-        notifyToAppropriateListener(recognizer, null, recognizer.getCurrentToken(), msg);
+        recognizer.notifyErrorListeners(recognizer.getCurrentToken(), msg, null);
     }
 
     private String getOffendingToken(InputMismatchException e) {
@@ -122,7 +121,7 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
             int nodeCount = adjustConsumedNodes(recognizer, sqlCodeContext);
             ofNullable(sqlCodeContext.children).ifPresent(ch -> ch.subList(nodeCount, ch.size()).clear());
             Token missingSymbol = getMissingSymbol(recognizer);
-            notifyToAppropriateListener(recognizer, null, missingSymbol, messageService.getMessage(REPORT_MISSING_END_EXEC));
+            recognizer.notifyErrorListeners(missingSymbol, messageService.getMessage(REPORT_MISSING_END_EXEC), null);
             return missingSymbol;
         }
         return super.recoverInline(recognizer);
@@ -159,20 +158,5 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
     private boolean isInAriaA(Token t) {
         int pos = t.getCharPositionInLine() + 1;
         return 8 <= pos && pos <= 11;
-    }
-
-    private static void notifyToAppropriateListener(
-            Parser recognizer, RecognitionException e, Pair<String, String> msg) {
-        notifyToAppropriateListener(recognizer, e, e.getOffendingToken(), msg);
-    }
-
-    private static void notifyToAppropriateListener(
-            Parser recognizer, RecognitionException e, Token token, Pair<String, String> msg) {
-        if (recognizer instanceof MessageServiceParser) {
-            MessageServiceParser db2SqlExecParser = (MessageServiceParser) recognizer;
-            db2SqlExecParser.notifyErrorListeners(token, msg, e);
-        } else {
-            recognizer.notifyErrorListeners(token, msg.getRight(), e);
-        }
     }
 }

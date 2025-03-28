@@ -20,8 +20,6 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
-import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.lsp.cobol.common.ErrorListenerForErrorCode;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -32,11 +30,10 @@ import org.eclipse.lsp4j.Range;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /** This error listener registers syntax errors found by dialect parser. */
 @Slf4j
-class DialectParserListener extends BaseErrorListener implements ErrorListenerForErrorCode {
+class DialectParserListener extends BaseErrorListener {
   private final String uri;
 
   @Getter private final List<SyntaxError> errors = new ArrayList<>();
@@ -53,20 +50,11 @@ class DialectParserListener extends BaseErrorListener implements ErrorListenerFo
       int charPositionInLine,
       String msg,
       RecognitionException e) {
-    buildAndAddError(line, charPositionInLine, offendingSymbol, msg, syntaxErrorBuilder -> syntaxErrorBuilder.suggestionString(msg));
-  }
-
-  @Override
-  public void syntaxError(Object offendingSymbol, int line, int charPositionInLine, Pair<String, String> errorPair, Exception e) {
-    buildAndAddError(line, charPositionInLine, offendingSymbol, errorPair.getValue(), syntaxErrorBuilder -> syntaxErrorBuilder.suggestion(errorPair));
-  }
-
-  private void buildAndAddError(int line, int charPositionInLine, Object offendingSymbol, String errorMessage,
-                                Consumer<SyntaxError.SyntaxErrorBuilder> suggestionConsumer) {
     int errorLine = line - 1;
-    SyntaxError.SyntaxErrorBuilder builder =
+    SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.DIALECT)
+            .suggestion(msg)
             .location(
                 Locality.builder()
                     .uri(uri)
@@ -76,11 +64,9 @@ class DialectParserListener extends BaseErrorListener implements ErrorListenerFo
                             new Position(
                                 errorLine,
                                 charPositionInLine + getOffendingSymbolSize(offendingSymbol))))
-                    .build()
-                    .toOriginalLocation())
-            .severity(getSeverity(errorMessage));
-    suggestionConsumer.accept(builder);
-    SyntaxError error = builder.build();
+                    .build().toOriginalLocation())
+            .severity(getSeverity(msg))
+            .build();
     LOG.debug("Syntax error by DialectParserListener " + error.toString());
     errors.add(error);
   }

@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -214,7 +213,7 @@ public abstract class CobolLineReader {
    */
   @NonNull
   private SyntaxError createError(
-          @NonNull String uri, @NonNull Pair<String, String> message, int lineNumber, int start, int stop) {
+          @NonNull String uri, @NonNull String message, int lineNumber, int start, int stop) {
     SyntaxError error =
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PREPROCESSING)

@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
 
@@ -71,16 +70,16 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
   @Override
   protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
     Token token = e.getOffendingToken();
-    Pair<String, String> errorCodePair = errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
-    notifyToAppropriateListener(recognizer, e, token, errorCodePair);
+    String msg =
+        errorMessageHelper.getInputMismatchMessage(recognizer, e, token, getOffendingToken(e));
+    recognizer.notifyErrorListeners(token, msg, e);
   }
 
   @Override
   protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
     String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-    Pair<String, String> errorPair =
-        messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
-    notifyToAppropriateListener(recognizer, e, errorPair);
+    String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams);
+    recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
   }
 
   @Override
@@ -90,8 +89,8 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
     }
     beginErrorCondition(recognizer);
     Token currentToken = recognizer.getCurrentToken();
-    Pair<String, String> errorPair = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
-    notifyToAppropriateListener(recognizer, null, currentToken, errorPair);
+    String msg = errorMessageHelper.getUnwantedTokenMessage(recognizer, currentToken);
+    recognizer.notifyErrorListeners(currentToken, msg, null);
   }
 
   @Override
@@ -100,30 +99,15 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
       return;
     }
     beginErrorCondition(recognizer);
-    Pair<String, String> errorPair =
+    String msg =
         messageService.getMessage(
             REPORT_MISSING_TOKEN,
             errorMessageHelper.getExpectedText(recognizer),
             ErrorMessageHelper.getRule(recognizer));
-    notifyToAppropriateListener(recognizer, null, recognizer.getCurrentToken(), errorPair);
+    recognizer.notifyErrorListeners(recognizer.getCurrentToken(), msg, null);
   }
 
   private String getOffendingToken(InputMismatchException e) {
     return getTokenErrorDisplay(e.getOffendingToken());
-  }
-
-  private static void notifyToAppropriateListener(
-          Parser recognizer, RecognitionException e, Pair<String, String> msg) {
-    notifyToAppropriateListener(recognizer, e, e.getOffendingToken(), msg);
-  }
-
-  private static void notifyToAppropriateListener(
-          Parser recognizer, RecognitionException e, Token token, Pair<String, String> msg) {
-    if (recognizer instanceof MessageServiceParser) {
-      MessageServiceParser parser = (MessageServiceParser) recognizer;
-      parser.notifyErrorListeners(token, msg, e);
-    } else {
-      recognizer.notifyErrorListeners(token, msg.getRight(), e);
-    }
   }
 }

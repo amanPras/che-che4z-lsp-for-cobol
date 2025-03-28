@@ -14,7 +14,6 @@
  */
 package org.eclipse.lsp.cobol.core.messages;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
@@ -50,11 +49,11 @@ class PropertiesMessageServiceTest {
 
   @Test
   void whenValidMessageTemplateProvide_getFormattedMessage() {
-    final Pair<String, String> message = messageService.getMessage("1");
-    assertEquals("This is a test.", message.getValue());
+    final String message = messageService.getMessage("1");
+    assertEquals("This is a test.", message);
 
-    final Pair<String, String> message1 = messageService.getMessage("2", "TEST_PARAM");
-    assertEquals("This is a test for parameters. Received params is -> TEST_PARAM .", message1.getValue());
+    final String message1 = messageService.getMessage("2", "TEST_PARAM");
+    assertEquals("This is a test for parameters. Received params is -> TEST_PARAM .", message1);
   }
 
   @Test
@@ -63,11 +62,11 @@ class PropertiesMessageServiceTest {
     MessageService messageServiceFR =
         new PropertiesMessageService(
             "resourceBundles/test", localeMock, settingsService, workingFolderService);
-    assertEquals("French test selected.", messageServiceFR.getMessage("1").getValue());
+    assertEquals("French test selected.", messageServiceFR.getMessage("1"));
 
     assertEquals(
         "French test with parameters. Received params is -> TEST_PARAM .",
-        messageServiceFR.getMessage("2", "TEST_PARAM").getValue());
+        messageServiceFR.getMessage("2", "TEST_PARAM"));
   }
 
   @Test
@@ -86,7 +85,7 @@ class PropertiesMessageServiceTest {
                 settingsService,
                 workingFolderService
         );
-    assertEquals("1", messageServiceLocal.getMessage("1").getValue());
+    assertEquals("1", messageServiceLocal.getMessage("1"));
   }
 
   @Test
@@ -94,53 +93,51 @@ class PropertiesMessageServiceTest {
     MessageService messageService1 =
         new PropertiesMessageService(
             "resourceBundles/test-2", localeMock, settingsService, workingFolderService);
-    final Pair<String, String> formattedMessage = messageService1.getMessage("1", localeMock);
-    assertEquals("This is a duplicate key test for diff msg service.", formattedMessage.getValue());
+    final String formattedMessage = messageService1.getMessage("1", localeMock);
+    assertEquals("This is a duplicate key test for diff msg service.", formattedMessage);
   }
 
   @Test
   void testLocalizeTemplateNoArgs() {
-    assertEquals("This is a test.", messageService.localizeTemplate(MessageTemplate.of("1")).getValue());
+    assertEquals("This is a test.", messageService.localizeTemplate(MessageTemplate.of("1")));
   }
 
   @Test
   void testLocalizeWithMixedArgs() {
     assertEquals(
-        "Arg1: (4,nested arg: nest), arg2: def",
+        "Arg1: nested arg: nest, arg2: def",
         messageService.localizeTemplate(
-            MessageTemplate.of("3", MessageTemplate.of("4", "nest"), "def")).getValue());
+            MessageTemplate.of("3", MessageTemplate.of("4", "nest"), "def")));
   }
 
   @Test
   void testLocalizeWithNumericArgs() {
     assertEquals(
-        "Arg1: (4,nested arg: 1), arg2: 2",
-        messageService.localizeTemplate(MessageTemplate.of("3", MessageTemplate.of("4", 1), 2)).getValue());
+        "Arg1: nested arg: 1, arg2: 2",
+        messageService.localizeTemplate(MessageTemplate.of("3", MessageTemplate.of("4", 1), 2)));
   }
 
   @Test
   void testLocalizeWithRecursiveArgs() {
-    Pair<String, String> actualResult = messageService.localizeTemplate(
-            MessageTemplate.of(
-                    "3",
-                    MessageTemplate.of("3", "nest1", MessageTemplate.of("4", "nest2")),
-                    MessageTemplate.of(
-                            "4", MessageTemplate.of("4", MessageTemplate.of("4", "very nested")))));
     assertEquals(
-        "Arg1: (3,Arg1: nest1, arg2: (4,nested arg: nest2)), arg2: (4,nested arg: (4,nested arg: (4,nested arg: very nested)))",
-        actualResult.getValue());
-    assertEquals("3", actualResult.getKey());
+        "Arg1: Arg1: nest1, arg2: nested arg: nest2, arg2: nested arg: nested arg: nested arg: very nested",
+        messageService.localizeTemplate(
+            MessageTemplate.of(
+                "3",
+                MessageTemplate.of("3", "nest1", MessageTemplate.of("4", "nest2")),
+                MessageTemplate.of(
+                    "4", MessageTemplate.of("4", MessageTemplate.of("4", "very nested"))))));
   }
 
   @Test
   void testLocalizeWithConcatenation() {
-    Pair<String, String> actual = messageService.localizeTemplate(
+    assertEquals(
+        "Arg1: nested arg: 1 - 2 - nested arg: a b c, arg2: 4",
+        messageService.localizeTemplate(
             MessageTemplate.of(
-                    "3",
-                    MessageTemplate.concatenatingArgs(
-                            "4", " - ", 1, 2, MessageTemplate.concatenatingArgs("4", " b ", "a", "c")),
-                    4));
-    assertEquals("Arg1: (4,nested arg: 1 - 2 - (4,nested arg: a b c)), arg2: 4", actual.getValue());
-    assertEquals("3", actual.getKey());
+                "3",
+                MessageTemplate.concatenatingArgs(
+                    "4", " - ", 1, 2, MessageTemplate.concatenatingArgs("4", " b ", "a", "c")),
+                4)));
   }
 }

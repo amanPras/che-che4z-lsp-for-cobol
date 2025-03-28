@@ -13,7 +13,7 @@
  */
 
 parser grammar CompilerDirectivesParser;
-options {tokenVocab = CompilerDirectivesLexer; superClass = org.eclipse.lsp.cobol.core.MessageServiceParser;}
+options {tokenVocab = CompilerDirectivesLexer;}
 
 compilerOptions: compilerOption | (compilerOption COMMACHAR compilerOptions)+;
 compilerOption

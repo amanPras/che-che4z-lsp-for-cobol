@@ -22,7 +22,6 @@ import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.implicitDialects.cics.CICSLexer;
 import org.eclipse.lsp.cobol.implicitDialects.cics.CICSParser;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.List;
@@ -169,8 +168,9 @@ public class CICSExtractSPOptionsCheckUtility extends CICSOptionsCheckBaseUtilit
                 .distinct().count();
 
         if (distinctOptions > 1) {
-      restypes.forEach(
-          node -> throwException(ErrorSeverity.ERROR, getLocality(node), Pair.of("generic.cics", "Multiple RESTYPE options are not allowed"), ""));
+            restypes.forEach(
+                    node -> throwException(ErrorSeverity.ERROR, getLocality(node), "Multiple RESTYPE options are not allowed", "")
+            );
         }
     }
 

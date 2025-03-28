@@ -72,7 +72,7 @@ public class ParserStage implements Stage<AnalysisContext, ParserStageResult, Di
               .errorSource(ErrorSource.PARSING)
               .severity(ErrorSeverity.ERROR)
               .location(new OriginalLocation(location, copybookId))
-              .suggestionString(diagnostic.getMessage())
+              .suggestion(diagnostic.getMessage())
               .build();
     }).collect(Collectors.toList());
   }

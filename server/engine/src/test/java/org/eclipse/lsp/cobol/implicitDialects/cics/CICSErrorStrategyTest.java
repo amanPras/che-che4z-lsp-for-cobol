@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,7 +77,7 @@ class CICSErrorStrategyTest {
     void testReportErrorNoViableAltException() {
         Parser parser = mock(Parser.class);
         RecognitionException exception = mock(NoViableAltException.class);
-        when(messageService.getMessage(anyString(), anyString())).thenReturn(Pair.of("", ""));
+
         service.reportError(parser, exception);
         verify(messageService, times(1)).getMessage(any(), any());
     }
@@ -86,7 +85,6 @@ class CICSErrorStrategyTest {
     @Test
     void testReportErrorInputMismatchException() {
         Parser parser = mock(Parser.class);
-        when(messageService.getMessage(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
 
         service.reportError(parser, prepareInputMismatchException(parser));
         verify(messageService, times(1)).getMessage(any(), any(), any());
@@ -128,7 +126,6 @@ class CICSErrorStrategyTest {
     @Test
     void testReportInputMismatch() {
         Parser parser = mock(Parser.class);
-        when(messageService.getMessage(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
         service.reportInputMismatch(parser, prepareInputMismatchException(parser));
 
         verify(messageService, times(1)).getMessage(any(), any(), any());
@@ -137,7 +134,6 @@ class CICSErrorStrategyTest {
     @Test
     void testReportNoViableAlternative() {
         Parser parser = mock(Parser.class);
-        when(messageService.getMessage(anyString(), anyString())).thenReturn(Pair.of("", ""));
         service.reportNoViableAlternative(parser, mock(NoViableAltException.class));
 
         verify(messageService, times(1)).getMessage(any(), any());
@@ -149,7 +145,6 @@ class CICSErrorStrategyTest {
         Token token = mock(Token.class);
         when(parser.getCurrentToken()).thenReturn(token);
         when(token.getType()).thenReturn(Recognizer.EOF);
-        when(messageService.getMessage(anyString())).thenReturn(Pair.of("", ""));
         service.reportUnwantedToken(parser);
 
         verify(messageService, times(1)).getMessage(any());
@@ -165,7 +160,6 @@ class CICSErrorStrategyTest {
         when(parser.getVocabulary()).thenReturn(vocabulary);
         when(intervalSet.toString(vocabulary)).thenReturn("");
         when(parser.getRuleInvocationStack()).thenReturn(ImmutableList.of(""));
-        when(messageService.getMessage(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
 
         service.reportMissingToken(parser);
 

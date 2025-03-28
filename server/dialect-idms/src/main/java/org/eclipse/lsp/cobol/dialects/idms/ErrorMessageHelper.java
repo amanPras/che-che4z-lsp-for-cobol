@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 
 import java.util.*;
@@ -53,7 +52,7 @@ class ErrorMessageHelper {
    * @param offendingTokens offending token string
    * @return error message string
    */
-  public Pair<String, String> getInputMismatchMessage(
+  public String getInputMismatchMessage(
       Parser recognizer, InputMismatchException e, Token token, String offendingTokens) {
     return token.getType() == EOF
         ? messageService.getMessage(END_OF_FILE_MESSAGE)
@@ -68,7 +67,7 @@ class ErrorMessageHelper {
    * @param currentToken current token
    * @return error message string
    */
-  public Pair<String, String> getUnwantedTokenMessage(Parser recognizer, Token currentToken) {
+  public String getUnwantedTokenMessage(Parser recognizer, Token currentToken) {
     return currentToken.getType() == EOF
         ? messageService.getMessage(END_OF_FILE_MESSAGE)
         : createMessage(recognizer, currentToken);
@@ -118,7 +117,7 @@ class ErrorMessageHelper {
     return interval.size() > 1 ? String.format("{%s}", newMessage) : newMessage;
   }
 
-  private Pair<String, String> createMessage(Parser recognizer, Token t) {
+  private String createMessage(Parser recognizer, Token t) {
     String tokenName = t.getText();
     return messageService.getMessage(REPORT_UNWANTED_TOKEN, tokenName);
   }
