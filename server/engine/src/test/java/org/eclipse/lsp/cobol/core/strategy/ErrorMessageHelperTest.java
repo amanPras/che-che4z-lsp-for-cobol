@@ -46,7 +46,7 @@ class ErrorMessageHelperTest {
 
     errorMessageHelper.getInputMismatchMessage(
         recognizer, mockInputMismatchExp, token, "OFFENDING_TOKEN");
-    verify(messageService).getMessage(REPORT_INPUT_MISMATCH, "OFFENDING_TOKEN");
+    verify(messageService).getMessageWithErrorCode(REPORT_INPUT_MISMATCH, "OFFENDING_TOKEN");
   }
 
   @Test
@@ -61,7 +61,7 @@ class ErrorMessageHelperTest {
 
     errorMessageHelper.getInputMismatchMessage(
         recognizer, mockInputMismatchExp, token, "OFFENDING_TOKEN");
-    verify(messageService).getMessage(END_OF_FILE_MESSAGE);
+    verify(messageService).getMessageWithErrorCode(END_OF_FILE_MESSAGE);
   }
 
   @Test
@@ -74,7 +74,7 @@ class ErrorMessageHelperTest {
     when(token.getType()).thenReturn(-1);
 
     errorMessageHelper.getUnwantedTokenMessage(recognizer, token, "'" + token.getText() + "'");
-    verify(messageService).getMessage(END_OF_FILE_MESSAGE);
+    verify(messageService).getMessageWithErrorCode(END_OF_FILE_MESSAGE);
   }
 
   @Test
@@ -91,7 +91,7 @@ class ErrorMessageHelperTest {
     when(parserRuleContext.getRuleIndex()).thenReturn(CobolParser.RULE_performInlineStatement);
 
     errorMessageHelper.getUnwantedTokenMessage(recognizer, token, "'" + token.getText() + "'");
-    verify(messageService).getMessage(PERFORM_MISSING_END, "'EXEC_SQL'");
+    verify(messageService).getMessageWithErrorCode(PERFORM_MISSING_END, "'EXEC_SQL'");
   }
 
   @Test
@@ -112,7 +112,7 @@ class ErrorMessageHelperTest {
     when(interval.toString(any(Vocabulary.class))).thenReturn("INTERVAL");
 
     errorMessageHelper.getUnwantedTokenMessage(recognizer, token, "'" + token.getText() + "'");
-    verify(messageService).getMessage(REPORT_UNWANTED_TOKEN, "'EXEC_SQL'");
+    verify(messageService).getMessageWithErrorCode(REPORT_UNWANTED_TOKEN, "'EXEC_SQL'");
   }
 
   @Test

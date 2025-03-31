@@ -160,7 +160,7 @@ public abstract class CobolLineReader {
                                     Collections.singletonList(
                                             createError(
                                                     uri,
-                                                    messageService.getMessage("CobolLineReaderImpl.incorrectLineFormat"),
+                                                    messageService.getMessageWithErrorCode("CobolLineReaderImpl.incorrectLineFormat"),
                                                     lineNumber,
                                                     layout.getSequenceLength(), layout.getSequenceLength() + 1))));
   }
@@ -175,7 +175,7 @@ public abstract class CobolLineReader {
     return Optional.of(
             createError(
                     uri,
-                    messageService.getMessage("CobolLineReaderImpl.longLineMsg", maxLineLength),
+                    messageService.getMessageWithErrorCode("CobolLineReaderImpl.longLineMsg", maxLineLength),
                     lineNumber,
                     maxLineLength,
                     line.length()));
@@ -189,7 +189,7 @@ public abstract class CobolLineReader {
     return Optional.of(
             createError(
                     uri,
-                    messageService.getMessage("CompilerDirectivesTransformation.sequenceNumber"),
+                    messageService.getMessageWithErrorCode("CompilerDirectivesTransformation.sequenceNumber"),
                     lineNumber,
                     0,
                     1));
@@ -218,7 +218,7 @@ public abstract class CobolLineReader {
     SyntaxError error =
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PREPROCESSING)
-                    .suggestion(errorPair)
+                    .suggestionWithErrorCode(errorPair)
                     .severity(ERROR)
                     .location(
                             Locality.builder()

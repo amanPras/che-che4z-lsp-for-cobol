@@ -38,7 +38,7 @@ class ErrorHelperTest {
   void testMissingCopybooks() {
     MessageService messageService = mock(MessageService.class);
     Locality locality = Locality.builder().build();
-    when(messageService.getMessage("GrammarPreprocessorListener.errorSuggestion", "copybook"))
+    when(messageService.getMessageWithErrorCode("GrammarPreprocessorListener.errorSuggestion", "copybook"))
         .thenReturn(Pair.of("generic", "missing"));
 
     SyntaxError result = ErrorHelper.missingCopybooks(messageService, locality, "copybook");
@@ -49,7 +49,7 @@ class ErrorHelperTest {
   void testCircularDependency() {
     MessageService messageService = mock(MessageService.class);
     Locality locality = Locality.builder().build();
-    when(messageService.getMessage("IdmsCopybookVisitor.errorCircularDependency", "copybook"))
+    when(messageService.getMessageWithErrorCode("IdmsCopybookVisitor.errorCircularDependency", "copybook"))
         .thenReturn(Pair.of("generic", "circular"));
 
     SyntaxError result = ErrorHelper.circularDependency(messageService, locality, "copybook");
@@ -62,7 +62,7 @@ class ErrorHelperTest {
     assertEquals(locality.toOriginalLocation(), result.getLocation());
     assertEquals(ErrorSeverity.ERROR, result.getSeverity());
     assertEquals(ErrorCodes.MISSING_COPYBOOK.getLabel(), result.getErrorCode().getLabel());
-    assertEquals(message, result.getSuggestionString());
+    assertEquals(message, result.getSuggestion());
   }
 
 }

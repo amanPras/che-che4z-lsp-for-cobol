@@ -56,7 +56,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
               .errorSource(ErrorSource.PARSING)
               .errorCode(() -> "IGYOS4003-E")
               .location(new OriginalLocation(location, null))
-              .suggestion(messageService.getMessage("compilerDirective.deprecatedDirectiveUse", ctx.getText()))
+              .suggestionWithErrorCode(messageService.getMessageWithErrorCode("compilerDirective.deprecatedDirectiveUse", ctx.getText()))
               .severity(ErrorSeverity.ERROR)
               .build());
     });
@@ -72,7 +72,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
               .errorSource(ErrorSource.PARSING)
               .errorCode(() -> "IGYOS4013-I")
               .location(new OriginalLocation(location, null))
-              .suggestion(messageService.getMessage("compilerDirective.info.deprecatedDirectiveUse", ctx.getText()))
+              .suggestionWithErrorCode(messageService.getMessageWithErrorCode("compilerDirective.info.deprecatedDirectiveUse", ctx.getText()))
               .severity(ErrorSeverity.INFO)
               .build());
     });
@@ -88,7 +88,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
               .errorSource(ErrorSource.PARSING)
               .errorCode(() -> "IGYOS4008-W")
               .location(new OriginalLocation(location, null))
-              .suggestion(messageService.getMessage("compilerDirective.warning.deprecatedDirectiveUse", ctx.getText()))
+              .suggestionWithErrorCode(messageService.getMessageWithErrorCode("compilerDirective.warning.deprecatedDirectiveUse", ctx.getText()))
               .severity(ErrorSeverity.WARNING)
               .build());
     });

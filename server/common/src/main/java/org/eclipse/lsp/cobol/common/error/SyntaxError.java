@@ -14,8 +14,6 @@
  */
 package org.eclipse.lsp.cobol.common.error;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -39,8 +37,8 @@ import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 public class SyntaxError {
   @EqualsAndHashCode.Include OriginalLocation location;
   @EqualsAndHashCode.Include MessageTemplate messageTemplate;
-  @EqualsAndHashCode.Include String suggestionString;
-  @EqualsAndHashCode.Include Pair<String, String> suggestion;
+  @EqualsAndHashCode.Include String suggestion;
+  @EqualsAndHashCode.Include Pair<String, String> suggestionWithErrorCode;
   @EqualsAndHashCode.Include ErrorSeverity severity;
   ErrorCode errorCode;
   @EqualsAndHashCode.Include ErrorSource errorSource;
@@ -62,20 +60,20 @@ public class SyntaxError {
       if (errorCode == null) {
         if (messageTemplate != null) {
           errorCode = messageTemplate::getTemplate;
-        } else if (suggestion != null) {
+        } else if (suggestionWithErrorCode != null) {
           setFromErrorPair();
         }
       }
-      if (suggestionString == null && suggestion != null) {
+      if (suggestion == null && suggestionWithErrorCode != null) {
         setFromErrorPair();
       }
-      return new SyntaxError(location, messageTemplate, suggestionString, suggestion,
+      return new SyntaxError(location, messageTemplate, suggestion, suggestionWithErrorCode,
               severity, errorCode, errorSource, relatedInformation);
     }
 
     private void setFromErrorPair() {
-      errorCode = errorCode != null ? errorCode : suggestion::getKey;
-      suggestionString = suggestion.getValue();
+      errorCode = errorCode != null ? errorCode : suggestionWithErrorCode::getKey;
+      suggestion = suggestionWithErrorCode.getValue();
     }
   }
 }

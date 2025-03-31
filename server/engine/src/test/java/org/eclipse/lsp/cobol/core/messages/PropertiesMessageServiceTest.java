@@ -50,10 +50,10 @@ class PropertiesMessageServiceTest {
 
   @Test
   void whenValidMessageTemplateProvide_getFormattedMessage() {
-    final Pair<String, String> message = messageService.getMessage("1");
+    final Pair<String, String> message = messageService.getMessageWithErrorCode("1");
     assertEquals("This is a test.", message.getValue());
 
-    final Pair<String, String> message1 = messageService.getMessage("2", "TEST_PARAM");
+    final Pair<String, String> message1 = messageService.getMessageWithErrorCode("2", "TEST_PARAM");
     assertEquals("This is a test for parameters. Received params is -> TEST_PARAM .", message1.getValue());
   }
 
@@ -63,11 +63,11 @@ class PropertiesMessageServiceTest {
     MessageService messageServiceFR =
         new PropertiesMessageService(
             "resourceBundles/test", localeMock, settingsService, workingFolderService);
-    assertEquals("French test selected.", messageServiceFR.getMessage("1").getValue());
+    assertEquals("French test selected.", messageServiceFR.getMessageWithErrorCode("1").getValue());
 
     assertEquals(
         "French test with parameters. Received params is -> TEST_PARAM .",
-        messageServiceFR.getMessage("2", "TEST_PARAM").getValue());
+        messageServiceFR.getMessageWithErrorCode("2", "TEST_PARAM").getValue());
   }
 
   @Test
@@ -86,7 +86,7 @@ class PropertiesMessageServiceTest {
                 settingsService,
                 workingFolderService
         );
-    assertEquals("1", messageServiceLocal.getMessage("1").getValue());
+    assertEquals("1", messageServiceLocal.getMessageWithErrorCode("1").getValue());
   }
 
   @Test
@@ -94,7 +94,7 @@ class PropertiesMessageServiceTest {
     MessageService messageService1 =
         new PropertiesMessageService(
             "resourceBundles/test-2", localeMock, settingsService, workingFolderService);
-    final Pair<String, String> formattedMessage = messageService1.getMessage("1", localeMock);
+    final Pair<String, String> formattedMessage = messageService1.getMessageWithErrorCode("1", localeMock);
     assertEquals("This is a duplicate key test for diff msg service.", formattedMessage.getValue());
   }
 

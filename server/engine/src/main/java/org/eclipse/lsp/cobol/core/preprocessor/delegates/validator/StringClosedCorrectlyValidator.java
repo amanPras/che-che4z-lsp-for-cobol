@@ -142,7 +142,7 @@ public class StringClosedCorrectlyValidator implements ExtendedDocumentValidatio
                     .recognizer(ContinuationLineTransformation.class)
                     .build()
                     .toOriginalLocation())
-            .suggestion(messageService.getMessage("ContinuationLineTransformation.periodRequired"))
+            .suggestionWithErrorCode(messageService.getMessageWithErrorCode("ContinuationLineTransformation.periodRequired"))
             .severity(ERROR)
             .build();
 

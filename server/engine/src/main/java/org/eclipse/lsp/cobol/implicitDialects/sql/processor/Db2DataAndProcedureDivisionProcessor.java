@@ -60,7 +60,7 @@ public class Db2DataAndProcedureDivisionProcessor
                 .location(node.getLocality().toOriginalLocation())
                 .severity(ErrorSeverity.ERROR)
                 .errorSource(ErrorSource.DIALECT)
-                .suggestion(messageService.getMessage("db2Parser.validation.allStatement"))
+                .suggestionWithErrorCode(messageService.getMessageWithErrorCode("db2Parser.validation.allStatement"))
                 .build());
   }
 }

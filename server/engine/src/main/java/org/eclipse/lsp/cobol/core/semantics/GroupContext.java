@@ -155,8 +155,8 @@ public class GroupContext {
                         locality ->
                             SyntaxError.syntaxError()
                                 .errorSource(ErrorSource.PARSING)
-                                .suggestion(
-                                    messageService.getMessage(
+                                .suggestionWithErrorCode(
+                                    messageService.getMessageWithErrorCode(
                                         "CobolVisitor.paragraphNotDefined", name))
                                 .severity(ErrorSeverity.ERROR)
                                 .location(locality.toOriginalLocation())

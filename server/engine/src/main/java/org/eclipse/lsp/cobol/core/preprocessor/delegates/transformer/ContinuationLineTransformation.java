@@ -134,8 +134,8 @@ public abstract class ContinuationLineTransformation implements CobolLinesTransf
                   .recognizer(ContinuationLineTransformation.class)
                   .build()
                   .toOriginalLocation())
-          .suggestion(
-              messageService.getMessage(
+          .suggestionWithErrorCode(
+              messageService.getMessageWithErrorCode(
                   "ContinuationLineTransformation.compilerDirectiveContinued"))
           .build();
     }
@@ -230,8 +230,8 @@ public abstract class ContinuationLineTransformation implements CobolLinesTransf
                     .recognizer(ContinuationLineTransformation.class)
                     .build()
                     .toOriginalLocation())
-            .suggestion(
-                messageService.getMessage(
+            .suggestionWithErrorCode(
+                messageService.getMessageWithErrorCode(
                     "ContinuationLineTransformation.continuationLineContentAreaA"))
             .severity(ERROR)
             .build();
@@ -271,7 +271,7 @@ public abstract class ContinuationLineTransformation implements CobolLinesTransf
                 .recognizer(ContinuationLineTransformation.class)
                 .build()
                 .toOriginalLocation())
-        .suggestion(messageService.getMessage("inlineComment.missingBlank"))
+        .suggestionWithErrorCode(messageService.getMessageWithErrorCode("inlineComment.missingBlank"))
         .severity(WARNING)
         .build();
   }

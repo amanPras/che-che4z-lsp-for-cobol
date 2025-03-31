@@ -58,7 +58,7 @@ public class Db2WorkingAndLinkageSectionProcessor
                 .location(node.getLocality().toOriginalLocation())
                 .severity(ErrorSeverity.ERROR)
                 .errorSource(ErrorSource.DIALECT)
-                .suggestion(messageService.getMessage("db2Parser.validation.section"))
+                .suggestionWithErrorCode(messageService.getMessageWithErrorCode("db2Parser.validation.section"))
                 .build());
   }
 }

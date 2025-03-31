@@ -88,7 +88,7 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
     @Override
     protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
         String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
+        String msg = messageService.getMessageWithErrorCode(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
         recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
     }
 
@@ -140,7 +140,7 @@ public class BasicCobolErrorHandler extends DefaultErrorStrategy implements Mess
         }
         beginErrorCondition(recognizer);
         String msg =
-                messageService.getMessage(
+                messageService.getMessageWithErrorCode(
                         REPORT_MISSING_TOKEN,
                         errorMessageHelper.getExpectedText(recognizer),
                         ErrorMessageHelper.getRule(recognizer)).getValue();

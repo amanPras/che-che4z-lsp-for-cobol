@@ -98,7 +98,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
             SyntaxError error = SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
                     .location(getTokenEndLocality(ctx.stop).toOriginalLocation())
-                    .suggestion(messageService.getMessage("cicsParser.missingEndExec"))
+                    .suggestionWithErrorCode(messageService.getMessageWithErrorCode("cicsParser.missingEndExec"))
                     .severity(ErrorSeverity.ERROR)
                     .build();
             errors.add(error);
@@ -337,7 +337,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
                                                 throwException(
                                                         token.getText(),
                                                         locality,
-                                                        messageService.getMessage("CobolVisitor.AreaBWarningMsg"))));
+                                                        messageService.getMessageWithErrorCode("CobolVisitor.AreaBWarningMsg"))));
     }
 
     private Locality getTokenLocality(Token token) {
@@ -366,7 +366,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
                 SyntaxError.syntaxError()
                         .errorSource(ErrorSource.PARSING)
                         .location(locality.toOriginalLocation())
-                        .suggestion(Pair.of(errorPair.getKey(), errorPair.getValue() + wrongToken))
+                        .suggestionWithErrorCode(Pair.of(errorPair.getKey(), errorPair.getValue() + wrongToken))
                         .severity(ErrorSeverity.WARNING)
                         .build();
 

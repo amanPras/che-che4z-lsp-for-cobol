@@ -58,8 +58,8 @@ public class ErrorMessageHelper {
   public Pair<String, String> getInputMismatchMessage(
       Parser recognizer, InputMismatchException e, Token token, String offendingTokens) {
     return token.getType() == EOF
-        ? messageService.getMessage(END_OF_FILE_MESSAGE)
-        : messageService.getMessage(
+        ? messageService.getMessageWithErrorCode(END_OF_FILE_MESSAGE)
+        : messageService.getMessageWithErrorCode(
             REPORT_INPUT_MISMATCH, offendingTokens, getExpectedText(recognizer, e));
   }
 
@@ -72,7 +72,7 @@ public class ErrorMessageHelper {
    */
   public Pair<String, String> getUnwantedTokenMessage(Parser recognizer, Token currentToken) {
     return currentToken.getType() == EOF
-        ? messageService.getMessage(END_OF_FILE_MESSAGE)
+        ? messageService.getMessageWithErrorCode(END_OF_FILE_MESSAGE)
         : createMessage(recognizer, currentToken);
   }
 
@@ -121,7 +121,7 @@ public class ErrorMessageHelper {
 
   private Pair<String, String> createMessage(Parser recognizer, Token t) {
     String tokenName = t.getText();
-    return messageService.getMessage(REPORT_UNWANTED_TOKEN, tokenName, getExpectedText(recognizer));
+    return messageService.getMessageWithErrorCode(REPORT_UNWANTED_TOKEN, tokenName, getExpectedText(recognizer));
   }
 
   private String buildErrorMessage(List<String> tokens) {

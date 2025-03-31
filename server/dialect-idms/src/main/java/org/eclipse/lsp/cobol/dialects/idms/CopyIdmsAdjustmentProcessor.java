@@ -86,7 +86,7 @@ public class CopyIdmsAdjustmentProcessor {
       return getWarningAtARange(
           rangeIntegerPair.getLeft(),
           uri,
-          messageService.getMessage(
+          messageService.getMessageWithErrorCode(
               IDMS_DIALECT_MAX_ADJUSTMENT_EXCEED_MSG,
               delta + rangeIntegerPair.getRight(),
               delta,
@@ -107,7 +107,7 @@ public class CopyIdmsAdjustmentProcessor {
     return Collections.singletonList(
         SyntaxError.syntaxError()
             .location(Locality.builder().uri(uri).range(rangeForError).build().toOriginalLocation())
-            .suggestion(errorPair)
+            .suggestionWithErrorCode(errorPair)
             .severity(WARNING)
             .errorSource(ErrorSource.DIALECT)
             .relatedInformation(

@@ -79,7 +79,7 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
     @Override
     protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
         String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-        String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
+        String msg = messageService.getMessageWithErrorCode(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
         recognizer.notifyErrorListeners(e.getStartToken(), msg, e);
     }
 
@@ -102,8 +102,8 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
 
         beginErrorCondition(recognizer);
         Pair<String, String> errorPair = recognizer.getExpectedTokens().contains(Db2SqlLexer.END_EXEC)
-                ? messageService.getMessage(REPORT_MISSING_END_EXEC)
-                : messageService.getMessage(
+                ? messageService.getMessageWithErrorCode(REPORT_MISSING_END_EXEC)
+                : messageService.getMessageWithErrorCode(
                 REPORT_MISSING_TOKEN,
                 errorMessageHelper.getExpectedText(recognizer),
                 ErrorMessageHelper.getRule(recognizer));
@@ -122,7 +122,7 @@ public class Db2ErrorStrategy extends DefaultErrorStrategy implements MessageSer
             int nodeCount = adjustConsumedNodes(recognizer, sqlCodeContext);
             ofNullable(sqlCodeContext.children).ifPresent(ch -> ch.subList(nodeCount, ch.size()).clear());
             Token missingSymbol = getMissingSymbol(recognizer);
-            recognizer.notifyErrorListeners(missingSymbol, messageService.getMessage(REPORT_MISSING_END_EXEC).getValue(), null);
+            recognizer.notifyErrorListeners(missingSymbol, messageService.getMessageWithErrorCode(REPORT_MISSING_END_EXEC).getValue(), null);
             return missingSymbol;
         }
         return super.recoverInline(recognizer);

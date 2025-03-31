@@ -235,8 +235,8 @@ public class DaCoMaidProcessor {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .location(nameLocality.toOriginalLocation())
-              .suggestion(
-                  messageService.getMessage(
+              .suggestionWithErrorCode(
+                  messageService.getMessageWithErrorCode(
                       "GrammarPreprocessorListener.errorSuggestion",
                       copybookName.getQualifiedName()))
               .severity(ERROR)
@@ -264,8 +264,8 @@ public class DaCoMaidProcessor {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .severity(ErrorSeverity.ERROR)
-              .suggestion(
-                  messageService.getMessage("GrammarPreprocessorListener.cannotRetrieveMaidSuffix"))
+              .suggestionWithErrorCode(
+                  messageService.getMessageWithErrorCode("GrammarPreprocessorListener.cannotRetrieveMaidSuffix"))
               .location(node.getLocality().toOriginalLocation())
               .build();
       errors.add(error);

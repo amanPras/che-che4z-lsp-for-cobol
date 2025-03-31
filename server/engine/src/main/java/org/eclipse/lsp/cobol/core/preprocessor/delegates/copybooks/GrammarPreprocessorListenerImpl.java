@@ -120,8 +120,8 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
               .errorSource(ErrorSource.EXTENDED_DOCUMENT)
               .location(preprocessorService.retrieveLocality(ctx).toOriginalLocation())
               .severity(ERROR)
-              .suggestion(
-                  messageService.getMessage(
+              .suggestionWithErrorCode(
+                  messageService.getMessageWithErrorCode(
                       "GrammarPreprocessorListener.langMissingEnterDirective"))
               .build();
       LOG.debug("Syntax error by exitEnterDirective: {}", error);

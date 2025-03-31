@@ -93,17 +93,17 @@ public class PropertiesMessageService implements MessageService {
     updateResourceBundle();
   }
 
-//  @Override
-//  public String getMessageWithoutErrorCode(String key, Object... parameters) {
-//    try {
-//      return String.format((String) resourceBundle.handleGetObject(key), parameters);
-//    } catch (MissingResourceException e) {
-//      return key;
-//    }
-//  }
+  @Override
+  public String getMessage(String key, Object... parameters) {
+    try {
+      return String.format((String) resourceBundle.handleGetObject(key), parameters);
+    } catch (MissingResourceException e) {
+      return key;
+    }
+  }
 
   @Override
-  public Pair<String, String> getMessage(String key, Object... parameters) {
+  public Pair<String, String> getMessageWithErrorCode(String key, Object... parameters) {
     try {
       return Pair.of(key, String.format((String) resourceBundle.handleGetObject(key), parameters));
     } catch (MissingResourceException e) {
@@ -114,7 +114,7 @@ public class PropertiesMessageService implements MessageService {
   @Override
   public Pair<String, String> localizeTemplate(MessageTemplate template) {
     Object[] parameters = processArgs(template.getArgs());
-    return getMessage(
+    return getMessageWithErrorCode(
         template.getTemplate(),
         ofNullable(template.getDelimiter())
             .map(

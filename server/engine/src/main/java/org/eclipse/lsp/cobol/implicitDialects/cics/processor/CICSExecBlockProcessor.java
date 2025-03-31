@@ -55,7 +55,7 @@ public class CICSExecBlockProcessor implements Processor<ExecCicsNode> {
                             .location(execCicsNode.getLocality().toOriginalLocation())
                             .severity(ErrorSeverity.ERROR)
                             .errorSource(ErrorSource.PARSING)
-                            .suggestion(messageService.getMessage("cics.invalidExecBlock"))
+                            .suggestionWithErrorCode(messageService.getMessageWithErrorCode("cics.invalidExecBlock"))
                             .build());
   }
 }

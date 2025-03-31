@@ -56,7 +56,7 @@ class CopybookErrorService {
     SyntaxError error =
         SyntaxError.syntaxError().errorSource(ErrorSource.COPYBOOK)
             .severity(info)
-            .suggestion(messageService.getMessage(messageID, copybookName.getDisplayName()))
+            .suggestionWithErrorCode(messageService.getMessageWithErrorCode(messageID, copybookName.getDisplayName()))
             .location(locality.toOriginalLocation())
             .build();
     LOG.debug(logMessage, error.toString());
@@ -68,8 +68,8 @@ class CopybookErrorService {
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.COPYBOOK)
             .severity(ERROR)
-            .suggestion(
-                messageService.getMessage(
+            .suggestionWithErrorCode(
+                messageService.getMessageWithErrorCode(
                     "GrammarPreprocessorListener.recursionDetected", name))
             .location(locality.toOriginalLocation())
             .build();
@@ -114,7 +114,7 @@ class CopybookErrorService {
     SyntaxError error =
         SyntaxError.syntaxError().errorSource(ErrorSource.COPYBOOK)
             .severity(info)
-            .suggestion(messageService.getMessage(messageID, maxNameLength, copybookName))
+            .suggestionWithErrorCode(messageService.getMessageWithErrorCode(messageID, maxNameLength, copybookName))
             .location(locality.toOriginalLocation())
             .build();
     LOG.debug(logMessage, error.toString());
@@ -128,8 +128,8 @@ class CopybookErrorService {
             .location(locality.toOriginalLocation())
             .severity(ERROR)
             .errorCode(ErrorCodes.MISSING_COPYBOOK)
-            .suggestion(
-                messageService.getMessage(
+            .suggestionWithErrorCode(
+                messageService.getMessageWithErrorCode(
                     "GrammarPreprocessorListener.errorSuggestion", copybookName))
             .build();
     LOG.debug("Syntax error by addMissingCopybook: {}", error);
@@ -141,8 +141,8 @@ class CopybookErrorService {
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PREPROCESSING)
             .severity(ERROR)
-            .suggestion(
-                messageService.getMessage(
+            .suggestionWithErrorCode(
+                messageService.getMessageWithErrorCode(
                     "GrammarPreprocessorListener.controlDirectiveWrongArgs", argument))
             .location(locality.toOriginalLocation())
             .build();

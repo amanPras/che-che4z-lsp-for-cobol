@@ -99,7 +99,7 @@ class CobolLanguageEngineTest {
                 mockMessageService,
                 mock(ErrorFinalizerService.class),
                 benchmarkService);
-    when(mockMessageService.getMessage(anyString()))
+    when(mockMessageService.getMessageWithErrorCode(anyString()))
         .thenReturn(Pair.of("suggestion", "suggestion"));
     Locality locality =
             Locality.builder()
@@ -110,7 +110,7 @@ class CobolLanguageEngineTest {
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
                     .location(locality.toOriginalLocation())
-                    .suggestionString("suggestion")
+                    .suggestion("suggestion")
                     .severity(ERROR)
                     .build();
     SyntaxError eofError =
@@ -159,7 +159,7 @@ class CobolLanguageEngineTest {
   void testLanguageEngineRunWhenNativeServerWithDialects() {
     cobolErrorStrategy.setMessageService(mockMessageService);
     cobolErrorStrategy.setErrorMessageHelper(mockErrUtil);
-    when(mockMessageService.getMessage("workspaceError.ServerType")).thenReturn(Pair.of("err.msg", ERROR_MSG));
+    when(mockMessageService.getMessageWithErrorCode("workspaceError.ServerType")).thenReturn(Pair.of("err.msg", ERROR_MSG));
     System.setProperty("serverType", "NATIVE");
     BenchmarkService benchmarkService = mock(BenchmarkService.class);
     when(benchmarkService.startSession()).thenReturn(mock(BenchmarkSession.class));

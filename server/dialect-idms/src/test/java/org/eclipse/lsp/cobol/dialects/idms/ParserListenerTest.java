@@ -40,7 +40,7 @@ class ParserListenerTest {
 
     assertEquals(1, errors.size());
     assertEquals(ErrorSource.PARSING, errors.get(0).getErrorSource());
-    assertEquals("message", errors.get(0).getSuggestionString());
+    assertEquals("message", errors.get(0).getSuggestion());
     assertEquals(ErrorSeverity.ERROR, errors.get(0).getSeverity());
     assertNull(errors.get(0).getLocation());
   }

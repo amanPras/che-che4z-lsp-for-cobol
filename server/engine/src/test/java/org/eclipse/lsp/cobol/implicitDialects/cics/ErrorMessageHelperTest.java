@@ -75,7 +75,7 @@ class ErrorMessageHelperTest {
         when(intervalSet.toString(any(Vocabulary.class))).thenReturn("tokens");
         when(recognizer.getExpectedTokens()).thenReturn(intervalSet);
         MessageService messageService = mock(MessageService.class);
-        when(messageService.getMessage(any(), any(), any())).thenReturn(Pair.of("generic", "message"));
+        when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("generic", "message"));
         ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
         Token token = mock(Token.class);
         String result = helper.getUnwantedTokenMessage(recognizer, token).getValue();
@@ -89,7 +89,7 @@ class ErrorMessageHelperTest {
         MessageService messageService = mock(MessageService.class);
         Token token = mock(Token.class);
         when(token.getType()).thenReturn(Recognizer.EOF);
-        when(messageService.getMessage(any())).thenReturn(Pair.of("generic", "EOF message"));
+        when(messageService.getMessageWithErrorCode(any())).thenReturn(Pair.of("generic", "EOF message"));
         ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
         String result = helper.getUnwantedTokenMessage(recognizer, token).getValue();
 
@@ -100,7 +100,7 @@ class ErrorMessageHelperTest {
     void testGetInputMismatchMessage() {
         MessageService messageService = mock(MessageService.class);
         Token token = mock(Token.class);
-        when(messageService.getMessage(any(), any(), any())).thenReturn(Pair.of("generic", "message"));
+        when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("generic", "message"));
 
         checkMessage(messageService, token, "message");
     }
@@ -110,7 +110,7 @@ class ErrorMessageHelperTest {
         MessageService messageService = mock(MessageService.class);
         Token token = mock(Token.class);
         when(token.getType()).thenReturn(Recognizer.EOF);
-        when(messageService.getMessage(any())).thenReturn(Pair.of("generic", "EOF message"));
+        when(messageService.getMessageWithErrorCode(any())).thenReturn(Pair.of("generic", "EOF message"));
 
         checkMessage(messageService, token, "EOF message");
     }

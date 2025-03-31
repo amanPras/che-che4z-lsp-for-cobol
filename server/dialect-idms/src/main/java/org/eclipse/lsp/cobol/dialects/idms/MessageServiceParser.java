@@ -138,7 +138,7 @@ public abstract class MessageServiceParser extends Parser {
   private Pair<String, String> getMessageForParser(String messageKey, String... parameters) {
     return ((MessageServiceProvider) this.getErrorHandler())
         .getMessageService()
-        .getMessage(messageKey, parameters);
+        .getMessageWithErrorCode(messageKey, parameters);
   }
 
   private Integer tryParseInt(String input) {

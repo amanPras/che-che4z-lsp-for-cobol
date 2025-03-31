@@ -85,7 +85,7 @@ public class ServerCommunications implements Communications {
             () ->
                     logMessage(
                             Info,
-                            messageService.getMessage(
+                            messageService.getMessageWithErrorCode(
                                     "Communications.noSyntaxError",
                                     files.getNameFromURI(files.decodeURI(uri)))));
   }
@@ -151,7 +151,7 @@ public class ServerCommunications implements Communications {
     ProgressParams params = new ProgressParams();
     params.setToken(uri);
     WorkDoneProgressBegin workDoneProgressBegin = new WorkDoneProgressBegin();
-    workDoneProgressBegin.setTitle(messageService.getMessage(
+    workDoneProgressBegin.setTitle(messageService.getMessageWithErrorCode(
             "Communications.syntaxAnalysisInProgressTitle",
             files.getNameFromURI(files.decodeURI(uri))).getValue());
     workDoneProgressBegin.setCancellable(true);

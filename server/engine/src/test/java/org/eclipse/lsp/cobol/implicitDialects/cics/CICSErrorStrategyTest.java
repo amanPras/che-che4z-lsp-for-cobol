@@ -78,19 +78,19 @@ class CICSErrorStrategyTest {
     void testReportErrorNoViableAltException() {
         Parser parser = mock(Parser.class);
         RecognitionException exception = mock(NoViableAltException.class);
-        when(messageService.getMessage(anyString(), anyString())).thenReturn(Pair.of("", ""));
+        when(messageService.getMessageWithErrorCode(anyString(), anyString())).thenReturn(Pair.of("", ""));
 
         service.reportError(parser, exception);
-        verify(messageService, times(1)).getMessage(any(), any());
+        verify(messageService, times(1)).getMessageWithErrorCode(any(), any());
     }
 
     @Test
     void testReportErrorInputMismatchException() {
         Parser parser = mock(Parser.class);
-        when(messageService.getMessage(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
+        when(messageService.getMessageWithErrorCode(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
 
         service.reportError(parser, prepareInputMismatchException(parser));
-        verify(messageService, times(1)).getMessage(any(), any(), any());
+        verify(messageService, times(1)).getMessageWithErrorCode(any(), any(), any());
     }
 
     @Test
@@ -123,25 +123,25 @@ class CICSErrorStrategyTest {
         parser.setContext(ctx);
 
         service.reportError(parser, exception);
-        verify(messageService, times(0)).getMessage(any(), any());
+        verify(messageService, times(0)).getMessageWithErrorCode(any(), any());
     }
 
     @Test
     void testReportInputMismatch() {
         Parser parser = mock(Parser.class);
-        when(messageService.getMessage(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
+        when(messageService.getMessageWithErrorCode(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
         service.reportInputMismatch(parser, prepareInputMismatchException(parser));
 
-        verify(messageService, times(1)).getMessage(any(), any(), any());
+        verify(messageService, times(1)).getMessageWithErrorCode(any(), any(), any());
     }
 
     @Test
     void testReportNoViableAlternative() {
         Parser parser = mock(Parser.class);
-        when(messageService.getMessage(anyString(), anyString())).thenReturn(Pair.of("", ""));
+        when(messageService.getMessageWithErrorCode(anyString(), anyString())).thenReturn(Pair.of("", ""));
         service.reportNoViableAlternative(parser, mock(NoViableAltException.class));
 
-        verify(messageService, times(1)).getMessage(any(), any());
+        verify(messageService, times(1)).getMessageWithErrorCode(any(), any());
     }
 
     @Test
@@ -150,10 +150,10 @@ class CICSErrorStrategyTest {
         Token token = mock(Token.class);
         when(parser.getCurrentToken()).thenReturn(token);
         when(token.getType()).thenReturn(Recognizer.EOF);
-        when(messageService.getMessage(anyString())).thenReturn(Pair.of("", ""));
+        when(messageService.getMessageWithErrorCode(anyString())).thenReturn(Pair.of("", ""));
         service.reportUnwantedToken(parser);
 
-        verify(messageService, times(1)).getMessage(any());
+        verify(messageService, times(1)).getMessageWithErrorCode(any());
     }
 
     @Test
@@ -166,11 +166,11 @@ class CICSErrorStrategyTest {
         when(parser.getVocabulary()).thenReturn(vocabulary);
         when(intervalSet.toString(vocabulary)).thenReturn("");
         when(parser.getRuleInvocationStack()).thenReturn(ImmutableList.of(""));
-        when(messageService.getMessage(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
+        when(messageService.getMessageWithErrorCode(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
 
         service.reportMissingToken(parser);
 
-        verify(messageService, times(1)).getMessage(any(), any(), any());
+        verify(messageService, times(1)).getMessageWithErrorCode(any(), any(), any());
     }
 
 }

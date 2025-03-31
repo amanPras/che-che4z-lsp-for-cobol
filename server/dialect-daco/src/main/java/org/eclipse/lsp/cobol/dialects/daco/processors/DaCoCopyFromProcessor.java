@@ -63,7 +63,7 @@ public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .location(node.getLocality().toOriginalLocation())
-              .suggestion(messageService.getMessage("Daco.missingResource", node.getPrototypeName()))
+              .suggestionWithErrorCode(messageService.getMessageWithErrorCode("Daco.missingResource", node.getPrototypeName()))
               .severity(ErrorSeverity.ERROR)
               .build());
       return;

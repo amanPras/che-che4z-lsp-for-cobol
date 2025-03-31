@@ -198,7 +198,7 @@ public class Db2SqlExecValidatorVisitor extends Db2SqlExecParserBaseVisitor<List
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
             .location(getTokenEndLocality(ctx.stop).toOriginalLocation())
-            .suggestion(messageService.getMessage(messageKey, messageArgs))
+            .suggestionWithErrorCode(messageService.getMessageWithErrorCode(messageKey, messageArgs))
             .severity(ErrorSeverity.ERROR)
             .build();
     errors.add(error);

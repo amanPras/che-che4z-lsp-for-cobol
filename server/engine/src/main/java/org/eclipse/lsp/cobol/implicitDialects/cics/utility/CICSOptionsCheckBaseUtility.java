@@ -313,7 +313,7 @@ public abstract class CICSOptionsCheckBaseUtility {
                 SyntaxError.syntaxError()
                         .errorSource(ErrorSource.PARSING)
                         .location(locality.toOriginalLocation())
-                        .suggestion(Pair.of(errorPair.getKey(), errorPair.getValue() + wrongToken))
+                        .suggestionWithErrorCode(Pair.of(errorPair.getKey(), errorPair.getValue() + wrongToken))
                         .severity(errorSeverity)
                         .build();
 

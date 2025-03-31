@@ -21,15 +21,15 @@ import java.util.Set;
 /** This class sets the basic contract for any externalized message service to be implemented. */
 public interface MessageService {
 
-//  /**
-//   * Return a localized {@link String} based on passed key and params.
-//   *
-//   * @param key Unique ID for each message in externalized message file.
-//   * @param parameters Arguments referenced by the format specifiers in the format * string in
-//   *     externalized message file.
-//   * @return {@link String}
-//   */
-//  String getMessageWithoutErrorCode(String key, Object... parameters);
+  /**
+   * Return a localized {@link String} based on passed key and params.
+   *
+   * @param key Unique ID for each message in externalized message file.
+   * @param parameters Arguments referenced by the format specifiers in the format * string in
+   *     externalized message file.
+   * @return {@link String}
+   */
+  String getMessage(String key, Object... parameters);
 
   /**
    * Return a {@link Pair} of error code mapped to a localized {@link String} based on passed key and params.
@@ -39,7 +39,7 @@ public interface MessageService {
    *     externalized message file.
    * @return {@link String}
    */
-  Pair<String, String> getMessage(String key, Object... parameters);
+  Pair<String, String> getMessageWithErrorCode(String key, Object... parameters);
 
   /**
    * Localize the template and return it as a {@link Pair} of error code mapped to the localized {@link String}

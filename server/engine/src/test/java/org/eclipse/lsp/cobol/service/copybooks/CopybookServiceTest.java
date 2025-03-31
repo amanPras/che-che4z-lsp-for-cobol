@@ -586,7 +586,7 @@ class CopybookServiceTest {
     SyntaxError expectedSyntaxError =
         SyntaxError.syntaxError()
             .location(new OriginalLocation(null, VALID_CPY_NAME))
-            .suggestion(Pair.of("generic", "some suggestion"))
+            .suggestionWithErrorCode(Pair.of("generic", "some suggestion"))
             .severity(ErrorSeverity.ERROR)
             .build();
     when(preprocessor.cleanUpCode(anyString(), anyString()))

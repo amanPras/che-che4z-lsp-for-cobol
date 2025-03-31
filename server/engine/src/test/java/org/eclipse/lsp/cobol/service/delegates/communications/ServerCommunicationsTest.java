@@ -85,14 +85,14 @@ class ServerCommunicationsTest {
     String data = UUID.randomUUID().toString();
     when(files.decodeURI(data)).thenReturn(data);
     when(files.getNameFromURI(data)).thenReturn(data);
-    when(messageService.getMessage(anyString(), anyString()))
+    when(messageService.getMessageWithErrorCode(anyString(), anyString()))
         .thenReturn(Pair.of("generic", "No syntax errors detected in %s"));
     communications.notifyThatDocumentAnalysed(data);
     verify(client, timeout(TEST_TIMEOUT))
         .logMessage(
             eq(
                 new MessageParams(
-                    Info, messageService.getMessage("Communications.noSyntaxError", data).getValue())));
+                    Info, messageService.getMessageWithErrorCode("Communications.noSyntaxError", data).getValue())));
   }
 
   /**
@@ -119,7 +119,7 @@ class ServerCommunicationsTest {
     String uri = UUID.randomUUID().toString();
     when(files.getNameFromURI(uri)).thenReturn(uri);
     when(files.decodeURI(uri)).thenReturn(uri);
-    when(messageService.getMessage("Communications.syntaxAnalysisInProgressTitle", uri))
+    when(messageService.getMessageWithErrorCode("Communications.syntaxAnalysisInProgressTitle", uri))
             .thenReturn(Pair.of("generic", "TITLE"));
     setUpProgressDataStructure(uri);
     ProgressParams expectedNotifyBeginParams = new ProgressParams();
@@ -188,7 +188,7 @@ class ServerCommunicationsTest {
     when(provider.get()).thenReturn(client);
     when(files.decodeURI(uri)).thenReturn(uri);
     when(files.getNameFromURI(uri)).thenReturn(fileName);
-    when(messageService.getMessage(anyString(), anyString()))
+    when(messageService.getMessageWithErrorCode(anyString(), anyString()))
         .thenReturn(Pair.of("generic", "No syntax errors detected in %s"));
     communications.notifyThatDocumentAnalysed(uri);
     verify(client, timeout(TEST_TIMEOUT))
@@ -196,6 +196,6 @@ class ServerCommunicationsTest {
             eq(
                 new MessageParams(
                     MessageType.Info,
-                    messageService.getMessage("Communications.noSyntaxError", fileName).getValue())));
+                    messageService.getMessageWithErrorCode("Communications.noSyntaxError", fileName).getValue())));
   }
 }

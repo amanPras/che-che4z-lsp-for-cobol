@@ -41,10 +41,10 @@ class CobolErrorStrategyTest {
     NoViableAltException error =
         new NoViableAltException(recognizer, stream, token, token, null, null);
     CobolErrorStrategy strategy = new CobolErrorStrategy(messageService);
-    when(messageService.getMessage(
+    when(messageService.getMessageWithErrorCode(
             matches("ErrorStrategy.rulereportNoViableAlternative"), anyString()))
         .thenReturn(Pair.of("ErrorStrategy.rulereportNoViableAlternative", "ErrorStrategy.rulereportNoViableAlternative"));
-    when(messageService.getMessage(matches("ErrorStrategy.reportNoViableAlternative"), anyString()))
+    when(messageService.getMessageWithErrorCode(matches("ErrorStrategy.reportNoViableAlternative"), anyString()))
         .thenReturn(Pair.of("No viable alternative at input text", "No viable alternative at input text"));
 
     when(recognizer.getInputStream()).thenReturn(stream);
@@ -71,10 +71,10 @@ class CobolErrorStrategyTest {
     when(recognizer.getVocabulary()).thenReturn(vocab);
     when(intervalSet.toString(vocab)).thenReturn("text");
     when(errorMock.getOffendingToken()).thenReturn(token);
-    when(messageService.getMessage(
+    when(messageService.getMessageWithErrorCode(
             matches("ErrorStrategy.rulereportInputMismatch"), anyString()))
         .thenReturn(Pair.of("ErrorStrategy.rulereportInputMismatch", "ErrorStrategy.rulereportInputMismatch"));
-    when(messageService.getMessage(
+    when(messageService.getMessageWithErrorCode(
             matches("ErrorStrategy.reportInputMismatch"), anyString()))
         .thenReturn(Pair.of("Syntax error on '<0>'", "Syntax error on '<0>'"));
     strategy.reportError(recognizer, errorMock);

@@ -78,7 +78,7 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
   @Override
   protected void reportNoViableAlternative(Parser recognizer, NoViableAltException e) {
     String messageParams = errorMessageHelper.retrieveInputForNoViableException(recognizer, e);
-    String msg = messageService.getMessage(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
+    String msg = messageService.getMessageWithErrorCode(REPORT_NO_VIABLE_ALTERNATIVE, messageParams).getValue();
     recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
   }
 
@@ -100,7 +100,7 @@ class CobolErrorStrategy extends DefaultErrorStrategy implements MessageServiceP
     }
     beginErrorCondition(recognizer);
     String msg =
-        messageService.getMessage(
+        messageService.getMessageWithErrorCode(
             REPORT_MISSING_TOKEN,
             errorMessageHelper.getExpectedText(recognizer),
             ErrorMessageHelper.getRule(recognizer)).getValue();

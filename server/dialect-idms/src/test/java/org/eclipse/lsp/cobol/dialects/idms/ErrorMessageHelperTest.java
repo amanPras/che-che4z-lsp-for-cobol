@@ -81,7 +81,7 @@ class ErrorMessageHelperTest {
     when(recognizer.getExpectedTokens()).thenReturn(intervalSet);
 
     MessageService messageService = mock(MessageService.class);
-    when(messageService.getMessage(any(), any(), any())).thenReturn(Pair.of("genereic", "message"));
+    when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("genereic", "message"));
     ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
   }
 
@@ -89,7 +89,7 @@ class ErrorMessageHelperTest {
   void testGetInputMismatchMessage1() {
     MessageService messageService = mock(MessageService.class);
     Token token = mock(Token.class);
-    when(messageService.getMessage(any(), any(), any())).thenReturn(Pair.of("genereic", "message"));
+    when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("genereic", "message"));
 
     checkMessage(messageService, token, "message");
   }
@@ -100,7 +100,7 @@ class ErrorMessageHelperTest {
     Token token = mock(Token.class);
 
     when(token.getType()).thenReturn(Recognizer.EOF);
-    when(messageService.getMessage(any())).thenReturn(Pair.of("genereic", "EOF message"));
+    when(messageService.getMessageWithErrorCode(any())).thenReturn(Pair.of("genereic", "EOF message"));
 
     checkMessage(messageService, token, "EOF message");
 

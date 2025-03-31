@@ -47,7 +47,7 @@ public class CompilerDirectivesErrorListener extends BaseErrorListener {
     Location location = new Location(analysisContext.getExtendedDocument().getUri(), range);
     SyntaxError error = SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
-            .suggestionString(msg)
+            .suggestion(msg)
             .location(new OriginalLocation(location, null))
             .severity(ErrorSeverity.ERROR)
             .build();

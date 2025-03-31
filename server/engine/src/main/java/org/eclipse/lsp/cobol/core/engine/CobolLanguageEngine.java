@@ -214,7 +214,7 @@ public class CobolLanguageEngine {
         Collections.singletonList(
             SyntaxError.syntaxError()
                 .severity(ErrorSeverity.ERROR)
-                .suggestion(messageService.getMessage("workspaceError.ServerType"))
+                .suggestionWithErrorCode(messageService.getMessageWithErrorCode("workspaceError.ServerType"))
                 .errorSource(WORKSPACE_SETTINGS)
                 .errorCode(ErrorCodes.INCOMPATIBLE_SERVER_TYPE)
                 .location(

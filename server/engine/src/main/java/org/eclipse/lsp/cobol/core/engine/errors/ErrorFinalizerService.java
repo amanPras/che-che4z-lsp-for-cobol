@@ -55,7 +55,7 @@ public class ErrorFinalizerService {
   public SyntaxError localizeErrorMessage(SyntaxError syntaxError) {
     return ofNullable(syntaxError.getMessageTemplate())
         .map(messageService::localizeTemplate)
-        .map(message -> syntaxError.toBuilder().messageTemplate(null).suggestion(message).build())
+        .map(message -> syntaxError.toBuilder().messageTemplate(null).suggestionWithErrorCode(message).build())
         .orElse(syntaxError);
   }
 
@@ -101,8 +101,8 @@ public class ErrorFinalizerService {
         .location(copybookStatementLocality.toOriginalLocation())
         .errorSource(ErrorSource.COPYBOOK)
         .severity(ErrorSeverity.ERROR)
-        .suggestion(
-            messageService.getMessage("postprocessing.copybookHasErrors"))
+        .suggestionWithErrorCode(
+            messageService.getMessageWithErrorCode("postprocessing.copybookHasErrors"))
         .build();
     if (processedErrors.contains(newError)) {
       return;

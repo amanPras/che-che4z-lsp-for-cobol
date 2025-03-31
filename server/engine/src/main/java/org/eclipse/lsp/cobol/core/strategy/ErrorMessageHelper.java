@@ -63,8 +63,8 @@ public class ErrorMessageHelper {
   public Pair<String, String> getInputMismatchMessage(
       Parser recognizer, InputMismatchException e, Token token, String offendingTokens) {
     return token.getType() == EOF
-        ? messageService.getMessage(END_OF_FILE_MESSAGE)
-        : messageService.getMessage(
+        ? messageService.getMessageWithErrorCode(END_OF_FILE_MESSAGE)
+        : messageService.getMessageWithErrorCode(
             REPORT_INPUT_MISMATCH, offendingTokens);
   }
 
@@ -78,7 +78,7 @@ public class ErrorMessageHelper {
    */
   public Pair<String, String> getUnwantedTokenMessage(Parser recognizer, Token currentToken, String display) {
     return currentToken.getType() == EOF
-        ? messageService.getMessage(END_OF_FILE_MESSAGE)
+        ? messageService.getMessageWithErrorCode(END_OF_FILE_MESSAGE)
         : createMessage(recognizer, display);
   }
 
@@ -125,8 +125,8 @@ public class ErrorMessageHelper {
   private Pair<String, String> createMessage(Parser recognizer, String t) {
     String tokenName = SPECIAL_TOKEN_MAPPING.getOrDefault(t, t);
     return recognizer.getContext().getRuleIndex() == CobolParser.RULE_performInlineStatement
-        ? messageService.getMessage(PERFORM_MISSING_END, tokenName)
-        : messageService.getMessage(REPORT_UNWANTED_TOKEN, tokenName);
+        ? messageService.getMessageWithErrorCode(PERFORM_MISSING_END, tokenName)
+        : messageService.getMessageWithErrorCode(REPORT_UNWANTED_TOKEN, tokenName);
   }
 
   private String buildErrorMessage(List<String> tokens) {

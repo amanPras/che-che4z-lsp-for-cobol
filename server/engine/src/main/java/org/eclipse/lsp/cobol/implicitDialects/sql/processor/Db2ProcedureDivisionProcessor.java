@@ -55,7 +55,7 @@ public class Db2ProcedureDivisionProcessor implements Processor<Db2ProcedureDivi
                 .location(node.getLocality().toOriginalLocation())
                 .severity(ErrorSeverity.ERROR)
                 .errorSource(ErrorSource.DIALECT)
-                .suggestion(messageService.getMessage("db2Parser.validation.procedureDiv"))
+                .suggestionWithErrorCode(messageService.getMessageWithErrorCode("db2Parser.validation.procedureDiv"))
                 .build());
   }
 }
