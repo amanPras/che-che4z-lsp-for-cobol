@@ -32,16 +32,6 @@ public interface MessageService {
   String getMessage(String key, Object... parameters);
 
   /**
-   * Return a {@link Pair} of error code mapped to a localized {@link String} based on passed key and params.
-   *
-   * @param key Unique ID for each message in externalized message file.
-   * @param parameters Arguments referenced by the format specifiers in the format * string in
-   *     externalized message file.
-   * @return {@link String}
-   */
-//  Pair<String, String> getMessageWithErrorCode(String key, Object... parameters);
-
-  /**
    * Localize the template and return it as a {@link Pair} of error code mapped to the localized {@link String}
    * If the arguments of the template are instances
    * of the {@link MessageTemplate} too, they also will be localized.
@@ -53,6 +43,4 @@ public interface MessageService {
 
   /** Reload and updates the messages for Cobol and its dialect. */
   void reloadMessages();
-
-  Set<String> getFatalErrors();
 }

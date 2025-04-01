@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Optional.ofNullable;
@@ -78,11 +77,6 @@ public class PropertiesMessageService implements MessageService {
   @Override
   public void reloadMessages() {
     reloadResourceBundle(this.localeStore.getApplicationLocale());
-  }
-
-  @Override
-  public Set<String> getFatalErrors() {
-    return this.resourceBundle.getParent().keySet();
   }
 
   private void reloadResourceBundle(Locale locale) {
