@@ -17,7 +17,6 @@ package org.eclipse.lsp.cobol.implicitDialects.cics.utility;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
@@ -256,7 +255,7 @@ public class CICSHandleOptionsCheckUtility extends CICSOptionsCheckBaseUtility {
             .count();
     if (commandOptionsCount > 16) {
       throwException(ErrorSeverity.ERROR, getLocality(parentCtx),
-              Pair.of("cics.multiple.occurrence", "Too many options provided for: "), "HANDLE AID");
+              "Too many options provided for: ", "HANDLE AID");
     }
   }
 
@@ -267,7 +266,7 @@ public class CICSHandleOptionsCheckUtility extends CICSOptionsCheckBaseUtility {
             .forEach(terminalNode -> throwException(
                         ErrorSeverity.ERROR,
                         getLocality(terminalNode),
-                        Pair.of("cics.invalid.options", "Invalid option provided: "),
+                        "Invalid option provided: ",
                         "NORMAL")
             );
   }

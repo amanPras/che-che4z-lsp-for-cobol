@@ -19,6 +19,7 @@ import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.core.CompilerDirectivesParser;
 import org.eclipse.lsp.cobol.core.CompilerDirectivesParserBaseVisitor;
 import org.eclipse.lsp.cobol.core.engine.analysis.AnalysisContext;
@@ -56,7 +57,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
               .errorSource(ErrorSource.PARSING)
               .errorCode(() -> "IGYOS4003-E")
               .location(new OriginalLocation(location, null))
-              .suggestionWithErrorCode(messageService.getMessageWithErrorCode("compilerDirective.deprecatedDirectiveUse", ctx.getText()))
+              .suggestion(messageService.getMessage("compilerDirective.deprecatedDirectiveUse", ctx.getText()))
               .severity(ErrorSeverity.ERROR)
               .build());
     });
@@ -72,7 +73,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
               .errorSource(ErrorSource.PARSING)
               .errorCode(() -> "IGYOS4013-I")
               .location(new OriginalLocation(location, null))
-              .suggestionWithErrorCode(messageService.getMessageWithErrorCode("compilerDirective.info.deprecatedDirectiveUse", ctx.getText()))
+              .messageTemplate(MessageTemplate.of("compilerDirective.info.deprecatedDirectiveUse", ctx.getText()))
               .severity(ErrorSeverity.INFO)
               .build());
     });
@@ -88,7 +89,7 @@ public class CompilerDirectivesVisitor extends CompilerDirectivesParserBaseVisit
               .errorSource(ErrorSource.PARSING)
               .errorCode(() -> "IGYOS4008-W")
               .location(new OriginalLocation(location, null))
-              .suggestionWithErrorCode(messageService.getMessageWithErrorCode("compilerDirective.warning.deprecatedDirectiveUse", ctx.getText()))
+              .suggestion(messageService.getMessage("compilerDirective.warning.deprecatedDirectiveUse", ctx.getText()))
               .severity(ErrorSeverity.WARNING)
               .build());
     });

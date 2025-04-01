@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,17 +77,17 @@ class CobolErrorStrategyTest {
   void testReportErrorNoViableAltException() {
     Parser parser = mock(Parser.class);
     RecognitionException exception = mock(NoViableAltException.class);
-    when(messageService.getMessageWithErrorCode(anyString(), anyString())).thenReturn(Pair.of("", ""));
+
     service.reportError(parser, exception);
-    verify(messageService, times(1)).getMessageWithErrorCode(any(), any());
+    verify(messageService, times(1)).getMessage(any(), any());
   }
 
   @Test
   void testReportErrorInputMismatchException() {
     Parser parser = mock(Parser.class);
-    when(messageService.getMessageWithErrorCode(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
+
     service.reportError(parser, prepareInputMismatchException(parser));
-    verify(messageService, times(1)).getMessageWithErrorCode(any(), any(), any());
+    verify(messageService, times(1)).getMessage(any(), any(), any());
   }
 
   @Test
@@ -121,24 +120,22 @@ class CobolErrorStrategyTest {
     parser.setContext(ctx);
 
     service.reportError(parser, exception);
-    verify(messageService, times(0)).getMessageWithErrorCode(any(), any());
+    verify(messageService, times(0)).getMessage(any(), any());
   }
 
   @Test
   void testReportInputMismatch() {
     Parser parser = mock(Parser.class);
-    when(messageService.getMessageWithErrorCode(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
     service.reportInputMismatch(parser, prepareInputMismatchException(parser));
 
-    verify(messageService, times(1)).getMessageWithErrorCode(any(), any(), any());
+    verify(messageService, times(1)).getMessage(any(), any(), any());
   }
 
   @Test
   void testReportNoViableAlternative() {
     Parser parser = mock(Parser.class);
-    when(messageService.getMessageWithErrorCode(anyString(), anyString())).thenReturn(Pair.of("", ""));
     service.reportNoViableAlternative(parser, mock(NoViableAltException.class));
-    verify(messageService, times(1)).getMessageWithErrorCode(any(), any());
+    verify(messageService, times(1)).getMessage(any(), any());
   }
 
   @Test
@@ -151,10 +148,10 @@ class CobolErrorStrategyTest {
     when(parser.getVocabulary()).thenReturn(vocabulary);
     when(intervalSet.toString(vocabulary)).thenReturn("");
     when(parser.getRuleInvocationStack()).thenReturn(ImmutableList.of(""));
-    when(messageService.getMessageWithErrorCode(anyString(), anyString(), anyString())).thenReturn(Pair.of("", ""));
+
     service.reportMissingToken(parser);
 
-    verify(messageService, times(1)).getMessageWithErrorCode(any(), any(), any());
+    verify(messageService, times(1)).getMessage(any(), any(), any());
   }
 
 }

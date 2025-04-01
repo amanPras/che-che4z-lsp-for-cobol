@@ -17,7 +17,6 @@ package org.eclipse.lsp.cobol.common.error;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
@@ -38,16 +37,10 @@ public class SyntaxError {
   @EqualsAndHashCode.Include OriginalLocation location;
   @EqualsAndHashCode.Include MessageTemplate messageTemplate;
   @EqualsAndHashCode.Include String suggestion;
-  @EqualsAndHashCode.Include Pair<String, String> suggestionWithErrorCode;
   @EqualsAndHashCode.Include ErrorSeverity severity;
   ErrorCode errorCode;
   @EqualsAndHashCode.Include ErrorSource errorSource;
   @EqualsAndHashCode.Include DiagnosticRelatedInformation relatedInformation;
-
-  @EqualsAndHashCode.Include
-  public String errorCodeLabel() {
-    return this.errorCode != null ? this.errorCode.getLabel() : null;
-  }
 
   public static class SyntaxErrorBuilder {
     private ErrorCode errorCode;
@@ -60,20 +53,9 @@ public class SyntaxError {
       if (errorCode == null) {
         if (messageTemplate != null) {
           errorCode = messageTemplate::getTemplate;
-        } else if (suggestionWithErrorCode != null) {
-          setFromErrorPair();
         }
       }
-      if (suggestion == null && suggestionWithErrorCode != null) {
-        setFromErrorPair();
-      }
-      return new SyntaxError(location, messageTemplate, suggestion, suggestionWithErrorCode,
-              severity, errorCode, errorSource, relatedInformation);
-    }
-
-    private void setFromErrorPair() {
-      errorCode = errorCode != null ? errorCode : suggestionWithErrorCode::getKey;
-      suggestion = suggestionWithErrorCode.getValue();
+      return new SyntaxError(location, messageTemplate, suggestion, severity, errorCode, errorSource, relatedInformation);
     }
   }
 }

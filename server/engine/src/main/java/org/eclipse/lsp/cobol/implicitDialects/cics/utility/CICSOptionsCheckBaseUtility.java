@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
@@ -108,7 +107,7 @@ public abstract class CICSOptionsCheckBaseUtility {
             throwException(
                     ErrorSeverity.ERROR,
                     VisitorUtility.constructLocality(ctx, context),
-                    Pair.of("cics.invalid.options", "Missing required option: "),
+                    "Missing required option: ",
                     options);
             return false;
         }
@@ -159,7 +158,7 @@ public abstract class CICSOptionsCheckBaseUtility {
             throwException(
                     ErrorSeverity.ERROR,
                     VisitorUtility.constructLocality(ctx, context),
-                    Pair.of("cics.invalid.options", "Missing required option for: "),
+                    "Missing required option for: ",
                     options);
         }
     }
@@ -177,14 +176,14 @@ public abstract class CICSOptionsCheckBaseUtility {
                     error ->
                             throwException(
                                     ErrorSeverity.ERROR, getLocality(error),
-                                    Pair.of("cics.invalid.options", "Invalid option provided: "), options));
+                                    "Invalid option provided: ", options));
         }
     }
 
     protected <E extends ParseTree> void checkHasIllegalOptions(E rule, String options) {
         if (rule != null) {
             throwException(ErrorSeverity.ERROR, getLocality(rule),
-                    Pair.of("cics.invalid.options", "Invalid option provided: "), options);
+                    "Invalid option provided: ", options);
         }
     }
 
@@ -223,7 +222,7 @@ public abstract class CICSOptionsCheckBaseUtility {
 
             if (rulesSeen > 1) {
                 throwException(ErrorSeverity.ERROR, getLocality(isRuleList ? ((List<?>) rule).get(0) : rule),
-                      Pair.of("cics.invalid.options", "Options \"" + options + "\" are mutually exclusive."),
+                        "Options \"" + options + "\" are mutually exclusive.",
                       "");
                 break;
             }
@@ -238,7 +237,7 @@ public abstract class CICSOptionsCheckBaseUtility {
      */
     protected void checkHasObsoleteOptions(List<TerminalNode> rule, ParserRuleContext ctx, String options) {
         if (!rule.isEmpty()) {
-            throwException(ErrorSeverity.ERROR, getLocality(ctx), Pair.of("cics.invalid.options", "Obsolete option provided: "), options);
+            throwException(ErrorSeverity.ERROR, getLocality(ctx), "Obsolete option provided: ", options);
         }
     }
 
@@ -267,7 +266,7 @@ public abstract class CICSOptionsCheckBaseUtility {
 
         if (rulesSeen < 1) {
             throwException(ErrorSeverity.ERROR, getLocality(ctx),
-                    Pair.of("cics.invalid.options", "Must include one or more of the following: "), options);
+                    "Must include one or more of the following: ", options);
         }
     }
 
@@ -308,12 +307,13 @@ public abstract class CICSOptionsCheckBaseUtility {
     }
 
     protected void throwException(
-            ErrorSeverity errorSeverity, @NonNull Locality locality, Pair<String, String> errorPair, String wrongToken) {
+            ErrorSeverity errorSeverity, @NonNull Locality locality, String msg, String wrongToken) {
         SyntaxError error =
                 SyntaxError.syntaxError()
                         .errorSource(ErrorSource.PARSING)
                         .location(locality.toOriginalLocation())
-                        .suggestionWithErrorCode(Pair.of(errorPair.getKey(), errorPair.getValue() + wrongToken))
+                        .suggestion(msg + wrongToken)
+                        .errorCode(() -> "cics.invalid.options")
                         .severity(errorSeverity)
                         .build();
 
@@ -344,7 +344,7 @@ public abstract class CICSOptionsCheckBaseUtility {
                             throwException(
                                     duplicateOptions.get(option),
                                     getLocality(child),
-                                    Pair.of("cics.invalid.options", "Excessive options provided for: "),
+                                    "Excessive options provided for: ",
                                     child.getSymbol().getText());
                         }
                     }
@@ -359,7 +359,7 @@ public abstract class CICSOptionsCheckBaseUtility {
             if (name == null) continue;
             if (seenRules.add(ruleId)) continue;
             throwException(ErrorSeverity.ERROR, getLocality(child),
-                    Pair.of("cics.invalid.options", "Options \"" + name + "\" cannot be used more than once in a given command."), "");
+                    "Options \"" + name + "\" cannot be used more than once in a given command.", "");
         }
     }
 
@@ -423,7 +423,7 @@ public abstract class CICSOptionsCheckBaseUtility {
                         throwException(
                                 ErrorSeverity.ERROR,
                                 getLocality(node),
-                                Pair.of("cics.invalid.options", "Exactly one option required, options are mutually exclusive: "),
+                                "Exactly one option required, options are mutually exclusive: ",
                                 options);
                     });
         }
@@ -445,7 +445,7 @@ public abstract class CICSOptionsCheckBaseUtility {
           throwException(
               ErrorSeverity.ERROR,
               getLocality(ctx),
-                  Pair.of("cics.invalid.options", "If one option is specified, all options must be present: "),
+                  "If one option is specified, all options must be present: ",
               options);
         }
     }
@@ -473,7 +473,7 @@ public abstract class CICSOptionsCheckBaseUtility {
             throwException(
                     ErrorSeverity.ERROR,
                     getLocality(parentCtx),
-                    Pair.of("cics.invalid.options", "Exactly one option required, none provided: "),
+                    "Exactly one option required, none provided: ",
                     options);
         }
     }
@@ -510,7 +510,7 @@ public abstract class CICSOptionsCheckBaseUtility {
         throwException(
                 ErrorSeverity.ERROR,
                 getLocality(rule),
-                Pair.of("cics.invalid.options", "Invalid CICS command without translator option: "),
+                "Invalid CICS command without translator option: ",
                 missingTranslatorOption);
     }
 
@@ -524,7 +524,7 @@ public abstract class CICSOptionsCheckBaseUtility {
     public <E> void throwBrowsingViolation(E rule, String message) {
         throwException(
                 ErrorSeverity.ERROR, getLocality(rule),
-                Pair.of("cics.invalid.options", "Invalid option or parameter provided: "), message);
+                "Invalid option or parameter provided: ", message);
     }
 
     /**

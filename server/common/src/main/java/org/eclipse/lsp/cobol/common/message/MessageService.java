@@ -39,7 +39,7 @@ public interface MessageService {
    *     externalized message file.
    * @return {@link String}
    */
-  Pair<String, String> getMessageWithErrorCode(String key, Object... parameters);
+//  Pair<String, String> getMessageWithErrorCode(String key, Object... parameters);
 
   /**
    * Localize the template and return it as a {@link Pair} of error code mapped to the localized {@link String}
@@ -49,7 +49,7 @@ public interface MessageService {
    * @param template a {@link MessageTemplate} to localize
    * @return localized string
    */
-  Pair<String, String> localizeTemplate(MessageTemplate template);
+  String localizeTemplate(MessageTemplate template);
 
   /** Reload and updates the messages for Cobol and its dialect. */
   void reloadMessages();

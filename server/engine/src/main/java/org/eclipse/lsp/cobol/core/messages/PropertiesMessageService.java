@@ -19,7 +19,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.DialectRegistryItem;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
@@ -103,25 +102,16 @@ public class PropertiesMessageService implements MessageService {
   }
 
   @Override
-  public Pair<String, String> getMessageWithErrorCode(String key, Object... parameters) {
-    try {
-      return Pair.of(key, String.format((String) resourceBundle.handleGetObject(key), parameters));
-    } catch (MissingResourceException e) {
-      return Pair.of(key, key);
-    }
-  }
-
-  @Override
-  public Pair<String, String> localizeTemplate(MessageTemplate template) {
+  public String localizeTemplate(MessageTemplate template) {
     Object[] parameters = processArgs(template.getArgs());
-    return getMessageWithErrorCode(
-        template.getTemplate(),
-        ofNullable(template.getDelimiter())
-            .map(
-                delimiter ->
-                    Arrays.stream(parameters).map(Object::toString).collect(joining(delimiter)))
-            .map(it -> new Object[] {it})
-            .orElse(parameters));
+    return getMessage(
+            template.getTemplate(),
+            ofNullable(template.getDelimiter())
+                    .map(
+                            delimiter ->
+                                    Arrays.stream(parameters).map(Object::toString).collect(joining(delimiter)))
+                    .map(it -> new Object[] {it})
+                    .orElse(parameters));
   }
 
   private void updateResourceBundle() {

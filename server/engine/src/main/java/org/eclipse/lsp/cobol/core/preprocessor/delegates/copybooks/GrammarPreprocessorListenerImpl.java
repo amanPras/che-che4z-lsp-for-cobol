@@ -31,6 +31,7 @@ import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.utils.ThreadInterruptionUtil;
 import org.eclipse.lsp.cobol.core.CobolPreprocessorBaseListener;
@@ -120,9 +121,8 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
               .errorSource(ErrorSource.EXTENDED_DOCUMENT)
               .location(preprocessorService.retrieveLocality(ctx).toOriginalLocation())
               .severity(ERROR)
-              .suggestionWithErrorCode(
-                  messageService.getMessageWithErrorCode(
-                      "GrammarPreprocessorListener.langMissingEnterDirective"))
+              .messageTemplate(
+                      MessageTemplate.of("GrammarPreprocessorListener.langMissingEnterDirective"))
               .build();
       LOG.debug("Syntax error by exitEnterDirective: {}", error);
       errors.add(error);

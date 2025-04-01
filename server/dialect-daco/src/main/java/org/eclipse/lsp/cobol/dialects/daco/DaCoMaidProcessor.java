@@ -39,6 +39,7 @@ import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.model.tree.CopyNode;
 import org.eclipse.lsp.cobol.common.model.tree.Node;
@@ -235,8 +236,8 @@ public class DaCoMaidProcessor {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .location(nameLocality.toOriginalLocation())
-              .suggestionWithErrorCode(
-                  messageService.getMessageWithErrorCode(
+              .suggestion(
+                  messageService.getMessage(
                       "GrammarPreprocessorListener.errorSuggestion",
                       copybookName.getQualifiedName()))
               .severity(ERROR)
@@ -264,8 +265,7 @@ public class DaCoMaidProcessor {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .severity(ErrorSeverity.ERROR)
-              .suggestionWithErrorCode(
-                  messageService.getMessageWithErrorCode("GrammarPreprocessorListener.cannotRetrieveMaidSuffix"))
+              .messageTemplate(MessageTemplate.of("GrammarPreprocessorListener.cannotRetrieveMaidSuffix"))
               .location(node.getLocality().toOriginalLocation())
               .build();
       errors.add(error);

@@ -36,8 +36,8 @@ class ErrorHelper {
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.DIALECT)
             .location(locality.toOriginalLocation())
-            .suggestionWithErrorCode(
-                messageService.getMessageWithErrorCode(
+            .suggestion(
+                messageService.getMessage(
                     "GrammarPreprocessorListener.errorSuggestion",
                     copybookName))
             .severity(ERROR)
@@ -52,8 +52,8 @@ class ErrorHelper {
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.DIALECT)
             .location(locality.toOriginalLocation())
-            .suggestionWithErrorCode(
-                messageService.getMessageWithErrorCode(
+            .suggestion(
+                messageService.getMessage(
                     "IdmsCopybookVisitor.errorCircularDependency",
                     copybookName))
             .severity(ERROR)

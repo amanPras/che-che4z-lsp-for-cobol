@@ -29,6 +29,7 @@ import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.core.model.CobolLineTypeEnum;
 import org.eclipse.lsp.cobol.core.preprocessor.CobolLine;
@@ -134,9 +135,8 @@ public abstract class ContinuationLineTransformation implements CobolLinesTransf
                   .recognizer(ContinuationLineTransformation.class)
                   .build()
                   .toOriginalLocation())
-          .suggestionWithErrorCode(
-              messageService.getMessageWithErrorCode(
-                  "ContinuationLineTransformation.compilerDirectiveContinued"))
+          .messageTemplate(
+                  MessageTemplate.of("ContinuationLineTransformation.compilerDirectiveContinued"))
           .build();
     }
     return null;
@@ -230,9 +230,8 @@ public abstract class ContinuationLineTransformation implements CobolLinesTransf
                     .recognizer(ContinuationLineTransformation.class)
                     .build()
                     .toOriginalLocation())
-            .suggestionWithErrorCode(
-                messageService.getMessageWithErrorCode(
-                    "ContinuationLineTransformation.continuationLineContentAreaA"))
+            .messageTemplate(
+                MessageTemplate.of("ContinuationLineTransformation.continuationLineContentAreaA"))
             .severity(ERROR)
             .build();
     LOG.debug(
@@ -271,7 +270,7 @@ public abstract class ContinuationLineTransformation implements CobolLinesTransf
                 .recognizer(ContinuationLineTransformation.class)
                 .build()
                 .toOriginalLocation())
-        .suggestionWithErrorCode(messageService.getMessageWithErrorCode("inlineComment.missingBlank"))
+        .messageTemplate(MessageTemplate.of("inlineComment.missingBlank"))
         .severity(WARNING)
         .build();
   }

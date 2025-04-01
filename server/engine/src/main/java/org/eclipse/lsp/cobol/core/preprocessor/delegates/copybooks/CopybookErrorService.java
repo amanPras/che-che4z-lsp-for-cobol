@@ -22,6 +22,7 @@ import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 
 import static org.eclipse.lsp.cobol.common.error.ErrorSeverity.ERROR;
@@ -56,7 +57,7 @@ class CopybookErrorService {
     SyntaxError error =
         SyntaxError.syntaxError().errorSource(ErrorSource.COPYBOOK)
             .severity(info)
-            .suggestionWithErrorCode(messageService.getMessageWithErrorCode(messageID, copybookName.getDisplayName()))
+            .messageTemplate(MessageTemplate.of(messageID, copybookName.getDisplayName()))
             .location(locality.toOriginalLocation())
             .build();
     LOG.debug(logMessage, error.toString());
@@ -68,9 +69,7 @@ class CopybookErrorService {
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.COPYBOOK)
             .severity(ERROR)
-            .suggestionWithErrorCode(
-                messageService.getMessageWithErrorCode(
-                    "GrammarPreprocessorListener.recursionDetected", name))
+            .messageTemplate(MessageTemplate.of("GrammarPreprocessorListener.recursionDetected", name))
             .location(locality.toOriginalLocation())
             .build();
     LOG.debug("Syntax error by CopybookErrorService: {}", error.toString());
@@ -114,7 +113,7 @@ class CopybookErrorService {
     SyntaxError error =
         SyntaxError.syntaxError().errorSource(ErrorSource.COPYBOOK)
             .severity(info)
-            .suggestionWithErrorCode(messageService.getMessageWithErrorCode(messageID, maxNameLength, copybookName))
+            .messageTemplate(MessageTemplate.of(messageID, maxNameLength, copybookName))
             .location(locality.toOriginalLocation())
             .build();
     LOG.debug(logMessage, error.toString());
@@ -128,8 +127,8 @@ class CopybookErrorService {
             .location(locality.toOriginalLocation())
             .severity(ERROR)
             .errorCode(ErrorCodes.MISSING_COPYBOOK)
-            .suggestionWithErrorCode(
-                messageService.getMessageWithErrorCode(
+            .suggestion(
+                messageService.getMessage(
                     "GrammarPreprocessorListener.errorSuggestion", copybookName))
             .build();
     LOG.debug("Syntax error by addMissingCopybook: {}", error);
@@ -141,8 +140,8 @@ class CopybookErrorService {
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PREPROCESSING)
             .severity(ERROR)
-            .suggestionWithErrorCode(
-                messageService.getMessageWithErrorCode(
+            .messageTemplate(
+               MessageTemplate.of(
                     "GrammarPreprocessorListener.controlDirectiveWrongArgs", argument))
             .location(locality.toOriginalLocation())
             .build();

@@ -17,7 +17,6 @@ package org.eclipse.lsp.cobol.dialects.idms;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.junit.jupiter.api.Test;
 
@@ -81,7 +80,7 @@ class ErrorMessageHelperTest {
     when(recognizer.getExpectedTokens()).thenReturn(intervalSet);
 
     MessageService messageService = mock(MessageService.class);
-    when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("genereic", "message"));
+    when(messageService.getMessage(any(), any(), any())).thenReturn("message");
     ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
   }
 
@@ -89,7 +88,7 @@ class ErrorMessageHelperTest {
   void testGetInputMismatchMessage1() {
     MessageService messageService = mock(MessageService.class);
     Token token = mock(Token.class);
-    when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("genereic", "message"));
+    when(messageService.getMessage(any(), any(), any())).thenReturn("message");
 
     checkMessage(messageService, token, "message");
   }
@@ -100,7 +99,7 @@ class ErrorMessageHelperTest {
     Token token = mock(Token.class);
 
     when(token.getType()).thenReturn(Recognizer.EOF);
-    when(messageService.getMessageWithErrorCode(any())).thenReturn(Pair.of("genereic", "EOF message"));
+    when(messageService.getMessage(any())).thenReturn("EOF message");
 
     checkMessage(messageService, token, "EOF message");
 
@@ -119,7 +118,7 @@ class ErrorMessageHelperTest {
     String offendingTokens = "";
     ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
 
-    String result = helper.getInputMismatchMessage(recognizer, exception, token, offendingTokens).getValue();
+    String result = helper.getInputMismatchMessage(recognizer, exception, token, offendingTokens);
     assertEquals(message, result);
   }
 

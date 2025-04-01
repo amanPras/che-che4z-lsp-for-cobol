@@ -17,7 +17,6 @@ package org.eclipse.lsp.cobol.implicitDialects.cics;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.junit.jupiter.api.Test;
 
@@ -75,10 +74,10 @@ class ErrorMessageHelperTest {
         when(intervalSet.toString(any(Vocabulary.class))).thenReturn("tokens");
         when(recognizer.getExpectedTokens()).thenReturn(intervalSet);
         MessageService messageService = mock(MessageService.class);
-        when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("generic", "message"));
+        when(messageService.getMessage(any(), any(), any())).thenReturn("message");
         ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
         Token token = mock(Token.class);
-        String result = helper.getUnwantedTokenMessage(recognizer, token).getValue();
+        String result = helper.getUnwantedTokenMessage(recognizer, token);
 
         assertEquals("message", result);
     }
@@ -89,9 +88,9 @@ class ErrorMessageHelperTest {
         MessageService messageService = mock(MessageService.class);
         Token token = mock(Token.class);
         when(token.getType()).thenReturn(Recognizer.EOF);
-        when(messageService.getMessageWithErrorCode(any())).thenReturn(Pair.of("generic", "EOF message"));
+        when(messageService.getMessage(any())).thenReturn("EOF message");
         ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
-        String result = helper.getUnwantedTokenMessage(recognizer, token).getValue();
+        String result = helper.getUnwantedTokenMessage(recognizer, token);
 
         assertEquals("EOF message", result);
     }
@@ -100,7 +99,7 @@ class ErrorMessageHelperTest {
     void testGetInputMismatchMessage() {
         MessageService messageService = mock(MessageService.class);
         Token token = mock(Token.class);
-        when(messageService.getMessageWithErrorCode(any(), any(), any())).thenReturn(Pair.of("generic", "message"));
+        when(messageService.getMessage(any(), any(), any())).thenReturn("message");
 
         checkMessage(messageService, token, "message");
     }
@@ -110,7 +109,7 @@ class ErrorMessageHelperTest {
         MessageService messageService = mock(MessageService.class);
         Token token = mock(Token.class);
         when(token.getType()).thenReturn(Recognizer.EOF);
-        when(messageService.getMessageWithErrorCode(any())).thenReturn(Pair.of("generic", "EOF message"));
+        when(messageService.getMessage(any())).thenReturn("EOF message");
 
         checkMessage(messageService, token, "EOF message");
     }
@@ -124,7 +123,7 @@ class ErrorMessageHelperTest {
         when(exception.getExpectedTokens()).thenReturn(intervalSet);
         String offendingTokens = "";
         ErrorMessageHelper helper = new ErrorMessageHelper(messageService);
-        String result = helper.getInputMismatchMessage(recognizer, exception, token, offendingTokens).getValue();
+        String result = helper.getInputMismatchMessage(recognizer, exception, token, offendingTokens);
 
         assertEquals(message, result);
     }

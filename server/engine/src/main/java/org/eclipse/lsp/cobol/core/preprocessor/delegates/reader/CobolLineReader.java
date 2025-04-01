@@ -25,11 +25,11 @@ import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.core.model.CobolLineTypeEnum;
 import org.eclipse.lsp.cobol.core.preprocessor.CobolLine;
@@ -160,7 +160,7 @@ public abstract class CobolLineReader {
                                     Collections.singletonList(
                                             createError(
                                                     uri,
-                                                    messageService.getMessageWithErrorCode("CobolLineReaderImpl.incorrectLineFormat"),
+                                                    MessageTemplate.of("CobolLineReaderImpl.incorrectLineFormat"),
                                                     lineNumber,
                                                     layout.getSequenceLength(), layout.getSequenceLength() + 1))));
   }
@@ -175,7 +175,7 @@ public abstract class CobolLineReader {
     return Optional.of(
             createError(
                     uri,
-                    messageService.getMessageWithErrorCode("CobolLineReaderImpl.longLineMsg", maxLineLength),
+                    MessageTemplate.of("CobolLineReaderImpl.longLineMsg", maxLineLength),
                     lineNumber,
                     maxLineLength,
                     line.length()));
@@ -189,7 +189,7 @@ public abstract class CobolLineReader {
     return Optional.of(
             createError(
                     uri,
-                    messageService.getMessageWithErrorCode("CompilerDirectivesTransformation.sequenceNumber"),
+                    MessageTemplate.of("CompilerDirectivesTransformation.sequenceNumber"),
                     lineNumber,
                     0,
                     1));
@@ -206,7 +206,7 @@ public abstract class CobolLineReader {
    * Create a syntax error using the given data build its locality
    *
    * @param uri the document URI
-   * @param errorPair the error errorPair
+   * @param messageTemplate {@link MessageTemplate} of the error
    * @param lineNumber the error lineNumber
    * @param start the error start position
    * @param stop the error stop position
@@ -214,11 +214,11 @@ public abstract class CobolLineReader {
    */
   @NonNull
   private SyntaxError createError(
-          @NonNull String uri, @NonNull Pair<String, String> errorPair, int lineNumber, int start, int stop) {
+          @NonNull String uri, @NonNull MessageTemplate messageTemplate, int lineNumber, int start, int stop) {
     SyntaxError error =
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PREPROCESSING)
-                    .suggestionWithErrorCode(errorPair)
+                    .messageTemplate(messageTemplate)
                     .severity(ERROR)
                     .location(
                             Locality.builder()

@@ -16,7 +16,6 @@ package org.eclipse.lsp.cobol.core.strategy;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,11 +40,11 @@ class CobolErrorStrategyTest {
     NoViableAltException error =
         new NoViableAltException(recognizer, stream, token, token, null, null);
     CobolErrorStrategy strategy = new CobolErrorStrategy(messageService);
-    when(messageService.getMessageWithErrorCode(
+    when(messageService.getMessage(
             matches("ErrorStrategy.rulereportNoViableAlternative"), anyString()))
-        .thenReturn(Pair.of("ErrorStrategy.rulereportNoViableAlternative", "ErrorStrategy.rulereportNoViableAlternative"));
-    when(messageService.getMessageWithErrorCode(matches("ErrorStrategy.reportNoViableAlternative"), anyString()))
-        .thenReturn(Pair.of("No viable alternative at input text", "No viable alternative at input text"));
+            .thenReturn("ErrorStrategy.rulereportNoViableAlternative");
+    when(messageService.getMessage(matches("ErrorStrategy.reportNoViableAlternative"), anyString()))
+            .thenReturn("No viable alternative at input text");
 
     when(recognizer.getInputStream()).thenReturn(stream);
     when(stream.getText(token, token)).thenReturn("text");
@@ -71,12 +70,12 @@ class CobolErrorStrategyTest {
     when(recognizer.getVocabulary()).thenReturn(vocab);
     when(intervalSet.toString(vocab)).thenReturn("text");
     when(errorMock.getOffendingToken()).thenReturn(token);
-    when(messageService.getMessageWithErrorCode(
+    when(messageService.getMessage(
             matches("ErrorStrategy.rulereportInputMismatch"), anyString()))
-        .thenReturn(Pair.of("ErrorStrategy.rulereportInputMismatch", "ErrorStrategy.rulereportInputMismatch"));
-    when(messageService.getMessageWithErrorCode(
+            .thenReturn("ErrorStrategy.rulereportInputMismatch");
+    when(messageService.getMessage(
             matches("ErrorStrategy.reportInputMismatch"), anyString()))
-        .thenReturn(Pair.of("Syntax error on '<0>'", "Syntax error on '<0>'"));
+            .thenReturn("Syntax error on '<0>'");
     strategy.reportError(recognizer, errorMock);
     verify(recognizer)
         .notifyErrorListeners(token, "Syntax error on '<0>'", errorMock);

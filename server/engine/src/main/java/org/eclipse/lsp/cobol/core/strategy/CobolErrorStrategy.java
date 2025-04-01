@@ -188,7 +188,7 @@ public class CobolErrorStrategy extends BasicCobolErrorHandler {
           offendingToken,
           offendingToken.getLine(),
           offendingToken.getCharPositionInLine(),
-          this.getMessageService().getMessageWithErrorCode("input.mismatch.skipAnalysis").getValue(),
+          this.getMessageService().getMessage("input.mismatch.skipAnalysis"),
           new InputMismatchException(recognizer));
     }
     nextTokensContext = (ParserRuleContext) recognizer.getContext().parent;

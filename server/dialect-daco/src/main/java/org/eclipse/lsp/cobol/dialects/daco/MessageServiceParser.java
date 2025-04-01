@@ -20,7 +20,6 @@ package org.eclipse.lsp.cobol.dialects.daco;
 import com.google.common.annotations.VisibleForTesting;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStream;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageServiceProvider;
 import org.eclipse.lsp.cobol.common.utils.StringUtils;
 
@@ -51,7 +50,7 @@ public abstract class MessageServiceParser extends Parser {
    *     externalized message file.
    */
   public void notifyError(String messageId, String... parameters) {
-    String message = getMessageForParser(messageId, parameters).getValue();
+    String message = getMessageForParser(messageId, parameters);
     notifyListeners(message);
   }
 
@@ -281,10 +280,10 @@ public abstract class MessageServiceParser extends Parser {
     }
   }
 
-  private Pair<String, String> getMessageForParser(String messageKey, String... parameters) {
+  private String getMessageForParser(String messageKey, String... parameters) {
     return ((MessageServiceProvider) this.getErrorHandler())
         .getMessageService()
-        .getMessageWithErrorCode(messageKey, parameters);
+        .getMessage(messageKey, parameters);
   }
 
   private Integer tryParseInt(String input) {

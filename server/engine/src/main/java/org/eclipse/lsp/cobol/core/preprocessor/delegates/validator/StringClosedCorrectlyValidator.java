@@ -21,6 +21,7 @@ import org.eclipse.lsp.cobol.common.mapping.ExtendedDocument;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedTextLine;
 import org.eclipse.lsp.cobol.common.mapping.MappedCharacter;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.transformer.ContinuationLineTransformation;
 import org.eclipse.lsp4j.Position;
@@ -142,7 +143,7 @@ public class StringClosedCorrectlyValidator implements ExtendedDocumentValidatio
                     .recognizer(ContinuationLineTransformation.class)
                     .build()
                     .toOriginalLocation())
-            .suggestionWithErrorCode(messageService.getMessageWithErrorCode("ContinuationLineTransformation.periodRequired"))
+            .messageTemplate(MessageTemplate.of("ContinuationLineTransformation.periodRequired"))
             .severity(ERROR)
             .build();
 

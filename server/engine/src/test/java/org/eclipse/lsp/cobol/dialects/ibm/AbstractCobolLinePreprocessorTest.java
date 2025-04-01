@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.preprocessor.CobolLine;
@@ -35,10 +34,10 @@ public abstract class AbstractCobolLinePreprocessorTest {
   protected ResultWithErrors<List<CobolLine>> processText(String text) {
     MessageService mockMessageService = mock(MessageService.class);
     CobolLineReader reader = new IbmCobolLineReader(mockMessageService, null);
-    when(mockMessageService.getMessageWithErrorCode(matches("CobolLineReaderImpl.incorrectLineFormat")))
-        .thenReturn(Pair.of("generic", "Unexpected indicator area content"));
-    when(mockMessageService.getMessageWithErrorCode(matches("CobolLineReaderImpl.longLineMsg"), anyInt()))
-        .thenReturn(Pair.of("generic", "Source text cannot go past column 80"));
+    when(mockMessageService.getMessage(matches("CobolLineReaderImpl.incorrectLineFormat")))
+            .thenReturn("Unexpected indicator area content");
+    when(mockMessageService.getMessage(matches("CobolLineReaderImpl.longLineMsg"), anyInt()))
+            .thenReturn("Source text cannot go past column 80");
     return reader.processLines("", text);
   }
 
@@ -47,10 +46,10 @@ public abstract class AbstractCobolLinePreprocessorTest {
     CodeLayoutStore store = mock(CodeLayoutStore.class);
     when(store.getCodeLayout()).thenReturn(Optional.of(new CobolProgramLayout(0, 1, 4, 61, 8)));
     CobolLineReader reader = new IbmCobolLineReader(mockMessageService, store);
-    when(mockMessageService.getMessageWithErrorCode(matches("CobolLineReaderImpl.incorrectLineFormat")))
-        .thenReturn(Pair.of("generic", "Unexpected indicator area content"));
-    when(mockMessageService.getMessageWithErrorCode(matches("CobolLineReaderImpl.longLineMsg")))
-        .thenReturn(Pair.of("generic", "Source text cannot go past column 80"));
+    when(mockMessageService.getMessage(matches("CobolLineReaderImpl.incorrectLineFormat")))
+            .thenReturn("Unexpected indicator area content");
+    when(mockMessageService.getMessage(matches("CobolLineReaderImpl.longLineMsg")))
+            .thenReturn("Source text cannot go past column 80");
     return reader.processLines("", text);
   }
 

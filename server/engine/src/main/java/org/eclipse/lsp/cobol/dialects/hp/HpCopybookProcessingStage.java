@@ -90,8 +90,8 @@ public class HpCopybookProcessingStage implements Stage<AnalysisContext, Dialect
     if (model.getUri() == null) {
       errors.add(SyntaxError.syntaxError()
           .errorSource(ErrorSource.DIALECT)
-          .suggestionWithErrorCode(
-              messageService.getMessageWithErrorCode(
+          .suggestion(
+              messageService.getMessage(
                   "GrammarPreprocessorListener.errorSuggestion",
                   copybookName.getQualifiedName()))
           .severity(ERROR)

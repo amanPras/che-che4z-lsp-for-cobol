@@ -20,7 +20,6 @@ import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 
 import java.util.Arrays;
@@ -55,11 +54,11 @@ public class ErrorMessageHelper {
    * @param offendingTokens offending token string
    * @return error message string
    */
-  public Pair<String, String> getInputMismatchMessage(
+  public String getInputMismatchMessage(
       Parser recognizer, InputMismatchException e, Token token, String offendingTokens) {
     return token.getType() == EOF
-        ? messageService.getMessageWithErrorCode(END_OF_FILE_MESSAGE)
-        : messageService.getMessageWithErrorCode(
+        ? messageService.getMessage(END_OF_FILE_MESSAGE)
+        : messageService.getMessage(
             REPORT_INPUT_MISMATCH, offendingTokens, getExpectedText(recognizer, e));
   }
 
@@ -70,9 +69,9 @@ public class ErrorMessageHelper {
    * @param currentToken current token
    * @return error message string
    */
-  public Pair<String, String> getUnwantedTokenMessage(Parser recognizer, Token currentToken) {
+  public String getUnwantedTokenMessage(Parser recognizer, Token currentToken) {
     return currentToken.getType() == EOF
-        ? messageService.getMessageWithErrorCode(END_OF_FILE_MESSAGE)
+        ? messageService.getMessage(END_OF_FILE_MESSAGE)
         : createMessage(recognizer, currentToken);
   }
 
@@ -119,9 +118,9 @@ public class ErrorMessageHelper {
     return interval.size() > 1 ? String.format("{%s}", newMessage) : newMessage;
   }
 
-  private Pair<String, String> createMessage(Parser recognizer, Token t) {
+  private String createMessage(Parser recognizer, Token t) {
     String tokenName = t.getText();
-    return messageService.getMessageWithErrorCode(REPORT_UNWANTED_TOKEN, tokenName, getExpectedText(recognizer));
+    return messageService.getMessage(REPORT_UNWANTED_TOKEN, tokenName, getExpectedText(recognizer));
   }
 
   private String buildErrorMessage(List<String> tokens) {

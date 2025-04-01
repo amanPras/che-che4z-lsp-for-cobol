@@ -40,7 +40,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
@@ -48,6 +47,7 @@ import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.model.tree.CodeBlockUsageNode;
 import org.eclipse.lsp.cobol.common.model.tree.CompilerDirectiveNode;
@@ -98,7 +98,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
             SyntaxError error = SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
                     .location(getTokenEndLocality(ctx.stop).toOriginalLocation())
-                    .suggestionWithErrorCode(messageService.getMessageWithErrorCode("cicsParser.missingEndExec"))
+                    .suggestion(messageService.getMessage("cicsParser.missingEndExec"))
                     .severity(ErrorSeverity.ERROR)
                     .build();
             errors.add(error);
@@ -337,7 +337,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
                                                 throwException(
                                                         token.getText(),
                                                         locality,
-                                                        messageService.getMessageWithErrorCode("CobolVisitor.AreaBWarningMsg"))));
+                                                        MessageTemplate.of("CobolVisitor.AreaBWarningMsg"))));
     }
 
     private Locality getTokenLocality(Token token) {
@@ -361,12 +361,14 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
         };
     }
 
-    private void throwException(String wrongToken, @NonNull Locality locality, Pair<String, String> errorPair) {
+    private void throwException(String wrongToken, @NonNull Locality locality, MessageTemplate messageTemplate) {
+        String msg = messageService.localizeTemplate(messageTemplate) + wrongToken;
         SyntaxError error =
                 SyntaxError.syntaxError()
                         .errorSource(ErrorSource.PARSING)
                         .location(locality.toOriginalLocation())
-                        .suggestionWithErrorCode(Pair.of(errorPair.getKey(), errorPair.getValue() + wrongToken))
+                        .errorCode(messageTemplate::getTemplate)
+                        .suggestion(msg)
                         .severity(ErrorSeverity.WARNING)
                         .build();
 

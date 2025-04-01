@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
@@ -31,6 +30,7 @@ import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedDocument;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.*;
 import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.model.tree.statements.*;
@@ -516,7 +516,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
                                 throwException(
                                         declarativeBody.getText(),
                                         locality,
-                                        messageService.getMessageWithErrorCode("CobolVisitor.declarativeSameMsg")));
+                                        MessageTemplate.of("CobolVisitor.declarativeSameMsg",  declarativeBody.getText())));
       }
     }
 
@@ -749,8 +749,8 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
                         SyntaxError error =
                                 SyntaxError.syntaxError()
                                         .errorSource(ErrorSource.PARSING)
-                                        .suggestionWithErrorCode(
-                                                messageService.getMessageWithErrorCode("CobolVisitor.duplicateFileName", filename))
+                                        .messageTemplate(
+                                                MessageTemplate.of("CobolVisitor.duplicateFileName", filename))
                                         .severity(ErrorSeverity.ERROR)
                                         .location(locality.toOriginalLocation())
                                         .build();
@@ -1640,12 +1640,14 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     return new ProcedureName(targetName, sectionName);
   }
 
-  private void throwException(String wrongToken, @NonNull Locality locality, Pair<String, String> errorPair) {
+  private void throwException(String wrongToken, @NonNull Locality locality, MessageTemplate messageTemplate) {
+    String msg = messageService.localizeTemplate(messageTemplate) + wrongToken;
     SyntaxError error =
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
                     .location(locality.toOriginalLocation())
-                    .suggestionWithErrorCode(Pair.of(errorPair.getKey(), errorPair.getValue() + wrongToken))
+                    .errorCode(messageTemplate::getTemplate)
+                    .suggestion(msg)
                     .severity(ErrorSeverity.WARNING)
                     .build();
 
@@ -1667,7 +1669,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     SyntaxError error =
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
-                    .suggestionWithErrorCode(messageService.getMessageWithErrorCode("CobolVisitor.subroutineNotFound", name))
+                    .messageTemplate(MessageTemplate.of("CobolVisitor.subroutineNotFound", name))
                     .severity(ErrorSeverity.INFO)
                     .location(getIntervalPosition(locality, locality).toOriginalLocation())
                     .build();
@@ -1692,7 +1694,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     SyntaxError error =
             SyntaxError.syntaxError()
                     .errorSource(ErrorSource.PARSING)
-                    .suggestionWithErrorCode(messageService.getMessageWithErrorCode("CobolVisitor.misspelledWord", suggestion))
+                    .messageTemplate(MessageTemplate.of("CobolVisitor.misspelledWord", suggestion))
                     .severity(ErrorSeverity.WARNING)
                     .location(locality.toOriginalLocation())
                     .build();
@@ -1716,7 +1718,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     throwException(
         token.getText(),
         locationToLocality(tokenLoc),
-        messageService.getMessageWithErrorCode("CobolVisitor.AreaAWarningMsg"));
+        MessageTemplate.of("CobolVisitor.AreaAWarningMsg"));
   }
 
   private static boolean startsWithIcase(String s, String b) {
@@ -1744,7 +1746,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
       throwException(
           t.getText(),
           locationToLocality(l),
-          messageService.getMessageWithErrorCode("CobolVisitor.AreaBWarningMsg"));
+          MessageTemplate.of("CobolVisitor.AreaBWarningMsg"));
     }
   }
 

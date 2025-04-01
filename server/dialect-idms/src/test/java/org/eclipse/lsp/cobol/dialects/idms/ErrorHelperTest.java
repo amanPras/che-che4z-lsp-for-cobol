@@ -14,7 +14,6 @@
  */
 package org.eclipse.lsp.cobol.dialects.idms;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.ErrorCodes;
@@ -38,8 +37,8 @@ class ErrorHelperTest {
   void testMissingCopybooks() {
     MessageService messageService = mock(MessageService.class);
     Locality locality = Locality.builder().build();
-    when(messageService.getMessageWithErrorCode("GrammarPreprocessorListener.errorSuggestion", "copybook"))
-        .thenReturn(Pair.of("generic", "missing"));
+    when(messageService.getMessage("GrammarPreprocessorListener.errorSuggestion", "copybook"))
+        .thenReturn("missing");
 
     SyntaxError result = ErrorHelper.missingCopybooks(messageService, locality, "copybook");
     checkSyntaxError(result, "missing", locality);
@@ -49,8 +48,8 @@ class ErrorHelperTest {
   void testCircularDependency() {
     MessageService messageService = mock(MessageService.class);
     Locality locality = Locality.builder().build();
-    when(messageService.getMessageWithErrorCode("IdmsCopybookVisitor.errorCircularDependency", "copybook"))
-        .thenReturn(Pair.of("generic", "circular"));
+    when(messageService.getMessage("IdmsCopybookVisitor.errorCircularDependency", "copybook"))
+        .thenReturn("circular");
 
     SyntaxError result = ErrorHelper.circularDependency(messageService, locality, "copybook");
     checkSyntaxError(result, "circular", locality);
