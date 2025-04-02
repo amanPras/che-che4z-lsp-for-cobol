@@ -12,10 +12,11 @@
  *   Broadcom, Inc. - initial API and implementation
  */
 
+import { TextDocumentItem } from "vscode-languageclient";
 import { SettingsService } from "../Settings";
 import { searchCopybookInExtensionFolder } from "../util/FSUtils";
 import { CopybookURI } from "./CopybookURI";
-import { Uri } from "vscode";
+import { Uri, workspace } from "vscode";
 
 enum CopybookFolderKind {
   "local",
@@ -98,4 +99,11 @@ async function resolveAllowedExtensions(
     default:
       return SettingsService.getCopybookExtension(documentUri);
   }
+}
+
+export async function readFileContent(fileUri: string): Promise<string> {
+  const uri = Uri.parse(fileUri);
+  const data = await workspace.fs.readFile(uri);
+  const content = Buffer.from(data).toString();
+  return content;
 }

@@ -1179,4 +1179,50 @@ describe("Tests copybook download service", () => {
 
     expect(clearDiagnosticsSpy).toHaveBeenCalledTimes(2);
   });
+
+  describe("resolveCopybookURI", () => {
+    let zoweExplorerApiMock: IApiRegisterClient;
+    beforeEach(() => {
+      zoweExplorerApiMock = {
+        getMvsApi: () => ({
+          allMembers: [],
+        }),
+        getUssApi: () => ({
+          fileList: [],
+        }),
+        getExplorerExtenderApi: () => ({
+          getProfile: () => "profile",
+          getProfilesCache: () => ({
+            loadNamedProfile: () => ({ name: "profile" }),
+          }),
+        }),
+      } as unknown as IApiRegisterClient;
+
+      jest.spyOn(SettingsService, "getProfileName").mockReturnValue("profile");
+    });
+    describe("resolve local copybooks", () => {
+      beforeEach(() => {
+        workspaceConfigurationMock = {
+          "paths-local": [""],
+          "paths-dsn": [],
+          "paths-uss": [],
+          "copybook-extensions": [".CPY", ".cpy", ""],
+        };
+        profileName = "";
+      });
+
+      test("no error popup is shown", async () => {
+        const cds = new CopybookDownloadService(
+          "/globalStorage",
+          zoweExplorerApiMock,
+        );
+        await cds.listRemoteCopybooks(
+          Uri.file("/test.cbl").toString(),
+          DEFAULT_DIALECT,
+        );
+
+        expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+      });
+    });
+  });
 });

@@ -63,6 +63,7 @@ import {
   ControlFlowAnalysisService,
 } from "./services/ControlFlowService";
 import { DownloadDiagnosticsService } from "./services/DiagnosticsService";
+import { readFileContent } from "./services/copybook/CopybookMessageHandler";
 
 interface __AnalysisApi {
   analysis(uri: string, text: string, pos?: vscode.Position): Promise<unknown>;
@@ -234,6 +235,11 @@ export async function activate(
     "cfast/ready",
     analysisService.makeControlFlowAstNotificationHandler(),
   );
+  languageClientService.addRequestHandler(
+    "copybook/uri",
+    copyBooksDownloader.makeResolveCopybookUriHandler(),
+  );
+  languageClientService.addRequestHandler("file/content", readFileContent);
 
   await languageClientService.start();
 

@@ -44,6 +44,7 @@ import {
   ZoweUssConfigModel,
 } from "../ProcessorGroupsLoader";
 import { DownloadDiagnosticsService } from "../DiagnosticsService";
+import { searchLocalCopybooks } from "./LocalCopybooksService";
 
 export class CopybookName {
   constructor(
@@ -187,6 +188,9 @@ export class CopybookDownloadService {
     };
   }
 
+  /**
+   * @deprecated replaced by `resolveCopybookURI`
+   */
   public async resolveCopybookHandler(
     documentUri: string,
     copybookName: string,
@@ -240,6 +244,42 @@ export class CopybookDownloadService {
       await SettingsService.getCopybookExtension(documentUri),
       this.storagePath,
     )?.toString();
+  }
+
+  public makeResolveCopybookUriHandler() {
+    return this.resolveCopybookURI.bind(this);
+  }
+
+  async resolveCopybookURI(
+    documentURI: string,
+    copybookName: string,
+    dialectType: string,
+  ): Promise<string | null> {
+    // is endevor -> find element in endevor (getE4ECopyBookLocation),
+    //               download the copybook to local cache
+    //               return URI pointing to local cache
+    if (this.handleAsEndevorElement(documentURI)) {
+      const copybookUri = await this.e4eDownloader?.getE4ECopyBookLocation(
+        copybookName,
+        documentURI,
+      );
+      throw new Error("Not implemented yet.");
+      return copybookUri?.toString() ?? null;
+    }
+    // search processor groups -> ??
+    // search paths-local -> return URI pointing to local file
+    const localResult = await searchLocalCopybooks(
+      documentURI,
+      copybookName,
+      dialectType,
+    );
+    if (localResult) {
+      return localResult.toString();
+    }
+    // search paths-dsn -> return zowe-ds URI
+    // search paths-uss -> return zowe-uss URI
+    // not found -> return null
+    return null;
   }
 
   constructor(
