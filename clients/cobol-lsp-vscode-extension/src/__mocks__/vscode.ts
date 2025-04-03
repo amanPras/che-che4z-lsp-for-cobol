@@ -26,7 +26,9 @@ import { readFile } from "fs/promises";
 export namespace workspace {
   export const workspaceFolders = [
     {
-      uri: UriMock.parse("/"),
+      name: "workspace",
+      uri: UriMock.parse("/workspace"),
+      index: 0,
     },
   ];
   export function getConfiguration() {

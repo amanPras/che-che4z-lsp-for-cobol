@@ -1201,27 +1201,40 @@ describe("Tests copybook download service", () => {
       jest.spyOn(SettingsService, "getProfileName").mockReturnValue("profile");
     });
     describe("resolve local copybooks", () => {
+      let findFilesSpy: jest.SpyInstance;
+
       beforeEach(() => {
         workspaceConfigurationMock = {
-          "paths-local": [""],
-          "paths-dsn": [],
-          "paths-uss": [],
-          "copybook-extensions": [".CPY", ".cpy", ""],
+          "paths-local": ["copybooks"],
+          "copybook-extensions": [".CPY"],
         };
         profileName = "";
+        findFilesSpy = jest
+          .spyOn(vscode.workspace, "findFiles")
+          .mockResolvedValue([
+            vscode.Uri.parse("file://workspace/copybooks/COPYBOOK.cpy"),
+          ]);
       });
 
-      test("no error popup is shown", async () => {
+      test("local copybook workspace folder is searched", async () => {
         const cds = new CopybookDownloadService(
           "/globalStorage",
           zoweExplorerApiMock,
         );
-        await cds.listRemoteCopybooks(
+        const result = await cds.resolveCopybookURI(
           Uri.file("/test.cbl").toString(),
+          "COPYBOOK",
           DEFAULT_DIALECT,
         );
 
-        expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+        expect(result?.toString()).toEqual(
+          "file://workspace/copybooks/COPYBOOK.cpy",
+        );
+
+        expect(findFilesSpy).toHaveBeenCalledWith({
+          base: { path: "/workspace/copybooks" },
+          pattern: "{COPYBOOK.CPY}",
+        });
       });
     });
   });
