@@ -888,7 +888,7 @@ describe("Tests copybook download service", () => {
       "loadProcessorGroupCopybookPathsConfig",
     );
     spyConfig.mockResolvedValue([]);
-    SettingsService.getDsnPath = jest.fn().mockReturnValue(["dsn"]);
+    workspaceConfigurationMock[PATHS_DSN] = ["dsn"];
 
     const downloader = new CopybookDownloadService(
       "storage-path",
@@ -912,8 +912,9 @@ describe("Tests copybook download service", () => {
   });
 
   it("checks settings in processor groups used first", async () => {
-    const settingsMockDsn = (SettingsService.getDsnPath = jest.fn());
-    const settingsMockUss = (SettingsService.getDsnPath = jest.fn());
+    const settingsDsnSpy = jest.spyOn(SettingsService, "getDsnPath");
+    const settingsUssSpy = jest.spyOn(SettingsService, "getDsnPath");
+
     const spyConfig = jest.spyOn(
       ProcessorGroups,
       "loadProcessorGroupCopybookPathsConfig",
@@ -942,8 +943,8 @@ describe("Tests copybook download service", () => {
       "procGroupDataset",
       "procGroupProfile",
     );
-    expect(settingsMockDsn).toHaveBeenCalledTimes(0);
-    expect(settingsMockUss).toHaveBeenCalledTimes(0);
+    expect(settingsDsnSpy).toHaveBeenCalledTimes(0);
+    expect(settingsUssSpy).toHaveBeenCalledTimes(0);
   });
 
   it("checks settings in processor group definitions used in order ", async () => {
@@ -1014,8 +1015,9 @@ describe("Tests copybook download service", () => {
     expect(spyDownloadElement).toHaveBeenCalledTimes(0);
   });
   it("checks endevor locations in proccesor groups definitions resolves prerequiste", async () => {
-    SettingsService.getDsnPath = jest.fn().mockReturnValue([]);
-    SettingsService.getUssPath = jest.fn().mockReturnValue([]);
+    workspaceConfigurationMock[PATHS_DSN] = [];
+    workspaceConfigurationMock[PATHS_USS] = [];
+
     const service = new CopybookDownloadService(
       "storage-path",
       zoweExplorerMock,
@@ -1268,7 +1270,7 @@ describe("Tests copybook download service", () => {
         );
 
         expect(result).toEqual(
-          "zowe-ds://profile/DATASET.WITH.COPYBOOKS/COPYBOOK",
+          "zowe-ds:/profile/DATASET.WITH.COPYBOOKS/COPYBOOK",
         );
       });
     });
