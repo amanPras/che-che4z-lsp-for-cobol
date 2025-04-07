@@ -41,6 +41,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "cobol.copybook.content",
+        "category": "COBOL",
+        "title": "Read Copybook content"
+      },
+      {
         "command": "cobol-lsp.cpy-manager.fetch-copybook",
         "category": "COBOL",
         "title": "Fetch Copybook"

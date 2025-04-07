@@ -1182,10 +1182,19 @@ describe("Tests copybook download service", () => {
 
   describe("resolveCopybookURI", () => {
     let zoweExplorerApiMock: IApiRegisterClient;
+    let allMembersMock: jest.SpyInstance<IZosFilesResponseMemberList>;
     beforeEach(() => {
+      allMembersMock = jest.fn().mockImplementation((dsn) => {
+        return {
+          apiResponse: {
+            items:
+              dsn === "DATASET.WITH.COPYBOOKS" ? [{ member: "COPYBOOK" }] : [],
+          },
+        };
+      });
       zoweExplorerApiMock = {
         getMvsApi: () => ({
-          allMembers: [],
+          allMembers: allMembersMock,
         }),
         getUssApi: () => ({
           fileList: [],
@@ -1235,6 +1244,32 @@ describe("Tests copybook download service", () => {
           base: { path: "/workspace/copybooks" },
           pattern: "{COPYBOOK.CPY}",
         });
+      });
+    });
+
+    describe("resolve remote dsn copybooks", () => {
+      beforeEach(() => {
+        workspaceConfigurationMock = {
+          "paths-dsn": ["OTHER.DATASET", "DATASET.WITH.COPYBOOKS"],
+          "copybook-extensions": [".CPY"],
+        };
+        profileName = "profile";
+      });
+
+      test("zowe ds uri is constructed", async () => {
+        const cds = new CopybookDownloadService(
+          "/globalStorage",
+          zoweExplorerApiMock,
+        );
+        const result = await cds.resolveCopybookURI(
+          Uri.file("/test.cbl").toString(),
+          "COPYBOOK",
+          DEFAULT_DIALECT,
+        );
+
+        expect(result).toEqual(
+          "zowe-ds://profile/DATASET.WITH.COPYBOOKS/COPYBOOK",
+        );
       });
     });
   });

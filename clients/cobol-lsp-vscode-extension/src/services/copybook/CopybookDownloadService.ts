@@ -255,9 +255,8 @@ export class CopybookDownloadService {
     copybookName: string,
     dialectType: string,
   ): Promise<string | null> {
-    // is endevor -> find element in endevor (getE4ECopyBookLocation),
-    //               download the copybook to local cache
-    //               return URI pointing to local cache
+    // is endevor -> find element in endevor (getE4ECopyBookLocation) - not using FSProvider
+    //               return URI pointing to E4E FSProvider?? Is it cached?
     if (this.handleAsEndevorElement(documentURI)) {
       const copybookUri = await this.e4eDownloader?.getE4ECopyBookLocation(
         copybookName,
@@ -276,8 +275,15 @@ export class CopybookDownloadService {
     if (localResult) {
       return localResult.toString();
     }
-    // search paths-dsn -> return zowe-ds URI
-    // search paths-uss -> return zowe-uss URI
+    // search paths-dsn & paths-uss -> return zowe URI
+    const remoteResult = await this.searchRemoteCopybooks(
+      documentURI,
+      copybookName,
+      dialectType,
+    );
+    if (remoteResult) {
+      return remoteResult.toString();
+    }
     // not found -> return null
     return null;
   }
@@ -401,6 +407,47 @@ export class CopybookDownloadService {
     });
 
     return copybooks;
+  }
+
+  async searchRemoteCopybooks(
+    documentURI: string,
+    copybookName: string,
+    dialectType: string,
+  ): Promise<vscode.Uri | undefined> {
+    if (
+      !(await this.isPrerequisiteForDownloadSatisfied(documentURI, [
+        dialectType,
+      ]))
+    ) {
+      return;
+    }
+
+    const profile = ProfileUtils.getProfileNameForCopybook(
+      documentURI,
+      this.explorerApi,
+    );
+    if (!profile) {
+      return;
+    }
+
+    const dsnPaths: string[] = SettingsService.getDsnPath(
+      documentURI,
+      dialectType,
+    );
+    // const ussPaths: string[] = SettingsService.getUssPath(documentURI, dialectType);
+
+    const results = await Promise.allSettled(
+      dsnPaths.map(async (dsn) => {
+        if (await this.dsnDownloader?.hasMember(profile, dsn, copybookName)) {
+          return vscode.Uri.parse(`zowe-ds:/${profile}/${dsn}/${copybookName}`);
+        }
+      }),
+    );
+
+    const foundUri = results
+      .filter((r) => r.status === "fulfilled")
+      .find((f) => typeof f.value !== "undefined")?.value;
+    return foundUri;
   }
 
   private async processCopybookDownload(
