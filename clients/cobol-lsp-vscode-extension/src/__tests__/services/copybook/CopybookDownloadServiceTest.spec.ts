@@ -38,9 +38,9 @@ import {
   e4eMockInvalidProfile,
 } from "../../../__mocks__/getE4EMock.utility";
 import * as ProcessorGroups from "../../../services/ProcessorGroups";
-import { Uri } from "../../../__mocks__/UriMock";
 import { SettingsService } from "../../../services/Settings";
 import { DownloadDiagnosticsService } from "../../../services/DiagnosticsService";
+import { URI as Uri } from "vscode-uri";
 
 jest.mock("../../../services/reporter");
 Utils.getZoweExplorerAPI = jest
@@ -110,7 +110,7 @@ describe("Tests copybook download service", () => {
       });
 
       it("checks download fails when provided profile is not a valid profile", async () => {
-        await downloadService.downloadCopybooks("document-uri", [
+        await downloadService.downloadCopybooks("file://document-uri", [
           { name: "copybook-name", dialect: DEFAULT_DIALECT },
         ]);
         expect(downloadService["processDownloadError"]).toHaveBeenCalledWith(
@@ -126,7 +126,7 @@ describe("Tests copybook download service", () => {
       });
 
       it("checks download fails when provided profile is not provided", async () => {
-        await downloadService.downloadCopybooks("document-uri", [
+        await downloadService.downloadCopybooks("file://document-uri", [
           { name: "copybook-name", dialect: DEFAULT_DIALECT },
         ]);
         expect(downloadService["processDownloadError"]).toHaveBeenCalledWith(
@@ -143,7 +143,7 @@ describe("Tests copybook download service", () => {
       });
 
       it("should not show the missing zowe profile message", async () => {
-        await downloadService.downloadCopybooks("document-uri", [
+        await downloadService.downloadCopybooks("file://document-uri", [
           { name: "copybook-name", dialect: DEFAULT_DIALECT },
         ]);
         expect(downloadService["processDownloadError"]).not.toHaveBeenCalled();
@@ -167,7 +167,7 @@ describe("Tests copybook download service", () => {
           });
 
           it("checks profile with invalid credentials do not trigger download", async () => {
-            await downloadService.downloadCopybooks("document-uri", [
+            await downloadService.downloadCopybooks("file://document-uri", [
               { name: "copybook-name", dialect: DEFAULT_DIALECT },
             ]);
 
@@ -190,7 +190,7 @@ describe("Tests copybook download service", () => {
           });
 
           it("checks profile with invalid credentials do not trigger download", async () => {
-            await downloadService.downloadCopybooks("document-uri", [
+            await downloadService.downloadCopybooks("file://document-uri", [
               { name: "copybook-name", dialect: DEFAULT_DIALECT },
             ]);
 
@@ -220,7 +220,7 @@ describe("Tests copybook download service", () => {
         });
 
         it("credentials are considered valid, copybooks can be downloaded", async () => {
-          await downloadService.downloadCopybooks("document-uri", [
+          await downloadService.downloadCopybooks("file://document-uri", [
             { name: "copybook-name", dialect: DEFAULT_DIALECT },
           ]);
 
@@ -245,7 +245,7 @@ describe("Tests copybook download service", () => {
         });
 
         it("credentials are considered valid, copybooks can be downloaded", async () => {
-          await downloadService.downloadCopybooks("document-uri", [
+          await downloadService.downloadCopybooks("file://document-uri", [
             { name: "copybook-name", dialect: DEFAULT_DIALECT },
           ]);
 
@@ -266,7 +266,7 @@ describe("Tests copybook download service", () => {
       });
 
       it("checks profile with invalid credentials do not trigger download", async () => {
-        await downloadService.downloadCopybooks("document-uri", [
+        await downloadService.downloadCopybooks("file://document-uri", [
           { name: "copybook-name", dialect: DEFAULT_DIALECT },
         ]);
 
@@ -286,7 +286,7 @@ describe("Tests copybook download service", () => {
       workspaceConfigurationMock[PATHS_DSN] = undefined;
       workspaceConfigurationMock[PATHS_USS] = undefined;
       expect(
-        await downloadService.downloadCopybooks("document-uri", [
+        await downloadService.downloadCopybooks("file://document-uri", [
           { name: "copybook-name", dialect: DEFAULT_DIALECT },
         ]),
       ).toBe(undefined);
@@ -304,7 +304,7 @@ describe("Tests copybook download service", () => {
       DownloadUtil.isProfileLocked = jest.fn().mockReturnValue(true);
       downloadService["processDownloadError"] = jest.fn();
       expect(
-        await downloadService.downloadCopybooks("document-uri", [
+        await downloadService.downloadCopybooks("file://document-uri", [
           { name: "copybook-name", dialect: DEFAULT_DIALECT },
         ]),
       ).toBe(undefined);
@@ -325,7 +325,7 @@ describe("Tests copybook download service", () => {
       );
 
       expect(
-        await downloadService.downloadCopybooks("document-uri", [
+        await downloadService.downloadCopybooks("file://document-uri", [
           { name: "copybook-name", dialect: DEFAULT_DIALECT },
         ]),
       ).toBe(undefined);
@@ -363,12 +363,12 @@ describe("Tests copybook download service", () => {
         return await processDownload({ report: () => {} });
       },
     );
-    await downloadService.downloadCopybooks("document-uri", [
+    await downloadService.downloadCopybooks("file://document-uri", [
       { name: "copybook-name", dialect: DEFAULT_DIALECT },
     ]);
     expect(downloadService.downloadCopybook).toHaveBeenCalledWith(
       { name: "copybook-name", dialect: DEFAULT_DIALECT },
-      "document-uri",
+      "file://document-uri",
     );
   });
 
@@ -412,7 +412,7 @@ describe("Tests copybook download service", () => {
         downloader["ussDownloader"]!.downloadCopybook = jest.fn();
         await downloader.downloadCopybook(
           { name: "copybook", dialect: "COBOL" },
-          "document-uri",
+          "file://document-uri",
         );
         expect(
           downloader["dsnDownloader"]!.downloadCopybook,
@@ -452,7 +452,7 @@ describe("Tests copybook download service", () => {
         downloader["ussDownloader"]!.downloadCopybook = jest.fn();
         await downloader.downloadCopybook(
           { name: "copybook", dialect: "COBOL" },
-          "document-uri",
+          "file://document-uri",
         );
         expect(
           downloader["dsnDownloader"]!.downloadCopybook,
@@ -493,11 +493,11 @@ describe("Tests copybook download service", () => {
 
       await downloader.downloadCopybook(
         { name: "copybook", dialect: "COBOL" },
-        "document-uri",
+        "file://document-uri",
       );
       expect(
         downloader["e4eDownloader"]!.downloadCopybookE4E,
-      ).toHaveBeenCalledWith("document-uri", {
+      ).toHaveBeenCalledWith("file://document-uri", {
         name: "copybook",
         dialect: "COBOL",
       });
@@ -532,7 +532,7 @@ describe("Tests copybook download service", () => {
       downloader["ussDownloader"]!.downloadCopybook = jest.fn();
       await downloader.downloadCopybook(
         { name: "copybook", dialect: "COBOL" },
-        "document-uri",
+        "file://document-uri",
       );
       expect(
         downloader["dsnDownloader"]!.downloadCopybook,
@@ -559,7 +559,7 @@ describe("Tests copybook download service", () => {
     );
     const result = await resolver.downloadCopybook(
       { name: "copybook", dialect: "COBOL" },
-      "doc-uri",
+      "file://doc-uri",
     );
     expect(result).toBeFalsy();
   });
@@ -902,7 +902,7 @@ describe("Tests copybook download service", () => {
 
     await downloader.downloadCopybook(
       { name: "copybook", dialect: "COBOL" },
-      "document-uri",
+      "file://document-uri",
     );
     expect(downloader["dsnDownloader"]!.downloadCopybook).toHaveBeenCalledWith(
       { name: "copybook", dialect: "COBOL" },
@@ -936,7 +936,7 @@ describe("Tests copybook download service", () => {
 
     await downloader.downloadCopybook(
       { name: "copybook", dialect: "COBOL" },
-      "document-uri",
+      "file://document-uri",
     );
     expect(downloader["dsnDownloader"]!.downloadCopybook).toHaveBeenCalledWith(
       { name: "copybook", dialect: "COBOL" },
@@ -972,7 +972,7 @@ describe("Tests copybook download service", () => {
 
     await downloader.downloadCopybook(
       { name: "copybook", dialect: "COBOL" },
-      "document-uri",
+      "file://document-uri",
     );
     expect(downloader["ussDownloader"]!.downloadCopybook).toHaveBeenCalledWith(
       { name: "copybook", dialect: "COBOL" },
@@ -1010,7 +1010,7 @@ describe("Tests copybook download service", () => {
 
     await downloader.downloadCopybook(
       { name: "copybook", dialect: "COBOL" },
-      "document-uri",
+      "file://document-uri",
     );
     expect(spyDownloadElement).toHaveBeenCalledTimes(0);
   });
@@ -1040,7 +1040,7 @@ describe("Tests copybook download service", () => {
       service["e4eDownloader"]!,
       "downloadElementE4E",
     );
-    await service.downloadCopybooks("document-uri", [
+    await service.downloadCopybooks("file://document-uri", [
       { name: "copybook", dialect: DEFAULT_DIALECT },
     ]);
     expect(downloadSpy).toHaveBeenCalledWith(
@@ -1083,11 +1083,11 @@ describe("Tests copybook download service", () => {
         type: "type",
       },
     ]);
-    await service.downloadCopybooks("document-uri", [
+    await service.downloadCopybooks("file:///document-uri", [
       { name: "copybook", dialect: DEFAULT_DIALECT },
     ]);
     expect(diagnosticsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ path: "document-uri" }),
+      expect.objectContaining({ scheme: "file", path: "/document-uri" }),
       [
         {
           message: "Explorer for Endevor is not installed",
@@ -1123,11 +1123,11 @@ describe("Tests copybook download service", () => {
         uss: "uss",
       },
     ]);
-    await service.downloadCopybooks("document-uri", [
+    await service.downloadCopybooks("file:///document-uri", [
       { name: "copybook", dialect: DEFAULT_DIALECT },
     ]);
     expect(diagnosticsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ path: "document-uri" }),
+      expect.objectContaining({ path: "/document-uri" }),
       [
         {
           message: "Zowe Explorer is not installed",
@@ -1167,7 +1167,7 @@ describe("Tests copybook download service", () => {
         uss: "uss",
       },
     ]);
-    await service.downloadCopybooks("document-uri", [
+    await service.downloadCopybooks("file:///document-uri", [
       { name: "copybook", dialect: DEFAULT_DIALECT },
     ]);
 
@@ -1175,7 +1175,7 @@ describe("Tests copybook download service", () => {
     service.e4eAppeared(e4eMock);
 
     expect(showDiagnosticsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ path: "document-uri" }),
+      expect.objectContaining({ path: "/document-uri" }),
       [
         {
           message: "Zowe Explorer is not installed",
@@ -1252,7 +1252,10 @@ describe("Tests copybook download service", () => {
         );
 
         expect(findFilesSpy).toHaveBeenCalledWith({
-          base: { path: "/workspace/copybooks", scheme: "file" },
+          base: expect.objectContaining({
+            path: "/workspace/copybooks",
+            scheme: "file",
+          }),
           pattern: "{COPYBOOK.CPY}",
         });
       });

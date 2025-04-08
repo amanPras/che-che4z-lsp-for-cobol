@@ -628,8 +628,8 @@
     "package:web": "vsce package --target web --no-dependencies"
   },
   "dependencies": {
-    "@code4z/cobol-dialect-api": "file:../cobol-dialect-api",
     "@code4z/analysis": "file:../analysis",
+    "@code4z/cobol-dialect-api": "file:../cobol-dialect-api",
     "@vscode/extension-telemetry": "^0.9.8",
     "glob": "11.0.0",
     "iconv-lite": "^0.6.3",
@@ -664,7 +664,8 @@
     "prettier": "3.3.3",
     "ts-jest": "^29.2.5",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.15.0"
+    "typescript-eslint": "^8.15.0",
+    "vscode-uri": "^3.1.0"
   },
   "overrides": {
     "isexe": "^3.1.1"

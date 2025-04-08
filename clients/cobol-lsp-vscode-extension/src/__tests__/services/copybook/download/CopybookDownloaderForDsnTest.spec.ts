@@ -41,7 +41,7 @@ describe("Tests Copybook download from DNS", () => {
     it("checks not eligible copybook are not downloaded", async () => {
       const isDowloaded = await downloader.downloadCopybook(
         { name: "copybook-name", dialect: "COBOL" },
-        "document-uri",
+        "file://document-uri",
         "DNS.PATH",
       );
       expect(isDowloaded).toBeFalsy();
@@ -50,7 +50,7 @@ describe("Tests Copybook download from DNS", () => {
     it("checks eligible copybook which are not present in the DSN provided do not invoke ZE Api's", async () => {
       const isDowloaded = await downloader.downloadCopybook(
         { name: "copybook-name", dialect: "COBOL" },
-        "document-uri",
+        "file://document-uri",
         "DNS.PATH",
       );
       expect(isDowloaded).toBeFalsy();

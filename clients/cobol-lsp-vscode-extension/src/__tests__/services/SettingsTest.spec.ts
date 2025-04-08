@@ -144,7 +144,7 @@ describe("SettingsService evaluate variables", () => {
     vscode.workspace.getConfiguration = jest.fn().mockReturnValue({
       get: tracking,
     });
-    await SettingsService.getCopybookLocalPath("PROGRAM", "COBOL");
+    await SettingsService.getCopybookLocalPath("file:///PROGRAM", "COBOL");
     expect(tracking).toHaveBeenCalledWith("paths-local");
   });
 
@@ -153,7 +153,7 @@ describe("SettingsService evaluate variables", () => {
     vscode.workspace.getConfiguration = jest.fn().mockReturnValue({
       get: tracking,
     });
-    await SettingsService.getCopybookLocalPath("PROGRAM", "MAID");
+    await SettingsService.getCopybookLocalPath("file:///PROGRAM", "MAID");
     expect(tracking).toHaveBeenCalledWith("maid.paths-local");
   });
 
@@ -237,7 +237,9 @@ describe("SettingsService returns correct Copybook Configuration Values", () => 
       "dialect.paths-uss",
       undefined,
     );
-    expect(SettingsService.getUssPath("doc-uri", "dialect")).toHaveLength(0);
+    expect(
+      SettingsService.getUssPath("file:///doc-uri", "dialect"),
+    ).toHaveLength(0);
   });
 
   test("returns configured array when dialect configuration is provided", () => {
@@ -245,7 +247,10 @@ describe("SettingsService returns correct Copybook Configuration Values", () => 
       "dialect.paths-uss",
       ["configured-dialect-settings"],
     );
-    const configuredValue = SettingsService.getUssPath("doc-uri", "dialect");
+    const configuredValue = SettingsService.getUssPath(
+      "file:///doc-uri",
+      "dialect",
+    );
     expect(configuredValue).toHaveLength(1);
     expect(configuredValue[0]).toBe("configured-dialect-settings");
   });
@@ -255,7 +260,7 @@ describe("SettingsService returns correct Copybook Configuration Values", () => 
       "configured-cobol-settings",
     ]);
     const configuredValue = SettingsService.getUssPath(
-      "doc-uri",
+      "file:///doc-uri",
       SettingsService.DEFAULT_DIALECT,
     );
     expect(configuredValue).toHaveLength(1);

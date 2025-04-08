@@ -45,7 +45,7 @@ describe("Test the copybook message handler", () => {
 
     expect(
       await downloaderNoApi.resolveCopybookHandler(
-        "cobolFileName",
+        "file:///cobolFileName",
         "copybookName",
         "dialectType",
       ),
@@ -73,7 +73,7 @@ describe("Test the copybook message handler", () => {
       .mockReturnValue(["/configured/path"]);
     expect(
       await downloaderNoApi.resolveCopybookHandler(
-        "cobolFileName",
+        "file:///cobolFileName",
         "copybookName",
         "dialectType",
       ),
@@ -105,7 +105,7 @@ describe("Test the copybook message handler", () => {
 
     expect(
       await downloaderNoApi.resolveCopybookHandler(
-        "cobolFileName",
+        "file:///cobolFileName",
         "copybookName",
         "dialectType",
       ),
@@ -197,7 +197,7 @@ describe("Test the copybook message handler", () => {
     });
     const downloader = new CopybookDownloadService("/storagePath", undefined, {
       isEndevorElement(uri: string) {
-        return uri === filename;
+        return uri === "file:///" + filename;
       },
       onDidChangeElement: unreachable,
       listMembers,
@@ -205,18 +205,18 @@ describe("Test the copybook message handler", () => {
       getMember: unreachable,
       getElement: unreachable,
       async getProfileInfo(uri) {
-        return uri === filename
+        return uri === "file:///" + filename
           ? Promise.resolve(profile)
           : Promise.reject(Error("fail"));
       },
       async getConfiguration(uri, options) {
-        return uri === filename && options.type === "COBOL"
+        return uri === "file:///" + filename && options.type === "COBOL"
           ? Promise.resolve(datasetFirst)
           : Promise.reject(Error("fail"));
       },
     });
     const target = await downloader.resolveCopybookHandler(
-      "cobolFileName",
+      "file:///cobolFileName",
       "copybook",
       "dialectType",
     );
@@ -252,7 +252,7 @@ describe("Test the copybook message handler", () => {
     });
     const downloader = new CopybookDownloadService("/storagePath", undefined, {
       isEndevorElement(uri: string) {
-        return uri === filename;
+        return uri === "file:///" + filename;
       },
       onDidChangeElement: unreachable,
       listMembers,
@@ -260,18 +260,18 @@ describe("Test the copybook message handler", () => {
       getMember: unreachable,
       getElement: unreachable,
       async getProfileInfo(uri) {
-        return uri === filename
+        return uri === "file:///" + filename
           ? Promise.resolve(profile)
           : Promise.reject(Error("fail"));
       },
       async getConfiguration(uri, options) {
-        return uri === filename && options.type === "COBOL"
+        return uri === "file:///" + filename && options.type === "COBOL"
           ? Promise.resolve(endevorFirst)
           : Promise.reject(Error("fail"));
       },
     });
     const target = await downloader.resolveCopybookHandler(
-      "cobolFileName",
+      "file:///cobolFileName",
       "copybook",
       "dialectType",
     );
@@ -316,7 +316,7 @@ describe("Test the copybook message handler", () => {
       getConfiguration: unreachable,
     });
     await downloader.resolveCopybookHandler(
-      "cobolFileName",
+      "file:///cobolFileName",
       "copybook",
       "dialectType",
     );
@@ -385,7 +385,7 @@ describe("Test the copybook message handler", () => {
     ]);
 
     await downloader.resolveCopybookHandler(
-      "cobolFileName",
+      "file:///cobolFileName",
       "copybookName",
       "dialectType",
     );

@@ -18,7 +18,7 @@ import type {
   Position as PositionType,
   Uri as UriType,
 } from "vscode";
-import { Uri as UriMock } from "./UriMock";
+import * as URI from "vscode-uri";
 
 import { readFile } from "fs/promises";
 
@@ -27,7 +27,7 @@ export namespace workspace {
   export const workspaceFolders = [
     {
       name: "workspace",
-      uri: UriMock.parse("/workspace"),
+      uri: URI.URI.parse("/workspace"),
       index: 0,
     },
   ];
@@ -94,6 +94,7 @@ export namespace window {
     .fn()
     .mockImplementation(() => Promise.resolve());
   export const showInformationMessage = jest.fn().mockReturnValue("Ok");
+  export const showInputBox = jest.fn();
   export const createStatusBarItem = () => {
     return { show: () => {} };
   };
@@ -141,7 +142,8 @@ export enum StatusBarAlignment {
   Right,
 }
 
-export const Uri = UriMock;
+export const Uri = URI.URI;
+Object.assign(Uri, URI.Utils);
 
 export enum ConfigurationTarget {
   Global = 1,

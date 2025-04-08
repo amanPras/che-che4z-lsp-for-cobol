@@ -52,8 +52,9 @@ export class CopybookURI {
     downloadFolder: string,
     source: CopybooksSource = ZOWE_FOLDER,
   ) {
+    const dfUri = vscode.Uri.file(downloadFolder);
     return vscode.Uri.joinPath(
-      vscode.Uri.file(downloadFolder),
+      dfUri,
       ...this.createDatasetSubdirectories(profileName, source, dataset),
     );
   }
