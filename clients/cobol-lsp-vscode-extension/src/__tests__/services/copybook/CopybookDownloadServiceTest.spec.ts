@@ -1086,16 +1086,19 @@ describe("Tests copybook download service", () => {
     await service.downloadCopybooks("document-uri", [
       { name: "copybook", dialect: DEFAULT_DIALECT },
     ]);
-    expect(diagnosticsSpy).toHaveBeenCalledWith({ path: "document-uri" }, [
-      {
-        message: "Explorer for Endevor is not installed",
-        range: {
-          end: { character: 0, line: 1 },
-          start: { character: 0, line: 0 },
+    expect(diagnosticsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ path: "document-uri" }),
+      [
+        {
+          message: "Explorer for Endevor is not installed",
+          range: {
+            end: { character: 0, line: 1 },
+            start: { character: 0, line: 0 },
+          },
+          severity: 1,
         },
-        severity: 1,
-      },
-    ]);
+      ],
+    );
   });
   it("checks missing explorer api produces diagnostics when processor groups have dsn or uss config", async () => {
     const diagnosticsService = new DownloadDiagnosticsService();
@@ -1123,16 +1126,19 @@ describe("Tests copybook download service", () => {
     await service.downloadCopybooks("document-uri", [
       { name: "copybook", dialect: DEFAULT_DIALECT },
     ]);
-    expect(diagnosticsSpy).toHaveBeenCalledWith({ path: "document-uri" }, [
-      {
-        message: "Zowe Explorer is not installed",
-        range: {
-          end: { character: 0, line: 1 },
-          start: { character: 0, line: 0 },
+    expect(diagnosticsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ path: "document-uri" }),
+      [
+        {
+          message: "Zowe Explorer is not installed",
+          range: {
+            end: { character: 0, line: 1 },
+            start: { character: 0, line: 0 },
+          },
+          severity: 1,
         },
-        severity: 1,
-      },
-    ]);
+      ],
+    );
   });
   it("checks installing e4e or zowe api removes download diagnostics", async () => {
     const diagnosticsService = new DownloadDiagnosticsService();
@@ -1168,16 +1174,19 @@ describe("Tests copybook download service", () => {
     service.explorerAppeared(zoweExplorerMock);
     service.e4eAppeared(e4eMock);
 
-    expect(showDiagnosticsSpy).toHaveBeenCalledWith({ path: "document-uri" }, [
-      {
-        message: "Zowe Explorer is not installed",
-        range: {
-          end: { character: 0, line: 1 },
-          start: { character: 0, line: 0 },
+    expect(showDiagnosticsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ path: "document-uri" }),
+      [
+        {
+          message: "Zowe Explorer is not installed",
+          range: {
+            end: { character: 0, line: 1 },
+            start: { character: 0, line: 0 },
+          },
+          severity: 1,
         },
-        severity: 1,
-      },
-    ]);
+      ],
+    );
 
     expect(clearDiagnosticsSpy).toHaveBeenCalledTimes(2);
   });
@@ -1223,7 +1232,7 @@ describe("Tests copybook download service", () => {
         findFilesSpy = jest
           .spyOn(vscode.workspace, "findFiles")
           .mockResolvedValue([
-            vscode.Uri.parse("file://workspace/copybooks/COPYBOOK.cpy"),
+            vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
           ]);
       });
 
@@ -1239,11 +1248,11 @@ describe("Tests copybook download service", () => {
         );
 
         expect(result?.toString()).toEqual(
-          "file://workspace/copybooks/COPYBOOK.cpy",
+          "file:///workspace/copybooks/COPYBOOK.cpy",
         );
 
         expect(findFilesSpy).toHaveBeenCalledWith({
-          base: { path: "/workspace/copybooks" },
+          base: { path: "/workspace/copybooks", scheme: "file" },
           pattern: "{COPYBOOK.CPY}",
         });
       });

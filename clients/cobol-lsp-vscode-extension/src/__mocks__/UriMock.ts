@@ -1,8 +1,18 @@
 export class Uri {
-  constructor(public path: string) {}
+  constructor(
+    public path: string,
+    public scheme: string = "file",
+  ) {}
   static parse(str: string): Uri {
-    const path = str.startsWith("file://") ? removeSchema(str) : str;
-    return new Uri(path);
+    // Parsing regex from original VSCode Uri implementation
+    // https://github.com/microsoft/vscode-uri/blob/edfdccd976efaf4bb8fdeca87e97c47257721729/src/uri.ts#L79
+    const _regexp =
+      /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+    const match = _regexp.exec(str);
+    if (match) {
+      return new Uri(match[5], match[2]);
+    }
+    return new Uri(str);
   }
 
   static file(str: string): Uri {
@@ -36,7 +46,7 @@ export class Uri {
     query?: string;
     fragment?: string;
   }): Uri {
-    return new Uri(components.path);
+    return new Uri(components.path, components.scheme);
   }
 
   get fsPath(): string {
@@ -49,10 +59,6 @@ export class Uri {
   }
 
   toString(): string {
-    return "file://" + this.path;
+    return `${this.scheme}:${this.path}`;
   }
-}
-
-function removeSchema(uri: string): string {
-  return uri.substring("file://".length);
 }
