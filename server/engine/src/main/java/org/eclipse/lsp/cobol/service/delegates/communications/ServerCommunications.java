@@ -196,8 +196,8 @@ public class ServerCommunications implements Communications {
     getClient().showMessage(new MessageParams(type, clean(message)));
   }
 
-  private void logMessage(MessageType type, String message) {
-    getClient().logMessage(new MessageParams(type, clean(message)));
+  private void logMessage(MessageType type, String errorpair) {
+    getClient().logMessage(new MessageParams(type, clean(errorpair)));
   }
 
   private CobolLanguageClient getClient() {

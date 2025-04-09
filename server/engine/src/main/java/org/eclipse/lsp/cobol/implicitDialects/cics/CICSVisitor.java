@@ -46,6 +46,7 @@ import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.model.tree.CodeBlockUsageNode;
 import org.eclipse.lsp.cobol.common.model.tree.CompilerDirectiveNode;
@@ -341,7 +342,7 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
                         throwException(
                             token.getText(),
                             locality,
-                            messageService.getMessage("CobolVisitor.AreaBWarningMsg"))));
+                            MessageTemplate.of("CobolVisitor.AreaBWarningMsg"))));
   }
 
   private Locality getTokenLocality(Token token) {
@@ -365,12 +366,15 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
     };
   }
 
-  private void throwException(String wrongToken, @NonNull Locality locality, String message) {
+  private void throwException(
+      String wrongToken, @NonNull Locality locality, MessageTemplate messageTemplate) {
+    String msg = messageService.localizeTemplate(messageTemplate) + wrongToken;
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
             .location(locality.toOriginalLocation())
-            .suggestion(message + wrongToken)
+            .errorCode(messageTemplate::getTemplate)
+            .suggestion(msg)
             .severity(ErrorSeverity.WARNING)
             .build();
 

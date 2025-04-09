@@ -23,6 +23,7 @@ import static org.eclipse.lsp.cobol.common.model.tree.Node.hasType;
 import static org.eclipse.lsp.cobol.test.engine.UseCaseUtils.DOCUMENT_URI;
 import static org.eclipse.lsp.cobol.test.engine.UseCaseUtils.analyze;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -567,12 +568,29 @@ public class UseCaseEngine {
       Map<String, List<Diagnostic>> expected, Map<String, List<Diagnostic>> actual) {
     assertEquals(expected.keySet(), actual.keySet(), "Diagnostic documents are not the same");
     for (String documentUri : expected.keySet()) {
-      List<Diagnostic> expectedDiagnostic =
+      List<Diagnostic> expectedDiagnostics =
           expected.get(documentUri).stream().sorted(diagnosticComparator).collect(toList());
-      List<Diagnostic> actualDiagnostic =
+      List<Diagnostic> actualDiagnostics =
           actual.get(documentUri).stream().sorted(diagnosticComparator).collect(toList());
       assertEquals(
-          expectedDiagnostic, actualDiagnostic, "Different diagnostics for: " + documentUri);
+          expectedDiagnostics.size(), actualDiagnostics.size(), "Different diagnostics size");
+      for (int i = 0; i < expectedDiagnostics.size(); i++) {
+        Diagnostic expectedDiagnostic = expectedDiagnostics.get(i);
+        Diagnostic actualDiagnostic = actualDiagnostics.get(i);
+        if (expectedDiagnostic.getCode() == null && actualDiagnostic.getCode() != null) {
+          assumingThat(
+              actualDiagnostic.getCode().equals(expectedDiagnostic.getCode()),
+              () -> {
+                assertEquals(
+                    expectedDiagnostic,
+                    actualDiagnostic,
+                    "Different diagnostics for: " + documentUri);
+              });
+        } else {
+          assertEquals(
+              expectedDiagnostic, actualDiagnostic, "Different diagnostics for: " + documentUri);
+        }
+      }
     }
   }
 

@@ -41,6 +41,7 @@ import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.tree.Node;
 import org.eclipse.lsp.cobol.common.processor.ProcessorDescription;
 import org.eclipse.lsp.cobol.core.engine.analysis.AnalysisContext;
+import org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService;
 import org.eclipse.lsp.cobol.implicitDialects.cics.CICSDialect;
 import org.eclipse.lsp.cobol.implicitDialects.sql.Db2SqlDialect;
 import org.eclipse.lsp4j.Location;
@@ -88,15 +89,19 @@ public class DialectService {
     }
     for (CobolDialect orderedDialect : orderedDialects) {
       List<SyntaxError> dialectErrors = orderedDialect.extend(context);
-      dialectErrors.forEach(
-          e ->
-              e.getLocation()
-                  .getLocation()
-                  .setRange(
-                      context
-                          .getExtendedDocument()
-                          .mapLocation(e.getLocation().getLocation().getRange())
-                          .getRange()));
+      dialectErrors.stream()
+          .filter(
+              err ->
+                  ErrorFinalizerService.filterDiagnotics(err, orderedDialect.getFatalErrorCodes()))
+          .forEach(
+              e ->
+                  e.getLocation()
+                      .getLocation()
+                      .setRange(
+                          context
+                              .getExtendedDocument()
+                              .mapLocation(e.getLocation().getLocation().getRange())
+                              .getRange()));
 
       errors.addAll(dialectErrors);
       context.getExtendedDocument().commitTransformations();
