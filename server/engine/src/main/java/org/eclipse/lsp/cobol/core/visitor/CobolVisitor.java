@@ -43,6 +43,7 @@ import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedDocument;
 import org.eclipse.lsp.cobol.common.message.MessageService;
+import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.*;
 import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.model.tree.statements.*;
@@ -554,7 +555,8 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
                     throwException(
                         declarativeBody.getText(),
                         locality,
-                        messageService.getMessage("CobolVisitor.declarativeSameMsg")));
+                        MessageTemplate.of(
+                            "CobolVisitor.declarativeSameMsg", declarativeBody.getText())));
       }
     }
 
@@ -867,8 +869,8 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
                 SyntaxError error =
                     SyntaxError.syntaxError()
                         .errorSource(ErrorSource.PARSING)
-                        .suggestion(
-                            messageService.getMessage("CobolVisitor.duplicateFileName", filename))
+                        .messageTemplate(
+                            MessageTemplate.of("CobolVisitor.duplicateFileName", filename))
                         .severity(ErrorSeverity.ERROR)
                         .location(locality.toOriginalLocation())
                         .build();
@@ -1824,12 +1826,15 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     return new ProcedureName(targetName, sectionName);
   }
 
-  private void throwException(String wrongToken, @NonNull Locality locality, String message) {
+  private void throwException(
+      String wrongToken, @NonNull Locality locality, MessageTemplate messageTemplate) {
+    String msg = messageService.localizeTemplate(messageTemplate) + wrongToken;
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
             .location(locality.toOriginalLocation())
-            .suggestion(message + wrongToken)
+            .errorCode(messageTemplate::getTemplate)
+            .suggestion(msg)
             .severity(ErrorSeverity.WARNING)
             .build();
 
@@ -1851,7 +1856,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
-            .suggestion(messageService.getMessage("CobolVisitor.subroutineNotFound", name))
+            .messageTemplate(MessageTemplate.of("CobolVisitor.subroutineNotFound", name))
             .severity(ErrorSeverity.INFO)
             .location(getIntervalPosition(locality, locality).toOriginalLocation())
             .build();
@@ -1875,7 +1880,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
-            .suggestion(messageService.getMessage("CobolVisitor.misspelledWord", suggestion))
+            .messageTemplate(MessageTemplate.of("CobolVisitor.misspelledWord", suggestion))
             .severity(ErrorSeverity.WARNING)
             .location(locality.toOriginalLocation())
             .build();
@@ -1900,7 +1905,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     throwException(
         token.getText(),
         locationToLocality(tokenLoc),
-        messageService.getMessage("CobolVisitor.AreaAWarningMsg"));
+        MessageTemplate.of("CobolVisitor.AreaAWarningMsg"));
   }
 
   private static boolean startsWithIcase(String s, String b) {
@@ -1921,9 +1926,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
       Location l = getLocation(t);
       if (!startsInAreaA(l.getRange())) continue;
       throwException(
-          t.getText(),
-          locationToLocality(l),
-          messageService.getMessage("CobolVisitor.AreaBWarningMsg"));
+          t.getText(), locationToLocality(l), MessageTemplate.of("CobolVisitor.AreaBWarningMsg"));
     }
   }
 

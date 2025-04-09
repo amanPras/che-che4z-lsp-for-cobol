@@ -73,6 +73,7 @@ public class CliUtils {
    * @return Json object
    */
   public static JsonObject diagnosticToJson(SyntaxError syntaxError) {
+
     JsonObject diagnostic = new JsonObject();
     Optional.ofNullable(syntaxError.getErrorCode())
         .ifPresent(code -> diagnostic.add("code", new JsonPrimitive(code.getLabel())));
