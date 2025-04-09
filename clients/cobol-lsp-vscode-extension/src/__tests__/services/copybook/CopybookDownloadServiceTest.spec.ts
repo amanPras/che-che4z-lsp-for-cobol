@@ -1194,6 +1194,7 @@ describe("Tests copybook download service", () => {
   describe("resolveCopybookURI", () => {
     let zoweExplorerApiMock: IApiRegisterClient;
     let allMembersMock: jest.SpyInstance<IZosFilesResponseMemberList>;
+    let fileListMock: jest.SpyInstance<IZosFilesResponseFileList>;
     beforeEach(() => {
       allMembersMock = jest.fn().mockImplementation((dsn) => {
         return {
@@ -1203,12 +1204,23 @@ describe("Tests copybook download service", () => {
           },
         };
       });
+      fileListMock = jest.fn().mockImplementation((uss) => {
+        return {
+          apiResponse: {
+            items:
+              uss === "/remote/uss/copybooks"
+                ? [{ name: "COPYBOOK.CPY", mode: "-" }]
+                : [],
+          },
+        };
+      });
+
       zoweExplorerApiMock = {
         getMvsApi: () => ({
           allMembers: allMembersMock,
         }),
         getUssApi: () => ({
-          fileList: [],
+          fileList: fileListMock,
         }),
         getExplorerExtenderApi: () => ({
           getProfile: () => "profile",
@@ -1283,6 +1295,32 @@ describe("Tests copybook download service", () => {
 
         expect(result).toEqual(
           "zowe-ds:/profile/DATASET.WITH.COPYBOOKS/COPYBOOK",
+        );
+      });
+    });
+
+    describe("resolve remote uss copybooks", () => {
+      beforeEach(() => {
+        workspaceConfigurationMock = {
+          "paths-uss": ["/user/copybooks", "/remote/uss/copybooks"],
+          "copybook-extensions": [".CPY"],
+        };
+        profileName = "profile";
+      });
+
+      test("zowe ds uri is constructed", async () => {
+        const cds = new CopybookDownloadService(
+          "/globalStorage",
+          zoweExplorerApiMock,
+        );
+        const result = await cds.resolveCopybookURI(
+          Uri.file("/test.cbl").toString(),
+          "COPYBOOK",
+          DEFAULT_DIALECT,
+        );
+
+        expect(result).toEqual(
+          "zowe-uss:/profile/remote/uss/copybooks/COPYBOOK",
         );
       });
     });

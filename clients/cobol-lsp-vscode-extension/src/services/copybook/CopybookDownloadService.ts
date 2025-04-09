@@ -434,15 +434,30 @@ export class CopybookDownloadService {
       documentURI,
       dialectType,
     );
-    // const ussPaths: string[] = SettingsService.getUssPath(documentURI, dialectType);
-
-    const results = await Promise.allSettled(
-      dsnPaths.map(async (dsn) => {
+    const ussPaths: string[] = SettingsService.getUssPath(
+      documentURI,
+      dialectType,
+    );
+    const extensions = await SettingsService.getCopybookExtension(documentURI);
+    const results = await Promise.allSettled([
+      ...dsnPaths.map(async (dsn) => {
         if (await this.dsnDownloader?.hasMember(profile, dsn, copybookName)) {
           return vscode.Uri.parse(`zowe-ds:/${profile}/${dsn}/${copybookName}`);
         }
       }),
-    );
+      ...ussPaths.map(async (uss) => {
+        if (
+          await this.ussDownloader?.hasMember(
+            profile,
+            uss,
+            copybookName,
+            extensions ?? [""],
+          )
+        ) {
+          return vscode.Uri.parse(`zowe-uss:/${profile}${uss}/${copybookName}`);
+        }
+      }),
+    ]);
 
     const foundUri = results
       .filter((r) => r.status === "fulfilled")
