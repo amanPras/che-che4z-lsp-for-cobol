@@ -17,15 +17,12 @@ package org.eclipse.lsp.cobol.lsp.handlers.text;
 import static java.lang.String.format;
 
 import com.google.inject.Inject;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.lsp.DisposableLSPStateService;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
 import org.eclipse.lsp.cobol.service.DocumentModelService;
 import org.eclipse.lsp.cobol.service.WatcherService;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookServiceImpl;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 
 /** LSP DidClose Handler */
@@ -35,7 +32,6 @@ public class DidCloseHandler {
   private final AsyncAnalysisService asyncAnalysisService;
   private final DocumentModelService documentModelService;
   private final WatcherService watcherService;
-  private final CopybookService copybookService;
   private final SourceUnitGraph sourceUnitGraph;
 
   @Inject
@@ -44,13 +40,11 @@ public class DidCloseHandler {
       AsyncAnalysisService asyncAnalysisService,
       DocumentModelService documentModelService,
       WatcherService watcherService,
-      CopybookService copybookService,
       SourceUnitGraph sourceUnitGraph) {
     this.disposableLSPStateService = disposableLSPStateService;
     this.asyncAnalysisService = asyncAnalysisService;
     this.documentModelService = documentModelService;
     this.watcherService = watcherService;
-    this.copybookService = copybookService;
     this.sourceUnitGraph = sourceUnitGraph;
   }
 
@@ -71,15 +65,6 @@ public class DidCloseHandler {
     }
     watcherService.removeRuntimeWatchers(uri);
     documentModelService.closeDocument(uri);
-    // sourceUnitGraph.remove(uri);
-    // TODO: check if sourceUnitGraph could be used update copybook cache
-    if (copybookService instanceof CopybookServiceImpl) {
-      CopybookServiceImpl copybookServiceImpl = (CopybookServiceImpl) copybookService;
-      copybookServiceImpl.getCopybookUsage(uri).stream()
-          .filter(copybookModel -> Objects.isNull(copybookModel.getContent()))
-          .forEach(
-              copybookModel -> copybookServiceImpl.invalidateCache(copybookModel.getCopybookId()));
-    }
     asyncAnalysisService.cancelAnalysis(uri);
   }
 }

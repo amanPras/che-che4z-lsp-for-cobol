@@ -217,6 +217,18 @@ export async function activate(
     "cobol/resolveSubroutine",
     resolveSubroutineURI,
   );
+  languageClientService.addRequestHandler("copybook/uri", (a, b, c) => {
+    if (b !== "SQLCA") {
+      return "zowe-ds:/zosmf/AP891843.PUBLIC.CPY/TEST.cpy"
+    }
+  });
+  languageClientService.addRequestHandler("file/content", async (uri: string) => {
+    {
+      const vscodeUri = vscode.Uri.parse(uri);
+      const fileData = await vscode.workspace.fs.readFile(vscodeUri);
+      return Buffer.from(fileData).toString('utf8');
+  }
+  });
   languageClientService.addRequestHandler(
     "copybook/resolve",
     copyBooksDownloader.makeResolveCopybookHandler(),

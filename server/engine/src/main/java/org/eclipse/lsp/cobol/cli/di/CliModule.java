@@ -33,8 +33,6 @@ import org.eclipse.lsp.cobol.common.benchmark.BenchmarkService;
 import org.eclipse.lsp.cobol.common.benchmark.BenchmarkServiceImpl;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.dialects.TrueDialectService;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryFolderService;
@@ -88,7 +86,6 @@ public class CliModule extends AbstractModule {
     bind(MessageService.class).to(PropertiesMessageService.class);
     bind(LocaleStore.class).to(LocaleStoreImpl.class);
     bind(ConfigurationService.class).to(CachingConfigurationService.class);
-    bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
     bind(ParseTreeListener.class).to(InterruptingTreeListener.class);
     bind(String.class)
         .annotatedWith(named("resourceFileLocation"))
@@ -102,7 +99,6 @@ public class CliModule extends AbstractModule {
     bind(WatcherService.class).to(WatcherServiceImpl.class);
     bind(BenchmarkService.class).to(BenchmarkServiceImpl.class);
     bind(LanguageEngineFacade.class).to(CobolLanguageEngineFacade.class);
-    bind(FileSystemService.class).toInstance(new WorkspaceFileService());
     bind(SubroutineService.class).to(SubroutineServiceImpl.class);
     bind(Occurrences.class).to(ElementOccurrences.class);
     bind(HoverProvider.class).to(VariableHover.class);

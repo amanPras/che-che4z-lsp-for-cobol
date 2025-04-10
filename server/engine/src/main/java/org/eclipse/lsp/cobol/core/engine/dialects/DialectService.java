@@ -375,7 +375,7 @@ public class DialectService {
     dialects.addAll(getActiveImplicitDialects(config));
     for (CobolDialect dialect : dialects) {
       List<CopybookModel> predefinedCopybook = dialect.getPredefinedCopybook(config);
-      predefinedCopybook.forEach(model -> copybookService.store(model, preprocessor));
+      predefinedCopybook.forEach(copybookService::storePredefinedCopybooks);
     }
   }
 }

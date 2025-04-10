@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp4j.Diagnostic;
@@ -60,15 +59,11 @@ public class ServerCommunications implements Communications {
   private final Set<String> uriInProgress = Collections.synchronizedSet(new HashSet<>());
   private final MessageService messageService;
   private final Provider<CobolLanguageClient> provider;
-  private final FileSystemService files;
 
   @Inject
   public ServerCommunications(
-      Provider<CobolLanguageClient> provider,
-      FileSystemService files,
-      MessageService messageService) {
+      Provider<CobolLanguageClient> provider, MessageService messageService) {
     this.provider = provider;
-    this.files = files;
     this.messageService = messageService;
   }
 
@@ -84,7 +79,10 @@ public class ServerCommunications implements Communications {
             logMessage(
                 Info,
                 messageService.getMessage(
-                    "Communications.noSyntaxError", files.getNameFromURI(files.decodeURI(uri)))));
+                    "Communications.noSyntaxError",
+                    //                                    TODO: use diff approach or a utility class
+                    //                                    files.getNameFromURI(files.decodeURI(uri))
+                    uri)));
   }
 
   /**
@@ -151,7 +149,9 @@ public class ServerCommunications implements Communications {
     workDoneProgressBegin.setTitle(
         messageService.getMessage(
             "Communications.syntaxAnalysisInProgressTitle",
-            files.getNameFromURI(files.decodeURI(uri))));
+            //            TODO: use some sort of utility class
+            //            files.getNameFromURI(files.decodeURI(uri))
+            uri));
     workDoneProgressBegin.setCancellable(true);
     params.setValue(Either.forLeft(workDoneProgressBegin));
     getClient().notifyProgress(params);

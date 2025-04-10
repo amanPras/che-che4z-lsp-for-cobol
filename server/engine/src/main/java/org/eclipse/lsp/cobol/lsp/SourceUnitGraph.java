@@ -32,7 +32,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.common.model.tree.CopyNode;
 import org.eclipse.lsp.cobol.common.utils.ImplicitCodeUtils;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
@@ -47,7 +46,6 @@ import org.eclipse.lsp4j.Position;
 @Singleton
 @Slf4j
 public class SourceUnitGraph implements AnalysisStateListener {
-  private final WorkspaceFileService fileService;
 
   // doc-a-uri --> copy-a Node. copy-b node, copy-c node
   // doc-1-uri --> copy-a Node. copy-2 node, copy-3 node
@@ -62,9 +60,7 @@ public class SourceUnitGraph implements AnalysisStateListener {
       new ConcurrentHashMap<>();
 
   @Inject
-  public SourceUnitGraph(
-      WorkspaceFileService fileService, AsyncAnalysisService asyncAnalysisService) {
-    this.fileService = fileService;
+  public SourceUnitGraph(AsyncAnalysisService asyncAnalysisService) {
     asyncAnalysisService.register(ImmutableList.of(this));
   }
 
@@ -226,10 +222,12 @@ public class SourceUnitGraph implements AnalysisStateListener {
         .orElse(getFileContent(uri));
   }
 
+  // TODO: do we need it? get it from client
   private String getFileContent(String uri) {
-    return Optional.ofNullable(fileService.getPathFromURI(uri))
-        .map(fileService::getContentByPath)
-        .orElse(null);
+    return "";
+    //    return Optional.ofNullable(fileService.getPathFromURI(uri))
+    //        .map(fileService::getContentByPath)
+    //        .orElse(null);
   }
 
   private NodeV getNode(CopyNode copyNode, EventSource eventSource) {

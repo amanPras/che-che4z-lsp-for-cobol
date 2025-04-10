@@ -56,13 +56,28 @@ import org.eclipse.lsp4j.Range;
 @AllArgsConstructor
 class Db2SqlVisitor extends Db2SqlParserBaseVisitor<List<Node>> {
 
+  private static final Pattern DOUBLE_DASH_SQL_COMMENT =
+      Pattern.compile("--\\s[^\\r\\n]*", Pattern.MULTILINE);
   private final DialectProcessingContext context;
   private final MessageService messageService;
   private final CopybookService copybookService;
-  private static final Pattern DOUBLE_DASH_SQL_COMMENT =
-      Pattern.compile("--\\s[^\\r\\n]*", Pattern.MULTILINE);
-
   @Getter private final List<SyntaxError> errors = new LinkedList<>();
+
+  private static Position findPosition(String text, int pos) {
+    int c = 1;
+    int line = 0;
+    int col = 1;
+    while (c < pos) {
+      if (text.charAt(c) == '\n') {
+        ++line;
+        col = 1;
+      } else {
+        ++col;
+      }
+      c++;
+    }
+    return new Position(line, col);
+  }
 
   @Override
   public List<Node> visitExecRule(Db2SqlParser.ExecRuleContext ctx) {
@@ -408,22 +423,6 @@ class Db2SqlVisitor extends Db2SqlParserBaseVisitor<List<Node>> {
     }
     sqlCode = matcher.replaceAll("");
     return sqlCode;
-  }
-
-  private static Position findPosition(String text, int pos) {
-    int c = 1;
-    int line = 0;
-    int col = 1;
-    while (c < pos) {
-      if (text.charAt(c) == '\n') {
-        ++line;
-        col = 1;
-      } else {
-        ++col;
-      }
-      c++;
-    }
-    return new Position(line, col);
   }
 
   private Db2SqlExecParser.StartSqlRuleContext parseSQL(

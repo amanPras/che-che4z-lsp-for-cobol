@@ -30,7 +30,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.lsp.cobol.common.copybook.SQLBackend;
 import org.eclipse.lsp.cobol.common.symbols.ProcedureId;
-import org.eclipse.lsp.cobol.common.utils.PredefinedCopybooks;
 import org.eclipse.lsp.cobol.test.CobolText;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
@@ -123,7 +122,7 @@ public class AnnotatedDocumentCleaning {
     return new PreprocessedDocument(testData.getText(), copybooks, testData);
   }
 
-  private static void mergeTestData(TestData testData, TestData test) {
+  public static void mergeTestData(TestData testData, TestData test) {
     mergeMaps(testData.getCopybookDefinitions(), test.getCopybookDefinitions());
     mergeMaps(testData.getCopybookUsages(), test.getCopybookUsages());
     mergeMaps(testData.getProcedureDefinitions(), test.getProcedureDefinitions());
@@ -142,25 +141,14 @@ public class AnnotatedDocumentCleaning {
       List<String> compilerOptions) {
     return Stream.concat(
         explicitCopybooks.stream(),
-        collectUsedPredefinedCopybooks(
+        UseCaseUtils.collectUsedPredefinedCopybooks(
             usedCopybooks.keySet(),
             explicitCopybooks.stream().map(CobolText::getFileName).collect(Collectors.toList()),
             sqlBackend,
             compilerOptions));
   }
 
-  private Stream<CobolText> collectUsedPredefinedCopybooks(
-      Set<String> copybookUsages,
-      List<String> explicitCopybooks,
-      SQLBackend sqlBackend,
-      List<String> compilerOptions) {
-    return PredefinedCopybooks.getNames().stream()
-        .filter(copybookUsages::contains)
-        .filter(it -> !explicitCopybooks.contains(it))
-        .map(PredefinedCopybookUtils.toCobolText(sqlBackend, compilerOptions));
-  }
-
-  private TestData processDocument(
+  public TestData processDocument(
       String text,
       String documentName,
       String uri,

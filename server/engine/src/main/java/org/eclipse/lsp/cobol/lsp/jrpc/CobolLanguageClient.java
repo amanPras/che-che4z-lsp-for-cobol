@@ -52,6 +52,33 @@ public interface CobolLanguageClient extends LanguageClient {
   }
 
   /**
+   * The cobol/resolveSubroutine request is sent from the server to the client to resolve subroutine
+   * name into local file URI.
+   *
+   * @param cobolFileUri
+   * @param copybookName
+   * @param dialectType
+   * @return corresponding local file URI or null
+   */
+  @JsonRequest("copybook/uri")
+  default CompletableFuture<String> resolveCopybookUri(
+      String cobolFileUri, String copybookName, String dialectType) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * The cobol/resolveSubroutine request is sent from the server to the client to resolve subroutine
+   * name into local file URI.
+   *
+   * @param uri
+   * @return corresponding local file URI or null
+   */
+  @JsonRequest("file/content")
+  default CompletableFuture<String> getFileContent(String uri) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * TODO The copybook/download request is sent from the server to the client to download remote
    * copybook
    *

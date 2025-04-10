@@ -32,8 +32,6 @@ import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.action.CodeActionProvider;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryService;
@@ -84,8 +82,6 @@ public class TestModule extends AbstractModule {
     bind(Communications.class).to(ServerCommunications.class);
     bind(TextDocumentService.class).to(CobolTextDocumentService.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);
-    bind(FileSystemService.class).to(WorkspaceFileService.class);
-    bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
     bind(String.class)
         .annotatedWith(named(PATH_TO_TEST_RESOURCES))
         .toProvider(() -> ofNullable(getProperty(PATH_TO_TEST_RESOURCES)).orElse(""));

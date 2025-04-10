@@ -53,7 +53,6 @@ class AsyncAnalysisServiceTest {
             mock(TrueDialectService.class),
             documentModelService,
             analysisService,
-            copybookService,
             subroutineService,
             communication);
   }
@@ -65,8 +64,6 @@ class AsyncAnalysisServiceTest {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-
-    verify(copybookService, times(1)).invalidateCache(true);
     verify(subroutineService, times(1)).invalidateCache();
   }
 

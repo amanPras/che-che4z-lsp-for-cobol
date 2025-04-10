@@ -17,6 +17,12 @@ package org.eclipse.lsp.cobol.test.engine;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.copybook.CopybookModel;
 import org.eclipse.lsp.cobol.common.copybook.CopybookName;
 import org.eclipse.lsp.cobol.common.copybook.SQLBackend;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.common.utils.ImplicitCodeUtils;
 import org.eclipse.lsp.cobol.common.utils.PredefinedCopybooks;
 import org.eclipse.lsp.cobol.test.CobolText;
@@ -33,10 +38,7 @@ import org.eclipse.lsp.cobol.test.CobolText;
 /** This util class allows retrieving and processing the predefined copybooks for syntax analysis */
 @Slf4j
 @UtilityClass
-class PredefinedCopybookUtils {
-
-  private final WorkspaceFileService files = new WorkspaceFileService();
-
+public class PredefinedCopybookUtils {
   /**
    * Retrieve the predefined copybook content using the given name and the sqlBackend and convert it
    * to the CobolText
@@ -44,12 +46,12 @@ class PredefinedCopybookUtils {
    * @param sqlBackend backend to retrieve the correct coopybook URI
    * @return mapper from copybook name to {@link CobolText}
    */
-  Function<String, CobolText> toCobolText(SQLBackend sqlBackend, List<String> compilerOptions) {
+  public Function<String, CobolText> toCobolText(
+      SQLBackend sqlBackend, List<String> compilerOptions) {
     return name ->
         new CobolText(
             name,
-            convertToStdSql(
-                files.readImplicitCode(retrieveRealName(name, sqlBackend)), compilerOptions));
+            convertToStdSql(readImplicitCode(retrieveRealName(name, sqlBackend)), compilerOptions));
   }
 
   /**
@@ -90,7 +92,7 @@ class PredefinedCopybookUtils {
       List<String> compilerOptions) {
     final String name = retrieveRealName(copybookName.getDisplayName(), sqlBackend);
 
-    String content = files.readImplicitCode(name);
+    String content = readImplicitCode(name);
 
     final PreprocessedDocument cleanCopybook =
         AnnotatedDocumentCleaning.prepareDocument(
@@ -114,5 +116,27 @@ class PredefinedCopybookUtils {
       return content.replace("SQLCODE", "SQLCADE").replace("SQLSTATE", "SQLSTAT");
     }
     return content;
+  }
+
+  public String readImplicitCode(String name) {
+    String uri = ImplicitCodeUtils.createPath(name);
+    String content = null;
+    try (InputStream inputStream = ImplicitCodeUtils.class.getResourceAsStream(uri)) {
+      content = readFromInputStream(inputStream, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      LOG.error("Implicit code was not loaded. ", e);
+    }
+    return content;
+  }
+
+  private String readFromInputStream(InputStream inputStream, Charset charset) throws IOException {
+    StringBuilder resultStringBuilder = new StringBuilder();
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, charset))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        resultStringBuilder.append(line).append("\n");
+      }
+    }
+    return resultStringBuilder.toString();
   }
 }

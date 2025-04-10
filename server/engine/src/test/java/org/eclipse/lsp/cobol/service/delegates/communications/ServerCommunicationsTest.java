@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
 import java.lang.reflect.Field;
 import java.util.*;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp4j.*;
@@ -46,8 +45,6 @@ class ServerCommunicationsTest {
   @Mock private Provider<CobolLanguageClient> provider;
 
   @Mock private CobolLanguageClient client;
-
-  @Mock private FileSystemService files;
 
   @Mock private HashSet<String> uriInProgress;
 
@@ -80,8 +77,6 @@ class ServerCommunicationsTest {
   @Test
   void testNotifyThatDocumentAnalysed() {
     String data = UUID.randomUUID().toString();
-    when(files.decodeURI(data)).thenReturn(data);
-    when(files.getNameFromURI(data)).thenReturn(data);
     when(messageService.getMessage(anyString(), anyString()))
         .thenReturn("No syntax errors detected in %s");
     communications.notifyThatDocumentAnalysed(data);
@@ -114,8 +109,6 @@ class ServerCommunicationsTest {
   @Test
   void testNotifyProgressBegin() throws NoSuchFieldException {
     String uri = UUID.randomUUID().toString();
-    when(files.getNameFromURI(uri)).thenReturn(uri);
-    when(files.decodeURI(uri)).thenReturn(uri);
     when(messageService.getMessage("Communications.syntaxAnalysisInProgressTitle", uri))
         .thenReturn("TITLE");
     setUpProgressDataStructure(uri);
@@ -192,8 +185,6 @@ class ServerCommunicationsTest {
   private void assertDocumentAnalysedNotification(String uri, String fileName) {
     client = mock(CobolLanguageClient.class);
     when(provider.get()).thenReturn(client);
-    when(files.decodeURI(uri)).thenReturn(uri);
-    when(files.getNameFromURI(uri)).thenReturn(fileName);
     when(messageService.getMessage(anyString(), anyString()))
         .thenReturn("No syntax errors detected in %s");
     communications.notifyThatDocumentAnalysed(uri);

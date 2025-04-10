@@ -27,8 +27,6 @@ import org.eclipse.lsp.cobol.common.LanguageEngineFacade;
 import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.action.CodeActionProvider;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryFolderService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryService;
 import org.eclipse.lsp.cobol.lsp.*;
@@ -78,7 +76,6 @@ public class ServiceModule extends AbstractModule {
     bind(CobolLanguageClient.class).toProvider(ClientProvider.class);
     bind(SettingsService.class).to(SettingsServiceImpl.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);
-    bind(FileSystemService.class).toInstance(new WorkspaceFileService());
     bind(SubroutineService.class).to(SubroutineServiceImpl.class);
     bind(Occurrences.class).to(ElementOccurrences.class);
     bind(CFASTBuilder.class).to(CFASTBuilderImpl.class);

@@ -37,7 +37,6 @@ import org.eclipse.lsp.cobol.lsp.handlers.text.CodeActionHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeConfigurationHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.ExecuteCommandHandler;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookNameService;
 import org.eclipse.lsp.cobol.service.settings.layout.CodeLayoutStore;
 import org.eclipse.lsp.cobol.test.engine.UseCaseUtils;
 import org.eclipse.lsp4j.*;
@@ -65,15 +64,12 @@ class WorkspaceServiceTest {
   void testExecuteCommand() throws InterruptedException {
     CopybookService copybookService = mock(CopybookService.class);
     String copybookName = "COPYBOOK";
-    CopybookNameService copybookNameService = mock(CopybookNameService.class);
     MessageService messageService = mock(MessageService.class);
     AsyncAnalysisService asyncAnalysisService = mock(AsyncAnalysisService.class);
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
             stateService,
-            null,
-            copybookNameService,
             null,
             null,
             null,
@@ -116,15 +112,12 @@ class WorkspaceServiceTest {
    */
   @Test
   void testExecuteNonExistingCommand() throws InterruptedException {
-    CopybookNameService copybookNameService = mock(CopybookNameService.class);
     AsyncAnalysisService asyncAnalysisService = mock(AsyncAnalysisService.class);
     CopybookService copybookService = mock(CopybookService.class);
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
             stateService,
-            null,
-            copybookNameService,
             null,
             null,
             null,
@@ -235,14 +228,11 @@ class WorkspaceServiceTest {
 
   private void checkWatchers(FileEvent event) throws InterruptedException {
     CopybookService copybookService = mock(CopybookService.class);
-    CopybookNameService copybookNameService = mock(CopybookNameService.class);
     AsyncAnalysisService asyncAnalysisService = mock(AsyncAnalysisService.class);
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
             stateService,
-            null,
-            copybookNameService,
             null,
             null,
             null,

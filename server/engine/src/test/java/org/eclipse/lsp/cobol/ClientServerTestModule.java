@@ -27,8 +27,6 @@ import org.eclipse.lsp.cobol.cfg.CFASTBuilderImpl;
 import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.action.CodeActionProvider;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryFolderService;
@@ -43,8 +41,6 @@ import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationBasedOnExte
 import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationCombinedStrategy;
 import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationService;
 import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationServiceBasedOnContent;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookNameService;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookNameServiceImpl;
 import org.eclipse.lsp.cobol.service.copybooks.CopybookServiceImpl;
 import org.eclipse.lsp.cobol.service.delegates.actions.CodeActions;
 import org.eclipse.lsp.cobol.service.delegates.actions.FindCopybookCommand;
@@ -84,8 +80,6 @@ public class ClientServerTestModule extends AbstractModule {
     bind(CopybookService.class).to(CopybookServiceImpl.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);
-    bind(FileSystemService.class).to(WorkspaceFileService.class);
-    bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
     bind(ConfigurationService.class).to(CachingConfigurationService.class);
     bind(String.class)
         .annotatedWith(named(PATH_TO_TEST_RESOURCES))

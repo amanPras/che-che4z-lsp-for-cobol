@@ -17,21 +17,27 @@ package org.eclipse.lsp.cobol.test.engine;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.mockito.Mockito.*;
 
+import com.google.common.base.CharMatcher;
 import com.google.inject.Injector;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.*;
-import org.eclipse.lsp.cobol.common.copybook.CopybookModel;
-import org.eclipse.lsp.cobol.common.copybook.CopybookName;
-import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.*;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.dialects.TrueDialectService;
+import org.eclipse.lsp.cobol.common.error.SyntaxError;
+import org.eclipse.lsp.cobol.common.mapping.ExtendedText;
+import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
+import org.eclipse.lsp.cobol.common.utils.PredefinedCopybooks;
 import org.eclipse.lsp.cobol.test.CobolText;
 import org.eclipse.lsp.cobol.test.UseCaseInitializer;
 import org.eclipse.lsp4j.Diagnostic;
@@ -131,12 +137,15 @@ public class UseCaseUtils {
 
     CopybookService copybookService = injector.getInstance(CopybookService.class);
     CleanerPreprocessor preprocessor = dialectService.getPreprocessor(languageId);
-    PredefinedCopybookUtils.loadPredefinedCopybooks(
-            useCase.getSqlBackend(),
-            useCase.getCopybooks(),
-            useCase.documentUri,
-            useCase.compilerOptions)
-        .forEach(pc -> copybookService.store(pc, preprocessor));
+    doReturn(
+            ResultWithErrors.of(toCopybookModel(new CobolText("dummy", null), useCase.documentUri)))
+        .when(copybookService)
+        .resolve(
+            any(CopybookId.class),
+            any(CopybookName.class),
+            anyString(),
+            anyString(),
+            any(CleanerPreprocessor.class));
 
     useCase
         .getCopybooks()
@@ -149,8 +158,18 @@ public class UseCaseUtils {
                       cobolText.getFileName().toUpperCase(),
                       cobolText.getDialectType(),
                       copybookText);
-              copybookService.store(
-                  UseCaseUtils.toCopybookModel(cobolText, useCase.documentUri), preprocessor);
+              CopybookName copybookName =
+                  new CopybookName(cobolText.getFileName(), cobolText.getDialectType());
+              CopybookModel copybookModel = toCopybookModel(cobolText, useCase.documentUri);
+
+              doReturn(cleanupCopybook(copybookModel, preprocessor))
+                  .when(copybookService)
+                  .resolve(
+                      eq(copybookName.toCopybookId(useCase.documentUri)),
+                      eq(copybookName),
+                      eq(useCase.documentUri),
+                      anyString(),
+                      eq(preprocessor));
             });
 
     SubroutineService subroutines = injector.getInstance(SubroutineService.class);
@@ -173,7 +192,10 @@ public class UseCaseUtils {
    * @return the CopybookModel instance
    */
   public static CopybookModel toCopybookModel(CobolText cobolText, String programUri) {
-    String uri = toURI(cobolText.getFileName(), cobolText.getDialectType());
+    String uri = null;
+    if (cobolText.getFullText() != null) {
+      uri = toURI(cobolText.getFileName(), cobolText.getDialectType());
+    }
     CopybookName copybookName =
         new CopybookName(cobolText.getFileName(), cobolText.getDialectType());
     return new CopybookModel(
@@ -196,5 +218,57 @@ public class UseCaseUtils {
           extensionContext.get().getStore(ExtensionContext.Namespace.create(requiredTestMethod));
       store.put("document", new PreprocessedDocument(documentText, copybooks, testData));
     }
+  }
+
+  public Stream<CobolText> collectUsedPredefinedCopybooks(
+      Set<String> copybookUsages,
+      List<String> explicitCopybooks,
+      SQLBackend sqlBackend,
+      List<String> compilerOptions) {
+    return PredefinedCopybooks.getNames().stream()
+        .filter(copybookUsages::contains)
+        .filter(it -> !explicitCopybooks.contains(it))
+        .map(PredefinedCopybookUtils.toCobolText(sqlBackend, compilerOptions));
+  }
+
+  private ResultWithErrors<CopybookModel> cleanupCopybook(
+      CopybookModel dirtyCopybook, CleanerPreprocessor preprocessor) {
+    ResultWithErrors<ExtendedText> textTransformationsResultWithErrors =
+        preprocessor.cleanUpCode(dirtyCopybook.getUri(), dirtyCopybook.getContent());
+    String cleanText =
+        CharMatcher.whitespace()
+            .trimTrailingFrom(textTransformationsResultWithErrors.getResult().toString());
+    CopybookModel copybookModel =
+        new CopybookModel(
+            dirtyCopybook.getCopybookId(),
+            dirtyCopybook.getCopybookName(),
+            dirtyCopybook.getUri(),
+            cleanText);
+    return new ResultWithErrors<>(
+        copybookModel,
+        adjustErrorLocation(dirtyCopybook, textTransformationsResultWithErrors.getErrors()));
+  }
+
+  private List<SyntaxError> adjustErrorLocation(
+      CopybookModel dirtyCopybook, List<SyntaxError> originalErrors) {
+    return originalErrors.stream()
+        .map(
+            error ->
+                error.toBuilder().location(getErrorOriginalLocation(dirtyCopybook, error)).build())
+        .collect(toList());
+  }
+
+  private OriginalLocation getErrorOriginalLocation(
+      CopybookModel dirtyCopybook, SyntaxError error) {
+    return new OriginalLocation(
+        Optional.ofNullable(error.getLocation()).map(OriginalLocation::getLocation).orElse(null),
+        toId(
+            dirtyCopybook.getCopybookName().getQualifiedName(),
+            dirtyCopybook.getCopybookName().getDialectType(),
+            dirtyCopybook.getUri()));
+  }
+
+  private String toId(String name, String dialect, String uri) {
+    return dialect == null ? name : CopybookId.create(name, dialect, uri).toString();
   }
 }

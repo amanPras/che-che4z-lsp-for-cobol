@@ -29,7 +29,6 @@ import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.DialectOutcome;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.model.tree.Node;
 import org.eclipse.lsp.cobol.common.model.tree.SectionNode;
@@ -176,7 +175,7 @@ public class Db2SqlDialect implements CobolDialect {
             .map(
                 c -> {
                   String name = c.nameForBackend(sqlBackend);
-                  String content = new WorkspaceFileService().readImplicitCode(name);
+                  String content = "";
                   return new CopybookModel(
                       copybookName.toCopybookId(ImplicitCodeUtils.createFullUrl(c.name())),
                       copybookName,

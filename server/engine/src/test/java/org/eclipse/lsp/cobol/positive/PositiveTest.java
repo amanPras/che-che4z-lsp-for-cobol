@@ -16,11 +16,14 @@ package org.eclipse.lsp.cobol.positive;
 
 import static java.lang.System.getProperty;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode.ENABLED;
 import static org.eclipse.lsp.cobol.positive.CobolTextRegistry.DEFAULT_LISTING_PATH;
 import static org.eclipse.lsp.cobol.positive.CobolTextRegistry.PATH_TO_LISTING_SNAP;
+import static org.eclipse.lsp.cobol.test.engine.AnnotatedDocumentCleaning.mergeTestData;
+import static org.eclipse.lsp.cobol.test.engine.UseCaseUtils.toURI;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
@@ -32,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +43,9 @@ import org.eclipse.lsp.cobol.ConfigurableTest;
 import org.eclipse.lsp.cobol.common.AnalysisConfig;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.copybook.SQLBackend;
+import org.eclipse.lsp.cobol.common.utils.PredefinedCopybooks;
 import org.eclipse.lsp.cobol.test.CobolText;
-import org.eclipse.lsp.cobol.test.engine.UseCase;
-import org.eclipse.lsp.cobol.test.engine.UseCaseUtils;
+import org.eclipse.lsp.cobol.test.engine.*;
 import org.eclipse.lsp.cobol.usecases.DialectConfigs;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -62,37 +66,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 class PositiveTest extends ConfigurableTest {
 
   private CobolTextRegistry cobolTextRegistry;
-
-  @ParameterizedTest(name = "[{index}] run {1} in {2}")
-  @MethodSource("getTestFiles")
-  @DisplayName("Parameterized - positive tests")
-  void test(CobolTextRegistry cobolTextRegistry, CobolText text, String folderName) {
-    LOG.info("-- {} under test --", text.getFileName());
-    this.cobolTextRegistry = cobolTextRegistry;
-    String fileName = text.getFileName();
-    Map<ReportSection, List<SysprintSnap>> dataNameRefs =
-        getDataNameRefs(fileName, cobolTextRegistry);
-    LOG.debug("Processing: " + fileName);
-    AnalysisConfig analysisConfig = getAnalysisConfiguration(cobolTextRegistry.getDialect());
-    UseCase useCase =
-        UseCase.builder()
-            .documentUri(fileName)
-            .text(text.getFullText())
-            .copybooks(getTestFileSpecificCopybooks(cobolTextRegistry, fileName))
-            .copybookProcessingMode(ENABLED)
-            .dialects(analysisConfig.getDialects())
-            .dialectsSettings(analysisConfig.getDialectsSettings())
-            .build();
-    AnalysisResult analyze = UseCaseUtils.analyze(useCase);
-    PositiveTestUtility.assetDefinitionsNReferencesFromSnap(
-        analyze.getSymbolTableMap(), dataNameRefs, analyze.getRootNode(), fileName);
-    assertNoError(fileName, analyze);
-  }
-
-  @AfterEach
-  void check() {
-    updateSnaps(cobolTextRegistry);
-  }
 
   static Stream<Arguments> getTestFiles() {
     String path = ofNullable(getProperty(PATH_TO_TEST_RESOURCES)).orElse("../../tests/test_files");
@@ -170,6 +143,37 @@ class PositiveTest extends ConfigurableTest {
     return textRegistry.getSnapForFile(filename);
   }
 
+  @ParameterizedTest(name = "[{index}] run {1} in {2}")
+  @MethodSource("getTestFiles")
+  @DisplayName("Parameterized - positive tests")
+  void test(CobolTextRegistry cobolTextRegistry, CobolText text, String folderName) {
+    LOG.info("-- {} under test --", text.getFileName());
+    this.cobolTextRegistry = cobolTextRegistry;
+    String fileName = text.getFileName();
+    Map<ReportSection, List<SysprintSnap>> dataNameRefs =
+        getDataNameRefs(fileName, cobolTextRegistry);
+    LOG.debug("Processing: " + fileName);
+    AnalysisConfig analysisConfig = getAnalysisConfiguration(cobolTextRegistry.getDialect());
+    UseCase useCase =
+        UseCase.builder()
+            .documentUri(fileName)
+            .text(text.getFullText())
+            .copybooks(getTestFileSpecificCopybooks(cobolTextRegistry, fileName))
+            .copybookProcessingMode(ENABLED)
+            .dialects(analysisConfig.getDialects())
+            .dialectsSettings(analysisConfig.getDialectsSettings())
+            .build();
+    AnalysisResult analyze = UseCaseUtils.analyze(useCase);
+    PositiveTestUtility.assetDefinitionsNReferencesFromSnap(
+        analyze.getSymbolTableMap(), dataNameRefs, analyze.getRootNode(), fileName);
+    assertNoError(fileName, analyze);
+  }
+
+  @AfterEach
+  void check() {
+    updateSnaps(cobolTextRegistry);
+  }
+
   /**
    * Check that there were no errors found.
    *
@@ -236,8 +240,49 @@ class PositiveTest extends ConfigurableTest {
                 book ->
                     getCopybooks(cobolTextRegistry, fileName.split("\\.")[0]).stream()
                         .noneMatch(b1 -> b1.getFileName().equals(book.getFileName())));
-    return Stream.concat(
-            cobolTextStream, getCopybooks(cobolTextRegistry, fileName.split("\\.")[0]).stream())
+    Stream<CobolText> predefinedCopybooks =
+        PredefinedCopybooks.getNames().stream()
+            .map(PredefinedCopybookUtils.toCobolText(SQLBackend.DB2_SERVER, emptyList()));
+    TestData testData =
+        TestData.builder()
+            .copybookDefinitions(new HashMap<>())
+            .copybookUsages(new HashMap<>())
+            .diagnostics(new HashMap<>())
+            .functionDefinitions(new HashMap<>())
+            .functionUsages(new HashMap<>())
+            .procedureDefinitions(new HashMap<>())
+            .procedureUsages(new HashMap<>())
+            .subroutineDefinitions(new HashMap<>())
+            .subroutineUsages(new HashMap<>())
+            .variableDefinitions(new HashMap<>())
+            .variableUsages(new HashMap<>())
+            .build();
+
+    return Stream.of(
+            cobolTextStream,
+            getCopybooks(cobolTextRegistry, fileName.split("\\.")[0]).stream(),
+            predefinedCopybooks)
+        .flatMap(Function.identity())
+        .map(
+            c -> {
+              TestData test =
+                  AnnotatedDocumentCleaning.processDocument(
+                      c.getFullText(),
+                      c.getFileName(),
+                      toURI(c.getFileName(), c.getDialectType()),
+                      ImmutableList.of(),
+                      emptyMap(),
+                      c.getDialectType(),
+                      null,
+                      emptyList());
+              mergeTestData(testData, test);
+              return new CobolText(
+                  test.getCopybookName(),
+                  test.getDialectType(),
+                  test.getText(),
+                  c.getUrl(),
+                  c.isPreprocess());
+            })
         .collect(toList());
   }
 

@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.SubroutineService;
-import org.eclipse.lsp.cobol.common.copybook.CopybookService;
-import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.dialects.TrueDialectService;
 import org.eclipse.lsp.cobol.lsp.LspEventCancelCondition;
 import org.eclipse.lsp.cobol.lsp.LspEventDependency;
@@ -43,7 +41,6 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
   private final TrueDialectService dialectService;
   private final DocumentModelService documentModelService;
   private final AnalysisService analysisService;
-  private final CopybookService copybookService;
   private final SubroutineService subroutineService;
   private final Communications communications;
 
@@ -70,13 +67,11 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
       TrueDialectService dialectService,
       DocumentModelService documentModelService,
       AnalysisService analysisService,
-      CopybookService copybookService,
       SubroutineService subroutineService,
       Communications communications) {
     this.dialectService = dialectService;
     this.documentModelService = documentModelService;
     this.analysisService = analysisService;
-    this.copybookService = copybookService;
     this.subroutineService = subroutineService;
     this.communications = communications;
     analysisStateListeners = new ArrayList<>();
@@ -253,7 +248,6 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
         documentModelService.getAllOpened().stream()
             .filter(d -> !analysisService.isCopybook(d.getUri(), d.getText()))
             .collect(Collectors.toList());
-    copybookService.invalidateCache(true);
     subroutineService.invalidateCache();
     LOG.info("Cache invalidated");
     openDocuments.forEach(
@@ -298,22 +292,6 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
             .map(CobolDocumentModel::getUri)
             .collect(Collectors.toList());
     for (String uri : openedUris) {
-      String languageId = documentModelService.get(uri).getLanguageId();
-      // TODO: update cache directly from workspace document graph
-      copybookService.getCopybookUsage(uri).stream()
-          .filter(model -> Objects.nonNull(model.getUri()))
-          .filter(model -> model.getUri().equals(copybookUri))
-          .forEach(
-              copybookModel -> {
-                copybookService.invalidateCache(copybookModel.getCopybookId());
-                if (copybookContent != null) {
-                  copybookModel.setContent(copybookContent);
-                  copybookService.store(
-                      copybookModel,
-                      dialectService.getPreprocessor(CobolLanguageId.MAPPER.get(languageId)));
-                }
-              });
-
       subroutineService.invalidateCache();
       LOG.info("Cache invalidated");
       CobolDocumentModel document = documentModelService.get(uri);
