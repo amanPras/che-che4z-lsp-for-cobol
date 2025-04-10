@@ -497,10 +497,7 @@ describe("Tests copybook download service", () => {
       );
       expect(
         downloader["e4eDownloader"]!.downloadCopybookE4E,
-      ).toHaveBeenCalledWith("file://document-uri", {
-        name: "copybook",
-        dialect: "COBOL",
-      });
+      ).toHaveBeenCalledWith("file://document-uri", "copybook");
       expect(
         downloader["dsnDownloader"]!.downloadCopybook,
       ).toHaveBeenCalledTimes(0);
@@ -1321,6 +1318,66 @@ describe("Tests copybook download service", () => {
 
         expect(result).toEqual(
           "zowe-uss:/profile/remote/uss/copybooks/COPYBOOK",
+        );
+      });
+    });
+
+    describe("resolve remote endevor copybooks", () => {
+      beforeEach(() => {
+        workspaceConfigurationMock = {
+          [SETTINGS_CPY_NDVR_DEPENDENCIES]: ENDEVOR_PROCESSOR,
+          ["compiler"]: "",
+          ["preprocessors"]: [],
+        };
+      });
+
+      test("local cached of copybook uri is returned", async () => {
+        const dataset = "ENDEVOR.DATASET.COPYBOOK";
+        const e4eMock: E4E = {
+          isEndevorElement: jest.fn().mockResolvedValue(true),
+          getProfileInfo: jest
+            .fn()
+            .mockResolvedValue({ profile: "profile", instance: "instance" }),
+          listElements: jest.fn().mockResolvedValue([]),
+          getElement: jest.fn(),
+          listMembers: jest.fn().mockResolvedValue(["COPYBOOK"]),
+          getMember: jest.fn().mockResolvedValue([]),
+          getConfiguration: jest.fn().mockResolvedValue({
+            pgms: [{ pgroup: "pgroup" }],
+            pgroups: [
+              {
+                name: "pgroup",
+                libs: [{ dataset }],
+              },
+            ],
+          }),
+          onDidChangeElement: jest.fn(),
+        };
+
+        const cds = new CopybookDownloadService(
+          "/globalStorage",
+          zoweExplorerApiMock,
+          e4eMock,
+        );
+        const documentUri = Uri.file("/test.cbl").toString();
+        const result = await cds.resolveCopybookURI(
+          documentUri,
+          "COPYBOOK",
+          DEFAULT_DIALECT,
+        );
+
+        expect(vscode.workspace.fs.writeFile).toHaveBeenCalledWith(
+          expect.objectContaining({
+            scheme: "file",
+            path: "/globalStorage/e4e/copybooks/instance.profile/ENDEVOR.DATASET.COPYBOOK/COPYBOOK",
+          }),
+          expect.anything(),
+        );
+
+        expect(result).toEqual(
+          expect.stringMatching(
+            "file:///globalStorage/e4e/copybooks/instance.profile/ENDEVOR.DATASET.COPYBOOK/COPYBOOK",
+          ),
         );
       });
     });

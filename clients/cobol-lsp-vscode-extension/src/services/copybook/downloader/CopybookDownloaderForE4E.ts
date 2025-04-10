@@ -31,7 +31,6 @@ import {
   OUTPUT_MSG_SEARCH_LOCATION,
   USE_MAP,
 } from "../../../constants";
-import { CopybookName } from "../CopybookDownloadService";
 import { asPartialProfile, hasMember, Utils } from "../../util/Utils";
 import { searchCopybookInExtensionFolder } from "../../util/FSUtils";
 import { getErrorMessage } from "../../util/ErrorsUtils";
@@ -170,21 +169,21 @@ export class CopybookDownloaderForE4E {
 
   public async downloadCopybookE4E(
     documentUri: string,
-    copybookName: CopybookName,
-  ): Promise<boolean> {
+    copybookName: string,
+  ): Promise<vscode.Uri | undefined> {
     const response = await this.getE4EConfig(documentUri);
-    if (!response) return false;
-    const first = response.elements[copybookName.name];
+    if (!response) return;
+    const first = response.elements[copybookName];
 
     if (!first) {
       this.outputChannel?.appendLine(
-        `Failed to find ${copybookName.name} in Endevor`,
+        `Failed to find ${copybookName} in Endevor`,
       );
     } else if (DATASET in first)
       return await this.downloadDatasetE4E(response.profile, first);
     else if (ENVIRONMENT in first)
       return await this.downloadElementE4E(response.profile, first);
-    return false;
+    return;
   }
 
   public async listRemoteCopybooksE4E(documentUri: string) {
@@ -199,7 +198,7 @@ export class CopybookDownloaderForE4E {
   public async downloadElementE4E(
     profile: ResolvedProfile,
     element: EndevorElement,
-  ): Promise<boolean> {
+  ): Promise<vscode.Uri | undefined> {
     try {
       const use_map = element.use_map ? USE_MAP : "";
       const instance = CopybookURI.getEnviromentPath(element, profile);
@@ -219,18 +218,18 @@ export class CopybookDownloaderForE4E {
           filePath,
           Buffer.from(resultElement[0]),
         );
-        return true;
+        return filePath;
       }
     } catch (err) {
       vscode.window.showErrorMessage(getErrorMessage(err));
     }
-    return false;
+    return;
   }
 
   public async downloadDatasetE4E(
     profile: ResolvedProfile,
     member: EndevorMember,
-  ): Promise<boolean> {
+  ): Promise<vscode.Uri | undefined> {
     try {
       const instance = [Utils.profileAsString(profile)];
       const filePath = await CopybookDownloaderForE4E.getCopybookPath(
@@ -253,12 +252,11 @@ export class CopybookDownloaderForE4E {
           filePath,
           Buffer.from(memberContent),
         );
-        return true;
+        return filePath;
       }
     } catch (err) {
       vscode.window.showErrorMessage(getErrorMessage(err));
     }
-    return false;
   }
 
   private static async getCopybookPath(

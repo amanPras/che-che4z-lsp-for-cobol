@@ -14,6 +14,7 @@
 import { CopybookName } from "../CopybookDownloadService";
 import { DownloadUtil } from "./DownloadUtil";
 import { ZoweExplorerDownloader } from "./ZoweExplorerDownloader";
+import * as vscode from "vscode";
 
 /**
  * Copybook downloader from MVS using Zowe Explorer
@@ -148,5 +149,17 @@ export class CopybookDownloaderForDsn extends ZoweExplorerDownloader {
     )
       return true;
     return false;
+  }
+
+  public async resolveCopybookUri(
+    profileName: string,
+    dataset: string,
+    copybookName: string,
+  ) {
+    if (await this.hasMember(profileName, dataset, copybookName)) {
+      return vscode.Uri.parse(
+        `zowe-ds:/${profileName}/${dataset}/${copybookName}`,
+      );
+    }
   }
 }

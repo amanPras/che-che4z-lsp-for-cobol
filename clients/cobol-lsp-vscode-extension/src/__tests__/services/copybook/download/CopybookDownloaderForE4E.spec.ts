@@ -128,10 +128,7 @@ describe("e4e copybook downloader tests", () => {
     const spyDownloadElement = jest.spyOn(e4eDownloader, "downloadElementE4E");
     e4eDownloader.getE4EConfig = async () =>
       Promise.resolve(e4eResponseEndevorFirst);
-    await e4eDownloader.downloadCopybookE4E("uri", {
-      name: "NoCopybook",
-      dialect: "COBOL",
-    });
+    await e4eDownloader.downloadCopybookE4E("uri", "NoCopybook");
     expect(spyDownloadDataset).not.toHaveBeenCalled();
     expect(spyDownloadElement).not.toHaveBeenCalled();
   });
@@ -141,10 +138,7 @@ describe("e4e copybook downloader tests", () => {
     const spyDownloadElement = jest.spyOn(e4eDownloader, "downloadElementE4E");
     e4eDownloader.getE4EConfig = async () =>
       Promise.resolve(e4eResponseEndevorFirst);
-    await e4eDownloader.downloadCopybookE4E("uri", {
-      name: "copybook",
-      dialect: "COBOL",
-    });
+    await e4eDownloader.downloadCopybookE4E("uri", "copybook");
     expect(spyDownloadElement).toHaveBeenCalledWith(
       e4eResponseEndevorFirst.profile,
       {
@@ -166,10 +160,7 @@ describe("e4e copybook downloader tests", () => {
     const spyDownloadElement = jest.spyOn(e4eDownloader, "downloadElementE4E");
     e4eDownloader.getE4EConfig = async () =>
       Promise.resolve(e4eResponseEndevorFirst);
-    await e4eDownloader.downloadCopybookE4E("uri", {
-      name: "copybook",
-      dialect: "COBOL",
-    });
+    await e4eDownloader.downloadCopybookE4E("uri", "copybook");
     expect(spyDownloadElement).toHaveBeenCalledWith(
       e4eResponseEndevorFirst.profile,
       {
@@ -192,10 +183,7 @@ describe("e4e copybook downloader tests", () => {
     } as unknown as E4E);
     e4eDownloader.getE4EConfig = async () =>
       await Promise.resolve(e4eResponseDatasetFirst);
-    await e4eDownloader.downloadCopybookE4E("uri", {
-      name: "copybook",
-      dialect: "COBOL",
-    });
+    await e4eDownloader.downloadCopybookE4E("uri", "copybook");
     expect(getMember).toHaveBeenCalled();
     expect(vscode.workspace.fs.writeFile).not.toHaveBeenCalled();
   });
@@ -207,10 +195,7 @@ describe("e4e copybook downloader tests", () => {
     } as unknown as E4E);
     e4eDownloader.getE4EConfig = async () =>
       Promise.resolve(e4eResponseEndevorFirst);
-    await e4eDownloader.downloadCopybookE4E("uri", {
-      name: "copybook",
-      dialect: "COBOL",
-    });
+    await e4eDownloader.downloadCopybookE4E("uri", "copybook");
     expect(getElement).toHaveBeenCalled();
     expect(vscode.workspace.fs.writeFile).not.toHaveBeenCalled();
   });
@@ -291,10 +276,7 @@ describe("e4e copybook downloader tests", () => {
       } as unknown as E4E);
       e4eDownloader.getE4EConfig = async () =>
         Promise.resolve(e4eResponseDatasetFirst);
-      await e4eDownloader.downloadCopybookE4E("uri", {
-        name: "copybook",
-        dialect: "COBOL",
-      });
+      await e4eDownloader.downloadCopybookE4E("uri", "copybook");
       expect(getMember).toHaveBeenCalledWith(
         { instance: "instance", profile: "profile" },
         { dataset: "dataset", member: "copybook" },

@@ -16,6 +16,7 @@ import { splitFilename } from "../../util/FSUtils";
 import { CopybookName } from "../CopybookDownloadService";
 import { DownloadUtil } from "./DownloadUtil";
 import { ZoweExplorerDownloader } from "./ZoweExplorerDownloader";
+import * as vscode from "vscode";
 
 /**
  * Copybook downloader from USS using Zowe Explorer
@@ -182,5 +183,16 @@ export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
         return true;
     }
     return false;
+  }
+
+  public async resolveCopybookUri(
+    profileName: string,
+    uss: string,
+    copybookName: string,
+    extensions: string[],
+  ) {
+    if (await this.hasMember(profileName, uss, copybookName, extensions)) {
+      return vscode.Uri.parse(`zowe-uss:/${profileName}${uss}/${copybookName}`);
+    }
   }
 }
