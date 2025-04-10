@@ -155,6 +155,11 @@ public class CopybookServiceImpl implements CopybookService {
             copybookName, getDefaultCopybook(copybookName, programUri)));
   }
 
+  /**
+   * Store the copybookModel in cache. Copybook depends on a document from where it is imported.
+   *
+   * @param model the copybook model
+   */
   public void storePredefinedCopybooks(CopybookModel model) {
     preDefinedCopybookCache.put(model.getCopybookName(), model);
   }

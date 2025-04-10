@@ -44,6 +44,7 @@ public class PredefinedCopybookUtils {
    * to the CobolText
    *
    * @param sqlBackend backend to retrieve the correct coopybook URI
+   * @param compilerOptions compiler options
    * @return mapper from copybook name to {@link CobolText}
    */
   public Function<String, CobolText> toCobolText(
@@ -118,6 +119,12 @@ public class PredefinedCopybookUtils {
     return content;
   }
 
+  /**
+   * Reads Implicit copybooks for testing purposes
+   *
+   * @param name
+   * @return implicit copybook content
+   */
   public String readImplicitCode(String name) {
     String uri = ImplicitCodeUtils.createPath(name);
     String content = null;

@@ -122,6 +122,12 @@ public class AnnotatedDocumentCleaning {
     return new PreprocessedDocument(testData.getText(), copybooks, testData);
   }
 
+  /**
+   * merge {@link TestData}
+   *
+   * @param testData
+   * @param test
+   */
   public static void mergeTestData(TestData testData, TestData test) {
     mergeMaps(testData.getCopybookDefinitions(), test.getCopybookDefinitions());
     mergeMaps(testData.getCopybookUsages(), test.getCopybookUsages());
@@ -148,6 +154,17 @@ public class AnnotatedDocumentCleaning {
             compilerOptions));
   }
 
+  /**
+   * @param text
+   * @param documentName
+   * @param uri
+   * @param subroutineNames
+   * @param expectedDiagnostics
+   * @param dialectType
+   * @param sectionName
+   * @param pendingParagraphUsages
+   * @return TestData
+   */
   public TestData processDocument(
       String text,
       String documentName,

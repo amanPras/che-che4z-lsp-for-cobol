@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
 import lombok.Synchronized;
-import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp.cobol.service.settings.ConfigurationService;
 import org.eclipse.lsp4j.*;
@@ -176,13 +175,7 @@ public class WatcherServiceImpl implements WatcherService {
   }
 
   private void addRuntimeWatcher(String uri, List<String> dir) {
-    List<String> directories = new ArrayList<>();
-    for (String path : dir) {
-      if (path.contains(CopybookService.FILE_BASENAME_VARIABLE)) {
-        path = path.replace("\\$\\{fileBasenameNoExtension\\}", getNameFromURI(uri));
-      }
-      directories.add(path);
-    }
+    List<String> directories = new ArrayList<>(dir);
     addRuntimeWatchers(directories, uri);
   }
 
@@ -213,10 +206,10 @@ public class WatcherServiceImpl implements WatcherService {
   private Either<String, RelativePattern> createFileWatcher(String folder) {
     String pattern = "**/*";
     RelativePattern relativePattern = new RelativePattern();
-    if (folder.contains(CopybookService.FILE_BASENAME_VARIABLE)) {
-      String[] split = folder.split(CopybookService.FILE_BASENAME_VARIABLE);
-      pattern = "**" + split[1] + pattern;
-    }
+    //    if (folder.contains(CopybookService.FILE_BASENAME_VARIABLE)) {
+    //      String[] split = folder.split(CopybookService.FILE_BASENAME_VARIABLE);
+    //      pattern = "**" + split[1] + pattern;
+    //    }
     relativePattern.setBaseUri(getWorkspaceFolders().get(0));
     relativePattern.setPattern(pattern);
     return Either.forRight(relativePattern);

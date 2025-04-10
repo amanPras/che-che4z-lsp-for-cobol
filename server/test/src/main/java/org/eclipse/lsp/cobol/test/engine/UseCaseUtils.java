@@ -220,6 +220,15 @@ public class UseCaseUtils {
     }
   }
 
+  /**
+   * Collects all predefined copybooks
+   *
+   * @param copybookUsages
+   * @param explicitCopybooks
+   * @param sqlBackend
+   * @param compilerOptions
+   * @return a stream of {@link CobolText}
+   */
   public Stream<CobolText> collectUsedPredefinedCopybooks(
       Set<String> copybookUsages,
       List<String> explicitCopybooks,
