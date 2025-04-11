@@ -18,12 +18,10 @@ import static org.eclipse.lsp.cobol.service.settings.SettingsParametersEnum.*;
 
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.utils.LogLevelUtils;
 import org.eclipse.lsp.cobol.lsp.DisposableLSPStateService;
-import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
 import org.eclipse.lsp.cobol.service.delegates.completions.Keywords;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
 import org.eclipse.lsp.cobol.service.settings.layout.CodeLayoutStore;
@@ -37,9 +35,7 @@ public class DidChangeConfigurationHandler {
   private final LocaleStore localeStore;
   private final Keywords keywords;
   private final MessageService messageService;
-  private final AsyncAnalysisService asyncAnalysisService;
   private final CodeLayoutStore codeLayoutStore;
-  private final CopybookService copybookService;
 
   @Inject
   public DidChangeConfigurationHandler(
@@ -48,17 +44,13 @@ public class DidChangeConfigurationHandler {
       LocaleStore localeStore,
       Keywords keywords,
       MessageService messageService,
-      AsyncAnalysisService asyncAnalysisService,
-      CodeLayoutStore codeLayoutStore,
-      CopybookService copybookService) {
+      CodeLayoutStore codeLayoutStore) {
     this.disposableLSPStateService = disposableLSPStateService;
     this.settingsService = settingsService;
     this.localeStore = localeStore;
     this.keywords = keywords;
     this.messageService = messageService;
-    this.asyncAnalysisService = asyncAnalysisService;
     this.codeLayoutStore = codeLayoutStore;
-    this.copybookService = copybookService;
   }
 
   /**

@@ -69,14 +69,7 @@ class WorkspaceServiceTest {
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
-            stateService,
-            null,
-            null,
-            null,
-            messageService,
-            asyncAnalysisService,
-            getMockLayoutStore(),
-            copybookService);
+            stateService, null, null, null, messageService, getMockLayoutStore());
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
     //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
@@ -114,14 +107,7 @@ class WorkspaceServiceTest {
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
-            stateService,
-            null,
-            null,
-            null,
-            null,
-            asyncAnalysisService,
-            getMockLayoutStore(),
-            copybookService);
+            stateService, null, null, null, null, getMockLayoutStore());
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
     //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
@@ -223,14 +209,7 @@ class WorkspaceServiceTest {
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
-            stateService,
-            null,
-            null,
-            null,
-            null,
-            asyncAnalysisService,
-            getMockLayoutStore(),
-            copybookService);
+            stateService, null, null, null, null, getMockLayoutStore());
 
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
