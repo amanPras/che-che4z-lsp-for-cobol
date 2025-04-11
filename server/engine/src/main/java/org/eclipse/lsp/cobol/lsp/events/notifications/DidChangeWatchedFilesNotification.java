@@ -12,27 +12,27 @@
  *    Broadcom, Inc. - initial API and implementation
  *
  */
-package org.eclipse.lsp.cobol.lsp.events.notifications;
-
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.lsp.cobol.lsp.LspNotification;
-import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
-import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
-
-/** 'workspace/didChangeWatchedFiles' server event */
-@Slf4j
-public class DidChangeWatchedFilesNotification implements LspNotification {
-  private final DidChangeWatchedFilesParams params;
-  private final DidChangeWatchedFilesHandler handler;
-
-  public DidChangeWatchedFilesNotification(
-      DidChangeWatchedFilesParams params, DidChangeWatchedFilesHandler handler) {
-    this.params = params;
-    this.handler = handler;
-  }
-
-  @Override
-  public void execute() {
-    this.handler.didChangeWatchedFiles(params);
-  }
-}
+// package org.eclipse.lsp.cobol.lsp.events.notifications;
+//
+// import lombok.extern.slf4j.Slf4j;
+// import org.eclipse.lsp.cobol.lsp.LspNotification;
+// import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
+// import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
+//
+/// ** 'workspace/didChangeWatchedFiles' server event */
+// @Slf4j
+// public class DidChangeWatchedFilesNotification implements LspNotification {
+//  private final DidChangeWatchedFilesParams params;
+//  private final DidChangeWatchedFilesHandler handler;
+//
+//  public DidChangeWatchedFilesNotification(
+//      DidChangeWatchedFilesParams params, DidChangeWatchedFilesHandler handler) {
+//    this.params = params;
+//    this.handler = handler;
+//  }
+//
+//  @Override
+//  public void execute() {
+//    this.handler.didChangeWatchedFiles(params);
+//  }
+// }

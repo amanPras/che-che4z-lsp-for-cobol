@@ -42,7 +42,7 @@ import org.eclipse.lsp.cobol.lsp.events.queries.CodeActionQuery;
 import org.eclipse.lsp.cobol.lsp.handlers.server.*;
 import org.eclipse.lsp.cobol.lsp.handlers.text.CodeActionHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeConfigurationHandler;
-import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
+// import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.ExecuteCommandHandler;
 import org.eclipse.lsp.cobol.service.delegates.completions.Keywords;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
@@ -95,8 +95,8 @@ class CobolLanguageServerTest {
     SettingsService settingsService = mock(SettingsServiceImpl.class);
     LocaleStore localeStore = mock(LocaleStore.class);
     ExecuteCommandHandler executeCommandHandler = mock(ExecuteCommandHandler.class);
-    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-        mock(DidChangeWatchedFilesHandler.class);
+    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+    //        mock(DidChangeWatchedFilesHandler.class);
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         mock(DidChangeConfigurationHandler.class);
 
@@ -109,10 +109,7 @@ class CobolLanguageServerTest {
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     CobolWorkspaceServiceImpl lspEventConsumer =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker,
-            executeCommandHandler,
-            didChangeConfigurationHandler,
-            didChangeWatchedFilesHandler);
+            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
 
     lspEventConsumer.startConsumer();
     InitializedHandler initializedHandler = mock(InitializedHandler.class);
@@ -178,8 +175,8 @@ class CobolLanguageServerTest {
     MessageService messageService = mock(MessageService.class);
     CodeLayoutStore layoutStore = mock(CodeLayoutStore.class);
     ExecuteCommandHandler executeCommandHandler = mock(ExecuteCommandHandler.class);
-    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-        mock(DidChangeWatchedFilesHandler.class);
+    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+    //        mock(DidChangeWatchedFilesHandler.class);
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         mock(DidChangeConfigurationHandler.class);
 
@@ -193,10 +190,7 @@ class CobolLanguageServerTest {
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     CobolWorkspaceServiceImpl lspEventConsumer =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker,
-            executeCommandHandler,
-            didChangeConfigurationHandler,
-            didChangeWatchedFilesHandler);
+            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
 
     when(layoutStore.getCodeLayout()).thenReturn(Optional.of(CobolLanguageId.COBOL.getLayout()));
     when(layoutStore.updateCodeLayout()).thenReturn(mock -> {});
@@ -248,17 +242,14 @@ class CobolLanguageServerTest {
 
   private void testServerInitialization(InitializeParams initializeParams) {
     ExecuteCommandHandler executeCommandHandler = mock(ExecuteCommandHandler.class);
-    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-        mock(DidChangeWatchedFilesHandler.class);
+    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+    //        mock(DidChangeWatchedFilesHandler.class);
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         mock(DidChangeConfigurationHandler.class);
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     CobolWorkspaceServiceImpl lspEventConsumer =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker,
-            executeCommandHandler,
-            didChangeConfigurationHandler,
-            didChangeWatchedFilesHandler);
+            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
     lspEventConsumer.startConsumer();
     CobolLanguageServer server =
         new CobolLanguageServer(
@@ -314,17 +305,14 @@ class CobolLanguageServerTest {
   void shutdown() {
     TextDocumentService textDocumentService = mock(CobolTextDocumentService.class);
     ExecuteCommandHandler executeCommandHandler = mock(ExecuteCommandHandler.class);
-    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-        mock(DidChangeWatchedFilesHandler.class);
+    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+    //        mock(DidChangeWatchedFilesHandler.class);
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         mock(DidChangeConfigurationHandler.class);
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     CobolWorkspaceServiceImpl lspEventConsumer =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker,
-            executeCommandHandler,
-            didChangeConfigurationHandler,
-            didChangeWatchedFilesHandler);
+            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
     lspEventConsumer.startConsumer();
 
     CobolLanguageServer server =
