@@ -217,8 +217,22 @@ export async function activate(
     "cobol/resolveSubroutine",
     resolveSubroutineURI,
   );
-  languageClientService.addRequestHandler("copybook/uri", (a, b, c) => {
-    if (b !== "SQLCA") {
+
+//   COPY SLICKNUM.    file:/Users/amanprashant/IdeaProjects/cobolls-internal-test/SLICK/COBCOPY/SLICKNUM   
+// COPY ACCTFILE.    file:/Users/amanprashant/IdeaProjects/cobolls-internal-test/SLICK/COBCOPY/ACCTFILE
+// COPY SLICKCOM. file:/Users/amanprashant/IdeaProjects/cobolls-internal-test/SLICK/COBCOPY/SLICKCOM
+
+  languageClientService.addRequestHandler("copybook/uri", (_a, b: string, _c) => {
+    if (b.toUpperCase() === "SLICKNUM") {
+      return "file:///Users/amanprashant/IdeaProjects/cobolls-internal-test/SLICK/COBCOPY/SLICKNUM"
+    }
+    if (b.toUpperCase() === "ACCTFILE") {
+      return "file:///Users/amanprashant/IdeaProjects/cobolls-internal-test/SLICK/COBCOPY/ACCTFILE"
+    }
+    if (b.toUpperCase() === "SLICKCOM") {
+      return "file:///Users/amanprashant/IdeaProjects/cobolls-internal-test/SLICK/COBCOPY/SLICKCOM"
+    }
+    if (b.toUpperCase() !== "SQLCA") {
       return "zowe-ds:/zosmf/AP891843.PUBLIC.CPY/TEST.cpy"
     }
   });
