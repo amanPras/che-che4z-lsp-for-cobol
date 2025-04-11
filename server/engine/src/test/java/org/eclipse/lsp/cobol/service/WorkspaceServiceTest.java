@@ -36,6 +36,7 @@ import org.eclipse.lsp.cobol.lsp.events.queries.CodeActionQuery;
 import org.eclipse.lsp.cobol.lsp.handlers.text.CodeActionHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeConfigurationHandler;
 // import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
+import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.ExecuteCommandHandler;
 import org.eclipse.lsp.cobol.service.settings.layout.CodeLayoutStore;
 import org.eclipse.lsp.cobol.test.engine.UseCaseUtils;
@@ -72,13 +73,16 @@ class WorkspaceServiceTest {
             stateService, null, null, null, messageService, getMockLayoutStore());
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
-    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-    //        mock(DidChangeWatchedFilesHandler.class);
+    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+        mock(DidChangeWatchedFilesHandler.class);
 
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     WorkspaceService service =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
+            lspMessageBroker,
+            executeCommandHandler,
+            didChangeConfigurationHandler,
+            didChangeWatchedFilesHandler);
     ((LspEventConsumer) service).startConsumer();
     CompletableFuture<Object> result =
         service.executeCommand(
@@ -110,13 +114,16 @@ class WorkspaceServiceTest {
             stateService, null, null, null, null, getMockLayoutStore());
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
-    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-    //        mock(DidChangeWatchedFilesHandler.class);
+    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+        mock(DidChangeWatchedFilesHandler.class);
 
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     WorkspaceService service =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
+            lspMessageBroker,
+            executeCommandHandler,
+            didChangeConfigurationHandler,
+            didChangeWatchedFilesHandler);
     ((LspEventConsumer) service).startConsumer();
 
     CompletableFuture<Object> result =
@@ -146,8 +153,8 @@ class WorkspaceServiceTest {
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         mock(DidChangeConfigurationHandler.class);
     ExecuteCommandHandler executeCommandHandler = mock(ExecuteCommandHandler.class);
-    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-    //        mock(DidChangeWatchedFilesHandler.class);
+    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+        mock(DidChangeWatchedFilesHandler.class);
     doNothing()
         .when(didChangeConfigurationHandler)
         .didChangeConfiguration(any(DidChangeConfigurationParams.class));
@@ -155,7 +162,10 @@ class WorkspaceServiceTest {
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     WorkspaceService workspaceService =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
+            lspMessageBroker,
+            executeCommandHandler,
+            didChangeConfigurationHandler,
+            didChangeWatchedFilesHandler);
     ((LspEventConsumer) workspaceService).startConsumer();
     doNothing()
         .when(didChangeConfigurationHandler)
@@ -213,13 +223,16 @@ class WorkspaceServiceTest {
 
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
-    //    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
-    //        mock(DidChangeWatchedFilesHandler.class);
+    DidChangeWatchedFilesHandler didChangeWatchedFilesHandler =
+        mock(DidChangeWatchedFilesHandler.class);
 
     LspMessageBroker lspMessageBroker = new LspMessageBroker();
     WorkspaceService service =
         new CobolWorkspaceServiceImpl(
-            lspMessageBroker, executeCommandHandler, didChangeConfigurationHandler);
+            lspMessageBroker,
+            executeCommandHandler,
+            didChangeConfigurationHandler,
+            didChangeWatchedFilesHandler);
 
     ((LspEventConsumer) service).startConsumer();
     DidChangeWatchedFilesParams params = new DidChangeWatchedFilesParams(singletonList(event));

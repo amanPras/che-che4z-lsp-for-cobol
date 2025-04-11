@@ -19,10 +19,10 @@ import com.google.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-// import org.eclipse.lsp.cobol.lsp.events.notifications.DidChangeWatchedFilesNotification;
+import org.eclipse.lsp.cobol.lsp.events.notifications.DidChangeWatchedFilesNotification;
 import org.eclipse.lsp.cobol.lsp.events.queries.ExecuteCommandQuery;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeConfigurationHandler;
-// import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
+import org.eclipse.lsp.cobol.lsp.handlers.workspace.DidChangeWatchedFilesHandler;
 import org.eclipse.lsp.cobol.lsp.handlers.workspace.ExecuteCommandHandler;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.WorkspaceService;
@@ -37,20 +37,18 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 public class CobolWorkspaceServiceImpl extends LspEventConsumer implements WorkspaceService {
   private final ExecuteCommandHandler executeCommandHandler;
   private final DidChangeConfigurationHandler didChangeConfigurationHandler;
-
-  //  private final DidChangeWatchedFilesHandler didChangeWatchedFilesHandler;
+  private final DidChangeWatchedFilesHandler didChangeWatchedFilesHandler;
 
   @Inject
   public CobolWorkspaceServiceImpl(
       LspMessageBroker lspMessageBroker,
       ExecuteCommandHandler executeCommandHandler,
-      DidChangeConfigurationHandler didChangeConfigurationHandler
-      //      DidChangeWatchedFilesHandler didChangeWatchedFilesHandler
-      ) {
+      DidChangeConfigurationHandler didChangeConfigurationHandler,
+      DidChangeWatchedFilesHandler didChangeWatchedFilesHandler) {
     super(lspMessageBroker);
     this.executeCommandHandler = executeCommandHandler;
     this.didChangeConfigurationHandler = didChangeConfigurationHandler;
-    //    this.didChangeWatchedFilesHandler = didChangeWatchedFilesHandler;
+    this.didChangeWatchedFilesHandler = didChangeWatchedFilesHandler;
   }
 
   /**
@@ -88,6 +86,7 @@ public class CobolWorkspaceServiceImpl extends LspEventConsumer implements Works
    */
   @Override
   public void didChangeWatchedFiles(@NonNull DidChangeWatchedFilesParams params) {
-    return;
+    getLspMessageBroker()
+        .notify(new DidChangeWatchedFilesNotification(params, didChangeWatchedFilesHandler));
   }
 }
