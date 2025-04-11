@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.eclipse.lsp.cobol.cfg.CFASTBuilder;
 import org.eclipse.lsp.cobol.cfg.CFASTBuilderImpl;
+import org.eclipse.lsp.cobol.cli.copybooks.CacheCopybookServiceImpl;
 import org.eclipse.lsp.cobol.cli.modules.CliClientProvider;
 import org.eclipse.lsp.cobol.common.LanguageEngineFacade;
 import org.eclipse.lsp.cobol.common.SubroutineService;
@@ -33,6 +34,8 @@ import org.eclipse.lsp.cobol.common.benchmark.BenchmarkService;
 import org.eclipse.lsp.cobol.common.benchmark.BenchmarkServiceImpl;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.dialects.TrueDialectService;
+import org.eclipse.lsp.cobol.common.file.FileSystemService;
+import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryFolderService;
@@ -86,13 +89,14 @@ public class CliModule extends AbstractModule {
     bind(MessageService.class).to(PropertiesMessageService.class);
     bind(LocaleStore.class).to(LocaleStoreImpl.class);
     bind(ConfigurationService.class).to(CachingConfigurationService.class);
+    bind(FileSystemService.class).toInstance(new WorkspaceFileService());
     bind(ParseTreeListener.class).to(InterruptingTreeListener.class);
     bind(String.class)
         .annotatedWith(named("resourceFileLocation"))
         .toInstance("resourceBundles/messages");
 
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
-    bind(CopybookService.class).to(CopybookServiceImpl.class);
+    bind(CopybookService.class).to(CacheCopybookServiceImpl.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(CobolLanguageClient.class).toProvider(CliClientProvider.class);
     bind(SettingsService.class).to(SettingsServiceImpl.class);
