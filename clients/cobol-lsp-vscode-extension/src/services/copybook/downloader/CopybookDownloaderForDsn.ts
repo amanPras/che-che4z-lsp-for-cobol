@@ -13,7 +13,10 @@
  */
 import { CopybookName } from "../CopybookDownloadService";
 import { DownloadUtil } from "./DownloadUtil";
-import { ZoweExplorerDownloader } from "./ZoweExplorerDownloader";
+import {
+  MemberCacheItem,
+  ZoweExplorerDownloader,
+} from "./ZoweExplorerDownloader";
 import * as vscode from "vscode";
 
 /**
@@ -50,29 +53,34 @@ export class CopybookDownloaderForDsn extends ZoweExplorerDownloader {
     );
   }
 
-  public async getAllMembers(profileName: string, dataset: string) {
+  public async getAllMembers(
+    profileName: string,
+    dataset: string,
+  ): Promise<string[]> {
     const id = this.createId(profileName, dataset);
 
     if (this.memberListCache.has(id)) {
-      return this.memberListCache.get(id)!;
+      return this.memberListCache.get(id)!.map((m) => m.name);
     }
 
     const profile = DownloadUtil.loadProfile(profileName, this.explorerAPI);
 
-    let members: string[] = [];
+    let members: MemberCacheItem[] = [];
     await this.limitFailedRequests(
       `list dataset members ${profileName}/${dataset}`,
       async () => {
         const response = await this.explorerAPI
           .getMvsApi(profile)
           .allMembers(dataset);
-        members = response.apiResponse.items.map((item) => item.member);
+        members = response.apiResponse.items.map((item) => ({
+          name: item.member,
+        }));
 
         this.memberListCache.set(id, members);
       },
     );
 
-    return members;
+    return members.map((m) => m.name);
   }
 
   /**
@@ -120,35 +128,13 @@ export class CopybookDownloaderForDsn extends ZoweExplorerDownloader {
     dataset: string,
     copybookName: string,
   ): Promise<boolean> {
-    const id = this.createId(profileName, dataset);
+    const members = await this.getAllMembers(profileName, dataset);
 
-    if (this.memberListCache.has(id)) {
-      return this.memberListCache
-        .get(id)
-        ?.find((member) => member.toUpperCase() === copybookName.toUpperCase())
-        ? true
-        : false;
-    }
-    const profile = DownloadUtil.loadProfile(profileName, this.explorerAPI);
-    await this.limitFailedRequests(
-      `list dataset members ${profileName}/${dataset}`,
-      async () => {
-        const response = await this.explorerAPI
-          .getMvsApi(profile)
-          .allMembers(dataset);
-        const members = response.apiResponse.items.map((item) => item.member);
-
-        this.memberListCache.set(id, members);
-      },
-    );
-
-    if (
-      this.memberListCache
-        .get(id)
-        ?.find((member) => member.toUpperCase() === copybookName.toUpperCase())
+    return members.find(
+      (member) => member.toUpperCase() === copybookName.toUpperCase(),
     )
-      return true;
-    return false;
+      ? true
+      : false;
   }
 
   public async resolveCopybookUri(

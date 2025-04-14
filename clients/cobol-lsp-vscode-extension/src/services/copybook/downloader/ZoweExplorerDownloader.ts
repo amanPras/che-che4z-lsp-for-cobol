@@ -19,10 +19,15 @@ import { getErrorMessage } from "../../util/ErrorsUtils";
 import { FAILED_REQUESTS_LIMIT } from "../../../constants";
 import { hasMember } from "../../util/Utils";
 
+export interface MemberCacheItem {
+  name: string;
+  extension?: string;
+}
+
 export abstract class ZoweExplorerDownloader {
   public static profileStore: Map<string, "locked-profile" | "valid-profile"> =
     new Map();
-  protected memberListCache: Map<string, string[]> = new Map();
+  protected memberListCache: Map<string, MemberCacheItem[]> = new Map();
   protected failedRequests: Map<string, number> = new Map();
   private ZoweDownloadQueue = new Map<string, Promise<boolean>>();
 

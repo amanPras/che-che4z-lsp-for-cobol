@@ -408,12 +408,8 @@ export class CopybookDownloadService {
         return dsnMembers ?? [];
       }),
       ...ussPaths.map(async (uss) => {
-        const ussFiles = await this.ussDownloader?.getAllMembers(
-          profile,
-          uss,
-          false,
-        );
-        return ussFiles ?? [];
+        const ussFiles = await this.ussDownloader?.getAllMembers(profile, uss);
+        return ussFiles?.map((f) => f.name) ?? [];
       }),
     ]);
 
@@ -459,7 +455,6 @@ export class CopybookDownloadService {
       documentURI,
       dialectType,
     );
-    const extensions = await SettingsService.getCopybookExtension(documentURI);
     const results = await Promise.allSettled([
       ...dsnPaths.map(async (dsn) => {
         return await this.dsnDownloader?.resolveCopybookUri(
@@ -473,7 +468,6 @@ export class CopybookDownloadService {
           profile,
           uss,
           copybookName,
-          extensions ?? [""],
         );
       }),
     ]);
@@ -494,7 +488,6 @@ export class CopybookDownloadService {
       | EndevorConfigModel
     )[],
   ): Promise<vscode.Uri | undefined> {
-    const extensions = await SettingsService.getCopybookExtension(documentUri);
     for (const config of pgConfigs) {
       const profile = config.profile ?? defaultProfile;
       if (DATASET in config && this.dsnDownloader) {
@@ -508,7 +501,6 @@ export class CopybookDownloadService {
           profile,
           config.uss,
           copybookName,
-          extensions ?? [""],
         );
       } else if (ENVIRONMENT in config && this.e4eDownloader) {
         const resolvedProfile = await this.e4eDownloader.getProfileInfo(
@@ -941,7 +933,6 @@ async function searchCopybookinProcessorGroups(
         profile,
         config.uss,
         copybookName,
-        extensions,
       );
       if (!has) continue;
       folders = CopybookURI.createDatasetPath(
