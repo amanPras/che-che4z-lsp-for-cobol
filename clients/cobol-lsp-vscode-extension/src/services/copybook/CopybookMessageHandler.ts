@@ -103,6 +103,12 @@ async function resolveAllowedExtensions(
 
 export async function readFileContent(fileUri: string): Promise<string> {
   const uri = Uri.parse(fileUri);
+  const openFile = workspace.textDocuments.find(
+    (doc) => doc.uri.toString() === fileUri,
+  );
+  if (openFile) {
+    return openFile.getText();
+  }
   const data = await workspace.fs.readFile(uri);
   const content = Buffer.from(data).toString();
   return content;
