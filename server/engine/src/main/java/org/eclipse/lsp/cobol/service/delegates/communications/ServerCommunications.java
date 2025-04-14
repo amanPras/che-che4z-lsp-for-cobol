@@ -151,7 +151,7 @@ public class ServerCommunications implements Communications {
             "Communications.syntaxAnalysisInProgressTitle",
             //            TODO: use some sort of utility class
             //            files.getNameFromURI(files.decodeURI(uri))
-            uri));
+            getFilenameFromUri(uri)));
     workDoneProgressBegin.setCancellable(true);
     params.setValue(Either.forLeft(workDoneProgressBegin));
     getClient().notifyProgress(params);
@@ -217,5 +217,11 @@ public class ServerCommunications implements Communications {
 
   private String clean(String source) {
     return source.replaceAll("(\\r\\n|\\r|\\n)", "");
+  }
+
+  private String getFilenameFromUri(String uri) {
+    String[] split = uri.split("/");
+    if (split.length > 0) return split[split.length - 1];
+    else return uri;
   }
 }
