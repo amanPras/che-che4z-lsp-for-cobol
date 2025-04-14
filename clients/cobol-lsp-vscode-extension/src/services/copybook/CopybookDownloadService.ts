@@ -268,6 +268,24 @@ export class CopybookDownloadService {
       return endevorResult?.toString() ?? null;
     }
     // search processor groups -> ??
+    const pgConfigs = (
+      await loadProcessorGroupCopybookPathsConfig(
+        { scopeUri: documentURI },
+        [],
+        dialectType,
+      )
+    ).filter((config) => typeof config != "string");
+
+    const processorGroupsResult =
+      await this.resolveCopybookUriInProcessorGroups(
+        copybookName,
+        "profile",
+        documentURI,
+        pgConfigs,
+      );
+    if (processorGroupsResult) {
+      return processorGroupsResult.toString();
+    }
 
     // search paths-local -> return URI pointing to local file
     const localResult = await searchLocalCopybooks(
@@ -492,6 +510,33 @@ export class CopybookDownloadService {
           copybookName,
           extensions ?? [""],
         );
+      } else if (ENVIRONMENT in config && this.e4eDownloader) {
+        const resolvedProfile = await this.e4eDownloader.getProfileInfo(
+          config.profile,
+        );
+        const element: EndevorElement = {
+          use_map: config.use_map === false ? false : true,
+          environment: config.environment,
+          stage: config.stage,
+          system: config.system,
+          subsystem: config.subsystem,
+          type: config.type,
+          element: copybookName.toUpperCase(),
+          fingerprint: "",
+        };
+        if (
+          resolvedProfile &&
+          (await this.e4eDownloader.hasElement(
+            resolvedProfile,
+            element,
+            copybookName,
+          ))
+        ) {
+          return await this.e4eDownloader.downloadElementE4E(
+            resolvedProfile,
+            element,
+          );
+        }
       }
     }
   }
