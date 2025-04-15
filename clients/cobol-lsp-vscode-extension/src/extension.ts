@@ -15,7 +15,6 @@
 import * as vscode from "vscode";
 import { __ExtensionApi } from "@code4z/cobol-dialect-api";
 import { isV1RuntimeDialectDetail } from "./dialect/utils";
-import { fetchCopybookCommand } from "./commands/FetchCopybookCommand";
 import { gotoCopybookSettings } from "./commands/OpenSettingsCommand";
 import {
   E4E_INCOMPATIBLE,
@@ -218,10 +217,6 @@ export async function activate(
     "cobol/resolveSubroutine",
     resolveSubroutineURI,
   );
-  // languageClientService.addRequestHandler(
-  //   "copybook/download",
-  //   copyBooksDownloader.makeCopybookDownloadHandler(),
-  // );
   languageClientService.addRequestHandler(
     "workspace/configuration",
     (r: Parameters<typeof lspConfigHandler>[0]) =>
@@ -338,15 +333,6 @@ function registerCommands(
   context: vscode.ExtensionContext,
   copyBooksDownloader: CopybookDownloadService,
 ) {
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "cobol-lsp.cpy-manager.fetch-copybook",
-      async (copybook: string, programName: string) => {
-        await fetchCopybookCommand(copybook, copyBooksDownloader, programName);
-      },
-    ),
-  );
-
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "cobol-lsp.cpy-manager.goto-settings",

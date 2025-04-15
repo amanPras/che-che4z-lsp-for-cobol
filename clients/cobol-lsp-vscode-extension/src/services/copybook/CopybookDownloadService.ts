@@ -28,7 +28,6 @@ import { CopybookDownloaderForE4E } from "./downloader/CopybookDownloaderForE4E"
 import { CopybookDownloaderForUss } from "./downloader/CopybookDownloaderForUss";
 import { CopybookDownloaderForDsn } from "./downloader/CopybookDownloaderForDsn";
 import { SettingsService } from "../Settings";
-import { getErrorMessage } from "../util/ErrorsUtils";
 import { loadProcessorGroupCopybookPathsConfig } from "../ProcessorGroups";
 import {
   EndevorConfigModel,
@@ -53,65 +52,6 @@ export class CopybookDownloadService {
   private e4eDownloader?: CopybookDownloaderForE4E;
 
   /**
-   * Downloads a file using E4E Api or Zowe Explorer Api based on provided configuration
-   *
-   * @param copybookName Copybook to be downloaded.
-   * @param documentUri cobol programs which needs copybook
-   * @param callback callback function
-   */
-  async downloadCopybook(
-    copybookName: CopybookName,
-    documentUri: string,
-  ): Promise<boolean> {
-    if (
-      this.handleAsEndevorElement(documentUri) &&
-      (await this.e4eDownloader?.downloadCopybookE4E(
-        documentUri,
-        copybookName.name,
-      ))
-    ) {
-      return true;
-    }
-
-    const pgConfigs = (
-      await loadProcessorGroupCopybookPathsConfig(
-        { scopeUri: documentUri },
-        [],
-        copybookName.dialect,
-      )
-    ).filter((config) => typeof config != "string");
-
-    if (pgConfigs.length > 0) {
-      return await this.downloadCopybooksinProcessorGroups(
-        copybookName,
-        documentUri,
-        pgConfigs,
-      );
-    }
-
-    if (this.dsnDownloader) {
-      const dsnSuccess = await this.downloadFromPaths(
-        this.dsnDownloader,
-        copybookName,
-        documentUri,
-        SettingsService.getDsnPath(documentUri, copybookName.dialect),
-      );
-      if (dsnSuccess) return true;
-    }
-
-    if (this.ussDownloader) {
-      return this.downloadFromPaths(
-        this.ussDownloader,
-        copybookName,
-        documentUri,
-        SettingsService.getUssPath(documentUri, copybookName.dialect),
-      );
-    }
-
-    return false;
-  }
-
-  /**
    * Clears downloaders cache
    */
   clearCache() {
@@ -119,47 +59,9 @@ export class CopybookDownloadService {
     this.ussDownloader?.clearMemberListCache();
     this.e4eDownloader?.clearConfigs();
     this.e4eDownloader?.clearProfiles();
-    this.dsnDownloader?.clearZoweDownloadQueue();
-    this.ussDownloader?.clearZoweDownloadQueue();
   }
   clearProfiles() {
     this.e4eDownloader?.clearProfiles();
-  }
-
-  private async downloadFromPaths(
-    downloader: CopybookDownloaderForDsn | CopybookDownloaderForUss,
-    copybook: CopybookName,
-    documentUri: string,
-    paths: string[] | { path: string; profile?: string }[] | undefined,
-  ): Promise<boolean> {
-    if (!paths) return false;
-
-    for (const path of paths) {
-      const p = typeof path === "object" ? path.path : path;
-      const profile =
-        typeof path === "object" && path.profile
-          ? path.profile
-          : ProfileUtils.getProfileNameForCopybook(
-              documentUri,
-              this.explorerApi,
-            );
-      if (profile) {
-        const extensions =
-          await SettingsService.getCopybookExtension(documentUri);
-        const success =
-          downloader instanceof CopybookDownloaderForDsn
-            ? await downloader.downloadCopybook(copybook, p, profile)
-            : await downloader.downloadCopybook(
-                copybook,
-                p,
-                profile,
-                extensions ? extensions : [""],
-              );
-        if (success) return true;
-      }
-    }
-
-    return false;
   }
 
   private handleAsEndevorElement(documentUri: string) {
@@ -167,16 +69,6 @@ export class CopybookDownloadService {
       SettingsService.getCopybookEndevorDependencySettings() ===
         ENDEVOR_PROCESSOR && this.e4eApi?.isEndevorElement(documentUri)
     );
-  }
-
-  public makeCopybookDownloadHandler() {
-    return (
-      cobolFileName: string,
-      copybookNames: CopybookName[],
-      _quietMode: boolean,
-    ) => {
-      return this.downloadCopybooks(cobolFileName, copybookNames);
-    };
   }
 
   public makeResolveCopybookUriHandler() {
@@ -262,44 +154,9 @@ export class CopybookDownloadService {
 
   public explorerAppeared(api: IApiRegisterClient) {
     this.explorerApi = api;
-    this.ussDownloader = new CopybookDownloaderForUss(
-      this.storagePath,
-      this.explorerApi,
-    );
-    this.dsnDownloader = new CopybookDownloaderForDsn(
-      this.storagePath,
-      this.explorerApi,
-    );
+    this.ussDownloader = new CopybookDownloaderForUss(this.explorerApi);
+    this.dsnDownloader = new CopybookDownloaderForDsn(this.explorerApi);
     this.diagnosticsService?.clearDiagnostics();
-  }
-
-  public async downloadCopybooks(
-    documentUri: string,
-    copybookNames: CopybookName[],
-  ): Promise<void> {
-    if (
-      !(await this.isPrerequisiteForDownloadSatisfied(
-        documentUri,
-        copybookNames.map((copybook) => copybook.dialect),
-      ))
-    ) {
-      return;
-    }
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: "Fetching copybooks",
-      },
-      async (
-        progress: vscode.Progress<{ message?: string; increment?: number }>,
-      ) => {
-        await this.processCopybookDownload(
-          progress,
-          documentUri,
-          copybookNames,
-        );
-      },
-    );
   }
 
   public async listRemoteCopybooks(
@@ -463,49 +320,6 @@ export class CopybookDownloadService {
     }
   }
 
-  private async processCopybookDownload(
-    progress: vscode.Progress<{ message?: string; increment?: number }>,
-    documentUri: string,
-    copybookNames: CopybookName[],
-  ): Promise<void> {
-    const totalCopybooksToDownload = copybookNames.length;
-    let processedCopybooks = 0;
-    const downloadRequestStartTime = performance.now();
-    await Promise.all(
-      copybookNames.map(async (copybookName) => {
-        await this.downloadCopybook(copybookName, documentUri)
-          .then((isDownloaded) => {
-            if (isDownloaded) {
-              this.outputChannel?.appendLine(
-                `==> Copybook ${copybookName.name}(dialect:${copybookName.dialect}) download completed in : ${performance.now() - downloadRequestStartTime} milliseconds`,
-              );
-            } else {
-              this.outputChannel?.appendLine(
-                `==> Copybook ${copybookName.name}(dialect:${copybookName.dialect}) failed in ${performance.now() - downloadRequestStartTime} milliseconds`,
-              );
-            }
-          })
-          .catch((err) => {
-            this.outputChannel?.appendLine(
-              `==> Copybook ${copybookName.name}(dialect:${copybookName.dialect}) couldn't be downloaded. Time: ${performance.now() - downloadRequestStartTime} milliseconds , Error: ${err}`,
-            );
-          })
-          .finally(() => {
-            processedCopybooks++;
-            this.updateDownloadProgress(
-              progress,
-              totalCopybooksToDownload,
-              processedCopybooks,
-            );
-          });
-      }),
-    ).catch((err) => {
-      this.outputChannel?.appendLine(
-        `Error downloading copybooks : ${getErrorMessage(err)}`,
-      );
-    });
-  }
-
   private async isPrerequisiteForDownloadSatisfied(
     documentUri: string,
     dialects: string[],
@@ -613,78 +427,6 @@ export class CopybookDownloadService {
       increment: downloadPercent,
       message: downloadPercent + "%",
     });
-  }
-  async downloadCopybooksinProcessorGroups(
-    copybookName: CopybookName,
-    documentUri: string,
-    pgConfigs: (
-      | ZoweDatasetConfigModel
-      | ZoweUssConfigModel
-      | EndevorConfigModel
-    )[],
-  ): Promise<boolean> {
-    try {
-      for (const config of pgConfigs) {
-        if (DATASET in config && this.dsnDownloader) {
-          const dsnSuccess = await this.downloadFromPaths(
-            this.dsnDownloader,
-            copybookName,
-            documentUri,
-            [
-              {
-                path: config.dataset,
-                profile: config.profile ? config.profile : undefined,
-              },
-            ],
-          );
-          if (dsnSuccess) return true;
-        } else if (USS in config && this.ussDownloader) {
-          const ussSuccess = await this.downloadFromPaths(
-            this.ussDownloader,
-            copybookName,
-            documentUri,
-            [
-              {
-                path: config.uss,
-                profile: config.profile ? config.profile : undefined,
-              },
-            ],
-          );
-          if (ussSuccess) return true;
-        } else if (ENVIRONMENT in config && this.e4eDownloader) {
-          const resolvedProfile = await this.e4eDownloader.getProfileInfo(
-            config.profile,
-          );
-          const element: EndevorElement = {
-            use_map: config.use_map === false ? false : true,
-            environment: config.environment,
-            stage: config.stage,
-            system: config.system,
-            subsystem: config.subsystem,
-            type: config.type,
-            element: copybookName.name.toUpperCase(),
-            fingerprint: "",
-          };
-          if (
-            resolvedProfile &&
-            (await this.e4eDownloader.hasElement(
-              resolvedProfile,
-              element,
-              copybookName.name,
-            )) &&
-            (await this.e4eDownloader?.downloadElementE4E(
-              resolvedProfile,
-              element,
-            ))
-          )
-            return true;
-        }
-      }
-    } catch (error) {
-      this.outputChannel?.appendLine(getErrorMessage(error));
-      return false;
-    }
-    return false;
   }
 
   public reenableFailedRequests() {

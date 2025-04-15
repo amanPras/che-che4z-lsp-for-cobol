@@ -13,7 +13,6 @@
  */
 import { SettingsService } from "../../Settings";
 import { splitFilename } from "../../util/FSUtils";
-import { CopybookName } from "../CopybookDownloadService";
 import { DownloadUtil } from "./DownloadUtil";
 import {
   MemberCacheItem,
@@ -25,38 +24,8 @@ import * as vscode from "vscode";
  * Copybook downloader from USS using Zowe Explorer
  */
 export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
-  constructor(storagePath: string, explorerAPI: IApiRegisterClient) {
-    super(storagePath, explorerAPI);
-  }
-
-  /**
-   * Downloads a file from USS using Zowe explorer
-   *
-   * @param copybookName Copybook to be downloaded.
-   * @param ussPath ussPath in mainframe.
-   * @param profile zowe profile name
-   */
-  async downloadCopybook(
-    copybookName: CopybookName,
-    ussPath: string,
-    profile: string,
-    _extensions: string[],
-  ): Promise<boolean> {
-    const has = await this.hasMember(profile, ussPath, copybookName.name);
-    const memberList = await this.getAllMembers(profile, ussPath);
-    const remoteCopybook = DownloadUtil.getRemoteCopybookName(
-      memberList.map((m) => m.name),
-      copybookName.name,
-    );
-    return !!(
-      remoteCopybook &&
-      has &&
-      (await this.downloadCopybookFromMFUsingZowe(
-        ussPath,
-        remoteCopybook,
-        profile,
-      ))
-    );
+  constructor(explorerAPI: IApiRegisterClient) {
+    super(explorerAPI);
   }
 
   public async getAllMembers(
@@ -102,42 +71,6 @@ export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
 
     this.memberListCache.set(id, members);
     return members;
-  }
-
-  /**
-   * Downloads file using Zowe explorer from USS based on passed parameters
-   * @param dataset  dataset name
-   * @param member member name
-   * @param profileName ZE profile name
-   */
-  override async downloadCopybookContent(
-    dataset: string,
-    member: string,
-    profileName: string,
-  ): Promise<boolean> {
-    const loadedProfile = DownloadUtil.loadProfile(
-      profileName,
-      this.explorerAPI,
-    );
-    const downloadOptions = this.getDownloadOptions(
-      profileName,
-      dataset,
-      member,
-      loadedProfile,
-    );
-
-    await this.explorerAPI
-      .getUssApi(loadedProfile)
-      .getContents(`${dataset}/${member}`, downloadOptions.apiOptions);
-
-    if (downloadOptions.decode) {
-      await this.decodeBinaryContent(
-        downloadOptions.fileUri,
-        downloadOptions.decode,
-      );
-    }
-
-    return true;
   }
 
   public async hasMember(
