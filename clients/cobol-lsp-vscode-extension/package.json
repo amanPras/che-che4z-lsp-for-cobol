@@ -551,6 +551,19 @@
           },
           "description": "List of preprocessors used by the LSPConfig",
           "uniqueItems": true
+        },
+        "cobol-lsp.diagnostics.sensitivity": {
+          "type": "string",
+          "enum": [
+            "LOW",
+            "NORMAL"
+          ],
+          "enumDescriptions": [
+            "Lowers the diagnsotics sensitivity and ignores some of the diagnostics.",
+            "Shows all the diagnostics"
+          ],
+          "description": "reduce diagnostics sensitivity",
+          "default": "NORMAL"
         }
       }
     },
