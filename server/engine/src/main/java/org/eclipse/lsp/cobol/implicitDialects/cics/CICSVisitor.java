@@ -324,9 +324,8 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
                 .ifPresent(
                     locality ->
                         throwException(
-                            token.getText(),
                             locality,
-                            MessageTemplate.of("CobolVisitor.AreaBWarningMsg"))));
+                            MessageTemplate.of("CobolVisitor.AreaBWarningMsg", token.getText()))));
   }
 
   private Locality getTokenLocality(Token token) {
@@ -350,15 +349,12 @@ class CICSVisitor extends CICSParserBaseVisitor<List<Node>> {
     };
   }
 
-  private void throwException(
-      String wrongToken, @NonNull Locality locality, MessageTemplate messageTemplate) {
-    String msg = messageService.localizeTemplate(messageTemplate) + wrongToken;
+  private void throwException(@NonNull Locality locality, MessageTemplate messageTemplate) {
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
             .location(locality.toOriginalLocation())
-            .errorCode(messageTemplate::getTemplate)
-            .suggestion(msg)
+            .messageTemplate(messageTemplate)
             .severity(ErrorSeverity.WARNING)
             .build();
 

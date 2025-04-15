@@ -40,7 +40,7 @@ import org.eclipse.lsp.cobol.core.semantics.CopybooksRepository;
 public class ErrorFinalizerService {
 
   private final MessageService messageService;
-  private static DiagnosticSensitivity filterDiagnostics = NORMAL;
+  private DiagnosticSensitivity filterDiagnostics = NORMAL;
   public static final Set<String> NON_FATAL_ERRORS =
       ImmutableSet.of(
           "cobolParser.subSchemaNameLength",
@@ -276,8 +276,8 @@ public class ErrorFinalizerService {
    * @param nonFatalErrors
    * @return true if diagnostics is within the clients diagnostic level, false otherwise
    */
-  public static boolean filterDiagnotics(SyntaxError syntaxError, Set<String> nonFatalErrors) {
-    if (filterDiagnostics == NORMAL) return true;
+  public boolean filterDiagnotics(SyntaxError syntaxError, Set<String> nonFatalErrors) {
+    if (this.filterDiagnostics == NORMAL) return true;
     return ofNullable(syntaxError.getErrorCode())
         .map(errCode -> !nonFatalErrors.contains(errCode.getLabel()))
         .orElse(true);

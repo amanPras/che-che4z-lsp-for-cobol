@@ -553,7 +553,6 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
             .ifPresent(
                 locality ->
                     throwException(
-                        declarativeBody.getText(),
                         locality,
                         MessageTemplate.of(
                             "CobolVisitor.declarativeSameMsg", declarativeBody.getText())));
@@ -1826,19 +1825,18 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     return new ProcedureName(targetName, sectionName);
   }
 
-  private void throwException(
-      String wrongToken, @NonNull Locality locality, MessageTemplate messageTemplate) {
-    String msg = messageService.localizeTemplate(messageTemplate) + wrongToken;
+  private void throwException(@NonNull Locality locality, MessageTemplate messageTemplate) {
     SyntaxError error =
         SyntaxError.syntaxError()
             .errorSource(ErrorSource.PARSING)
             .location(locality.toOriginalLocation())
-            .errorCode(messageTemplate::getTemplate)
-            .suggestion(msg)
+            .messageTemplate(messageTemplate)
             .severity(ErrorSeverity.WARNING)
             .build();
 
     LOG.debug("Syntax error by CobolVisitor#throwException: {}", error);
+    String wrongToken =
+        messageTemplate.getArgs().length > 0 ? messageTemplate.getArgs()[0].toString() : "";
     if (!errors.contains(error) && !wrongToken.contains(CobolDialect.FILLER)) {
       errors.add(error);
     }
@@ -1903,9 +1901,8 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     final Location tokenLoc = getLocation(token);
     if (tokenLoc.getRange().getStart().getCharacter() <= areaBStartIndex) return;
     throwException(
-        token.getText(),
         locationToLocality(tokenLoc),
-        MessageTemplate.of("CobolVisitor.AreaAWarningMsg"));
+        MessageTemplate.of("CobolVisitor.AreaAWarningMsg", token.getText()));
   }
 
   private static boolean startsWithIcase(String s, String b) {
@@ -1926,7 +1923,7 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
       Location l = getLocation(t);
       if (!startsInAreaA(l.getRange())) continue;
       throwException(
-          t.getText(), locationToLocality(l), MessageTemplate.of("CobolVisitor.AreaBWarningMsg"));
+          locationToLocality(l), MessageTemplate.of("CobolVisitor.AreaBWarningMsg", t.getText()));
     }
   }
 

@@ -55,12 +55,15 @@ public class DialectService {
   private final DialectDiscoveryService discoveryService;
   private final CopybookService copybookService;
   private final MessageService messageService;
+  private final ErrorFinalizerService errorFinalizerService;
 
   @Inject
   public DialectService(
       DialectDiscoveryService discoveryService,
       CopybookService copybookService,
-      MessageService messageService) {
+      MessageService messageService,
+      ErrorFinalizerService errorFinalizerService) {
+    this.errorFinalizerService = errorFinalizerService;
     this.dialectSuppliers = new HashMap<>();
     this.discoveryService = discoveryService;
     this.copybookService = copybookService;
@@ -92,7 +95,7 @@ public class DialectService {
       dialectErrors.stream()
           .filter(
               err ->
-                  ErrorFinalizerService.filterDiagnotics(err, orderedDialect.getFatalErrorCodes()))
+                  errorFinalizerService.filterDiagnotics(err, orderedDialect.getFatalErrorCodes()))
           .forEach(
               e ->
                   e.getLocation()
