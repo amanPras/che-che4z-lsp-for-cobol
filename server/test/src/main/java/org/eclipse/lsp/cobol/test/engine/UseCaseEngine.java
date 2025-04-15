@@ -597,6 +597,10 @@ public class UseCaseEngine {
   private void assertDiagnostics(
       Map<String, List<Diagnostic>> expected, Map<String, List<Diagnostic>> actual) {
     assertEquals(expected.keySet(), actual.keySet(), "Diagnostic documents are not the same");
+
+    // Below code provides flexible validation, as a strict assertion would lead to update of most
+    // of the TestCases. Strict assertion is done when the expectedDiagnostics includes an
+    // ErrorCode.
     for (String documentUri : expected.keySet()) {
       List<Diagnostic> expectedDiagnostics =
           expected.get(documentUri).stream().sorted(diagnosticComparator).collect(toList());
@@ -610,12 +614,11 @@ public class UseCaseEngine {
         if (expectedDiagnostic.getCode() == null && actualDiagnostic.getCode() != null) {
           assumingThat(
               actualDiagnostic.getCode().equals(expectedDiagnostic.getCode()),
-              () -> {
-                assertEquals(
-                    expectedDiagnostic,
-                    actualDiagnostic,
-                    "Different diagnostics for: " + documentUri);
-              });
+              () ->
+                  assertEquals(
+                      expectedDiagnostic,
+                      actualDiagnostic,
+                      "Different diagnostics for: " + documentUri));
         } else {
           assertEquals(
               expectedDiagnostic, actualDiagnostic, "Different diagnostics for: " + documentUri);
