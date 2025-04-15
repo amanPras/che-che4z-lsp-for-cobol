@@ -14,16 +14,12 @@
 
 import * as vscode from "vscode";
 import {
-  COPYBOOKS_FOLDER,
   DATASET,
-  E4E_FOLDER,
   ENDEVOR_PROCESSOR,
   ENVIRONMENT,
   PROVIDE_PROFILE_MSG,
   PROVIDE_PROFILE_MSG_PROC_GRUOPS,
-  USE_MAP,
   USS,
-  ZOWE_FOLDER,
 } from "../../constants";
 import { ProfileUtils } from "../util/ProfileUtils";
 import { DownloadUtil } from "./downloader/DownloadUtil";
@@ -32,10 +28,6 @@ import { CopybookDownloaderForE4E } from "./downloader/CopybookDownloaderForE4E"
 import { CopybookDownloaderForUss } from "./downloader/CopybookDownloaderForUss";
 import { CopybookDownloaderForDsn } from "./downloader/CopybookDownloaderForDsn";
 import { SettingsService } from "../Settings";
-import { searchCopybook } from "./CopybookMessageHandler";
-import { searchCopybookInExtensionFolder } from "../util/FSUtils";
-import { CopybookURI } from "./CopybookURI";
-import path = require("path");
 import { getErrorMessage } from "../util/ErrorsUtils";
 import { loadProcessorGroupCopybookPathsConfig } from "../ProcessorGroups";
 import {
@@ -177,10 +169,6 @@ export class CopybookDownloadService {
     );
   }
 
-  public makeResolveCopybookHandler() {
-    return this.resolveCopybookHandler.bind(this);
-  }
-
   public makeCopybookDownloadHandler() {
     return (
       cobolFileName: string,
@@ -189,64 +177,6 @@ export class CopybookDownloadService {
     ) => {
       return this.downloadCopybooks(cobolFileName, copybookNames);
     };
-  }
-
-  /**
-   * @deprecated replaced by `resolveCopybookURI`
-   */
-  public async resolveCopybookHandler(
-    documentUri: string,
-    copybookName: string,
-    dialectType: string,
-  ): Promise<string | undefined> {
-    if (this.handleAsEndevorElement(documentUri)) {
-      const copybookUri = await this.e4eDownloader?.getE4ECopyBookLocation(
-        copybookName,
-        documentUri,
-      );
-      return copybookUri?.toString();
-    }
-    const pgConfigs = await loadProcessorGroupCopybookPathsConfig(
-      { scopeUri: documentUri },
-      [],
-      dialectType,
-    );
-    if (pgConfigs.length > 0) {
-      return (
-        await searchCopybookinProcessorGroups(
-          documentUri,
-          copybookName,
-          this.storagePath,
-          pgConfigs,
-          this.e4eDownloader,
-          this.dsnDownloader,
-          this.ussDownloader,
-        )
-      )?.toString();
-    }
-
-    const result = await searchCopybook(
-      documentUri,
-      copybookName,
-      dialectType,
-      this.storagePath,
-    );
-    if (result) {
-      return result.toString();
-    }
-
-    // check in subfolders under copybooks (copybook downloaded from MF)
-    return searchCopybookInExtensionFolder(
-      copybookName,
-      CopybookURI.createPathForCopybookDownloaded(
-        documentUri,
-        dialectType,
-        path.join(this.storagePath, ZOWE_FOLDER, COPYBOOKS_FOLDER),
-        this.explorerApi,
-      ),
-      await SettingsService.getCopybookExtension(documentUri),
-      this.storagePath,
-    )?.toString();
   }
 
   public makeResolveCopybookUriHandler() {
@@ -861,95 +791,5 @@ export class CopybookDownloadService {
       if (await DownloadUtil.isProfileLocked(profileCheck)) return true;
     }
     return false;
-  }
-}
-async function searchCopybookinProcessorGroups(
-  documentUri: string,
-  copybookName: string,
-  storagePath: string,
-  pgConfigs: (
-    | string
-    | ZoweDatasetConfigModel
-    | ZoweUssConfigModel
-    | EndevorConfigModel
-  )[],
-  e4eDownloader?: CopybookDownloaderForE4E,
-  dsnDownloader?: CopybookDownloaderForDsn,
-  ussDownloader?: CopybookDownloaderForUss,
-): Promise<vscode.Uri | undefined> {
-  let result: vscode.Uri | undefined;
-
-  for (const config of pgConfigs) {
-    let shouldFound = false;
-    let folders: string = "";
-    let extensions: string[] | undefined;
-    if (typeof config === "string") {
-      folders = config;
-      extensions = await SettingsService.getCopybookExtension(documentUri);
-    } else if (ENVIRONMENT in config) {
-      if (!e4eDownloader) continue;
-      const endevorType = DownloadUtil.endevorConfigToType(config);
-      const profile = await e4eDownloader.getProfileInfo(config.profile);
-      if (!profile) continue;
-      const has = await e4eDownloader.hasElement(
-        profile,
-        endevorType,
-        copybookName,
-      );
-      if (!has) continue;
-      folders = CopybookURI.createDatasetPath(
-        CopybookURI.getEnviromentPath(endevorType, profile),
-        endevorType.use_map ? USE_MAP : "",
-        storagePath,
-        E4E_FOLDER,
-      ).fsPath;
-      shouldFound = true;
-      extensions = [""];
-    } else if (DATASET in config) {
-      const profile = config.profile
-        ? config.profile
-        : SettingsService.getProfileName();
-      if (!profile) continue;
-      const has = await dsnDownloader?.hasMember(
-        profile,
-        config.dataset,
-        copybookName,
-      );
-      if (!has) continue;
-      folders = CopybookURI.createDatasetPath(
-        [profile],
-        config.dataset,
-        storagePath,
-      ).fsPath;
-      shouldFound = true;
-      extensions = [""];
-    } else if (USS in config) {
-      const profile = config.profile
-        ? config.profile
-        : SettingsService.getProfileName();
-      if (!profile) continue;
-      extensions = await SettingsService.getCopybookExtension(documentUri);
-      const has = await ussDownloader?.hasMember(
-        profile,
-        config.uss,
-        copybookName,
-      );
-      if (!has) continue;
-      folders = CopybookURI.createDatasetPath(
-        [profile],
-        config.uss,
-        storagePath,
-      ).fsPath;
-      shouldFound = true;
-    }
-
-    result = searchCopybookInExtensionFolder(
-      copybookName,
-      folders ? [folders] : [],
-      extensions,
-      storagePath,
-    );
-
-    if (result || shouldFound) return result;
   }
 }

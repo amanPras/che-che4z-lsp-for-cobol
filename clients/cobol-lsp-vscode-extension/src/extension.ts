@@ -218,14 +218,10 @@ export async function activate(
     "cobol/resolveSubroutine",
     resolveSubroutineURI,
   );
-  languageClientService.addRequestHandler(
-    "copybook/resolve",
-    copyBooksDownloader.makeResolveCopybookHandler(),
-  );
-  languageClientService.addRequestHandler(
-    "copybook/download",
-    copyBooksDownloader.makeCopybookDownloadHandler(),
-  );
+  // languageClientService.addRequestHandler(
+  //   "copybook/download",
+  //   copyBooksDownloader.makeCopybookDownloadHandler(),
+  // );
   languageClientService.addRequestHandler(
     "workspace/configuration",
     (r: Parameters<typeof lspConfigHandler>[0]) =>
