@@ -173,15 +173,12 @@ public class Db2SqlDialect implements CobolDialect {
     Optional<CopybookModel> copybookModel =
         Optional.ofNullable(PredefinedCopybooks.forName(copybookName.getQualifiedName()))
             .map(
-                c -> {
-                  String name = c.nameForBackend(sqlBackend);
-                  String content = "";
-                  return new CopybookModel(
-                      copybookName.toCopybookId(ImplicitCodeUtils.createFullUrl(c.name())),
-                      copybookName,
-                      ImplicitCodeUtils.createFullUrl(c.name()),
-                      content);
-                });
+                c ->
+                    new CopybookModel(
+                        copybookName.toCopybookId(ImplicitCodeUtils.createFullUrl(c.name())),
+                        copybookName,
+                        ImplicitCodeUtils.createFullUrl(c.name()),
+                        ""));
 
     LOG.debug("Db2 Predefined copybook: {}", copybookModel);
     return copybookModel;

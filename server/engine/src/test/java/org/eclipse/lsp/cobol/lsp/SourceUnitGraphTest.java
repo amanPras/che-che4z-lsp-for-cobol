@@ -79,11 +79,6 @@ class SourceUnitGraphTest {
         .thenReturn(CompletableFuture.completedFuture("some dummy text"));
     SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(asyncAnalysisService, clientProvider);
     RootNode rootNode = mock(RootNode.class);
-    //    when(fileService.getPathFromURI(anyString())).thenReturn(Paths.get(""));
-    //    when(fileService.getContentByPath(any()))
-    //        .thenReturn("COPY 1 TEXT")
-    //        .thenReturn("COPY 2 TEXT")
-    //        .thenReturn("COPY 3 TEXT");
     CopyNode copyNode1 =
         new CopyNode(
             Locality.builder().uri(URI).build(),

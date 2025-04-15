@@ -52,13 +52,13 @@ public interface CobolLanguageClient extends LanguageClient {
   }
 
   /**
-   * The cobol/resolveSubroutine request is sent from the server to the client to resolve subroutine
-   * name into local file URI.
+   * The copybook/uri request is sent from the server to the client to resolve / identify a copybook
+   * name into a file URI.
    *
-   * @param cobolFileUri
-   * @param copybookName
-   * @param dialectType
-   * @return corresponding local file URI or null
+   * @param cobolFileUri the uri of cobol program
+   * @param copybookName the name of copybook to resolve
+   * @param dialectType the name of copybook dialect
+   * @return corresponding a file URI or null.
    */
   @JsonRequest("copybook/uri")
   default CompletableFuture<String> resolveCopybookUri(
@@ -67,11 +67,10 @@ public interface CobolLanguageClient extends LanguageClient {
   }
 
   /**
-   * The cobol/resolveSubroutine request is sent from the server to the client to resolve subroutine
-   * name into local file URI.
+   * The file/content request is sent from the server to the client to get the content of a URI.
    *
-   * @param uri
-   * @return corresponding local file URI or null
+   * @param uri the uri whose content is needed
+   * @return string content of the passed URI
    */
   @JsonRequest("file/content")
   default CompletableFuture<String> getFileContent(String uri) {

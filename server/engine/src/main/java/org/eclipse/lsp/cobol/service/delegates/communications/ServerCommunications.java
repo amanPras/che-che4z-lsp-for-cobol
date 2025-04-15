@@ -79,10 +79,7 @@ public class ServerCommunications implements Communications {
             logMessage(
                 Info,
                 messageService.getMessage(
-                    "Communications.noSyntaxError",
-                    //                                    TODO: use diff approach or a utility class
-                    //                                    files.getNameFromURI(files.decodeURI(uri))
-                    uri)));
+                    "Communications.noSyntaxError", getFilenameFromUri(uri))));
   }
 
   /**
@@ -148,10 +145,7 @@ public class ServerCommunications implements Communications {
     WorkDoneProgressBegin workDoneProgressBegin = new WorkDoneProgressBegin();
     workDoneProgressBegin.setTitle(
         messageService.getMessage(
-            "Communications.syntaxAnalysisInProgressTitle",
-            //            TODO: use some sort of utility class
-            //            files.getNameFromURI(files.decodeURI(uri))
-            getFilenameFromUri(uri)));
+            "Communications.syntaxAnalysisInProgressTitle", getFilenameFromUri(uri)));
     workDoneProgressBegin.setCancellable(true);
     params.setValue(Either.forLeft(workDoneProgressBegin));
     getClient().notifyProgress(params);

@@ -46,7 +46,8 @@ public interface CopybookService {
       CleanerPreprocessor preprocessor);
 
   /**
-   * Store the copybookModel in cache. Copybook depends on a document from where it is imported.
+   * Store the predefined copybookModel in cache. Predefined Copybook depends on a dialect which
+   * defines these copybookModel.
    *
    * @param copybookModel the copybook model
    */
