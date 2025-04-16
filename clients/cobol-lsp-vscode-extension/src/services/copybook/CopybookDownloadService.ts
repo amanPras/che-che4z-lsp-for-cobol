@@ -89,7 +89,7 @@ export class CopybookDownloadService {
 
       return endevorResult?.toString() ?? null;
     }
-    // search processor groups -> ??
+    // search processor groups
     const pgConfigs = (
       await loadProcessorGroupCopybookPathsConfig(
         { scopeUri: documentURI },
@@ -415,24 +415,11 @@ export class CopybookDownloadService {
     });
   }
 
-  private updateDownloadProgress(
-    progress: vscode.Progress<{ message?: string; increment?: number }>,
-    totalDownload: number,
-    completedDownload: number,
-  ): void {
-    const downloadPercent = Math.round(
-      (completedDownload / totalDownload) * 100,
-    );
-    progress.report({
-      increment: downloadPercent,
-      message: downloadPercent + "%",
-    });
-  }
-
   public reenableFailedRequests() {
     this.dsnDownloader?.reenableFailedRequests();
     this.ussDownloader?.reenableFailedRequests();
   }
+
   private async isProcessorGroupConfigsSatisfiesDownload(
     documentUri: string,
     defaultProfile: string | undefined,

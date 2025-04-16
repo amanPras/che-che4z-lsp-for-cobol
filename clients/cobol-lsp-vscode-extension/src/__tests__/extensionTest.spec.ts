@@ -13,7 +13,6 @@
  */
 
 import * as vscode from "vscode";
-import { fetchCopybookCommand } from "../commands/FetchCopybookCommand";
 import { gotoCopybookSettings } from "../commands/OpenSettingsCommand";
 import { initSmartTab } from "../commands/SmartTabCommand";
 import { activate } from "../extension";
@@ -71,7 +70,6 @@ describe("Check plugin extension for cobol starts successfully.", () => {
 
     expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(12);
 
-    expect(fetchCopybookCommand).toHaveBeenCalled();
     expect(gotoCopybookSettings).toHaveBeenCalled();
     expect(initSmartTab).toHaveBeenCalled();
 
