@@ -40,6 +40,9 @@ public class SyntaxError {
   ErrorCode errorCode;
   @EqualsAndHashCode.Include ErrorSource errorSource;
   @EqualsAndHashCode.Include DiagnosticRelatedInformation relatedInformation;
+  @EqualsAndHashCode.Include private String matchErrorCode() {
+    return errorCode != null ? errorCode.getLabel() : messageTemplate != null ? messageTemplate.getTemplate() : null;
+  }
 
   public static class SyntaxErrorBuilder {
     private ErrorCode errorCode;
@@ -49,10 +52,8 @@ public class SyntaxError {
     }
 
     private SyntaxError getSyntaxError() {
-      if (errorCode == null) {
-        if (messageTemplate != null) {
+      if (errorCode == null && messageTemplate != null) {
           errorCode = messageTemplate::getTemplate;
-        }
       }
       return new SyntaxError(
           location,
