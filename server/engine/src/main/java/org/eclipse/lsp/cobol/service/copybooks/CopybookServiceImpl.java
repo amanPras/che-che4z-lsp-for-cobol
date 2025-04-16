@@ -53,9 +53,10 @@ import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 @SuppressWarnings("UnstableApiUsage")
 public class CopybookServiceImpl implements CopybookService {
 
-  private final Map<String, List<SyntaxError>> preprocessCopybookErrors = new ConcurrentHashMap<>();
-  private final Map<String, Set<CopybookModel>> copybookUsage = new ConcurrentHashMap<>();
-  private final Provider<CobolLanguageClient> clientProvider;
+  protected final Map<String, List<SyntaxError>> preprocessCopybookErrors =
+      new ConcurrentHashMap<>();
+  protected final Map<String, Set<CopybookModel>> copybookUsage = new ConcurrentHashMap<>();
+  protected final Provider<CobolLanguageClient> clientProvider;
   private final FileSystemService files;
   private static final String COBOL = "COBOL";
 
@@ -190,7 +191,7 @@ public class CopybookServiceImpl implements CopybookService {
     return predefineCopybook.orElseGet(() -> registerForDownloading(copybookName, programUri));
   }
 
-  private Optional<CopybookModel> tryResolvePredefinedCopybook(CopybookName copybookName) {
+  protected Optional<CopybookModel> tryResolvePredefinedCopybook(CopybookName copybookName) {
     ThreadInterruptionUtil.checkThreadInterrupted();
     CopybookName predefineCopybookName =
         new CopybookName(
@@ -212,7 +213,7 @@ public class CopybookServiceImpl implements CopybookService {
     }
   }
 
-  private ResultWithErrors<CopybookModel> cleanupCopybook(
+  protected ResultWithErrors<CopybookModel> cleanupCopybook(
       CopybookModel dirtyCopybook, CleanerPreprocessor preprocessor) {
     ResultWithErrors<ExtendedText> textTransformationsResultWithErrors =
         preprocessor.cleanUpCode(dirtyCopybook.getUri(), dirtyCopybook.getContent());
