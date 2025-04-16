@@ -23,7 +23,6 @@ import static org.eclipse.lsp.cobol.common.model.tree.Node.hasType;
 import static org.eclipse.lsp.cobol.test.engine.UseCaseUtils.DOCUMENT_URI;
 import static org.eclipse.lsp.cobol.test.engine.UseCaseUtils.analyze;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -51,10 +50,8 @@ import org.eclipse.lsp.cobol.common.symbols.ProcedureId;
 import org.eclipse.lsp.cobol.common.symbols.SymbolTable;
 import org.eclipse.lsp.cobol.common.utils.ImplicitCodeUtils;
 import org.eclipse.lsp.cobol.test.CobolText;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
 /**
  * This class applies syntax and semantic analysis for COBOL texts using the actual Language Engine.
@@ -612,19 +609,29 @@ public class UseCaseEngine {
         Diagnostic expectedDiagnostic = expectedDiagnostics.get(i);
         Diagnostic actualDiagnostic = actualDiagnostics.get(i);
         if (expectedDiagnostic.getCode() == null && actualDiagnostic.getCode() != null) {
-          assumingThat(
-              actualDiagnostic.getCode().equals(expectedDiagnostic.getCode()),
-              () ->
-                  assertEquals(
-                      expectedDiagnostic,
-                      actualDiagnostic,
-                      "Different diagnostics for: " + documentUri));
+          assertDiagnosticEqualsIgnoringCode(expectedDiagnostic, actualDiagnostic);
         } else {
           assertEquals(
               expectedDiagnostic, actualDiagnostic, "Different diagnostics for: " + documentUri);
         }
       }
     }
+  }
+
+  private static void assertDiagnosticEqualsIgnoringCode(
+      @NonNull Diagnostic expected, @NonNull Diagnostic actual) {
+    assertEquals(expected.getRange(), actual.getRange(), "Diagnostic range mismatch");
+    assertEquals(expected.getSeverity(), actual.getSeverity(), "Diagnostic severity mismatch");
+    assertEquals(expected.getSource(), actual.getSource(), "Diagnostic source mismatch");
+    assertEquals(expected.getMessage(), actual.getMessage(), "Diagnostic message mismatch");
+    assertEquals(
+        expected.getCodeDescription(), actual.getCodeDescription(), " Code Description mismatch");
+    assertEquals(expected.getTags(), actual.getTags(), " Tags mismatch");
+    assertEquals(
+        expected.getRelatedInformation(),
+        actual.getRelatedInformation(),
+        "RelatedInformation mismatch");
+    assertEquals(expected.getData(), actual.getData(), "Data mismatch");
   }
 
   private <T> void assertResult(
