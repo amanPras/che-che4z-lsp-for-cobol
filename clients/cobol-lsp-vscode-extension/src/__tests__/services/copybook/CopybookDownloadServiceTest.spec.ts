@@ -930,29 +930,48 @@ describe("Tests copybook download service", () => {
                 base: expect.objectContaining({
                   path: "/workspace/copybooks",
                   scheme: "file",
-                }),
+                }) as vscode.Uri,
                 pattern: "{COPYBOOK.CPY}",
               });
             });
           });
 
           describe("local dialect copybook resolution", () => {
-            it(() => {
-              throw new Error("TODO");
-              // settingsMockProperties = {
-              //   "dialect.paths-local": [CPY_FOLDER_NAME],
-              //   "copybook-extensions": [""],
-              // };
-              // globSyncMockResult = [copybookName];
+            let findFilesSpy: jest.SpyInstance;
 
-              // const downloader = new CopybookDownloadService("/storagePath");
-              // const uri: string | undefined = await downloader.resolveCopybookHandler(
-              //   "file:///" + copybookName,
-              //   "PRGNAME",
-              //   "DIALECT",
-              // );
-              // expect(uri).toMatch(CPY_FOLDER_NAME);
-              // expect(spySearchInWorkspace).toHaveBeenCalledTimes(1);
+            beforeEach(() => {
+              workspaceConfigurationMock = {
+                "paths-local": ["copybooks"],
+                "dialect.paths-local": ["/dialect/copybooks"],
+                "dialect.copybook-extensions": [".CPY"],
+                "copybook-extensions": [".cob"],
+              };
+              findFilesSpy = jest
+                .spyOn(vscode.workspace, "findFiles")
+                .mockResolvedValue([
+                  vscode.Uri.parse("file:///dialect/copybooks/COPYBOOK.CPY"),
+                ]);
+            });
+            it("uses dialect path & extension configuration, not generic copybooks", async () => {
+              const downloader = new CopybookDownloadService("/storagePath");
+              const result = await downloader.resolveCopybookURI(
+                Uri.file("/test.cbl").toString(),
+                "COPYBOOK",
+                "dialect",
+              );
+
+              expect(result?.toString()).toEqual(
+                "file:///dialect/copybooks/COPYBOOK.CPY",
+              );
+
+              expect(findFilesSpy).toHaveBeenCalledTimes(1);
+              expect(findFilesSpy).toHaveBeenCalledWith({
+                base: expect.objectContaining({
+                  path: "/dialect/copybooks",
+                  scheme: "file",
+                }) as vscode.Uri,
+                pattern: "{COPYBOOK.CPY}",
+              });
             });
           });
         });
