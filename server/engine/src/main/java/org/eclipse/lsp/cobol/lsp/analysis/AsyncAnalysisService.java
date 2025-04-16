@@ -299,13 +299,12 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
             .collect(Collectors.toList());
     for (String uri : openedUris) {
       String languageId = documentModelService.get(uri).getLanguageId();
-      // TODO: update cache directly from workspace document graph
       copybookService.getCopybookUsage(uri).stream()
           .filter(model -> Objects.nonNull(model.getUri()))
           .filter(model -> model.getUri().equals(copybookUri))
           .forEach(
               copybookModel -> {
-                copybookService.invalidateCache(copybookModel.getCopybookId());
+                copybookService.invalidateCache(copybookModel);
                 if (copybookContent != null) {
                   copybookModel.setContent(copybookContent);
                   copybookService.store(

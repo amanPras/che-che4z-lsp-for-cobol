@@ -22,6 +22,7 @@ import java.util.List;
 import org.eclipse.lsp.cobol.common.DialectRegistryItem;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.DialectOutcome;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
@@ -37,6 +38,7 @@ class DialectServiceTest {
   DialectService dialectService;
   DialectDiscoveryService ddService;
   CopybookService copybookService;
+  PredefinedCopybookStore predefinedCopybookService;
   MessageService messageService;
 
   @BeforeEach
@@ -44,9 +46,11 @@ class DialectServiceTest {
     ddService = mock(DialectDiscoveryService.class);
     copybookService = mock(CopybookService.class);
     messageService = mock(MessageService.class);
+    predefinedCopybookService = mock(PredefinedCopybookStore.class);
     when(ddService.loadDialects(copybookService, messageService)).thenReturn(ImmutableList.of());
 
-    dialectService = new DialectService(ddService, copybookService, messageService);
+    dialectService =
+        new DialectService(ddService, copybookService, predefinedCopybookService, messageService);
   }
 
   private CobolDialect configureDialect(DialectProcessingContext context, String name) {

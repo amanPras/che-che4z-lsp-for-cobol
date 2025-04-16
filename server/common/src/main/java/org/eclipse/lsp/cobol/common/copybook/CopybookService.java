@@ -30,7 +30,7 @@ public interface CopybookService {
   /** Remove all the stored copybook. */
   void invalidateCache(boolean onlyNonImplicit);
 
-  void invalidateCache(CopybookId copybookId);
+  void invalidateCache(CopybookModel copybookModel);
 
   /**
    * Retrieve and return the copybook by its name. Returns a CopybookModel and preprocessed errors
