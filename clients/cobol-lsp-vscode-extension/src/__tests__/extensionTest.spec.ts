@@ -23,7 +23,6 @@ import { Utils } from "../services/util/Utils";
 import { registerEvent } from "../services/reporter";
 
 jest.mock("../commands/SmartTabCommand");
-jest.mock("../commands/FetchCopybookCommand");
 jest.mock("../commands/OpenSettingsCommand");
 jest.mock("../services/LanguageClientService");
 jest.mock("../services/copybook/CopybookDownloadService");

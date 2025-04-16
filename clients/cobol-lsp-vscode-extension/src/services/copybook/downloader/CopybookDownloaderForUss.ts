@@ -80,7 +80,7 @@ export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
   ): Promise<boolean> {
     const members = await this.getAllMembers(profileName, uss);
 
-    if (members.some((member) => member.name.toUpperCase() === copybookName)) {
+    if (members.some((member) => member.name === copybookName)) {
       return true;
     }
     return false;
