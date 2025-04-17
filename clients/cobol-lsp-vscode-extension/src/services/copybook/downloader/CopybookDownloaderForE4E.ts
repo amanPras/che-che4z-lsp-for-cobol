@@ -209,6 +209,21 @@ export class CopybookDownloaderForE4E {
         element.element,
         this.outputChannel,
       );
+
+      try {
+        const exists = await vscode.workspace.fs.stat(filePath);
+        if (exists) {
+          return filePath;
+        }
+      } catch (err) {
+        if (hasMember(err, "code") && err.code === "FileNotFound") {
+          // file doesn't exists - let's download the content of the copybook
+          // and store it in the file
+        } else {
+          throw err;
+        }
+      }
+
       const resultElement = await this.e4e.getElement(profile, element);
 
       if (resultElement instanceof Error) {
@@ -239,6 +254,20 @@ export class CopybookDownloaderForE4E {
         member.member,
         this.outputChannel,
       );
+
+      try {
+        const exists = await vscode.workspace.fs.stat(filePath);
+        if (exists) {
+          return filePath;
+        }
+      } catch (err) {
+        if (hasMember(err, "code") && err.code === "FileNotFound") {
+          // file doesn't exists - let's download the content of the copybook
+          // and store it in the file
+        } else {
+          throw err;
+        }
+      }
 
       const memberContent = await this.e4e.getMember(profile, {
         dataset: member.dataset,

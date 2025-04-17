@@ -61,6 +61,7 @@ export namespace workspace {
     delete: jest.fn().mockReturnValue(true),
     readDirectory: jest.fn().mockResolvedValue([["fileName", 2]]),
     createDirectory: jest.fn(),
+    stat: jest.fn(),
   };
 
   export const onDidChangeConfiguration = jest
@@ -236,7 +237,7 @@ export const languages = {
   }),
 };
 
-class FileNotFound extends Error {
+export class FileNotFound extends Error {
   code: string;
   constructor() {
     super();

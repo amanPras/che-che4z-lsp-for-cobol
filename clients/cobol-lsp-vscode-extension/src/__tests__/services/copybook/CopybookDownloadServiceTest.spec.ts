@@ -33,14 +33,10 @@ import {
 } from "../../../__mocks__/getZoweExplorerMock.utility";
 import { DownloadUtil } from "../../../services/copybook/downloader/DownloadUtil";
 import { E4E } from "../../../type/e4eApi";
-import {
-  e4eMock,
-  e4eMockInvalidProfile,
-} from "../../../__mocks__/getE4EMock.utility";
 import * as ProcessorGroups from "../../../services/ProcessorGroups";
 import { SettingsService } from "../../../services/Settings";
-import { DownloadDiagnosticsService } from "../../../services/DiagnosticsService";
 import { URI as Uri } from "vscode-uri";
+import { FileNotFound } from "../../../__mocks__/vscode";
 
 jest.mock("../../../services/reporter");
 Utils.getZoweExplorerAPI = jest
@@ -943,8 +939,7 @@ describe("Tests copybook download service", () => {
               workspaceConfigurationMock = {
                 "paths-local": ["copybooks"],
                 "dialect.paths-local": ["/dialect/copybooks"],
-                "dialect.copybook-extensions": [".CPY"],
-                "copybook-extensions": [".cob"],
+                "copybook-extensions": [".CPY"],
               };
               findFilesSpy = jest
                 .spyOn(vscode.workspace, "findFiles")
@@ -952,7 +947,7 @@ describe("Tests copybook download service", () => {
                   vscode.Uri.parse("file:///dialect/copybooks/COPYBOOK.CPY"),
                 ]);
             });
-            it("uses dialect path & extension configuration, not generic copybooks", async () => {
+            it("uses dialect path configuration, not generic copybooks", async () => {
               const downloader = new CopybookDownloadService("/storagePath");
               const result = await downloader.resolveCopybookURI(
                 Uri.file("/test.cbl").toString(),
@@ -1030,17 +1025,19 @@ describe("Tests copybook download service", () => {
 
         describe("resolve remote endevor copybooks", () => {
           describe("endevor members", () => {
+            let dataset: string;
+            let e4eMock: E4E;
+            let cachedFileExists: boolean = false;
+
             beforeEach(() => {
               workspaceConfigurationMock = {
                 [SETTINGS_CPY_NDVR_DEPENDENCIES]: ENDEVOR_PROCESSOR,
                 ["compiler"]: "",
                 ["preprocessors"]: [],
               };
-            });
+              dataset = "ENDEVOR.DATASET.COPYBOOK";
 
-            it("local cached of copybook uri is returned", async () => {
-              const dataset = "ENDEVOR.DATASET.COPYBOOK";
-              const e4eMock: E4E = {
+              e4eMock = {
                 isEndevorElement: jest.fn().mockResolvedValue(true),
                 getProfileInfo: jest.fn().mockResolvedValue({
                   profile: "profile",
@@ -1062,9 +1059,20 @@ describe("Tests copybook download service", () => {
                 onDidChangeElement: jest.fn(),
               };
 
+              jest
+                .spyOn(vscode.workspace.fs, "stat")
+                .mockImplementation(async (_uri: vscode.Uri) => {
+                  if (!cachedFileExists) {
+                    throw new FileNotFound();
+                  }
+                  return Promise.resolve({} as vscode.FileStat);
+                });
+            });
+
+            it("local cached of copybook uri is returned", async () => {
               const cds = new CopybookDownloadService(
                 "/globalStorage",
-                zoweExplorerApiMock,
+                undefined,
                 e4eMock,
               );
               const documentUri = Uri.file("/test.cbl").toString();
@@ -1088,10 +1096,142 @@ describe("Tests copybook download service", () => {
                 ),
               );
             });
+
+            it("if copybook is requested multiple times, E4E is called just once", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                undefined,
+                e4eMock,
+              );
+              const documentUri = Uri.file("/test.cbl").toString();
+              const resultFirst = await cds.resolveCopybookURI(
+                documentUri,
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+              expect(resultFirst).toEqual(
+                expect.stringMatching(
+                  "file:///globalStorage/e4e/copybooks/instance.profile/ENDEVOR.DATASET.COPYBOOK/COPYBOOK",
+                ),
+              );
+              expect(e4eMock.getMember).toHaveBeenCalledTimes(1);
+
+              cachedFileExists = true;
+
+              const resultSecond = await cds.resolveCopybookURI(
+                documentUri,
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+              expect(resultSecond).toEqual(resultFirst);
+              expect(e4eMock.getMember).toHaveBeenCalledTimes(1);
+            });
           });
+
           describe("endevor elements", () => {
-            it(() => {
-              throw new Error("TODO");
+            let e4eMock: E4E;
+            let cachedFileExists: boolean = false;
+
+            beforeEach(() => {
+              workspaceConfigurationMock = {
+                [SETTINGS_CPY_NDVR_DEPENDENCIES]: ENDEVOR_PROCESSOR,
+                ["compiler"]: "",
+                ["preprocessors"]: [],
+              };
+
+              e4eMock = {
+                isEndevorElement: jest.fn().mockResolvedValue(true),
+                getProfileInfo: jest.fn().mockResolvedValue({
+                  profile: "profile",
+                  instance: "instance",
+                }),
+                listElements: jest
+                  .fn()
+                  .mockResolvedValue([["COPYBOOK", "12345"]]),
+                getElement: jest.fn().mockResolvedValue([""]),
+                listMembers: jest.fn().mockResolvedValue([]),
+                getMember: jest.fn().mockResolvedValue([]),
+                getConfiguration: jest.fn().mockResolvedValue({
+                  pgms: [{ pgroup: "pgroup" }],
+                  pgroups: [
+                    {
+                      name: "pgroup",
+                      libs: [
+                        {
+                          use_map: false,
+                          environment: "environment",
+                          stage: "stage",
+                          system: "system",
+                          subsystem: "subsystem",
+                          type: "type",
+                        },
+                      ],
+                    },
+                  ],
+                }),
+                onDidChangeElement: jest.fn(),
+              };
+
+              jest
+                .spyOn(vscode.workspace.fs, "stat")
+                .mockImplementation(async (_uri: vscode.Uri) => {
+                  if (!cachedFileExists) {
+                    throw new FileNotFound();
+                  }
+                  return Promise.resolve({} as vscode.FileStat);
+                });
+            });
+
+            it("local cached of copybook uri is returned", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                undefined,
+                e4eMock,
+              );
+              const documentUri = Uri.file("/test.cbl").toString();
+              const result = await cds.resolveCopybookURI(
+                documentUri,
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+
+              expect(vscode.workspace.fs.writeFile).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  scheme: "file",
+                  path: "/globalStorage/e4e/copybooks/instance.profile/environment/stage/system/subsystem/type/COPYBOOK",
+                }),
+                expect.anything(),
+              );
+
+              expect(result).toEqual(
+                expect.stringMatching(
+                  "file:///globalStorage/e4e/copybooks/instance.profile/environment/stage/system/subsystem/type/COPYBOOK",
+                ),
+              );
+            });
+
+            it("if cached version is available e4e is not called again", async () => {
+              cachedFileExists = true;
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                undefined,
+                e4eMock,
+              );
+              const documentUri = Uri.file("/test.cbl").toString();
+              const result = await cds.resolveCopybookURI(
+                documentUri,
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+
+              expect(vscode.workspace.fs.writeFile).not.toHaveBeenCalled();
+              expect(e4eMock.getElement).not.toHaveBeenCalled();
+
+              expect(result).toEqual(
+                expect.stringMatching(
+                  "file:///globalStorage/e4e/copybooks/instance.profile/environment/stage/system/subsystem/type/COPYBOOK",
+                ),
+              );
             });
           });
 
