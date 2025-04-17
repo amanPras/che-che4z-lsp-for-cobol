@@ -95,7 +95,7 @@ public class CliModule extends AbstractModule {
         .toInstance("resourceBundles/messages");
 
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
-    bind(CopybookService.class).to(CopybookServiceImpl.class);
+    bind(CopybookService.class).to(NoCacheCopybookServiceImpl.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(CobolLanguageClient.class).toProvider(CliClientProvider.class);
     bind(SettingsService.class).to(SettingsServiceImpl.class);
