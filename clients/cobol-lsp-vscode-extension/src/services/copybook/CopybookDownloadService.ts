@@ -36,6 +36,7 @@ import {
 } from "../ProcessorGroupsLoader";
 import { DownloadDiagnosticsService } from "../DiagnosticsService";
 import { searchLocalCopybooks } from "./LocalCopybooksService";
+import { LocalFilesystemResourceService } from "../LocalFilesystemResourceService";
 
 export class CopybookName {
   constructor(
@@ -90,13 +91,11 @@ export class CopybookDownloadService {
       return endevorResult?.toString() ?? null;
     }
     // search processor groups
-    const pgConfigs = (
-      await loadProcessorGroupCopybookPathsConfig(
-        { scopeUri: documentURI },
-        [],
-        dialectType,
-      )
-    ).filter((config) => typeof config != "string");
+    const pgConfigs = await loadProcessorGroupCopybookPathsConfig(
+      { scopeUri: documentURI },
+      [],
+      dialectType,
+    );
 
     const processorGroupsResult =
       await this.resolveCopybookUriInProcessorGroups(
@@ -273,56 +272,77 @@ export class CopybookDownloadService {
       | ZoweDatasetConfigModel
       | ZoweUssConfigModel
       | EndevorConfigModel
+      | string
     )[],
   ): Promise<vscode.Uri | undefined> {
+    const workspaceFolders = vscode.workspace.workspaceFolders ?? [];
+    const allowedExtensions =
+      await SettingsService.getCopybookExtension(documentUri);
+
     for (const config of pgConfigs) {
-      const profile = config.profile ?? defaultProfile;
-      if (DATASET in config && this.dsnDownloader) {
-        const dsResult = await this.dsnDownloader.resolveCopybookUri(
-          profile,
-          config.dataset,
-          copybookName,
+      if (typeof config === "string") {
+        const searchDirectoryUris = SettingsService.prepareLocalSearchUris(
+          [config],
+          workspaceFolders,
         );
-        if (dsResult) {
-          return dsResult;
-        }
-      } else if (USS in config && this.ussDownloader) {
-        const ussResult = await this.ussDownloader.resolveCopybookUri(
-          profile,
-          config.uss,
-          copybookName,
-        );
-        if (ussResult) {
-          return ussResult;
-        }
-      } else if (ENVIRONMENT in config && this.e4eDownloader) {
-        const resolvedProfile = await this.e4eDownloader.getProfileInfo(
-          config.profile,
-        );
-        const element: EndevorElement = {
-          use_map: config.use_map === false ? false : true,
-          environment: config.environment,
-          stage: config.stage,
-          system: config.system,
-          subsystem: config.subsystem,
-          type: config.type,
-          element: copybookName.toUpperCase(),
-          fingerprint: "",
-        };
-        if (
-          resolvedProfile &&
-          (await this.e4eDownloader.hasElement(
-            resolvedProfile,
-            element,
+        const localResult =
+          await LocalFilesystemResourceService.searchDirectory(
+            searchDirectoryUris[0],
             copybookName,
-          ))
-        ) {
-          const e4eResult = await this.e4eDownloader.downloadElementE4E(
-            resolvedProfile,
-            element,
+            allowedExtensions ?? [],
           );
-          if (e4eResult) {
-            return e4eResult;
+        if (localResult) {
+          return localResult;
+        }
+      } else {
+        const profile = config.profile ?? defaultProfile;
+        if (DATASET in config && this.dsnDownloader) {
+          const dsResult = await this.dsnDownloader.resolveCopybookUri(
+            profile,
+            config.dataset,
+            copybookName,
+          );
+          if (dsResult) {
+            return dsResult;
+          }
+        } else if (USS in config && this.ussDownloader) {
+          const ussResult = await this.ussDownloader.resolveCopybookUri(
+            profile,
+            config.uss,
+            copybookName,
+          );
+          if (ussResult) {
+            return ussResult;
+          }
+        } else if (ENVIRONMENT in config && this.e4eDownloader) {
+          const resolvedProfile = await this.e4eDownloader.getProfileInfo(
+            config.profile,
+          );
+          const element: EndevorElement = {
+            use_map: config.use_map === false ? false : true,
+            environment: config.environment,
+            stage: config.stage,
+            system: config.system,
+            subsystem: config.subsystem,
+            type: config.type,
+            element: copybookName.toUpperCase(),
+            fingerprint: "",
+          };
+          if (
+            resolvedProfile &&
+            (await this.e4eDownloader.hasElement(
+              resolvedProfile,
+              element,
+              copybookName,
+            ))
+          ) {
+            const e4eResult = await this.e4eDownloader.downloadElementE4E(
+              resolvedProfile,
+              element,
+            );
+            if (e4eResult) {
+              return e4eResult;
+            }
           }
         }
       }

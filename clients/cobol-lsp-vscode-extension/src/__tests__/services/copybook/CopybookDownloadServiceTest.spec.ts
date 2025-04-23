@@ -44,7 +44,10 @@ import {
   ZoweUssConfigModel,
 } from "../../../services/ProcessorGroupsLoader";
 import * as ProcessorGroupLoader from "../../../services/ProcessorGroupsLoader";
-import { e4eMock } from "../../../__mocks__/getE4EMock.utility";
+import {
+  e4eMock,
+  e4eMockInvalidProfile,
+} from "../../../__mocks__/getE4EMock.utility";
 
 jest.mock("../../../services/reporter");
 Utils.getZoweExplorerAPI = jest
@@ -1381,6 +1384,26 @@ describe("Tests copybook download service", () => {
                   { dataset: "PROCGRP.COPYBOOKS", profile: "pg_profile" },
                 ],
               },
+              {
+                name: "localFirst",
+                libs: [
+                  "local/copybooks",
+                  { dataset: "PROCGRP.COPYBOOKS", profile: "pg_profile" },
+                ],
+              },
+              {
+                name: "invalidProfile",
+                libs: [
+                  {
+                    environment: "ENV",
+                    stage: "1",
+                    system: "SYSTEM",
+                    subsystem: "SUBSYTEM",
+                    type: "COPY",
+                    profile: "invalid_profile",
+                  },
+                ],
+              },
             ];
             programConfigs = {
               pgms: [
@@ -1395,6 +1418,14 @@ describe("Tests copybook download service", () => {
                 {
                   program: "/endevor.cbl",
                   pgroup: "endevorFirst",
+                },
+                {
+                  program: "/local.cbl",
+                  pgroup: "localFirst",
+                },
+                {
+                  program: "/invalid-profile.cbl",
+                  pgroup: "invalidProfile",
                 },
               ],
             };
@@ -1566,6 +1597,21 @@ describe("Tests copybook download service", () => {
                 ),
               );
             });
+
+            it("doesnt resolve endevor copybook if invalid profile is specified in processor group", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                undefined,
+                e4eMockInvalidProfile,
+              );
+
+              const result = await cds.resolveCopybookURI(
+                "file:///invalid-profile.cbl",
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+              expect(result).toBeNull();
+            });
           });
 
           describe("resolve endevor member in processor group copybooks", () => {
@@ -1613,6 +1659,29 @@ describe("Tests copybook download service", () => {
                 expect.stringMatching(
                   "file:///globalStorage/e4e/copybooks/instance.profile/ENV/1/SYSTEM/SUBSYTEM/COPY/MAP/COPYBOOK",
                 ),
+              );
+            });
+
+            it("resolves to local copybook uri", async () => {
+              findFilesSpyResult = [
+                vscode.Uri.parse("file:///workspace/local/path/COPYBOOK.cpy"),
+              ];
+              findFilesSpy = jest
+                .spyOn(vscode.workspace, "findFiles")
+                .mockResolvedValue(findFilesSpyResult);
+
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                zoweExplorerApiMock,
+                e4eMock,
+              );
+              const result = await cds.resolveCopybookURI(
+                Uri.file("/local.cbl").toString(),
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+              expect(result).toEqual(
+                "file:///workspace/local/path/COPYBOOK.cpy",
               );
             });
           });
@@ -1772,82 +1841,6 @@ describe("Tests copybook download service", () => {
           //     "ussFile",
           //     "profile",
           //     [".CPY", ".cpy", ""],
-          //   );
-          // });
-
-          // it("checks download does not perform when endevor location settings in processor group has invalid profile", async () => {
-          //   const spyConfig = jest.spyOn(
-          //     ProcessorGroups,
-          //     "loadProcessorGroupCopybookPathsConfig",
-          //   );
-          //   spyConfig.mockResolvedValue([
-          //     {
-          //       environment: "environment",
-          //       system: "system",
-          //       subsystem: "subsystem",
-          //       stage: "stage",
-          //       type: "type",
-          //       profile: "invalid@invalid",
-          //     },
-          //   ]);
-
-          //   const downloader = new CopybookDownloadService(
-          //     "storage-path",
-          //     undefined,
-          //     e4eMockInvalidProfile,
-          //   );
-
-          //   const spyDownloadElement = (downloader[
-          //     "e4eDownloader"
-          //   ]!.downloadElementE4E = jest.fn().mockResolvedValue(false));
-
-          //   await downloader.downloadCopybook(
-          //     { name: "copybook", dialect: "COBOL" },
-          //     "file://document-uri",
-          //   );
-          //   expect(spyDownloadElement).toHaveBeenCalledTimes(0);
-          // });
-          // it("checks endevor locations in proccesor groups definitions resolves prerequiste", async () => {
-          //   workspaceConfigurationMock[PATHS_DSN] = [];
-          //   workspaceConfigurationMock[PATHS_USS] = [];
-
-          //   const service = new CopybookDownloadService(
-          //     "storage-path",
-          //     zoweExplorerMock,
-          //     e4eMock,
-          //   );
-          //   const spyConfig = jest.spyOn(
-          //     ProcessorGroups,
-          //     "loadProcessorGroupCopybookPathsConfig",
-          //   );
-          //   spyConfig.mockResolvedValue([
-          //     {
-          //       environment: "environment",
-          //       stage: "1",
-          //       system: "system",
-          //       subsystem: "subsystem",
-          //       type: "type",
-          //     },
-          //   ]);
-          //   const downloadSpy = jest.spyOn(
-          //     service["e4eDownloader"]!,
-          //     "downloadElementE4E",
-          //   );
-          //   await service.downloadCopybooks("file://document-uri", [
-          //     { name: "copybook", dialect: DEFAULT_DIALECT },
-          //   ]);
-          //   expect(downloadSpy).toHaveBeenCalledWith(
-          //     { instance: "instance", profile: "profile" },
-          //     {
-          //       element: "COPYBOOK",
-          //       environment: "environment",
-          //       fingerprint: "",
-          //       stage: "1",
-          //       subsystem: "subsystem",
-          //       system: "system",
-          //       type: "type",
-          //       use_map: true,
-          //     },
           //   );
           // });
         });
