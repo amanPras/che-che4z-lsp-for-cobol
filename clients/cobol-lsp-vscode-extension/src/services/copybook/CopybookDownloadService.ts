@@ -278,17 +278,23 @@ export class CopybookDownloadService {
     for (const config of pgConfigs) {
       const profile = config.profile ?? defaultProfile;
       if (DATASET in config && this.dsnDownloader) {
-        return this.dsnDownloader.resolveCopybookUri(
+        const dsResult = await this.dsnDownloader.resolveCopybookUri(
           profile,
           config.dataset,
           copybookName,
         );
+        if (dsResult) {
+          return dsResult;
+        }
       } else if (USS in config && this.ussDownloader) {
-        return this.ussDownloader.resolveCopybookUri(
+        const ussResult = await this.ussDownloader.resolveCopybookUri(
           profile,
           config.uss,
           copybookName,
         );
+        if (ussResult) {
+          return ussResult;
+        }
       } else if (ENVIRONMENT in config && this.e4eDownloader) {
         const resolvedProfile = await this.e4eDownloader.getProfileInfo(
           config.profile,
@@ -311,10 +317,13 @@ export class CopybookDownloadService {
             copybookName,
           ))
         ) {
-          return await this.e4eDownloader.downloadElementE4E(
+          const e4eResult = await this.e4eDownloader.downloadElementE4E(
             resolvedProfile,
             element,
           );
+          if (e4eResult) {
+            return e4eResult;
+          }
         }
       }
     }

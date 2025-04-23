@@ -95,8 +95,9 @@ export async function loadProcessorGroupCopybookPathsConfig(
         const globs = globSync(
           tempConfig.map((ele) => ele.replace(backwardSlashRegex, "/")),
           { cwd: cleanWsFolder, absolute: true },
-        ).map((s) => normalizePath(s));
-        configs.push(...globs);
+        );
+        const normalized = globs.map((s) => normalizePath(s));
+        configs.push(...normalized);
       }
     } else {
       if (USS in config) {

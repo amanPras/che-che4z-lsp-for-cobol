@@ -17,6 +17,7 @@ import {
   ENDEVOR_PROCESSOR,
   FAILED_REQUESTS_LIMIT,
   PATHS_DSN,
+  PATHS_LOCAL_KEY,
   PATHS_USS,
   PROVIDE_PROFILE_MSG,
   SETTINGS_CPY_NDVR_DEPENDENCIES,
@@ -37,6 +38,13 @@ import * as ProcessorGroups from "../../../services/ProcessorGroups";
 import { SettingsService } from "../../../services/Settings";
 import { URI as Uri } from "vscode-uri";
 import { FileNotFound } from "../../../__mocks__/vscode";
+import {
+  EndevorConfigModel,
+  ZoweDatasetConfigModel,
+  ZoweUssConfigModel,
+} from "../../../services/ProcessorGroupsLoader";
+import * as ProcessorGroupLoader from "../../../services/ProcessorGroupsLoader";
+import { e4eMock } from "../../../__mocks__/getE4EMock.utility";
 
 jest.mock("../../../services/reporter");
 Utils.getZoweExplorerAPI = jest
@@ -889,7 +897,13 @@ describe("Tests copybook download service", () => {
           jest
             .spyOn(SettingsService, "getProfileName")
             .mockReturnValue("profile");
+          jest.spyOn(vscode.workspace, "getWorkspaceFolder").mockReturnValue({
+            index: 0,
+            uri: Uri.file("/workspace"),
+            name: "workspace",
+          });
         });
+
         describe("resolve local copybooks", () => {
           describe("default COBOL dialect", () => {
             let findFilesSpy: jest.SpyInstance;
@@ -1034,6 +1048,7 @@ describe("Tests copybook download service", () => {
                 [SETTINGS_CPY_NDVR_DEPENDENCIES]: ENDEVOR_PROCESSOR,
                 ["compiler"]: "",
                 ["preprocessors"]: [],
+                [PATHS_LOCAL_KEY]: ["copybooks"],
               };
               dataset = "ENDEVOR.DATASET.COPYBOOK";
 
@@ -1067,6 +1082,7 @@ describe("Tests copybook download service", () => {
                   }
                   return Promise.resolve({} as vscode.FileStat);
                 });
+              jest.spyOn(vscode.workspace, "findFiles");
             });
 
             it("local cached of copybook uri is returned", async () => {
@@ -1125,6 +1141,24 @@ describe("Tests copybook download service", () => {
               );
               expect(resultSecond).toEqual(resultFirst);
               expect(e4eMock.getMember).toHaveBeenCalledTimes(1);
+            });
+
+            it("doesn't searches other locations if copybook not found in endevor", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                undefined,
+                e4eMock,
+              );
+
+              const documentUri = Uri.file("/test.cbl").toString();
+              const result = await cds.resolveCopybookURI(
+                documentUri,
+                "NOTEXISTS",
+                DEFAULT_DIALECT,
+              );
+              expect(result).toBeNull();
+
+              expect(vscode.workspace.findFiles).not.toHaveBeenCalled();
             });
           });
 
@@ -1235,172 +1269,383 @@ describe("Tests copybook download service", () => {
             });
           });
 
-          describe("don't resolve endevor copybooks if SETTINGS_CPY_NDVR_DEPENDENCIES is set to ZOWE", () => {
-            it(() => {
-              throw new Error("TODO");
+          describe("don't resolve endevor copybooks if SETTINGS_CPY_NDVR_DEPENDENCIES is not set to ENDEVOR_PROCESSOR", () => {
+            let dataset: string;
+            let e4eMock: E4E;
+
+            beforeEach(() => {
+              workspaceConfigurationMock = {
+                [SETTINGS_CPY_NDVR_DEPENDENCIES]: "",
+                "paths-local": ["copybooks"],
+              };
+              dataset = "ENDEVOR.DATASET.COPYBOOK";
+
+              e4eMock = {
+                isEndevorElement: jest.fn().mockResolvedValue(true),
+                getProfileInfo: jest.fn().mockResolvedValue({
+                  profile: "profile",
+                  instance: "instance",
+                }),
+                listElements: jest.fn().mockResolvedValue([]),
+                getElement: jest.fn(),
+                listMembers: jest.fn().mockResolvedValue(["COPYBOOK"]),
+                getMember: jest.fn().mockResolvedValue([]),
+                getConfiguration: jest.fn().mockResolvedValue({
+                  pgms: [{ pgroup: "pgroup" }],
+                  pgroups: [
+                    {
+                      name: "pgroup",
+                      libs: [{ dataset }],
+                    },
+                  ],
+                }),
+                onDidChangeElement: jest.fn(),
+              };
+
+              jest
+                .spyOn(vscode.workspace, "findFiles")
+                .mockResolvedValue([
+                  vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
+                ]);
+            });
+
+            it("resolve local copybook instead", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                undefined,
+                e4eMock,
+              );
+
+              const result = await cds.resolveCopybookURI(
+                Uri.file("/test.cbl").toString(),
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+
+              expect(result).toEqual(
+                "file:///workspace/copybooks/COPYBOOK.cpy",
+              );
             });
           });
         });
 
         describe("resolve processor group copybooks", () => {
-          describe("copybooks search respects processor group definitions order", () => {
+          let findFilesSpy: jest.SpyInstance;
+          let findFilesSpyResult: vscode.Uri[];
+          let processorGroups: ProcessorGroupLoader.ProcessorGroup[] = [];
+          let programConfigs: ProcessorGroupLoader.ProgramsConfig;
+
+          beforeEach(() => {
+            processorGroups = [
+              {
+                name: "group",
+                libs: [
+                  "local/path",
+                  { dataset: "PROCGRP.COPYBOOKS", profile: "pg_profile" },
+                  { uss: "/uss/procgrp/copybooks", profile: "pg_profile" },
+                  {
+                    environment: "ENV",
+                    stage: "1",
+                    system: "SYSTEM",
+                    subsystem: "SUBSYTEM",
+                    type: "COPY",
+                    profile: "instance.internal.connection",
+                  },
+                ],
+              },
+              {
+                name: "datasetFirst",
+                libs: [
+                  { dataset: "PROCGRP.COPYBOOKS", profile: "pg_profile" },
+                  {
+                    environment: "ENV",
+                    stage: "1",
+                    system: "SYSTEM",
+                    subsystem: "SUBSYTEM",
+                    type: "COPY",
+                    profile: "instance.internal.connection",
+                  },
+                ],
+              },
+              {
+                name: "endevorFirst",
+                libs: [
+                  {
+                    environment: "ENV",
+                    stage: "1",
+                    system: "SYSTEM",
+                    subsystem: "SUBSYTEM",
+                    type: "COPY",
+                    profile: "instance.internal.connection",
+                  },
+                  { dataset: "PROCGRP.COPYBOOKS", profile: "pg_profile" },
+                ],
+              },
+            ];
+            programConfigs = {
+              pgms: [
+                {
+                  program: "/test.cbl",
+                  pgroup: "group",
+                },
+                {
+                  program: "/dataset.cbl",
+                  pgroup: "datasetFirst",
+                },
+                {
+                  program: "/endevor.cbl",
+                  pgroup: "endevorFirst",
+                },
+              ],
+            };
+            jest
+              .spyOn(ProcessorGroupLoader, "readProcessorGroupsFileContent")
+              .mockResolvedValue(processorGroups);
+            jest
+              .spyOn(ProcessorGroupLoader, "readProgramConfigFileContent")
+              .mockResolvedValue(programConfigs);
+
+            findFilesSpy = jest
+              .spyOn(vscode.workspace, "findFiles")
+              .mockResolvedValue(findFilesSpyResult);
+
+            workspaceConfigurationMock = {
+              "copybook-extensions": [".cpy"],
+            };
+          });
+
+          describe("resolve local processor group copybooks", () => {
+            beforeAll(() => {
+              findFilesSpyResult = [
+                vscode.Uri.parse("file:///workspace/local/path/COPYBOOK.cpy"),
+              ];
+            });
+            it("return local copybook uri", async () => {
+              const cds = new CopybookDownloadService("/globalStorage");
+              const result = await cds.resolveCopybookURI(
+                "file:///test.cbl",
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+
+              expect(findFilesSpy).toHaveBeenCalledWith({
+                base: expect.objectContaining({
+                  path: "/workspace/local/path",
+                  scheme: "file",
+                }) as vscode.Uri,
+                pattern: "{COPYBOOK.cpy}",
+              });
+
+              expect(result).toEqual(
+                "file:///workspace/local/path/COPYBOOK.cpy",
+              );
+            });
+          });
+
+          describe("resolve dsn zowe copybooks in processor group", () => {
+            beforeAll(() => {
+              findFilesSpyResult = [];
+            });
+
+            beforeEach(() => {
+              allMembersMock = jest.fn().mockImplementation((dsn) => {
+                return {
+                  apiResponse: {
+                    items:
+                      dsn === "PROCGRP.COPYBOOKS"
+                        ? [{ member: "COPYBOOK" }]
+                        : [],
+                  },
+                };
+              });
+            });
+
+            it("return zowe dsn copybook uri", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                zoweExplorerApiMock,
+              );
+              const result = await cds.resolveCopybookURI(
+                "file:///test.cbl",
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+
+              expect(result).toEqual(
+                "zowe-ds:/pg_profile/PROCGRP.COPYBOOKS/COPYBOOK",
+              );
+            });
+          });
+
+          describe("resolve uss processor in group copybooks", () => {
+            beforeAll(() => {
+              findFilesSpyResult = [];
+            });
+
+            beforeEach(() => {
+              allMembersMock = jest.fn().mockResolvedValue({
+                apiResponse: {
+                  items: [],
+                },
+              });
+
+              fileListMock = jest.fn().mockImplementation((uss) => {
+                return {
+                  apiResponse: {
+                    items:
+                      uss === "/uss/procgrp/copybooks"
+                        ? [{ name: "COPYBOOK.cpy", mode: "-" }]
+                        : [],
+                  },
+                };
+              });
+            });
+
+            it("return zowe uss copybook uri", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                zoweExplorerApiMock,
+              );
+              const result = await cds.resolveCopybookURI(
+                "file:///test.cbl",
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+
+              expect(result).toEqual(
+                "zowe-uss:/pg_profile/uss/procgrp/copybooks/COPYBOOK.cpy",
+              );
+            });
+          });
+
+          describe("resolve endevor dataset member in processor group", () => {
+            let dataset: string;
+            let e4eMock: E4E;
+
+            beforeEach(() => {
+              dataset = "ENDEVOR.DATASET.COPYBOOK";
+
+              e4eMock = {
+                isEndevorElement: jest.fn().mockResolvedValue(true),
+                getProfileInfo: jest.fn().mockResolvedValue({
+                  profile: "profile",
+                  instance: "instance",
+                }),
+                listElements: jest.fn().mockResolvedValue([]),
+                getElement: jest.fn(),
+                listMembers: jest.fn().mockResolvedValue(["COPYBOOK"]),
+                getMember: jest.fn().mockResolvedValue([]),
+                getConfiguration: jest.fn().mockResolvedValue({
+                  pgms: [{ pgroup: "pgroup" }],
+                  pgroups: [
+                    {
+                      name: "pgroup",
+                      libs: [{ dataset }],
+                    },
+                  ],
+                }),
+                onDidChangeElement: jest.fn(),
+              };
+            });
+
+            it("return local endevor cache copybook uri", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                undefined,
+                e4eMock,
+              );
+              const result = await cds.resolveCopybookURI(
+                "file:///test.cbl",
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+
+              expect(result).toEqual(
+                expect.stringMatching(
+                  "file:///globalStorage/e4e/copybooks/instance.profile/ENDEVOR.DATASET.COPYBOOK/COPYBOOK",
+                ),
+              );
+            });
+          });
+
+          describe("resolve endevor member in processor group copybooks", () => {
             it(() => {
               throw new Error("TODO");
-              // VV Original version of the test
-              // const filename = "cobolFileName";
-              // const group = "group";
-              // const profile = { profile: "profile", instance: "instance" };
-              // const datasetFirst = {
-              //   pgms: [
-              //     {
-              //       program: filename,
-              //       pgroup: group,
-              //     },
-              //   ],
-              //   pgroups: [
-              //     {
-              //       name: group,
-              //       libs: [
-              //         {
-              //           dataset: "dataset",
-              //         },
-              //         {
-              //           use_map: false,
-              //           environment: "environment",
-              //           stage: "stage",
-              //           system: "system",
-              //           subsystem: "subsystem",
-              //           type: "type",
-              //         },
-              //       ],
-              //     },
-              //   ],
-              // };
-              // const endevorFirst = {
-              //   pgms: [
-              //     {
-              //       program: filename,
-              //       pgroup: group,
-              //     },
-              //   ],
-              //   pgroups: [
-              //     {
-              //       name: group,
-              //       libs: [
-              //         {
-              //           use_map: false,
-              //           environment: "environment",
-              //           stage: "stage",
-              //           system: "system",
-              //           subsystem: "subsystem",
-              //           type: "type",
-              //         },
-              //         {
-              //           dataset: "dataset",
-              //         },
-              //       ],
-              //     },
-              //   ],
-              // };
+            });
+          });
 
-              // const unreachable = jest.fn();
-              // const listMembers = jest.fn(async () => Promise.resolve(["copybook"]));
-              // const listElements = jest.fn(async () =>
-              //   Promise.resolve([
-              //     ["copybook", "abcdef0123456789"],
-              //     ["copybook2", "0123456789abcdef"],
-              //   ] as [string, string][]),
-              // );
+          describe("copybooks search respects processor group definitions order", () => {
+            beforeEach(() => {
+              allMembersMock = jest.fn().mockResolvedValue({
+                apiResponse: { items: [{ member: "COPYBOOK" }] },
+              });
+            });
 
-              // it("checks copybooks search respects processor group definitions order", async () => {
-              //     SettingsService.getCopybookExtension = jest
-              //       .fn()
-              //       .mockReturnValue(Promise.resolve([""]));
-              //     SettingsService.getCopybookLocalPath = jest
-              //       .fn()
-              //       .mockReturnValue(Promise.resolve([]));
-              //     SettingsService.getDsnPath = jest
-              //       .fn()
-              //       .mockReturnValue(["/configured/path"]);
+            it("resolves to dataset uri", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                zoweExplorerApiMock,
+                e4eMock,
+              );
+              const result = await cds.resolveCopybookURI(
+                Uri.file("/dataset.cbl").toString(),
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
 
-              //     const zoweApi: IApiRegisterClient = {
-              //       getExplorerExtenderApi: unreachable,
-              //       getUssApi: unreachable,
-              //       getMvsApi: unreachable,
-              //       registeredApiTypes: unreachable,
-              //     };
+              expect(result).toEqual(
+                "zowe-ds:/pg_profile/PROCGRP.COPYBOOKS/COPYBOOK",
+              );
+            });
 
-              //     const downloader = new CopybookDownloadService("/storagePath", zoweApi, {
-              //       isEndevorElement(_uri: string) {
-              //         return false;
-              //       },
-              //       onDidChangeElement: unreachable,
-              //       listMembers,
-              //       listElements,
-              //       getMember: unreachable,
-              //       getElement: unreachable,
-              //       async getProfileInfo(_uri) {
-              //         return Promise.resolve({
-              //           instance: "instance",
-              //           profile: "profile",
-              //         });
-              //       },
-              //       getConfiguration: unreachable,
-              //     });
-              //     SettingsService.getUssPath = jest.fn().mockReturnValue(["uss/path"]);
-              //     SettingsService.getDsnPath = jest.fn().mockReturnValue(["dsn/path"]);
-              //     downloader["dsnDownloader"]!.hasMember = jest.fn().mockResolvedValue(false);
-              //     downloader["ussDownloader"]!.hasMember = jest.fn().mockResolvedValue(true);
-              //     downloader["e4eDownloader"]!.hasElement = jest.fn().mockResolvedValue(true);
-              //     const searchSpy = jest.spyOn(fsUtils, "searchCopybookInExtensionFolder");
-              //     searchSpy.mockReturnValue(undefined);
-
-              //     const spyConfig = jest.spyOn(
-              //       ProcessorGroups,
-              //       "loadProcessorGroupCopybookPathsConfig",
-              //     );
-              //     spyConfig.mockResolvedValue([
-              //       "/libs",
-              //       { dataset: "procGroupDataset", profile: "procGroupProfile" },
-              //       {
-              //         environment: "environment",
-              //         system: "system",
-              //         subsystem: "subsystem",
-              //         stage: "1",
-              //         type: "copy",
-              //         profile: "instance@profile",
-              //       },
-              //       { uss: "ussFile", profile: "profile" },
-              //     ]);
-
-              //     await downloader.resolveCopybookHandler(
-              //       "file:///cobolFileName",
-              //       "copybookName",
-              //       "dialectType",
-              //     );
-
-              //     expect(searchSpy).toHaveBeenNthCalledWith(
-              //       1,
-              //       "copybookName",
-              //       ["/libs"],
-              //       [""],
-              //       "/storagePath",
-              //     );
-              //     expect(searchSpy).toHaveBeenNthCalledWith(
-              //       2,
-              //       "copybookName",
-              //       [
-              //         "/storagePath/e4e/copybooks/instance.profile/environment/1/system/subsystem/copy/MAP",
-              //       ],
-              //       [""],
-              //       "/storagePath",
-              //     );
-              //   });
+            it("resolves to endevor uri", async () => {
+              const cds = new CopybookDownloadService(
+                "/globalStorage",
+                zoweExplorerApiMock,
+                e4eMock,
+              );
+              const result = await cds.resolveCopybookURI(
+                Uri.file("/endevor.cbl").toString(),
+                "COPYBOOK",
+                DEFAULT_DIALECT,
+              );
+              expect(result).toEqual(
+                expect.stringMatching(
+                  "file:///globalStorage/e4e/copybooks/instance.profile/ENV/1/SYSTEM/SUBSYTEM/COPY/MAP/COPYBOOK",
+                ),
+              );
             });
           });
         });
 
-        describe("resolve copybooks when no configuration is provided in settings", () => {
+        describe("resolve local copybooks when no configuration is provided in settings", () => {
+          beforeEach(() => {
+            workspaceConfigurationMock = {
+              "paths-local": undefined,
+              "paths-dsn": undefined,
+              "paths-uss": undefined,
+              "copybook-extensions": undefined,
+            };
+            jest
+              .spyOn(vscode.workspace, "findFiles")
+              .mockResolvedValue([
+                vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
+              ]);
+          });
+
+          it("workspace folder is used as default copybooks location", async () => {
+            const cds = new CopybookDownloadService("/globalStorage");
+
+            const result = await cds.resolveCopybookURI(
+              Uri.file("/test.cbl").toString(),
+              "COPYBOOK",
+              DEFAULT_DIALECT,
+            );
+
+            expect(result).toEqual("file:///workspace/copybooks/COPYBOOK.cpy");
+
+            expect(vscode.workspace.findFiles).toHaveBeenCalledWith({});
+          });
           it(() => {
             throw new Error("TODO");
             // globSyncMockResult = [];
@@ -1425,272 +1670,267 @@ describe("Tests copybook download service", () => {
           });
         });
 
-        describe("resolution priorities", () => {
-          describe("endevor program & endevor dependency setting = ENDEVOR_PROCESSOR", () => {
-            describe("only endevor is used to resolve copybooks, zowe not called", () => {
-              it(() => {
-                throw new Error("TODO");
-              });
-            });
-
-            describe("if not found in endevor, other locations are not searched", () => {
-              it(() => {
-                throw new Error("TODO");
-              });
-            });
+        describe("processor groups", () => {
+          it("checks dsn settings used when no settings provided in processor group definitions", async () => {
+            // const spyConfig = jest.spyOn(
+            //   ProcessorGroups,
+            //   "loadProcessorGroupCopybookPathsConfig",
+            // );
+            // spyConfig.mockResolvedValue([]);
+            // workspaceConfigurationMock[PATHS_DSN] = ["dsn"];
+            // const cds = new CopybookDownloadService(
+            //   "storage-path",
+            //   zoweExplorerMock,
+            //   undefined,
+            // );
+            // cds["dsnDownloader"]!.downloadCopybook = jest
+            //   .fn()
+            //   .mockReturnValue(true);
+            // cds["ussDownloader"]!.downloadCopybook = jest.fn();
+            // await cds.downloadCopybook(
+            //   { name: "copybook", dialect: "COBOL" },
+            //   "file://document-uri",
+            // );
+            // expect(
+            //   cds["dsnDownloader"]!.downloadCopybook,
+            // ).toHaveBeenCalledWith(
+            //   { name: "copybook", dialect: "COBOL" },
+            //   "dsn",
+            //   "profile",
+            // );
           });
 
-          describe("endevor program & endevor dependency setting = ZOWE", () => {
-            describe("local & zowe copybooks are used for resolution", () => {
-              it(() => {
-                throw new Error("TODO");
-              });
-            });
+          // it("checks settings in processor groups used first", async () => {
+          //   const settingsDsnSpy = jest.spyOn(SettingsService, "getDsnPath");
+          //   const settingsUssSpy = jest.spyOn(SettingsService, "getDsnPath");
+
+          //   const spyConfig = jest.spyOn(
+          //     ProcessorGroups,
+          //     "loadProcessorGroupCopybookPathsConfig",
+          //   );
+          //   spyConfig.mockResolvedValue([
+          //     "/libs",
+          //     { dataset: "procGroupDataset", profile: "procGroupProfile" },
+          //     { uss: "uss", profile: "profile" },
+          //   ]);
+
+          //   const downloader = new CopybookDownloadService(
+          //     "storage-path",
+          //     zoweExplorerMock,
+          //     undefined,
+          //   );
+          //   downloader["dsnDownloader"]!.downloadCopybook = jest
+          //     .fn()
+          //     .mockReturnValue(true);
+
+          //   await downloader.downloadCopybook(
+          //     { name: "copybook", dialect: "COBOL" },
+          //     "file://document-uri",
+          //   );
+          //   expect(
+          //     downloader["dsnDownloader"]!.downloadCopybook,
+          //   ).toHaveBeenCalledWith(
+          //     { name: "copybook", dialect: "COBOL" },
+          //     "procGroupDataset",
+          //     "procGroupProfile",
+          //   );
+          //   expect(settingsDsnSpy).toHaveBeenCalledTimes(0);
+          //   expect(settingsUssSpy).toHaveBeenCalledTimes(0);
+          // });
+
+          // it("checks settings in processor group definitions used in order ", async () => {
+          //   const spyConfig = jest.spyOn(
+          //     ProcessorGroups,
+          //     "loadProcessorGroupCopybookPathsConfig",
+          //   );
+          //   spyConfig.mockResolvedValue([
+          //     { uss: "ussFile", profile: "profile" },
+          //     { dataset: "procGroupDataset", profile: "procGroupProfile" },
+          //     "/libs",
+          //   ]);
+
+          //   const downloader = new CopybookDownloadService(
+          //     "storage-path",
+          //     zoweExplorerMock,
+          //     undefined,
+          //   );
+          //   downloader["dsnDownloader"]!.downloadCopybook = jest
+          //     .fn()
+          //     .mockReturnValue(true);
+          //   downloader["ussDownloader"]!.downloadCopybook = jest
+          //     .fn()
+          //     .mockReturnValue(true);
+
+          //   await downloader.downloadCopybook(
+          //     { name: "copybook", dialect: "COBOL" },
+          //     "file://document-uri",
+          //   );
+          //   expect(
+          //     downloader["ussDownloader"]!.downloadCopybook,
+          //   ).toHaveBeenCalledWith(
+          //     { name: "copybook", dialect: "COBOL" },
+          //     "ussFile",
+          //     "profile",
+          //     [".CPY", ".cpy", ""],
+          //   );
+          // });
+
+          // it("checks download does not perform when endevor location settings in processor group has invalid profile", async () => {
+          //   const spyConfig = jest.spyOn(
+          //     ProcessorGroups,
+          //     "loadProcessorGroupCopybookPathsConfig",
+          //   );
+          //   spyConfig.mockResolvedValue([
+          //     {
+          //       environment: "environment",
+          //       system: "system",
+          //       subsystem: "subsystem",
+          //       stage: "stage",
+          //       type: "type",
+          //       profile: "invalid@invalid",
+          //     },
+          //   ]);
+
+          //   const downloader = new CopybookDownloadService(
+          //     "storage-path",
+          //     undefined,
+          //     e4eMockInvalidProfile,
+          //   );
+
+          //   const spyDownloadElement = (downloader[
+          //     "e4eDownloader"
+          //   ]!.downloadElementE4E = jest.fn().mockResolvedValue(false));
+
+          //   await downloader.downloadCopybook(
+          //     { name: "copybook", dialect: "COBOL" },
+          //     "file://document-uri",
+          //   );
+          //   expect(spyDownloadElement).toHaveBeenCalledTimes(0);
+          // });
+          // it("checks endevor locations in proccesor groups definitions resolves prerequiste", async () => {
+          //   workspaceConfigurationMock[PATHS_DSN] = [];
+          //   workspaceConfigurationMock[PATHS_USS] = [];
+
+          //   const service = new CopybookDownloadService(
+          //     "storage-path",
+          //     zoweExplorerMock,
+          //     e4eMock,
+          //   );
+          //   const spyConfig = jest.spyOn(
+          //     ProcessorGroups,
+          //     "loadProcessorGroupCopybookPathsConfig",
+          //   );
+          //   spyConfig.mockResolvedValue([
+          //     {
+          //       environment: "environment",
+          //       stage: "1",
+          //       system: "system",
+          //       subsystem: "subsystem",
+          //       type: "type",
+          //     },
+          //   ]);
+          //   const downloadSpy = jest.spyOn(
+          //     service["e4eDownloader"]!,
+          //     "downloadElementE4E",
+          //   );
+          //   await service.downloadCopybooks("file://document-uri", [
+          //     { name: "copybook", dialect: DEFAULT_DIALECT },
+          //   ]);
+          //   expect(downloadSpy).toHaveBeenCalledWith(
+          //     { instance: "instance", profile: "profile" },
+          //     {
+          //       element: "COPYBOOK",
+          //       environment: "environment",
+          //       fingerprint: "",
+          //       stage: "1",
+          //       subsystem: "subsystem",
+          //       system: "system",
+          //       type: "type",
+          //       use_map: true,
+          //     },
+          //   );
+          // });
+        });
+
+        describe("With both local and zowe locations defined in the settings.json, the search is applied on local resources first", () => {
+          beforeEach(() => {
+            workspaceConfigurationMock = {
+              "paths-local": ["copybooks"],
+              "paths-dsn": ["DATASET.WITH.COPYBOOKS"],
+              "copybook-extensions": [".CPY", ".cpy"],
+            };
+            profileName = "profile";
+            jest
+              .spyOn(vscode.workspace, "findFiles")
+              .mockResolvedValue([
+                vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
+              ]);
           });
 
-          describe("processor groups", () => {
-            it(() => {
-              throw new Error("TODO");
-            });
+          it("return local copybook uri", async () => {
+            const cds = new CopybookDownloadService(
+              "/globalStorage",
+              zoweExplorerApiMock,
+            );
+            const result = await cds.resolveCopybookURI(
+              "file:///test.cbl",
+              "COPYBOOK",
+              DEFAULT_DIALECT,
+            );
 
-            //it("checks dsn settings used when no settings provided in processor group definitions", async () => {
-            //   const spyConfig = jest.spyOn(
-            //     ProcessorGroups,
-            //     "loadProcessorGroupCopybookPathsConfig",
-            //   );
-            //   spyConfig.mockResolvedValue([]);
-            //   workspaceConfigurationMock[PATHS_DSN] = ["dsn"];
+            expect(result).toEqual("file:///workspace/copybooks/COPYBOOK.cpy");
+          });
+        });
 
-            //   const downloader = new CopybookDownloadService(
-            //     "storage-path",
-            //     zoweExplorerMock,
-            //     undefined,
-            //   );
-            //   downloader["dsnDownloader"]!.downloadCopybook = jest
-            //     .fn()
-            //     .mockReturnValue(true);
-            //   downloader["ussDownloader"]!.downloadCopybook = jest.fn();
-
-            //   await downloader.downloadCopybook(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "file://document-uri",
-            //   );
-            //   expect(
-            //     downloader["dsnDownloader"]!.downloadCopybook,
-            //   ).toHaveBeenCalledWith(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "dsn",
-            //     "profile",
-            //   );
-            // });
-
-            // it("checks settings in processor groups used first", async () => {
-            //   const settingsDsnSpy = jest.spyOn(SettingsService, "getDsnPath");
-            //   const settingsUssSpy = jest.spyOn(SettingsService, "getDsnPath");
-
-            //   const spyConfig = jest.spyOn(
-            //     ProcessorGroups,
-            //     "loadProcessorGroupCopybookPathsConfig",
-            //   );
-            //   spyConfig.mockResolvedValue([
-            //     "/libs",
-            //     { dataset: "procGroupDataset", profile: "procGroupProfile" },
-            //     { uss: "uss", profile: "profile" },
-            //   ]);
-
-            //   const downloader = new CopybookDownloadService(
-            //     "storage-path",
-            //     zoweExplorerMock,
-            //     undefined,
-            //   );
-            //   downloader["dsnDownloader"]!.downloadCopybook = jest
-            //     .fn()
-            //     .mockReturnValue(true);
-
-            //   await downloader.downloadCopybook(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "file://document-uri",
-            //   );
-            //   expect(
-            //     downloader["dsnDownloader"]!.downloadCopybook,
-            //   ).toHaveBeenCalledWith(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "procGroupDataset",
-            //     "procGroupProfile",
-            //   );
-            //   expect(settingsDsnSpy).toHaveBeenCalledTimes(0);
-            //   expect(settingsUssSpy).toHaveBeenCalledTimes(0);
-            // });
-
-            // it("checks settings in processor group definitions used in order ", async () => {
-            //   const spyConfig = jest.spyOn(
-            //     ProcessorGroups,
-            //     "loadProcessorGroupCopybookPathsConfig",
-            //   );
-            //   spyConfig.mockResolvedValue([
-            //     { uss: "ussFile", profile: "profile" },
-            //     { dataset: "procGroupDataset", profile: "procGroupProfile" },
-            //     "/libs",
-            //   ]);
-
-            //   const downloader = new CopybookDownloadService(
-            //     "storage-path",
-            //     zoweExplorerMock,
-            //     undefined,
-            //   );
-            //   downloader["dsnDownloader"]!.downloadCopybook = jest
-            //     .fn()
-            //     .mockReturnValue(true);
-            //   downloader["ussDownloader"]!.downloadCopybook = jest
-            //     .fn()
-            //     .mockReturnValue(true);
-
-            //   await downloader.downloadCopybook(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "file://document-uri",
-            //   );
-            //   expect(
-            //     downloader["ussDownloader"]!.downloadCopybook,
-            //   ).toHaveBeenCalledWith(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "ussFile",
-            //     "profile",
-            //     [".CPY", ".cpy", ""],
-            //   );
-            // });
-
-            // it("checks download does not perform when endevor location settings in processor group has invalid profile", async () => {
-            //   const spyConfig = jest.spyOn(
-            //     ProcessorGroups,
-            //     "loadProcessorGroupCopybookPathsConfig",
-            //   );
-            //   spyConfig.mockResolvedValue([
-            //     {
-            //       environment: "environment",
-            //       system: "system",
-            //       subsystem: "subsystem",
-            //       stage: "stage",
-            //       type: "type",
-            //       profile: "invalid@invalid",
-            //     },
-            //   ]);
-
-            //   const downloader = new CopybookDownloadService(
-            //     "storage-path",
-            //     undefined,
-            //     e4eMockInvalidProfile,
-            //   );
-
-            //   const spyDownloadElement = (downloader[
-            //     "e4eDownloader"
-            //   ]!.downloadElementE4E = jest.fn().mockResolvedValue(false));
-
-            //   await downloader.downloadCopybook(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "file://document-uri",
-            //   );
-            //   expect(spyDownloadElement).toHaveBeenCalledTimes(0);
-            // });
-            // it("checks endevor locations in proccesor groups definitions resolves prerequiste", async () => {
-            //   workspaceConfigurationMock[PATHS_DSN] = [];
-            //   workspaceConfigurationMock[PATHS_USS] = [];
-
-            //   const service = new CopybookDownloadService(
-            //     "storage-path",
-            //     zoweExplorerMock,
-            //     e4eMock,
-            //   );
-            //   const spyConfig = jest.spyOn(
-            //     ProcessorGroups,
-            //     "loadProcessorGroupCopybookPathsConfig",
-            //   );
-            //   spyConfig.mockResolvedValue([
-            //     {
-            //       environment: "environment",
-            //       stage: "1",
-            //       system: "system",
-            //       subsystem: "subsystem",
-            //       type: "type",
-            //     },
-            //   ]);
-            //   const downloadSpy = jest.spyOn(
-            //     service["e4eDownloader"]!,
-            //     "downloadElementE4E",
-            //   );
-            //   await service.downloadCopybooks("file://document-uri", [
-            //     { name: "copybook", dialect: DEFAULT_DIALECT },
-            //   ]);
-            //   expect(downloadSpy).toHaveBeenCalledWith(
-            //     { instance: "instance", profile: "profile" },
-            //     {
-            //       element: "COPYBOOK",
-            //       environment: "environment",
-            //       fingerprint: "",
-            //       stage: "1",
-            //       subsystem: "subsystem",
-            //       system: "system",
-            //       type: "type",
-            //       use_map: true,
-            //     },
-            //   );
-            // });
+        describe("DSN has priority over USS", () => {
+          beforeEach(() => {
+            workspaceConfigurationMock = {
+              "paths-local": [],
+              "paths-dsn": ["DATASET.WITH.COPYBOOKS"],
+              "paths-uss": ["/user/copybooks"],
+              "copybook-extensions": [".CPY", ".cpy"],
+            };
+            profileName = "profile";
           });
 
-          describe("With both local and zowe locations defined in the settings.json, the search is applied on local resources first", () => {
-            it(() => {
-              throw new Error("TODO");
-            });
-          });
+          it("return dsn copybook uri", async () => {
+            const cds = new CopybookDownloadService(
+              "/globalStorage",
+              zoweExplorerApiMock,
+            );
+            const result = await cds.resolveCopybookURI(
+              "file:///test.cbl",
+              "COPYBOOK",
+              DEFAULT_DIALECT,
+            );
 
-          describe("DSN has priority over USS", () => {
-            it(() => {
-              throw new Error("TODO");
-            });
+            expect(result).toEqual(
+              "zowe-ds:/profile/DATASET.WITH.COPYBOOKS/COPYBOOK",
+            );
           });
+        });
 
-          describe("USS is not called if DSN resolves", () => {
-            it(() => {
-              throw new Error("TODO");
-            });
+        describe("the order of resolution is same as the one provided in user settings", () => {
+          beforeAll(() => {
+            workspaceConfigurationMock = {
+              [PATHS_DSN]: ["FIRST.DATASET", "SECOND.DATASET"],
+            };
+            profileName = "profile";
           });
+          it("checks the order of resolution is same as the one provided in user settings", async () => {
+            const cds = new CopybookDownloadService(
+              "/globalStorage",
+              zoweExplorerApiMock,
+            );
 
-          describe("the order of resolution is same as the one provided in user settings", () => {
-            // beforeAll(() => {
-            //   workspaceConfigurationMock = {
-            //     [PATHS_DSN]: ["dsn", "dsn-2"],
-            //     [PATHS_USS]: ["uss"],
-            //   };
-            // });
-            // it("checks the order of resolution is same as the one provided in user settings", async () => {
-            //   const downloader = new CopybookDownloadService(
-            //     "storage-path",
-            //     zoweExplorerMock,
-            //     undefined,
-            //   );
-            //   downloader["dsnDownloader"]!.downloadCopybook = jest
-            //     .fn()
-            //     .mockReturnValueOnce(false)
-            //     .mockReturnValue(true);
-            //   downloader["ussDownloader"]!.downloadCopybook = jest.fn();
-            //   await downloader.downloadCopybook(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "file://document-uri",
-            //   );
-            //   expect(
-            //     downloader["dsnDownloader"]!.downloadCopybook,
-            //   ).toHaveBeenCalledWith(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "dsn",
-            //     "profile",
-            //   );
-            //   expect(
-            //     downloader["dsnDownloader"]!.downloadCopybook,
-            //   ).toHaveBeenCalledWith(
-            //     { name: "copybook", dialect: "COBOL" },
-            //     "dsn-2",
-            //     "profile",
-            //   );
-            // });
+            await cds.resolveCopybookURI(
+              "file:///test.cbl",
+              "COPYBOOK",
+              DEFAULT_DIALECT,
+            );
+
+            expect(allMembersMock).toHaveBeenNthCalledWith(1, "FIRST.DATASET");
+            expect(allMembersMock).toHaveBeenNthCalledWith(2, "SECOND.DATASET");
           });
         });
       });
