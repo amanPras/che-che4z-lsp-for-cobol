@@ -451,33 +451,6 @@ function registerCommands(
       },
     ),
   );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand("cobol.copybook.content", async () => {
-      const input = await vscode.window.showInputBox({
-        title: "Copybook name",
-        value: "DATETIME",
-      });
-
-      const start = Date.now();
-      const uri = await copyBooksDownloader.resolveCopybookURI(
-        vscode.window.activeTextEditor?.document.uri.toString() ?? "",
-        input ?? "DATETIME",
-        "COBOL",
-      );
-      const resolvedTimestamp = Date.now();
-      outputChannel.appendLine(
-        `Copybook ${input} resolve to ${uri?.toString()} in ${resolvedTimestamp - start} ms. ${vscode.window.activeTextEditor?.document.uri.toString()}`,
-      );
-      if (uri) {
-        const content = await readFileContent(uri);
-        const contentTimestamp = Date.now();
-        outputChannel.appendLine(
-          `Copybook ${input} content\n${content} \n provided in ${contentTimestamp - resolvedTimestamp}`,
-        );
-      }
-    }),
-  );
 }
 
 function registerCodeActions(context: vscode.ExtensionContext) {
