@@ -70,6 +70,12 @@ import org.eclipse.lsp.cobol.service.delegates.hover.VariableHover;
 import org.eclipse.lsp.cobol.service.delegates.references.ElementOccurrences;
 import org.eclipse.lsp.cobol.service.delegates.references.Occurrences;
 import org.eclipse.lsp.cobol.service.delegates.validations.CobolLanguageEngineFacade;
+import org.eclipse.lsp.cobol.service.io.FileDownload;
+import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
+import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
+import org.eclipse.lsp.cobol.service.io.impl.CacheResolveCopybookUri;
+import org.eclipse.lsp.cobol.service.io.impl.ClientDownloadFile;
+import org.eclipse.lsp.cobol.service.io.impl.DiskBasedFileContent;
 import org.eclipse.lsp.cobol.service.settings.CachingConfigurationService;
 import org.eclipse.lsp.cobol.service.settings.ConfigurationService;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
@@ -92,6 +98,9 @@ public class CliModule extends AbstractModule {
         .annotatedWith(Names.named("predefinedCopybook"))
         .to(PredefinedCopybookService.class);
     bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
+    bind(ResolveCopybookUri.class).to(CacheResolveCopybookUri.class);
+    bind(ResolveFileContent.class).to(DiskBasedFileContent.class);
+    bind(FileDownload.class).to(ClientDownloadFile.class);
     bind(ParseTreeListener.class).to(InterruptingTreeListener.class);
     bind(String.class)
         .annotatedWith(named("resourceFileLocation"))
