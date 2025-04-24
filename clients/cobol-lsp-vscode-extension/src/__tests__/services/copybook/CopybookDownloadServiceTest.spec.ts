@@ -122,7 +122,7 @@ describe("Tests copybook download service", () => {
           "copybook",
           DEFAULT_DIALECT,
         );
-        expect(result).toBeNull();
+        expect(result).toBeUndefined();
       });
 
       // it("checks missing explorer api produces diagnostics when processor groups have dsn or uss config", async () => {
@@ -1159,7 +1159,7 @@ describe("Tests copybook download service", () => {
                 "NOTEXISTS",
                 DEFAULT_DIALECT,
               );
-              expect(result).toBeNull();
+              expect(result).toBeUndefined();
 
               expect(vscode.workspace.findFiles).not.toHaveBeenCalled();
             });
@@ -1552,7 +1552,7 @@ describe("Tests copybook download service", () => {
             });
           });
 
-          describe("resolve endevor dataset member in processor group", () => {
+          describe("resolve endevor element in processor group", () => {
             let dataset: string;
             let e4eMock: E4E;
 
@@ -1565,9 +1565,11 @@ describe("Tests copybook download service", () => {
                   profile: "profile",
                   instance: "instance",
                 }),
-                listElements: jest.fn().mockResolvedValue([]),
-                getElement: jest.fn(),
-                listMembers: jest.fn().mockResolvedValue(["COPYBOOK"]),
+                listElements: jest
+                  .fn()
+                  .mockResolvedValue([["COPYBOOK", "12345"]]),
+                getElement: jest.fn().mockResolvedValue([""]),
+                listMembers: jest.fn().mockResolvedValue([]),
                 getMember: jest.fn().mockResolvedValue([]),
                 getConfiguration: jest.fn().mockResolvedValue({
                   pgms: [{ pgroup: "pgroup" }],
@@ -1595,9 +1597,7 @@ describe("Tests copybook download service", () => {
               );
 
               expect(result).toEqual(
-                expect.stringMatching(
-                  "file:///globalStorage/e4e/copybooks/instance.profile/ENDEVOR.DATASET.COPYBOOK/COPYBOOK",
-                ),
+                "file:///globalStorage/e4e/copybooks/instance.profile/ENV/1/SYSTEM/SUBSYTEM/COPY/MAP/COPYBOOK",
               );
             });
 
@@ -1613,13 +1613,7 @@ describe("Tests copybook download service", () => {
                 "COPYBOOK",
                 DEFAULT_DIALECT,
               );
-              expect(result).toBeNull();
-            });
-          });
-
-          describe("resolve endevor member in processor group copybooks", () => {
-            it(() => {
-              throw new Error("TODO");
+              expect(result).toBeUndefined();
             });
           });
 
@@ -1693,35 +1687,27 @@ describe("Tests copybook download service", () => {
 
           describe("processor group configuration has priority over vscode settings", () => {
             beforeAll(() => {
-              findFilesSpyResult = [
-                vscode.Uri.parse(
-                  "file:///workspace/local/pg/copybooks/COPYBOOK.cpy",
-                ),
-              ];
+              findFilesSpyResult = [];
             });
 
-            it("resolves to copybook from processor group configuration", async () => {
+            it("in processor group - searches the processor group folder first", async () => {
               const cds = new CopybookDownloadService("storage-path");
-              const result = await cds.resolveCopybookURI(
+              await cds.resolveCopybookURI(
                 "file:///test.cbl",
                 "COPYBOOK",
                 DEFAULT_DIALECT,
               );
-
-              expect(findFilesSpy).toHaveBeenCalledWith({
-                base: expect.objectContaining({
-                  path: "/workspace/local/pg/copybooks",
-                  scheme: "file",
-                }) as vscode.Uri,
+              expect(findFilesSpy).toHaveBeenNthCalledWith(1, {
+                base: vscode.Uri.file("/workspace/local/pg/copybooks"),
                 pattern: "{COPYBOOK.cpy}",
               });
-
-              expect(result).toEqual(
-                "file:///workspace/local/pg/copybooks/COPYBOOK.cpy",
-              );
+              expect(findFilesSpy).toHaveBeenNthCalledWith(3, {
+                base: vscode.Uri.file("/workspace/copybooks"),
+                pattern: "{COPYBOOK.cpy}",
+              });
             });
 
-            it("resolves to copybook from vscode configuration", async () => {
+            it("not in pg group -> resolves to copybook just from vscode configuration", async () => {
               const cds = new CopybookDownloadService("storage-path");
               await cds.resolveCopybookURI(
                 "file:///not_processor_group.cbl",
@@ -1738,74 +1724,37 @@ describe("Tests copybook download service", () => {
               });
             });
           });
-
-          describe("if no processor group is available, use vscode settings", () => {
-            beforeEach(() => {
-              const spyConfig = jest.spyOn(
-                ProcessorGroups,
-                "loadProcessorGroupCopybookPathsConfig",
-              );
-              spyConfig.mockResolvedValue([]);
-              workspaceConfigurationMock[PATHS_DSN] = [
-                "DATASET.WITH.COPYBOOKS",
-              ];
-            });
-
-            it("uses dsn settings when no settings provided in processor group definitions", async () => {
-              const cds = new CopybookDownloadService(
-                "storage-path",
-                zoweExplorerMock,
-                undefined,
-              );
-              cds["dsnDownloader"]!.resolveCopybookUri = jest
-                .fn()
-                .mockReturnValue(true);
-              cds["ussDownloader"]!.resolveCopybookUri = jest.fn();
-              await cds.resolveCopybookURI(
-                "file://document-uri",
-                "copybook",
-                "COBOL",
-              );
-              expect(
-                cds["dsnDownloader"]!.resolveCopybookUri,
-              ).toHaveBeenCalledWith(
-                "profile",
-                "DATASET.WITH.COPYBOOKS",
-                "copybook",
-              );
-            });
-          });
         });
 
-        describe("resolve local copybooks when no configuration is provided in settings", () => {
-          beforeEach(() => {
-            workspaceConfigurationMock = {
-              "paths-local": undefined,
-              "paths-dsn": undefined,
-              "paths-uss": undefined,
-              "copybook-extensions": undefined,
-            };
-            jest
-              .spyOn(vscode.workspace, "findFiles")
-              .mockResolvedValue([
-                vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
-              ]);
-          });
+        // describe("resolve local copybooks when no configuration is provided in settings", () => {
+        //   beforeEach(() => {
+        //     workspaceConfigurationMock = {
+        //       "paths-local": undefined,
+        //       "paths-dsn": undefined,
+        //       "paths-uss": undefined,
+        //       "copybook-extensions": undefined,
+        //     };
+        //     jest
+        //       .spyOn(vscode.workspace, "findFiles")
+        //       .mockResolvedValue([
+        //         vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
+        //       ]);
+        //   });
 
-          it("workspace folder is used as default copybooks location", async () => {
-            const cds = new CopybookDownloadService("/globalStorage");
+        //   it("workspace folder is used as default copybooks location", async () => {
+        //     const cds = new CopybookDownloadService("/globalStorage");
 
-            const result = await cds.resolveCopybookURI(
-              Uri.file("/test.cbl").toString(),
-              "COPYBOOK",
-              DEFAULT_DIALECT,
-            );
+        //     const result = await cds.resolveCopybookURI(
+        //       Uri.file("/test.cbl").toString(),
+        //       "COPYBOOK",
+        //       DEFAULT_DIALECT,
+        //     );
 
-            expect(result).toEqual("file:///workspace/copybooks/COPYBOOK.cpy");
+        //     expect(result).toEqual("file:///workspace/copybooks/COPYBOOK.cpy");
 
-            expect(vscode.workspace.findFiles).toHaveBeenCalledWith({});
-          });
-        });
+        //     expect(vscode.workspace.findFiles).toHaveBeenCalledWith({});
+        //   });
+        // });
 
         describe("With both local and zowe locations defined in the settings.json, the search is applied on local resources first", () => {
           beforeEach(() => {

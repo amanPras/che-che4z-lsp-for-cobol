@@ -83,7 +83,7 @@ export class CopybookDownloadService {
     documentURI: string,
     copybookName: string,
     dialectType: string,
-  ): Promise<string | null> {
+  ): Promise<string | undefined> {
     // is endevor -> download copybook from endevor and return local Uri
     if (this.handleAsEndevorElement(documentURI)) {
       const endevorResult = await this.e4eDownloader?.downloadCopybookE4E(
@@ -91,7 +91,7 @@ export class CopybookDownloadService {
         copybookName,
       );
 
-      return endevorResult?.toString() ?? null;
+      return endevorResult?.toString();
     }
     // search processor groups
     const pgConfigs = await loadProcessorGroupCopybookPathsConfig(
@@ -129,8 +129,6 @@ export class CopybookDownloadService {
     if (remoteResult) {
       return remoteResult.toString();
     }
-    // not found -> return null
-    return null;
   }
 
   constructor(
