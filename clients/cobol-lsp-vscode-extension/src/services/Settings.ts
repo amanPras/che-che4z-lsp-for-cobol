@@ -140,28 +140,7 @@ export async function lspConfigHandler(
           );
           break;
         case SETTINGS_CPY_LOCAL_PATH:
-          if (vscode.workspace.getConfiguration().get(item.section)) {
-            await handleProcessorGroupConfigurationRequest(
-              CopybooksLocalPathsConfigurationCodec,
-              loadProcessorGroupCopybookPathsConfig,
-              item,
-              result,
-              outputChannel,
-            );
-          } else {
-            // if no configuration for local or remote copybook paths is provided
-            // use pattern for workspace folder and subfolders as a default value
-            if (
-              !vscode.workspace
-                .getConfiguration(SETTINGS_CPY_SECTION)
-                .get(PATHS_DSN) &&
-              !vscode.workspace
-                .getConfiguration(SETTINGS_CPY_SECTION)
-                .get(PATHS_USS)
-            ) {
-              result.push(["**"]);
-            }
-          }
+          // server should not need to know local paths to copybook folders
           break;
         case SETTINGS_CPY_EXTENSIONS:
           await handleProcessorGroupConfigurationRequest(

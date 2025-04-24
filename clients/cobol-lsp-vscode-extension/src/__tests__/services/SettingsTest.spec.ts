@@ -377,7 +377,7 @@ describe("SettingService lspConfigHandler", () => {
         };
       });
 
-      test("returns local copybook path setting", async () => {
+      test("returns empty array - server should not need to know local copybook paths", async () => {
         const result = await lspConfigHandler({
           items: [
             {
@@ -387,71 +387,7 @@ describe("SettingService lspConfigHandler", () => {
           ],
         });
 
-        expect(result).toEqual(expect.arrayContaining([["local-copybooks"]]));
-      });
-    });
-
-    describe("local copybooks path is not configured", () => {
-      describe("remote copybooks are not configured", () => {
-        beforeAll(() => {
-          configurationProperties = {};
-        });
-
-        test("returns ** pattern as default value for local copybook resolving", async () => {
-          const result = await lspConfigHandler({
-            items: [
-              {
-                section: SETTINGS_CPY_LOCAL_PATH,
-                scopeUri: "file:///workspace/program.cob",
-              },
-            ],
-          });
-
-          expect(result).toEqual(expect.arrayContaining([["**"]]));
-        });
-      });
-      describe("remote copybooks are configured", () => {
-        describe("remove copybooks dsn is set", () => {
-          beforeAll(() => {
-            configurationProperties = {
-              "paths-dsn": ["DATASET.WITH.COPYBOOK"],
-            };
-          });
-
-          test("returns no paths for local copybook resolving", async () => {
-            const result = await lspConfigHandler({
-              items: [
-                {
-                  section: SETTINGS_CPY_LOCAL_PATH,
-                  scopeUri: "file:///workspace/program.cob",
-                },
-              ],
-            });
-
-            expect(result).toEqual([]);
-          });
-        });
-
-        describe("remove copybooks uss directory is set", () => {
-          beforeAll(() => {
-            configurationProperties = {
-              "paths-uss": ["/users/user/copybooks"],
-            };
-          });
-
-          test("returns no paths for local copybook resolving", async () => {
-            const result = await lspConfigHandler({
-              items: [
-                {
-                  section: SETTINGS_CPY_LOCAL_PATH,
-                  scopeUri: "file:///workspace/program.cob",
-                },
-              ],
-            });
-
-            expect(result).toEqual([]);
-          });
-        });
+        expect(result).toEqual(expect.arrayContaining([]));
       });
     });
   });
@@ -474,36 +410,6 @@ describe("SettingService lspConfigHandler", () => {
 
       expect(result).toEqual(expect.arrayContaining([configurationValue]));
       expect(configKey).toEqual("unknown.config.section");
-    });
-  });
-
-  describe("Invalid configuration provided", () => {
-    const outputChannelMock = {
-      appendLine: jest.fn(),
-    } as unknown as vscode.OutputChannel;
-    beforeAll(() => {
-      jest.spyOn(vscode.workspace, "getConfiguration").mockReturnValue({
-        get: () => ["correct-path", 2, false],
-      } as unknown as vscode.WorkspaceConfiguration);
-    });
-
-    test("returns empty setting instead of wrong configuration", async () => {
-      const result = await lspConfigHandler(
-        {
-          items: [
-            {
-              section: SETTINGS_CPY_LOCAL_PATH,
-              scopeUri: "file:///workspace/program.cob",
-            },
-          ],
-        },
-        outputChannelMock,
-      );
-
-      expect(result).toEqual(expect.arrayContaining([]));
-      expect(outputChannelMock.appendLine).toHaveBeenCalledWith(
-        "Invalid settings: cobol-lsp.cpy-manager.paths-local - Invalid value 2 supplied to : Array<string>/1: string\nInvalid value false supplied to : Array<string>/2: string",
-      );
     });
   });
 });
