@@ -26,9 +26,8 @@ import org.eclipse.lsp.cobol.common.model.tree.CopyNode;
 import org.eclipse.lsp.cobol.common.model.tree.RootNode;
 import org.eclipse.lsp.cobol.lsp.analysis.AnalysisState;
 import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
-import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
-import org.eclipse.lsp.cobol.service.providers.ClientProvider;
+import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -45,12 +44,13 @@ class SourceUnitGraphTest {
 
   @Test
   void testNotifyState() {
-    ClientProvider clientProvider = mock(ClientProvider.class);
-    CobolLanguageClient client = mock(CobolLanguageClient.class);
-    when(clientProvider.get()).thenReturn(client);
-    when(client.getFileContent(anyString()))
+    ResolveFileContent resolveFileContent = mock(ResolveFileContent.class);
+    //    CobolLanguageClient client = mock(CobolLanguageClient.class);
+    when(resolveFileContent.getFileContent(anyString()))
         .thenReturn(CompletableFuture.completedFuture("some dummy text"));
-    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(asyncAnalysisService, clientProvider);
+    //    when(client.getFileContent(anyString()))
+    //        .thenReturn(CompletableFuture.completedFuture("some dummy text"));
+    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(asyncAnalysisService, resolveFileContent);
     String initialDocumentText = "sample text for test";
     String updatedContent = "Updated content";
     sourceUnitGraph.notifyState(
@@ -72,12 +72,15 @@ class SourceUnitGraphTest {
     String copy1Uri = "file://copy1.cpy";
     String copy2Uri = "file://copy2.cpy";
     String copy3Uri = "file://copy3.cpy";
-    ClientProvider clientProvider = mock(ClientProvider.class);
-    CobolLanguageClient client = mock(CobolLanguageClient.class);
-    when(clientProvider.get()).thenReturn(client);
-    when(client.getFileContent(anyString()))
+    ResolveFileContent resolveFileContent = mock(ResolveFileContent.class);
+    //    ClientProvider clientProvider = mock(ClientProvider.class);
+    //    CobolLanguageClient client = mock(CobolLanguageClient.class);
+    //    when(clientProvider.get()).thenReturn(client);
+    //    when(client.getFileContent(anyString()))
+    //        .thenReturn(CompletableFuture.completedFuture("some dummy text"));
+    when(resolveFileContent.getFileContent(anyString()))
         .thenReturn(CompletableFuture.completedFuture("some dummy text"));
-    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(asyncAnalysisService, clientProvider);
+    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(asyncAnalysisService, resolveFileContent);
     RootNode rootNode = mock(RootNode.class);
     CopyNode copyNode1 =
         new CopyNode(

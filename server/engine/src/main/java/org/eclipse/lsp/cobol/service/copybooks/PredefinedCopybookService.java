@@ -15,6 +15,8 @@
 package org.eclipse.lsp.cobol.service.copybooks;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.inject.Singleton;
 import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
@@ -25,9 +27,11 @@ import org.eclipse.lsp.cobol.common.error.SyntaxError;
  * This service processes predefined copybook requests and returns content by its name. The service
  * caches copybook.
  */
+@Singleton
 public class PredefinedCopybookService implements CopybookService {
-  private final Map<CopybookName, CopybookModel> preDefinedCopybookCache = new HashMap<>();
+  private final Map<CopybookId, CopybookModel> preDefinedCopybookCache = new HashMap<>();
   private final Map<String, List<SyntaxError>> predefinedCopybookErrors = new HashMap<>();
+  protected final Map<String, Set<CopybookModel>> copybookUsage = new ConcurrentHashMap<>();
 
   private static CopybookModel getDefaultCopybook(CopybookName copybookName, String programUri) {
     return new CopybookModel(copybookName.toCopybookId(programUri), copybookName, null, null);
@@ -63,7 +67,12 @@ public class PredefinedCopybookService implements CopybookService {
       @NonNull String programDocumentUri,
       @NonNull String documentUri,
       CleanerPreprocessor preprocessor) {
-    return getPredefinedCopybooks(copybookName, programDocumentUri);
+    ResultWithErrors<CopybookModel> predefinedCopybooks =
+        getPredefinedCopybooks(copybookName, programDocumentUri);
+    copybookUsage
+        .computeIfAbsent(programDocumentUri, k -> new HashSet<>())
+        .add(predefinedCopybooks.getResult());
+    return predefinedCopybooks;
   }
 
   /**
@@ -71,7 +80,7 @@ public class PredefinedCopybookService implements CopybookService {
    */
   @Override
   public void store(CopybookModel copybookModel) {
-    preDefinedCopybookCache.put(copybookModel.getCopybookName(), copybookModel);
+    preDefinedCopybookCache.put(copybookModel.getCopybookId(), copybookModel);
   }
 
   /**
@@ -104,14 +113,15 @@ public class PredefinedCopybookService implements CopybookService {
    */
   @Override
   public Set<CopybookModel> getCopybookUsage(String documentUri) {
-    return Collections.emptySet();
+    return copybookUsage.getOrDefault(documentUri, Collections.emptySet());
   }
 
   private ResultWithErrors<CopybookModel> getPredefinedCopybooks(
       @NonNull CopybookName copybookName, @NonNull String programUri) {
-    return new ResultWithErrors<>(
+    CopybookModel model =
         preDefinedCopybookCache.getOrDefault(
-            copybookName, getDefaultCopybook(copybookName, programUri)),
-        predefinedCopybookErrors.getOrDefault(programUri, Collections.emptyList()));
+            copybookName.toCopybookId(programUri), getDefaultCopybook(copybookName, programUri));
+    return new ResultWithErrors<>(
+        model, predefinedCopybookErrors.getOrDefault(model.getUri(), Collections.emptyList()));
   }
 }

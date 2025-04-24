@@ -61,6 +61,12 @@ import org.eclipse.lsp.cobol.service.delegates.hover.VariableHover;
 import org.eclipse.lsp.cobol.service.delegates.references.ElementOccurrences;
 import org.eclipse.lsp.cobol.service.delegates.references.Occurrences;
 import org.eclipse.lsp.cobol.service.delegates.validations.CobolLanguageEngineFacade;
+import org.eclipse.lsp.cobol.service.io.FileDownload;
+import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
+import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
+import org.eclipse.lsp.cobol.service.io.impl.CacheResolveCopybookUri;
+import org.eclipse.lsp.cobol.service.io.impl.ClientDownloadFile;
+import org.eclipse.lsp.cobol.service.io.impl.DiskBasedFileContent;
 import org.eclipse.lsp.cobol.service.mocks.MockLanguageClient;
 import org.eclipse.lsp.cobol.service.mocks.MockLanguageServer;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
@@ -80,7 +86,14 @@ public class TestModule extends AbstractModule {
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
     bind(LanguageEngineFacade.class).to(CobolLanguageEngineFacade.class);
     bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
-    bind(CopybookService.class).to(CopybookServiceImpl.class);
+    bind(CopybookService.class).to(PredefinedCopybookService.class);
+    bind(CopybookService.class)
+        .annotatedWith(Names.named("predefinedCopybook"))
+        .to(PredefinedCopybookService.class);
+
+    bind(ResolveCopybookUri.class).to(CacheResolveCopybookUri.class);
+    bind(ResolveFileContent.class).to(DiskBasedFileContent.class);
+    bind(FileDownload.class).to(ClientDownloadFile.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(TextDocumentService.class).to(CobolTextDocumentService.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);

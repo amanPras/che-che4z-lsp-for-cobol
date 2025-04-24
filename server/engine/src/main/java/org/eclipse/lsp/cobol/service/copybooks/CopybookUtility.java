@@ -17,12 +17,15 @@ package org.eclipse.lsp.cobol.service.copybooks;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.CharMatcher;
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookModel;
+import org.eclipse.lsp.cobol.common.copybook.CopybookName;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedText;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
@@ -43,6 +46,9 @@ public class CopybookUtility {
    */
   public ResultWithErrors<CopybookModel> cleanupCopybook(
       CopybookModel dirtyCopybook, CleanerPreprocessor preprocessor) {
+    if (preprocessor == null) {
+      return ResultWithErrors.of(dirtyCopybook);
+    }
     ResultWithErrors<ExtendedText> textTransformationsResultWithErrors =
         preprocessor.cleanUpCode(dirtyCopybook.getUri(), dirtyCopybook.getContent());
     String cleanText =
@@ -57,6 +63,14 @@ public class CopybookUtility {
     return new ResultWithErrors<>(
         copybookModel,
         adjustErrorLocation(dirtyCopybook, textTransformationsResultWithErrors.getErrors()));
+  }
+
+  CopybookModel getDefaultCopybook(CopybookName copybookName, String programUri) {
+    return new CopybookModel(copybookName.toCopybookId(programUri), copybookName, null, null);
+  }
+
+  String getNameFromURI(@NonNull String uri) {
+    return new File(uri).getName().replaceFirst("\\?.*$", "");
   }
 
   private List<SyntaxError> adjustErrorLocation(

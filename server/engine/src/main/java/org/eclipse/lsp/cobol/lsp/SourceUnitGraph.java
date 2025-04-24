@@ -17,7 +17,6 @@ package org.eclipse.lsp.cobol.lsp;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -35,8 +34,8 @@ import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.analysis.AnalysisState;
 import org.eclipse.lsp.cobol.lsp.analysis.AnalysisStateListener;
 import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
-import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
+import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 
@@ -45,7 +44,7 @@ import org.eclipse.lsp4j.Position;
 @Slf4j
 public class SourceUnitGraph implements AnalysisStateListener {
 
-  private final Provider<CobolLanguageClient> clientProvider;
+  private final ResolveFileContent resolveFileContent;
   // doc-a-uri --> copy-a Node. copy-b node, copy-c node
   // doc-1-uri --> copy-a Node. copy-2 node, copy-3 node
   private final Map<String, List<NodeV>> documentGraph = new ConcurrentHashMap<>();
@@ -60,8 +59,8 @@ public class SourceUnitGraph implements AnalysisStateListener {
 
   @Inject
   public SourceUnitGraph(
-      AsyncAnalysisService asyncAnalysisService, Provider<CobolLanguageClient> clientProvider) {
-    this.clientProvider = clientProvider;
+      AsyncAnalysisService asyncAnalysisService, ResolveFileContent resolveFileContent) {
+    this.resolveFileContent = resolveFileContent;
     asyncAnalysisService.register(ImmutableList.of(this));
   }
 
@@ -228,7 +227,7 @@ public class SourceUnitGraph implements AnalysisStateListener {
   }
 
   private String getFileContent(String uri) {
-    CompletableFuture<String> fileContent = clientProvider.get().getFileContent(uri);
+    CompletableFuture<String> fileContent = resolveFileContent.getFileContent(uri);
     try {
       return fileContent.get();
     } catch (InterruptedException | ExecutionException e) {
