@@ -15,7 +15,6 @@
 
 package org.eclipse.lsp.cobol.cli.modules;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.File;
@@ -24,25 +23,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import lombok.Setter;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp4j.*;
 
-/** The CliClientProvider class is a provider for the CobolLanguageClient interface. */
 @Singleton
 public class CliClientProvider implements Provider<CobolLanguageClient> {
   private final CliClient client = new CliClient();
-  private final FileSystemService files;
   @Setter private List<File> cpyPaths;
   @Setter private List<String> cpyExt;
 
-  @Inject
-  public CliClientProvider(FileSystemService files) {
-    this.files = files;
-  }
+  /** The CliClientProvider class is a provider for the CobolLanguageClient interface. */
+  public CliClientProvider() {}
 
   @Override
   public CobolLanguageClient get() {
@@ -83,7 +76,7 @@ public class CliClientProvider implements Provider<CobolLanguageClient> {
     }
 
     @Override
-    public CompletableFuture<String> resolveCopybookUri(
+    public CompletableFuture<String> resolveCopybook(
         String cobolFileUri, String copybookName, String dialectType) {
       for (File sp : cpyPaths) {
         for (String ext : cpyExt) {
@@ -101,13 +94,6 @@ public class CliClientProvider implements Provider<CobolLanguageClient> {
         }
       }
       return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public CompletableFuture<String> getFileContent(String uri) {
-      Path file = files.getPathFromURI(uri);
-      return CompletableFuture.completedFuture(
-          files.fileExists(file) ? files.getContentByPath(Objects.requireNonNull(file)) : null);
     }
 
     private Path makeRelativePath(String cobolFileUri, String cbPath, String copybookFileName) {
