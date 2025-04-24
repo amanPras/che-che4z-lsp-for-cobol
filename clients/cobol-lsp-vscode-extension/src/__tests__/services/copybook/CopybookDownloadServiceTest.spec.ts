@@ -501,7 +501,7 @@ describe("Tests copybook download service", () => {
       );
       DownloadUtil.isProfileLocked = jest.fn().mockReturnValue(false);
       mocked.mockResolvedValue([
-        "/libs",
+        Uri.file("/libs"),
         { dataset: "dataset", profile: "invalidProfile" },
       ]);
       const downloadService = new CopybookDownloadService(

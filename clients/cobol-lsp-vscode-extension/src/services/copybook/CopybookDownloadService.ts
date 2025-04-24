@@ -28,7 +28,10 @@ import { CopybookDownloaderForE4E } from "./downloader/CopybookDownloaderForE4E"
 import { CopybookDownloaderForUss } from "./downloader/CopybookDownloaderForUss";
 import { CopybookDownloaderForDsn } from "./downloader/CopybookDownloaderForDsn";
 import { SettingsService } from "../Settings";
-import { loadProcessorGroupCopybookPathsConfig } from "../ProcessorGroups";
+import {
+  loadProcessorGroupCopybookPathsConfig,
+  ProcessorGroupCopybookPathConfig,
+} from "../ProcessorGroups";
 import {
   EndevorConfigModel,
   ZoweDatasetConfigModel,
@@ -268,26 +271,16 @@ export class CopybookDownloadService {
     copybookName: string,
     defaultProfile: string,
     documentUri: string,
-    pgConfigs: (
-      | ZoweDatasetConfigModel
-      | ZoweUssConfigModel
-      | EndevorConfigModel
-      | string
-    )[],
+    pgConfigs: ProcessorGroupCopybookPathConfig[],
   ): Promise<vscode.Uri | undefined> {
-    const workspaceFolders = vscode.workspace.workspaceFolders ?? [];
     const allowedExtensions =
       await SettingsService.getCopybookExtension(documentUri);
 
     for (const config of pgConfigs) {
-      if (typeof config === "string") {
-        const searchDirectoryUris = SettingsService.prepareLocalSearchUris(
-          [config],
-          workspaceFolders,
-        );
+      if (config instanceof vscode.Uri) {
         const localResult =
           await LocalFilesystemResourceService.searchDirectory(
-            searchDirectoryUris[0],
+            config,
             copybookName,
             allowedExtensions ?? [],
           );
@@ -362,7 +355,7 @@ export class CopybookDownloadService {
       this.explorerApi,
     );
     const configs: (
-      | string
+      | vscode.Uri
       | ZoweDatasetConfigModel
       | ZoweUssConfigModel
       | EndevorConfigModel
@@ -453,7 +446,7 @@ export class CopybookDownloadService {
     documentUri: string,
     defaultProfile: string | undefined,
     configs: (
-      | string
+      | vscode.Uri
       | ZoweDatasetConfigModel
       | ZoweUssConfigModel
       | EndevorConfigModel
