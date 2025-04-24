@@ -88,6 +88,9 @@ public class CliModule extends AbstractModule {
     bind(MessageService.class).to(PropertiesMessageService.class);
     bind(LocaleStore.class).to(LocaleStoreImpl.class);
     bind(ConfigurationService.class).to(CachingConfigurationService.class);
+    bind(CopybookService.class)
+        .annotatedWith(Names.named("predefinedCopybook"))
+        .to(PredefinedCopybookService.class);
     bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
     bind(ParseTreeListener.class).to(InterruptingTreeListener.class);
     bind(String.class)

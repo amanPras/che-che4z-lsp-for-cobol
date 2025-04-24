@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.inject.Named;
 import org.eclipse.lsp.cobol.common.AnalysisConfig;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.DialectRegistryItem;
@@ -53,13 +54,19 @@ public class DialectService {
   private final Map<String, CobolDialect> dialectSuppliers;
   private final DialectDiscoveryService discoveryService;
   private final CopybookService copybookService;
+
+  @Named("predefinedCopybook")
+  private final CopybookService predefinedCopybookService;
+
   private final MessageService messageService;
 
   @Inject
   public DialectService(
       DialectDiscoveryService discoveryService,
       CopybookService copybookService,
+      CopybookService predefinedCopybookService,
       MessageService messageService) {
+    this.predefinedCopybookService = predefinedCopybookService;
     this.dialectSuppliers = new HashMap<>();
     this.discoveryService = discoveryService;
     this.copybookService = copybookService;
@@ -375,7 +382,7 @@ public class DialectService {
     dialects.addAll(getActiveImplicitDialects(config));
     for (CobolDialect dialect : dialects) {
       List<CopybookModel> predefinedCopybook = dialect.getPredefinedCopybook(config);
-      predefinedCopybook.forEach(model -> copybookService.store(model, preprocessor));
+      predefinedCopybook.forEach(model -> predefinedCopybookService.store(model, preprocessor));
     }
   }
 }

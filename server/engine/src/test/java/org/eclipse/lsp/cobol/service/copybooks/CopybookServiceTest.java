@@ -531,7 +531,8 @@ class CopybookServiceTest {
   private CopybookServiceImpl createCopybookService() {
     ClientProvider provider = new ClientProvider();
     provider.setClient(client);
-    return new CopybookServiceImpl(provider, files, new CopybookCache(3, 3, "HOURS"));
+    return new CopybookServiceImpl(
+        provider, files, new PredefinedCopybookService(), new CopybookCache(3, 3, "HOURS"));
   }
 
   private CopybookName createCopybook(String displayName) {

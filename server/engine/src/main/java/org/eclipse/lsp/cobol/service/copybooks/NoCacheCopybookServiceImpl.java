@@ -14,24 +14,22 @@
  */
 package org.eclipse.lsp.cobol.service.copybooks;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
+import com.google.inject.name.Named;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
-import org.eclipse.lsp.cobol.common.copybook.CopybookId;
-import org.eclipse.lsp.cobol.common.copybook.CopybookModel;
-import org.eclipse.lsp.cobol.common.copybook.CopybookName;
-import org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode;
-import org.eclipse.lsp.cobol.common.file.FileSystemService;
+import org.eclipse.lsp.cobol.common.copybook.*;
+import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 
 /**
@@ -40,13 +38,21 @@ import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
  */
 @Slf4j
 @Singleton
-public class NoCacheCopybookServiceImpl extends CopybookServiceImpl {
+public class NoCacheCopybookServiceImpl implements CopybookService {
+  protected final Map<String, Set<CopybookModel>> copybookUsage = new ConcurrentHashMap<>();
+  protected final Map<String, List<SyntaxError>> preprocessCopybookErrors =
+      new ConcurrentHashMap<>();
+
+  @Named("predefinedCopybook")
+  private final CopybookService predefinedCopybookService;
+
+  private final Provider<CobolLanguageClient> clientProvider;
+
   @Inject
   public NoCacheCopybookServiceImpl(
-      Provider<CobolLanguageClient> clientProvider,
-      FileSystemService files,
-      CopybookCache copybookCache) {
-    super(clientProvider, files, copybookCache);
+      Provider<CobolLanguageClient> clientProvider, CopybookService predefinedCopybookService) {
+    this.predefinedCopybookService = predefinedCopybookService;
+    this.clientProvider = clientProvider;
   }
 
   private static CopybookModel getDefaultCopybook(CopybookName copybookName, String programUri) {
@@ -94,9 +100,8 @@ public class NoCacheCopybookServiceImpl extends CopybookServiceImpl {
       String resolvedUri = futureUri.join();
 
       if (resolvedUri == null) {
-        Optional<CopybookModel> predefineCopybook = tryResolvePredefinedCopybook(copybookName);
-        return ResultWithErrors.of(
-            predefineCopybook.orElse(getDefaultCopybook(copybookName, programUri)));
+        return predefinedCopybookService.resolve(
+            copybookName.toCopybookId(programUri), copybookName, programUri, programUri, null);
       }
       CompletableFuture<String> fileContentFuture =
           futureUri
@@ -124,7 +129,7 @@ public class NoCacheCopybookServiceImpl extends CopybookServiceImpl {
           new CopybookModel(
               copybookName.toCopybookId(programUri), copybookName, resolvedUri, fileContent);
       ResultWithErrors<CopybookModel> copybookModelResultWithErrors =
-          cleanupCopybook(dirtyCopybook, preprocessor);
+          CopybookUtility.cleanupCopybook(dirtyCopybook, preprocessor);
       copybookUsage
           .computeIfAbsent(programUri, k -> new HashSet<>())
           .add(copybookModelResultWithErrors.getResult());
@@ -141,6 +146,12 @@ public class NoCacheCopybookServiceImpl extends CopybookServiceImpl {
   @Override
   public void invalidateCache(boolean onlyNonImplicit) {}
 
+  /**
+   * @param copybookId
+   */
+  @Override
+  public void invalidateCache(CopybookId copybookId) {}
+
   @Override
   public void store(CopybookModel copybookModel) {}
 
@@ -150,4 +161,13 @@ public class NoCacheCopybookServiceImpl extends CopybookServiceImpl {
   @Override
   public void sendCopybookDownloadRequest(
       String documentUri, Collection<String> copybookUris, CopybookProcessingMode processingMode) {}
+
+  /**
+   * @param documentUri current document uri.
+   * @return
+   */
+  @Override
+  public Set<CopybookModel> getCopybookUsage(String documentUri) {
+    return Collections.unmodifiableSet(copybookUsage.getOrDefault(documentUri, ImmutableSet.of()));
+  }
 }

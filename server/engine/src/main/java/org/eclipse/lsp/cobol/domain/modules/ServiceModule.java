@@ -69,6 +69,9 @@ public class ServiceModule extends AbstractModule {
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
     bind(LanguageEngineFacade.class).to(CobolLanguageEngineFacade.class);
     bind(CopybookService.class).to(NoCacheCopybookServiceImpl.class);
+    bind(CopybookService.class)
+        .annotatedWith(Names.named("predefinedCopybook"))
+        .to(PredefinedCopybookService.class);
     bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(CobolLanguageClient.class).toProvider(ClientProvider.class);

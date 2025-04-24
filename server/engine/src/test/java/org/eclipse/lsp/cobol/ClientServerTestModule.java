@@ -39,13 +39,7 @@ import org.eclipse.lsp.cobol.lsp.CobolWorkspaceServiceImpl;
 import org.eclipse.lsp.cobol.lsp.DisposableLSPStateService;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp.cobol.service.*;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationBasedOnExtension;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationCombinedStrategy;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationService;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationServiceBasedOnContent;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookNameService;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookNameServiceImpl;
-import org.eclipse.lsp.cobol.service.copybooks.CopybookServiceImpl;
+import org.eclipse.lsp.cobol.service.copybooks.*;
 import org.eclipse.lsp.cobol.service.delegates.actions.CodeActions;
 import org.eclipse.lsp.cobol.service.delegates.actions.FindCopybookCommand;
 import org.eclipse.lsp.cobol.service.delegates.communications.Communications;
@@ -82,6 +76,9 @@ public class ClientServerTestModule extends AbstractModule {
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
     bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
     bind(CopybookService.class).to(CopybookServiceImpl.class);
+    bind(CopybookService.class)
+        .annotatedWith(Names.named("predefinedCopybook"))
+        .to(PredefinedCopybookService.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);
     bind(FileSystemService.class).to(WorkspaceFileService.class);
