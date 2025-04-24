@@ -87,12 +87,9 @@ export async function searchLocalCopybooks(
     ),
   );
 
-  const validResults: vscode.Uri[] = [];
-  results.forEach((result) => {
+  for (const result of results) {
     if (result.status === "fulfilled" && result.value) {
-      validResults.push(result.value);
+      return result.value;
     }
-  });
-
-  return validResults[0];
+  }
 }

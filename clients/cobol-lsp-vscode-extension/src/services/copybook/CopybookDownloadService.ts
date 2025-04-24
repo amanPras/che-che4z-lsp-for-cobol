@@ -261,10 +261,11 @@ export class CopybookDownloadService {
       }),
     ]);
 
-    const foundUri = results
-      .filter((r) => r.status === "fulfilled")
-      .find((f) => typeof f.value !== "undefined")?.value;
-    return foundUri;
+    for (const result of results) {
+      if (result.status === "fulfilled" && result.value) {
+        return result.value;
+      }
+    }
   }
 
   async resolveCopybookUriInProcessorGroups(
@@ -276,7 +277,7 @@ export class CopybookDownloadService {
     const allowedExtensions =
       await SettingsService.getCopybookExtension(documentUri);
 
-    for (const config of pgConfigs) {
+    const promises = pgConfigs.map(async (config) => {
       if (config instanceof vscode.Uri) {
         const localResult =
           await LocalFilesystemResourceService.searchDirectory(
@@ -338,6 +339,13 @@ export class CopybookDownloadService {
             }
           }
         }
+      }
+    });
+
+    const results = await Promise.allSettled(promises);
+    for (const result of results) {
+      if (result.status === "fulfilled" && result.value) {
+        return result.value;
       }
     }
   }
