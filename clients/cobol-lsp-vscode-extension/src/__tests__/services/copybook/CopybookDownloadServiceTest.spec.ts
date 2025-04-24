@@ -38,11 +38,6 @@ import * as ProcessorGroups from "../../../services/ProcessorGroups";
 import { SettingsService } from "../../../services/Settings";
 import { URI as Uri } from "vscode-uri";
 import { FileNotFound } from "../../../__mocks__/vscode";
-import {
-  EndevorConfigModel,
-  ZoweDatasetConfigModel,
-  ZoweUssConfigModel,
-} from "../../../services/ProcessorGroupsLoader";
 import * as ProcessorGroupLoader from "../../../services/ProcessorGroupsLoader";
 import {
   e4eMock,

@@ -42,7 +42,6 @@ import {
   loadProcessorGroupCopybookEncodingConfig,
   loadProcessorGroupCopybookExtensionsConfig,
   loadProcessorGroupCopybookPaths,
-  loadProcessorGroupCopybookPathsConfig,
   loadProcessorGroupDialectConfig,
   loadProcessorGroupSqlBackendConfig,
 } from "./ProcessorGroups";
@@ -66,10 +65,6 @@ interface Item {
 
 const DialectsConfigurationCodec = t.array(t.string);
 export type DialectsConfiguration = t.TypeOf<typeof DialectsConfigurationCodec>;
-const CopybooksLocalPathsConfigurationCodec = t.array(t.string);
-export type CopybooksLocalPathsConfiguration = t.TypeOf<
-  typeof CopybooksLocalPathsConfigurationCodec
->;
 const CopybookExtensionsConfigurationCodec = t.array(t.string);
 const TargetSQLBackendConfigurationCodec = t.string;
 const CopybookEncodingConfigurationCodec = t.string;

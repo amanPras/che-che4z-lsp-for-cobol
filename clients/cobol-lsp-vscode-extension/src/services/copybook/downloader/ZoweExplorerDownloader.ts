@@ -12,10 +12,6 @@
  *   Broadcom, Inc. - initial API and implementation
  */
 import * as vscode from "vscode";
-import * as iconv from "iconv-lite";
-import { SettingsService } from "../../Settings";
-import { CopybookURI } from "../CopybookURI";
-import { getErrorMessage } from "../../util/ErrorsUtils";
 import { FAILED_REQUESTS_LIMIT } from "../../../constants";
 import { hasMember } from "../../util/Utils";
 
