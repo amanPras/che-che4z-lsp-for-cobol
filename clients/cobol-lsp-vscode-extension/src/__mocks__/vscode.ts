@@ -18,7 +18,7 @@ import type {
   Position as PositionType,
   Uri as UriType,
 } from "vscode";
-import * as URI from "vscode-uri";
+import { URI, Utils } from "vscode-uri";
 
 import { readFile } from "fs/promises";
 
@@ -27,7 +27,7 @@ export namespace workspace {
   export const workspaceFolders = [
     {
       name: "workspace",
-      uri: URI.URI.parse("/workspace"),
+      uri: URI.parse("/workspace"),
       index: 0,
     },
   ];
@@ -143,8 +143,8 @@ export enum StatusBarAlignment {
   Right,
 }
 
-export const Uri = URI.URI;
-Object.assign(Uri, URI.Utils);
+export const Uri = URI;
+Object.assign(Uri, Utils);
 
 export enum ConfigurationTarget {
   Global = 1,
