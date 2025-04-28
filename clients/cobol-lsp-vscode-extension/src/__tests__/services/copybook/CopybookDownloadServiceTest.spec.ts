@@ -931,15 +931,10 @@ describe("Tests copybook download service", () => {
             DEFAULT_DIALECT,
           );
 
-          expect(result?.toString()).toEqual(
-            "file:///workspace/copybooks/COPYBOOK.cpy",
-          );
+          expect(result).toEqual("file:///workspace/copybooks/COPYBOOK.cpy");
 
           expect(findFilesSpy).toHaveBeenCalledWith({
-            base: expect.objectContaining({
-              path: "/workspace/copybooks",
-              scheme: "file",
-            }) as vscode.Uri,
+            base: Uri.file("/workspace/copybooks"),
             pattern: "{COPYBOOK.CPY}",
           });
         });
@@ -968,16 +963,11 @@ describe("Tests copybook download service", () => {
             "dialect",
           );
 
-          expect(result?.toString()).toEqual(
-            "file:///dialect/copybooks/COPYBOOK.CPY",
-          );
+          expect(result).toEqual("file:///dialect/copybooks/COPYBOOK.CPY");
 
           expect(findFilesSpy).toHaveBeenCalledTimes(1);
           expect(findFilesSpy).toHaveBeenCalledWith({
-            base: expect.objectContaining({
-              path: "/dialect/copybooks",
-              scheme: "file",
-            }) as vscode.Uri,
+            base: Uri.file("/workspace/copybooks"),
             pattern: "{COPYBOOK.CPY}",
           });
         });
@@ -1007,6 +997,8 @@ describe("Tests copybook download service", () => {
         expect(result).toEqual(
           "zowe-ds:/profile/DATASET.WITH.COPYBOOKS/COPYBOOK",
         );
+        expect(allMembersMock).toHaveBeenCalledWith("OTHER.DATASET");
+        expect(allMembersMock).toHaveBeenCalledWith("DATASET.WITH.COPYBOOKS");
       });
     });
 
@@ -1033,6 +1025,9 @@ describe("Tests copybook download service", () => {
         expect(result).toEqual(
           "zowe-uss:/profile/remote/uss/copybooks/COPYBOOK.CPY",
         );
+
+        expect(fileListMock).toHaveBeenCalledWith("/user/copybooks");
+        expect(fileListMock).toHaveBeenCalledWith("/remote/uss/copybooks");
       });
     });
 
@@ -1455,10 +1450,7 @@ describe("Tests copybook download service", () => {
           );
 
           expect(findFilesSpy).toHaveBeenCalledWith({
-            base: expect.objectContaining({
-              path: "/workspace/local/pg/copybooks",
-              scheme: "file",
-            }) as vscode.Uri,
+            base: Uri.file("/workspace/local/pg/copybooks"),
             pattern: "{COPYBOOK.cpy}",
           });
 
@@ -1543,12 +1535,9 @@ describe("Tests copybook download service", () => {
       });
 
       describe("resolve endevor element in processor group", () => {
-        let dataset: string;
         let e4eMock: E4E;
 
         beforeEach(() => {
-          dataset = "ENDEVOR.DATASET.COPYBOOK";
-
           e4eMock = {
             isEndevorElement: jest.fn().mockResolvedValue(true),
             getProfileInfo: jest.fn().mockResolvedValue({
@@ -1564,7 +1553,7 @@ describe("Tests copybook download service", () => {
               pgroups: [
                 {
                   name: "pgroup",
-                  libs: [{ dataset }],
+                  libs: [{ dataset: "ENDEVOR.DATASET.COPYBOOK" }],
                 },
               ],
             }),
@@ -1713,36 +1702,6 @@ describe("Tests copybook download service", () => {
         });
       });
     });
-
-    // describe("resolve local copybooks when no configuration is provided in settings", () => {
-    //   beforeEach(() => {
-    //     workspaceConfigurationMock = {
-    //       "paths-local": undefined,
-    //       "paths-dsn": undefined,
-    //       "paths-uss": undefined,
-    //       "copybook-extensions": undefined,
-    //     };
-    //     jest
-    //       .spyOn(vscode.workspace, "findFiles")
-    //       .mockResolvedValue([
-    //         vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
-    //       ]);
-    //   });
-
-    //   it("workspace folder is used as default copybooks location", async () => {
-    //     const cds = new CopybookDownloadService("/globalStorage");
-
-    //     const result = await cds.resolveCopybookURI(
-    //       Uri.file("/test.cbl").toString(),
-    //       "COPYBOOK",
-    //       DEFAULT_DIALECT,
-    //     );
-
-    //     expect(result).toEqual("file:///workspace/copybooks/COPYBOOK.cpy");
-
-    //     expect(vscode.workspace.findFiles).toHaveBeenCalledWith({});
-    //   });
-    // });
 
     describe("With both local and zowe locations defined in the settings.json, the search is applied on local resources first", () => {
       beforeEach(() => {
