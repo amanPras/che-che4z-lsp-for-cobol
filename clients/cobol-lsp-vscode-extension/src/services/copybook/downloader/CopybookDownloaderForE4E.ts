@@ -32,7 +32,6 @@ import {
   USE_MAP,
 } from "../../../constants";
 import { asPartialProfile, hasMember, Utils } from "../../util/Utils";
-import { searchCopybookInExtensionFolder } from "../../util/FSUtils";
 import { getErrorMessage } from "../../util/ErrorsUtils";
 import { SettingsService } from "../../Settings";
 
@@ -346,41 +345,6 @@ export class CopybookDownloaderForE4E {
     );
   }
 
-  public async getE4ECopyBookLocation(
-    copybookName: string,
-    documentUri: string,
-  ) {
-    const config = await this.getE4EConfig(documentUri);
-    if (!config) {
-      throw new Error();
-    }
-    const first = config.elements[copybookName];
-    if (!first) return;
-    let use_map;
-    let instance;
-    if (DATASET in first) {
-      instance = [Utils.profileAsString(config.profile)];
-      use_map = first.dataset;
-    } else if (ENVIRONMENT in first) {
-      use_map = first.use_map ? USE_MAP : "";
-      instance = CopybookURI.getEnviromentPath(first, config.profile);
-    } else return;
-    const targetFolder = [
-      CopybookURI.createDatasetPath(
-        instance,
-        use_map,
-        this.storagePath,
-        E4E_FOLDER,
-      ).fsPath,
-    ];
-
-    return searchCopybookInExtensionFolder(
-      copybookName,
-      targetFolder,
-      [""],
-      this.storagePath,
-    );
-  }
   public async getProfileInfo(profile: string = "") {
     const partialProfile = asPartialProfile(profile);
     if (this.E4EProfiles.has(profile)) {

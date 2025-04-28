@@ -11,21 +11,18 @@
  * Contributors:
  *   Broadcom, Inc. - initial API and implementation
  */
-import * as glob from "glob";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
-import { COPYBOOK_EXT_ARRAY, ZOWE_FOLDER } from "../../../constants";
+import { ZOWE_FOLDER } from "../../../constants";
 import { CopybookURI } from "../../../services/copybook/CopybookURI";
 import { SettingsService } from "../../../services/Settings";
-import * as fsUtils from "../../../services/util/FSUtils";
 import { ProfileUtils } from "../../../services/util/ProfileUtils";
 import { SettingsUtils } from "../../../services/util/SettingsUtils";
 
 const copybookName: string = "NSTCOPY1";
 const copybookNameWithExtension: string = "NSTCOPY2.CPY";
 const CPY_FOLDER_NAME = ".cobcopy";
-const RELATIVE_CPY_FOLDER_NAME = "../relativeCobcopy";
 const folderPath = path.join(__dirname, CPY_FOLDER_NAME);
 
 SettingsUtils.getWorkspaceFoldersPath = jest.fn().mockReturnValue([__dirname]);
@@ -86,101 +83,7 @@ beforeAll(() => {
 afterAll(() => {
   return removeFolder(folderPath);
 });
-describe("Resolve local copybook against bad configuration of target folders", () => {
-  test("given an empty list of folders, the copybook is not retrieved", () => {
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        copybookName,
-        [],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBe(undefined);
-  });
-  test("given a folder that not contains copybooks, the target copybook is not retrieved", () => {
-    jest.spyOn(glob, "globSync").mockImplementation(() => []);
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        copybookName,
-        [__dirname],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBe(undefined);
-  });
-  test("given a not empty folder, a copybook that is not present in that folder is not retrieved and the uri returned is undefined", () => {
-    jest.spyOn(glob, "globSync").mockImplementation(() => []);
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        "NSTCPY2",
-        [CPY_FOLDER_NAME],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBeUndefined();
-  });
-});
-describe("Resolve local copybook present in one or more folders specified by the user", () => {
-  test("given a folder that contains the target copybook, it is found and its uri is returned", () => {
-    jest.spyOn(glob, "globSync").mockImplementation(() => [copybookName]);
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        copybookName,
-        [CPY_FOLDER_NAME],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBeDefined();
-  });
-  test("given two times the same folder that contains the target copybook, one uri is still returned", () => {
-    jest.spyOn(glob, "globSync").mockImplementation(() => [copybookName]);
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        copybookName,
-        [CPY_FOLDER_NAME],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBeDefined();
-  });
-  test("Given a copybook with extension on filesystem, the uri is correctly returned", () => {
-    jest.spyOn(glob, "globSync").mockImplementation(() => ["NSTCOPY2.CPY"]);
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        "NSTCOPY2",
-        [CPY_FOLDER_NAME],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBeDefined();
-  });
-  test("Given a valid relative path for copybook with extension on filesystem, the uri is correctly returned", async () => {
-    jest.spyOn(glob, "globSync").mockImplementation(() => ["NSTCOPY2.CPY"]);
-    const dir = path.join(__dirname, RELATIVE_CPY_FOLDER_NAME);
-    createDirectory(dir);
-    createFile(copybookNameWithExtension, dir);
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        "NSTCOPY2",
-        [RELATIVE_CPY_FOLDER_NAME],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBeDefined();
-    await removeFolder(dir);
-  });
-  test("Given a valid absolute path for copybook with extension on filesystem, the uri is correctly returned", () => {
-    jest.spyOn(glob, "globSync").mockImplementation(() => ["NSTCOPY2.CPY"]);
-    expect(
-      fsUtils.searchCopybookInExtensionFolder(
-        "NSTCOPY2",
-        [path.normalize(folderPath)],
-        COPYBOOK_EXT_ARRAY,
-        __dirname,
-      ),
-    ).toBeDefined();
-  });
-});
+
 describe("With invalid input parameters, the list of URI that represent copybook downloaded are not generated", () => {
   test("given a profile but no dataset, the result list returned is empty", () => {
     expect(buildResultArrayFrom(undefined, "file:///program", "PRF")).toBe(0);

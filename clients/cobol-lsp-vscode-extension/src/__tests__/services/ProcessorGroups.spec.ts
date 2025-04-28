@@ -21,7 +21,6 @@ import {
   loadProcessorGroupDialectConfig,
   loadProcessorGroupSqlBackendConfig,
 } from "../../services/ProcessorGroups";
-import * as glob from "glob";
 import { SettingsService } from "../../services/Settings";
 import * as vscode from "vscode";
 
@@ -135,17 +134,6 @@ jest.mock("path", (): unknown => {
 });
 
 describe("Processor groups configuration provides lib path", () => {
-  beforeAll(() => {
-    jest
-      .spyOn(glob, "globSync")
-      .mockImplementation(
-        (config: string | string[], _options: glob.GlobOptions) => {
-          if (config[0] === "/copy") return ["/copy-resolved-from-glob"];
-          else throw Error("some issue with input param");
-        },
-      );
-  });
-
   it("Processor groups configuration provides lib path", async () => {
     const item = {
       scopeUri: WORKSPACE_URI + "/TEST.cob",
@@ -158,17 +146,6 @@ describe("Processor groups configuration provides lib path", () => {
 });
 
 describe("Processor groups configuration understand absolute paths", () => {
-  beforeAll(() => {
-    jest
-      .spyOn(glob, "globSync")
-      .mockImplementation(
-        (config: string | string[], _options: glob.GlobOptions) => {
-          if (config[0] === "/abs") return ["/copy-resolved-from-glob"];
-          else throw Error("some issue with input param");
-        },
-      );
-  });
-
   it("Processor groups configuration understand absolute paths", async () => {
     const item = {
       scopeUri: WORKSPACE_URI + "/abs/TEST.cob",
