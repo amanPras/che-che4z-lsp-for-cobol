@@ -34,48 +34,51 @@ describe("e4e copybook downloader tests", () => {
     jest.restoreAllMocks();
   });
 
-  describe.skip("checks copybook downloaded into correct path", () => {
+  describe("checks copybook downloaded into correct path", () => {
     describe("windows", () => {
       beforeEach(() => {
-        jest.replaceProperty(path, "sep", "\\");
         jest
           .spyOn(vscode.Uri, "joinPath")
           .mockImplementation((base, ...args) =>
-            vscode.Uri.parse(base.fsPath + "\\" + args.join("\\")),
+            vscode.Uri.file(base.fsPath + "\\" + args.join("\\")),
           );
       });
 
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
       it("allocates the copybook path incrementally", async () => {
-        expect(
-          await CopybookDownloaderForE4E["getCopybookPath"](
-            ["Instance.Instance"],
-            "pgm",
-            "C:\\Users\\Developer\\globalStorage",
-            "Copy.cpy",
-          ),
-        ).toEqual(
+        const resultUri = await CopybookDownloaderForE4E["getCopybookPath"](
+          ["Instance.Instance"],
+          "pgm",
+          "C:\\Users\\Developer\\globalStorage",
+          "Copy.cpy",
+        );
+
+        expect(decodeURIComponent(resultUri.toString())).toEqual(
+          "file:///c:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance\\pgm\\Copy",
+        );
+        expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
           expect.objectContaining({
-            path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance\\pgm\\Copy",
+            fsPath: "c:\\Users\\Developer\\globalStorage\\e4e",
           }),
         );
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
           expect.objectContaining({
-            path: "C:\\Users\\Developer\\globalStorage\\e4e",
+            fsPath: "c:\\Users\\Developer\\globalStorage\\e4e\\copybooks",
           }),
         );
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
           expect.objectContaining({
-            path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks",
+            fsPath:
+              "c:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance",
           }),
         );
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
           expect.objectContaining({
-            path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance",
-          }),
-        );
-        expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
-          expect.objectContaining({
-            path: "C:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance\\pgm",
+            fsPath:
+              "c:\\Users\\Developer\\globalStorage\\e4e\\copybooks\\Instance.Instance\\pgm",
           }),
         );
       });
