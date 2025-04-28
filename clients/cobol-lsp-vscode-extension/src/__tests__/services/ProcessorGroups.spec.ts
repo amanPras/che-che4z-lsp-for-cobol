@@ -153,7 +153,7 @@ describe("Processor groups configuration provides lib path", () => {
     };
 
     const result = await loadProcessorGroupCopybookPathsConfig(item, []);
-    expect((result[0] as vscode.Uri).toString()).toEqual("file:///copy");
+    expect(result).toEqual([vscode.Uri.file("/copy")]);
   });
 });
 

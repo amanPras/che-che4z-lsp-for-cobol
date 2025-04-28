@@ -43,6 +43,7 @@ import {
   e4eMock,
   e4eMockInvalidProfile,
 } from "../../../__mocks__/getE4EMock.utility";
+import { DownloadDiagnosticsService } from "../../../services/DiagnosticsService";
 
 jest.mock("../../../services/reporter");
 Utils.getZoweExplorerAPI = jest
@@ -120,142 +121,148 @@ describe("Tests copybook download service", () => {
         expect(result).toBeUndefined();
       });
 
-      // it("checks missing explorer api produces diagnostics when processor groups have dsn or uss config", async () => {
-      //   const diagnosticsService = new DownloadDiagnosticsService();
-      //   const service = new CopybookDownloadService(
-      //     "storage-path",
-      //     undefined,
-      //     e4eMock,
-      //     undefined,
-      //     diagnosticsService,
-      //   );
-      //   const diagnosticsSpy = jest
-      //     .spyOn(diagnosticsService, "showDiagnostics")
-      //     .mockImplementation();
+      it("checks missing explorer api produces diagnostics when processor groups have dsn or uss config", async () => {
+        const diagnosticsService = new DownloadDiagnosticsService();
+        const service = new CopybookDownloadService(
+          "storage-path",
+          undefined,
+          e4eMock,
+          undefined,
+          diagnosticsService,
+        );
+        const diagnosticsSpy = jest
+          .spyOn(diagnosticsService, "showDiagnostics")
+          .mockImplementation();
 
-      //   const spyConfig = jest.spyOn(
-      //     ProcessorGroups,
-      //     "loadProcessorGroupCopybookPathsConfig",
-      //   );
-      //   spyConfig.mockResolvedValue([
-      //     {
-      //       dataset: "dataset",
-      //       uss: "uss",
-      //     },
-      //   ]);
-      //   await service.downloadCopybooks("file:///document-uri", [
-      //     { name: "copybook", dialect: DEFAULT_DIALECT },
-      //   ]);
-      //   expect(diagnosticsSpy).toHaveBeenCalledWith(
-      //     expect.objectContaining({ path: "/document-uri" }),
-      //     [
-      //       {
-      //         message: "Zowe Explorer is not installed",
-      //         range: {
-      //           end: { character: 0, line: 1 },
-      //           start: { character: 0, line: 0 },
-      //         },
-      //         severity: 1,
-      //       },
-      //     ],
-      //   );
-      // });
+        const spyConfig = jest.spyOn(
+          ProcessorGroups,
+          "loadProcessorGroupCopybookPathsConfig",
+        );
+        spyConfig.mockResolvedValue([
+          {
+            dataset: "dataset",
+            uss: "uss",
+          },
+        ]);
+        await service.resolveCopybookURI(
+          "file:///document-uri",
+          "copybook",
+          DEFAULT_DIALECT,
+        );
+        expect(diagnosticsSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ path: "/document-uri" }),
+          [
+            {
+              message: "Zowe Explorer is not installed",
+              range: {
+                end: { character: 0, line: 1 },
+                start: { character: 0, line: 0 },
+              },
+              severity: 1,
+            },
+          ],
+        );
+      });
 
-      // it("checks installing e4e or zowe api removes download diagnostics", async () => {
-      //   const diagnosticsService = new DownloadDiagnosticsService();
-      //   const service = new CopybookDownloadService(
-      //     "storage-path",
-      //     undefined,
-      //     undefined,
-      //     undefined,
-      //     diagnosticsService,
-      //   );
-      //   const showDiagnosticsSpy = jest
-      //     .spyOn(diagnosticsService, "showDiagnostics")
-      //     .mockImplementation();
+      it("checks installing e4e or zowe api removes download diagnostics", async () => {
+        const diagnosticsService = new DownloadDiagnosticsService();
+        const service = new CopybookDownloadService(
+          "storage-path",
+          undefined,
+          undefined,
+          undefined,
+          diagnosticsService,
+        );
+        const showDiagnosticsSpy = jest
+          .spyOn(diagnosticsService, "showDiagnostics")
+          .mockImplementation();
 
-      //   const clearDiagnosticsSpy = jest
-      //     .spyOn(diagnosticsService, "clearDiagnostics")
-      //     .mockImplementation();
+        const clearDiagnosticsSpy = jest
+          .spyOn(diagnosticsService, "clearDiagnostics")
+          .mockImplementation();
 
-      //   const spyConfig = jest.spyOn(
-      //     ProcessorGroups,
-      //     "loadProcessorGroupCopybookPathsConfig",
-      //   );
-      //   spyConfig.mockResolvedValue([
-      //     {
-      //       dataset: "dataset",
-      //       uss: "uss",
-      //     },
-      //   ]);
-      //   await service.downloadCopybooks("file:///document-uri", [
-      //     { name: "copybook", dialect: DEFAULT_DIALECT },
-      //   ]);
+        const spyConfig = jest.spyOn(
+          ProcessorGroups,
+          "loadProcessorGroupCopybookPathsConfig",
+        );
+        spyConfig.mockResolvedValue([
+          {
+            dataset: "dataset",
+            uss: "uss",
+          },
+        ]);
+        await service.resolveCopybookURI(
+          "file:///document-uri",
+          "copybook",
+          DEFAULT_DIALECT,
+        );
 
-      //   service.explorerAppeared(zoweExplorerMock);
-      //   service.e4eAppeared(e4eMock);
+        service.explorerAppeared(zoweExplorerMock);
+        service.e4eAppeared(e4eMock);
 
-      //   expect(showDiagnosticsSpy).toHaveBeenCalledWith(
-      //     expect.objectContaining({ path: "/document-uri" }),
-      //     [
-      //       {
-      //         message: "Zowe Explorer is not installed",
-      //         range: {
-      //           end: { character: 0, line: 1 },
-      //           start: { character: 0, line: 0 },
-      //         },
-      //         severity: 1,
-      //       },
-      //     ],
-      //   );
+        expect(showDiagnosticsSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ path: "/document-uri" }),
+          [
+            {
+              message: "Zowe Explorer is not installed",
+              range: {
+                end: { character: 0, line: 1 },
+                start: { character: 0, line: 0 },
+              },
+              severity: 1,
+            },
+          ],
+        );
 
-      //   expect(clearDiagnosticsSpy).toHaveBeenCalledTimes(2);
-      // });
+        expect(clearDiagnosticsSpy).toHaveBeenCalledTimes(2);
+      });
     });
 
     describe("Endevor API missing", () => {
-      // it("checks missing e4e api produces diagnostics when processor groups have endevor config", async () => {
-      //   const diagnosticsService = new DownloadDiagnosticsService();
-      //   const service = new CopybookDownloadService(
-      //     "storage-path",
-      //     zoweExplorerMock,
-      //     undefined,
-      //     undefined,
-      //     diagnosticsService,
-      //   );
-      //   const diagnosticsSpy = jest
-      //     .spyOn(diagnosticsService, "showDiagnostics")
-      //     .mockImplementation();
-      //   const spyConfig = jest.spyOn(
-      //     ProcessorGroups,
-      //     "loadProcessorGroupCopybookPathsConfig",
-      //   );
-      //   spyConfig.mockResolvedValue([
-      //     {
-      //       environment: "environment",
-      //       stage: "1",
-      //       system: "system",
-      //       subsystem: "subsystem",
-      //       type: "type",
-      //     },
-      //   ]);
-      //   await service.downloadCopybooks("file:///document-uri", [
-      //     { name: "copybook", dialect: DEFAULT_DIALECT },
-      //   ]);
-      //   expect(diagnosticsSpy).toHaveBeenCalledWith(
-      //     expect.objectContaining({ scheme: "file", path: "/document-uri" }),
-      //     [
-      //       {
-      //         message: "Explorer for Endevor is not installed",
-      //         range: {
-      //           end: { character: 0, line: 1 },
-      //           start: { character: 0, line: 0 },
-      //         },
-      //         severity: 1,
-      //       },
-      //     ],
-      //   );
-      // });
+      it("checks missing e4e api produces diagnostics when processor groups have endevor config", async () => {
+        const diagnosticsService = new DownloadDiagnosticsService();
+        const service = new CopybookDownloadService(
+          "storage-path",
+          zoweExplorerMock,
+          undefined,
+          undefined,
+          diagnosticsService,
+        );
+        const diagnosticsSpy = jest
+          .spyOn(diagnosticsService, "showDiagnostics")
+          .mockImplementation();
+        const spyConfig = jest.spyOn(
+          ProcessorGroups,
+          "loadProcessorGroupCopybookPathsConfig",
+        );
+        spyConfig.mockResolvedValue([
+          {
+            environment: "environment",
+            stage: "1",
+            system: "system",
+            subsystem: "subsystem",
+            type: "type",
+          },
+        ]);
+        await service.resolveCopybookURI(
+          "file:///document-uri",
+          "copybook",
+          DEFAULT_DIALECT,
+        );
+        expect(diagnosticsSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ scheme: "file", path: "/document-uri" }),
+          [
+            {
+              message: "Explorer for Endevor is not installed",
+              range: {
+                end: { character: 0, line: 1 },
+                start: { character: 0, line: 0 },
+              },
+              severity: 1,
+            },
+          ],
+        );
+      });
     });
 
     describe("unknown-profile", () => {
