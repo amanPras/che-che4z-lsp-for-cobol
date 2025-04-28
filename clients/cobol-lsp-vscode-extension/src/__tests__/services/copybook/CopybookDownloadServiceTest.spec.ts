@@ -967,7 +967,7 @@ describe("Tests copybook download service", () => {
 
           expect(findFilesSpy).toHaveBeenCalledTimes(1);
           expect(findFilesSpy).toHaveBeenCalledWith({
-            base: Uri.file("/workspace/copybooks"),
+            base: Uri.file("/dialect/copybooks"),
             pattern: "{COPYBOOK.CPY}",
           });
         });
