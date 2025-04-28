@@ -17,8 +17,8 @@ package org.eclipse.lsp.cobol.service.io.impl;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
-import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 
 /** Resolves content of a URI */
 public class ClientBasedFileContent implements ResolveFileContent {

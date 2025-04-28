@@ -27,8 +27,12 @@ import org.eclipse.lsp.cobol.common.LanguageEngineFacade;
 import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.action.CodeActionProvider;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
+import org.eclipse.lsp.cobol.common.io.FileDownload;
+import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
+import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryFolderService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryService;
 import org.eclipse.lsp.cobol.lsp.*;
@@ -53,9 +57,6 @@ import org.eclipse.lsp.cobol.service.delegates.hover.VariableHover;
 import org.eclipse.lsp.cobol.service.delegates.references.ElementOccurrences;
 import org.eclipse.lsp.cobol.service.delegates.references.Occurrences;
 import org.eclipse.lsp.cobol.service.delegates.validations.CobolLanguageEngineFacade;
-import org.eclipse.lsp.cobol.service.io.FileDownload;
-import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
-import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.service.io.impl.*;
 import org.eclipse.lsp.cobol.service.providers.ClientProvider;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
@@ -73,16 +74,15 @@ public class ServiceModule extends AbstractModule {
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
     bind(LanguageEngineFacade.class).to(CobolLanguageEngineFacade.class);
     bind(CopybookService.class).to(CopybookServiceImpl.class);
+    bind(PredefinedCopybookStore.class).to(PredefinedCopybookStoreImpl.class);
     // TODO: configure below commented binding based on some flag
-    //    bind(ResolveCopybookUri.class).to(CacheResolveCopybookUri.class);
-    //    bind(ResolveFileContent.class).to(DiskBasedFileContent.class);
-    //    bind(FileDownload.class).to(ClientDownloadFile.class);
-    bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
-    bind(ResolveFileContent.class).to(ClientBasedFileContent.class);
-    bind(FileDownload.class).to(DummyFileDownloadService.class);
-    bind(CopybookService.class)
-        .annotatedWith(Names.named("predefinedCopybook"))
-        .to(PredefinedCopybookService.class);
+    bind(ResolveCopybookUri.class).to(CacheResolveCopybookUri.class);
+    bind(ResolveFileContent.class).to(DiskBasedFileContent.class);
+    bind(FileDownload.class).to(ClientDownloadFile.class);
+    //    bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
+    //    bind(ResolveFileContent.class).to(ClientBasedFileContent.class);
+    //    bind(FileDownload.class).to(DummyFileDownloadService.class);
+
     bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(CobolLanguageClient.class).toProvider(ClientProvider.class);

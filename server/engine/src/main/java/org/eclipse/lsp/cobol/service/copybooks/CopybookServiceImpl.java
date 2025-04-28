@@ -23,20 +23,19 @@ import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.*;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
+import org.eclipse.lsp.cobol.common.io.CachedIOService;
+import org.eclipse.lsp.cobol.common.io.FileDownload;
+import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
+import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.common.utils.ThreadInterruptionUtil;
-import org.eclipse.lsp.cobol.service.io.FileDownload;
-import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
-import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 
 /**
  * This service processes copybook requests and returns content by its name. The service also caches
@@ -47,17 +46,14 @@ import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 @SuppressWarnings("UnstableApiUsage")
 public class CopybookServiceImpl implements CopybookService {
 
+  private static final String COBOL = "COBOL";
   protected final Map<String, List<SyntaxError>> preprocessCopybookErrors =
       new ConcurrentHashMap<>();
   protected final Map<String, Set<CopybookModel>> copybookUsage = new ConcurrentHashMap<>();
   private final ResolveCopybookUri resolveCopybookUri;
   private final ResolveFileContent resolveFileContent;
   private final FileDownload fileDownloadService;
-  private static final String COBOL = "COBOL";
-
-  @Getter
-  @Named("predefinedCopybook")
-  private final CopybookService predefinedCopybookService;
+  private final PredefinedCopybookStore predefinedCopybookStoreImpl;
 
   private final Map<String, Set<CopybookName>> copybooksForDownloading =
       new ConcurrentHashMap<>(8, 0.9f, 1);
@@ -67,18 +63,20 @@ public class CopybookServiceImpl implements CopybookService {
       ResolveCopybookUri resolveCopybookUri,
       ResolveFileContent resolveFileContent,
       FileDownload fileDownloadService,
-      CopybookService predefinedCopybookService) {
+      PredefinedCopybookStore predefinedCopybookStoreImpl) {
     this.resolveCopybookUri = resolveCopybookUri;
     this.resolveFileContent = resolveFileContent;
     this.fileDownloadService = fileDownloadService;
-    this.predefinedCopybookService = predefinedCopybookService;
+    this.predefinedCopybookStoreImpl = predefinedCopybookStoreImpl;
   }
 
   @Override
   public void invalidateCache(boolean onlyNonImplicit) {
     LOG.debug("Copybooks for downloading: {}", copybooksForDownloading);
     LOG.debug("Cache invalidated");
-    resolveCopybookUri.invalidateCache(null); // TODO Added
+    //    resolveCopybookUri.invalidateCache(null); // TODO Added
+    invalidateAll(resolveCopybookUri);
+    invalidateAll(resolveFileContent);
     copybookUsage.clear();
     copybooksForDownloading.clear();
   }
@@ -86,10 +84,17 @@ public class CopybookServiceImpl implements CopybookService {
   /**
    * Removes cache for the passed {@link CopybookId}
    *
-   * @param copybookId is a copybook identifier
+   * @param copybookModel is a copybook model to be invalidated
    */
-  public void invalidateCache(CopybookId copybookId) {
-    resolveCopybookUri.invalidateCache(copybookId);
+  @SuppressWarnings("unchecked")
+  public void invalidateCache(CopybookModel copybookModel) {
+    if (resolveCopybookUri instanceof CachedIOService) {
+      ((CachedIOService<CopybookId, ?>) resolveCopybookUri)
+          .invalidate(copybookModel.getCopybookId());
+    }
+    if (resolveFileContent instanceof CachedIOService) {
+      ((CachedIOService<String, ?>) resolveCopybookUri).invalidate(copybookModel.getUri());
+    }
   }
 
   /**
@@ -124,12 +129,7 @@ public class CopybookServiceImpl implements CopybookService {
               Optional.ofNullable(copybookName.getDialectType()).orElse(COBOL));
       if (copybookUri == null) {
         ResultWithErrors<CopybookModel> predefinedCopybook =
-            predefinedCopybookService.resolve(
-                copybookName.toCopybookId(programDocumentUri),
-                copybookName,
-                programDocumentUri,
-                programDocumentUri,
-                preprocessor);
+            predefinedCopybookStoreImpl.resolve(copybookName, programDocumentUri);
         if (predefinedCopybook.getResult().getContent() == null) {
           return ResultWithErrors.of(registerForDownloading(copybookName, programDocumentUri));
         }
@@ -164,18 +164,10 @@ public class CopybookServiceImpl implements CopybookService {
     }
   }
 
-  @Override
-  public void store(CopybookModel copybookModel) {}
-
-  @Override
-  public void store(CopybookModel copybookModel, CleanerPreprocessor preprocessor) {
-    //    if (preprocessor != null) {
-    //      ResultWithErrors<CopybookModel> processedCopybook =
-    //          CopybookUtility.cleanupCopybook(copybookModel, preprocessor);
-    //      copybookModel = processedCopybook.getResult();
-    //      preprocessCopybookErrors.put(copybookModel.getUri(), processedCopybook.getErrors());
-    //    }
-    //    store(copybookModel);
+  private void invalidateAll(Object cacheObject) {
+    if (cacheObject instanceof CachedIOService) {
+      ((CachedIOService<?, ?>) cacheObject).invalidateAll();
+    }
   }
 
   private CopybookModel registerForDownloading(CopybookName copybookName, String programUri) {

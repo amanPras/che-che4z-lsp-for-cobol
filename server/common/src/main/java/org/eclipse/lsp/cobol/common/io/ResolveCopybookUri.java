@@ -12,9 +12,8 @@
  *    Broadcom, Inc. - initial API and implementation
  *
  */
-package org.eclipse.lsp.cobol.service.io;
+package org.eclipse.lsp.cobol.common.io;
 
-import org.eclipse.lsp.cobol.common.copybook.CopybookId;
 import org.eclipse.lsp.cobol.common.copybook.CopybookName;
 
 /** Resolves a copybook uri for a COBOL document */
@@ -28,11 +27,4 @@ public interface ResolveCopybookUri {
    * @return returns a copybbok uri
    */
   String resolveCopybookUri(String cobolFileUri, CopybookName copybookName, String dialectType);
-
-  /**
-   * Invalidates any cached data
-   *
-   * @param copybookId
-   */
-  void invalidateCache(CopybookId copybookId);
 }

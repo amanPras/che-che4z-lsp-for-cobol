@@ -11,17 +11,26 @@
  * Contributors:
  *    Broadcom, Inc. - initial API and implementation
  *
- */ package org.eclipse.lsp.cobol.service.io;
+ */
+package org.eclipse.lsp.cobol.common.io;
 
-import java.util.concurrent.CompletableFuture;
+/** Basic for contact for any cached service */
+public interface CachedIOService<K, V> {
+  /** clears cache */
+  void invalidateAll();
 
-/** Interface to resolve content of a URI */
-public interface ResolveFileContent {
   /**
-   * resolve content of a passed URI
+   * Invalidate a specific element from cache
    *
-   * @param uri
-   * @return a {@link CompletableFuture} of the uri content
+   * @param id
    */
-  CompletableFuture<String> getFileContent(String uri);
+  void invalidate(K id);
+
+  /**
+   * Store the key value pair in cache
+   *
+   * @param key
+   * @param value
+   */
+  void store(K key, V value);
 }

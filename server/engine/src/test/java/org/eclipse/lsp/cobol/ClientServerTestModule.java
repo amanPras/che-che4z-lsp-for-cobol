@@ -76,9 +76,6 @@ public class ClientServerTestModule extends AbstractModule {
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
     bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
     bind(CopybookService.class).to(CopybookServiceImpl.class);
-    bind(CopybookService.class)
-        .annotatedWith(Names.named("predefinedCopybook"))
-        .to(PredefinedCopybookService.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);
     bind(FileSystemService.class).to(WorkspaceFileService.class);

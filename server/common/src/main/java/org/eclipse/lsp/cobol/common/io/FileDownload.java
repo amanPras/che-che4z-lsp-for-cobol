@@ -12,7 +12,7 @@
  *    Broadcom, Inc. - initial API and implementation
  *
  */
-package org.eclipse.lsp.cobol.service.io;
+package org.eclipse.lsp.cobol.common.io;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

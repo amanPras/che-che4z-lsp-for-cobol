@@ -19,8 +19,8 @@ import com.google.inject.Provider;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp.cobol.common.copybook.CopyBookDTO;
+import org.eclipse.lsp.cobol.common.io.FileDownload;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
-import org.eclipse.lsp.cobol.service.io.FileDownload;
 
 /** Request client to download files */
 public class ClientDownloadFile implements FileDownload {

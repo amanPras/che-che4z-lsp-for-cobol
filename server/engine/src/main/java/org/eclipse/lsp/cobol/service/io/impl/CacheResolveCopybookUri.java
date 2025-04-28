@@ -25,8 +25,9 @@ import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.copybook.CopybookId;
 import org.eclipse.lsp.cobol.common.copybook.CopybookName;
+import org.eclipse.lsp.cobol.common.io.CachedIOService;
+import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
-import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
 
 /**
  * Resolves a copybook uri for a COBOL document and caches the result to reduce client server
@@ -34,7 +35,8 @@ import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
  */
 @Singleton
 @Slf4j
-public class CacheResolveCopybookUri implements ResolveCopybookUri {
+public class CacheResolveCopybookUri
+    implements ResolveCopybookUri, CachedIOService<CopybookId, String> {
   private final Provider<CobolLanguageClient> clientProvider;
   private final Map<CopybookId, String> cache = new ConcurrentHashMap<>();
 
@@ -87,11 +89,26 @@ public class CacheResolveCopybookUri implements ResolveCopybookUri {
    * @param copybookId
    */
   @Override
-  public void invalidateCache(CopybookId copybookId) {
+  public void invalidate(CopybookId copybookId) {
     if (copybookId == null) {
       cache.clear();
       return;
     }
     cache.remove(copybookId);
+  }
+
+  /** */
+  @Override
+  public void invalidateAll() {
+    cache.clear();
+  }
+
+  /**
+   * @param key
+   * @param value
+   */
+  @Override
+  public void store(CopybookId key, String value) {
+    cache.put(key, value);
   }
 }

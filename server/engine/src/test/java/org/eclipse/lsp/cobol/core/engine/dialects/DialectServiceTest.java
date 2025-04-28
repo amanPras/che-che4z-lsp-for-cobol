@@ -22,12 +22,12 @@ import java.util.List;
 import org.eclipse.lsp.cobol.common.DialectRegistryItem;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.DialectOutcome;
 import org.eclipse.lsp.cobol.common.dialects.DialectProcessingContext;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedDocument;
 import org.eclipse.lsp.cobol.common.message.MessageService;
-import org.eclipse.lsp.cobol.service.copybooks.PredefinedCopybookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -38,7 +38,7 @@ class DialectServiceTest {
   DialectService dialectService;
   DialectDiscoveryService ddService;
   CopybookService copybookService;
-  CopybookService predefinedCopybookService;
+  PredefinedCopybookStore predefinedCopybookService;
   MessageService messageService;
 
   @BeforeEach
@@ -46,7 +46,7 @@ class DialectServiceTest {
     ddService = mock(DialectDiscoveryService.class);
     copybookService = mock(CopybookService.class);
     messageService = mock(MessageService.class);
-    predefinedCopybookService = mock(PredefinedCopybookService.class);
+    predefinedCopybookService = mock(PredefinedCopybookStore.class);
     when(ddService.loadDialects(copybookService, messageService)).thenReturn(ImmutableList.of());
 
     dialectService =

@@ -32,9 +32,13 @@ import org.eclipse.lsp.cobol.common.action.CodeActionProvider;
 import org.eclipse.lsp.cobol.common.benchmark.BenchmarkService;
 import org.eclipse.lsp.cobol.common.benchmark.BenchmarkServiceImpl;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.dialects.TrueDialectService;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
+import org.eclipse.lsp.cobol.common.io.FileDownload;
+import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
+import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryFolderService;
@@ -70,9 +74,6 @@ import org.eclipse.lsp.cobol.service.delegates.hover.VariableHover;
 import org.eclipse.lsp.cobol.service.delegates.references.ElementOccurrences;
 import org.eclipse.lsp.cobol.service.delegates.references.Occurrences;
 import org.eclipse.lsp.cobol.service.delegates.validations.CobolLanguageEngineFacade;
-import org.eclipse.lsp.cobol.service.io.FileDownload;
-import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
-import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.service.io.impl.CacheResolveCopybookUri;
 import org.eclipse.lsp.cobol.service.io.impl.ClientDownloadFile;
 import org.eclipse.lsp.cobol.service.io.impl.DiskBasedFileContent;
@@ -94,13 +95,11 @@ public class CliModule extends AbstractModule {
     bind(MessageService.class).to(PropertiesMessageService.class);
     bind(LocaleStore.class).to(LocaleStoreImpl.class);
     bind(ConfigurationService.class).to(CachingConfigurationService.class);
-    bind(CopybookService.class)
-        .annotatedWith(Names.named("predefinedCopybook"))
-        .to(PredefinedCopybookService.class);
     bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
     bind(ResolveCopybookUri.class).to(CacheResolveCopybookUri.class);
     bind(ResolveFileContent.class).to(DiskBasedFileContent.class);
     bind(FileDownload.class).to(ClientDownloadFile.class);
+    bind(PredefinedCopybookStore.class).to(PredefinedCopybookStoreImpl.class);
     bind(ParseTreeListener.class).to(InterruptingTreeListener.class);
     bind(String.class)
         .annotatedWith(named("resourceFileLocation"))

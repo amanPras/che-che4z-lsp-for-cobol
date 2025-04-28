@@ -17,7 +17,7 @@ package org.eclipse.lsp.cobol.service.io.impl;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp.cobol.common.copybook.CopyBookDTO;
-import org.eclipse.lsp.cobol.service.io.FileDownload;
+import org.eclipse.lsp.cobol.common.io.FileDownload;
 
 /** Dummy implementation of {@link FileDownload} which does nothing */
 public class DummyFileDownloadService implements FileDownload {

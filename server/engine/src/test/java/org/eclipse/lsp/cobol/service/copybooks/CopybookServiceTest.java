@@ -36,12 +36,12 @@ import org.eclipse.lsp.cobol.common.copybook.*;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
+import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
+import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedText;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
 import org.eclipse.lsp.cobol.common.utils.PredefinedCopybooks;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
-import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
-import org.eclipse.lsp.cobol.service.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.service.io.impl.CacheResolveCopybookUri;
 import org.eclipse.lsp.cobol.service.io.impl.ClientDownloadFile;
 import org.eclipse.lsp.cobol.service.io.impl.DiskBasedFileContent;
@@ -205,7 +205,7 @@ class CopybookServiceTest {
                 null)
             .getResult();
 
-    verify(files, times(2)).getPathFromURI(VALID_CPY_URI);
+    verify(files).getPathFromURI(VALID_CPY_URI);
 
     assertEquals(
         new CopybookModel(
@@ -535,7 +535,7 @@ class CopybookServiceTest {
     ClientProvider provider = new ClientProvider();
     provider.setClient(client);
     return new CopybookServiceImpl(
-        resolveCopybookUri, resolveFileContent, fileDownload, new PredefinedCopybookService());
+        resolveCopybookUri, resolveFileContent, fileDownload, new PredefinedCopybookStoreImpl());
   }
 
   private CopybookName createCopybook(String displayName) {
@@ -545,39 +545,39 @@ class CopybookServiceTest {
   @Disabled("store is only used for predefined copybooks")
   @Test
   void store() {
-    CopybookName copybookName = createCopybook(VALID_CPY_NAME);
-    CopybookService copybookService = createCopybookService();
-    CopybookModel copybookModel =
-        copybookService
-            .resolve(
-                CopybookId.fromString(copybookName.getDisplayName()),
-                copybookName,
-                DOCUMENT_URI,
-                DOCUMENT_URI,
-                null)
-            .getResult();
-    CopybookModel resolve;
-    resolve =
-        copybookService
-            .resolve(
-                copybookName.toCopybookId(DOCUMENT_2_URI),
-                copybookName,
-                DOCUMENT_2_URI,
-                DOCUMENT_2_URI,
-                null)
-            .getResult();
-    assertNull(resolve.getContent());
-    copybookService.store(copybookModel, null);
-    resolve =
-        copybookService
-            .resolve(
-                CopybookId.fromString(copybookName.getDisplayName()),
-                copybookName,
-                DOCUMENT_URI,
-                DOCUMENT_URI,
-                null)
-            .getResult();
-    assertEquals(CONTENT, resolve.getContent());
+    //    CopybookName copybookName = createCopybook(VALID_CPY_NAME);
+    //    CopybookService copybookService = createCopybookService();
+    //    CopybookModel copybookModel =
+    //        copybookService
+    //            .resolve(
+    //                CopybookId.fromString(copybookName.getDisplayName()),
+    //                copybookName,
+    //                DOCUMENT_URI,
+    //                DOCUMENT_URI,
+    //                null)
+    //            .getResult();
+    //    CopybookModel resolve;
+    //    resolve =
+    //        copybookService
+    //            .resolve(
+    //                copybookName.toCopybookId(DOCUMENT_2_URI),
+    //                copybookName,
+    //                DOCUMENT_2_URI,
+    //                DOCUMENT_2_URI,
+    //                null)
+    //            .getResult();
+    //    assertNull(resolve.getContent());
+    //    copybookService.store(copybookModel, null);
+    //    resolve =
+    //        copybookService
+    //            .resolve(
+    //                CopybookId.fromString(copybookName.getDisplayName()),
+    //                copybookName,
+    //                DOCUMENT_URI,
+    //                DOCUMENT_URI,
+    //                null)
+    //            .getResult();
+    //    assertEquals(CONTENT, resolve.getContent());
   }
 
   @Test

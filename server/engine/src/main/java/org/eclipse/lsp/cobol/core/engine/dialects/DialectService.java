@@ -22,13 +22,13 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.inject.Named;
 import org.eclipse.lsp.cobol.common.AnalysisConfig;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.DialectRegistryItem;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookModel;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.copybook.SQLBackend;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.DialectOutcome;
@@ -55,8 +55,7 @@ public class DialectService {
   private final DialectDiscoveryService discoveryService;
   private final CopybookService copybookService;
 
-  @Named("predefinedCopybook")
-  private final CopybookService predefinedCopybookService;
+  private final PredefinedCopybookStore predefinedCopybookService;
 
   private final MessageService messageService;
 
@@ -64,7 +63,7 @@ public class DialectService {
   public DialectService(
       DialectDiscoveryService discoveryService,
       CopybookService copybookService,
-      CopybookService predefinedCopybookService,
+      PredefinedCopybookStore predefinedCopybookService,
       MessageService messageService) {
     this.predefinedCopybookService = predefinedCopybookService;
     this.dialectSuppliers = new HashMap<>();

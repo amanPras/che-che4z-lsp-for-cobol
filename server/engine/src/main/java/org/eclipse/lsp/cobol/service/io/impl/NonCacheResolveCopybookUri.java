@@ -18,10 +18,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.lsp.cobol.common.copybook.CopybookId;
 import org.eclipse.lsp.cobol.common.copybook.CopybookName;
+import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
-import org.eclipse.lsp.cobol.service.io.ResolveCopybookUri;
 
 /** Resolves a copybook uri for a COBOL document from client */
 @Slf4j
@@ -57,10 +56,4 @@ public class NonCacheResolveCopybookUri implements ResolveCopybookUri {
                 });
     return clientRequest.join();
   }
-
-  /**
-   * @param copybookId
-   */
-  @Override
-  public void invalidateCache(CopybookId copybookId) {}
 }
