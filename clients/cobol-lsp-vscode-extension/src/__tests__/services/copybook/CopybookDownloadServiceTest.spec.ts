@@ -380,6 +380,7 @@ describe("Tests copybook download service", () => {
       });
 
       describe("credentials are valid but copybook dataset doesn't exists", () => {
+        let prerequisiteCheckSpy: jest.SpyInstance;
         beforeEach(() => {
           downloadService = new CopybookDownloadService(
             "storage-path",
@@ -388,27 +389,29 @@ describe("Tests copybook download service", () => {
           workspaceConfigurationMock[PATHS_DSN] = ["TEST.COBOL.COPYBOOK"];
           workspaceConfigurationMock[PATHS_USS] = ["/u/test/copybooks"];
 
-          downloadService.resolveCopybookURI = jest
-            .fn()
-            .mockResolvedValue(null);
+          prerequisiteCheckSpy = jest.spyOn(
+            downloadService as unknown as {
+              isPrerequisiteForDownloadSatisfied: CopybookDownloadService["isPrerequisiteForDownloadSatisfied"];
+            },
+            "isPrerequisiteForDownloadSatisfied",
+          );
         });
 
         it("credentials are considered valid, copybooks can be downloaded", async () => {
-          await downloadService.resolveCopybookURI(
+          const result = await downloadService.resolveCopybookURI(
             "file://document-uri",
             "copybook-name",
             DEFAULT_DIALECT,
           );
 
-          expect(vscode.window.showErrorMessage).not.toHaveBeenCalledWith(
-            "Incorrect credentials in Zowe profile profile.",
-          );
-
-          expect(downloadService.resolveCopybookURI).toHaveBeenCalled();
+          expect(prerequisiteCheckSpy).toHaveBeenCalled();
+          expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+          expect(result).toBeUndefined();
         });
       });
 
       describe("credentials are valid and dataset exists, but user doesn't have permissions for the dataset", () => {
+        let prerequisiteCheckSpy: jest.SpyInstance;
         beforeEach(() => {
           downloadService = new CopybookDownloadService(
             "storage-path",
@@ -417,9 +420,12 @@ describe("Tests copybook download service", () => {
           workspaceConfigurationMock[PATHS_DSN] = ["TEST.COBOL.COPYBOOK"];
           workspaceConfigurationMock[PATHS_USS] = ["/u/test/copybooks"];
 
-          downloadService.resolveCopybookURI = jest
-            .fn()
-            .mockResolvedValue(null);
+          prerequisiteCheckSpy = jest.spyOn(
+            downloadService as unknown as {
+              isPrerequisiteForDownloadSatisfied: CopybookDownloadService["isPrerequisiteForDownloadSatisfied"];
+            },
+            "isPrerequisiteForDownloadSatisfied",
+          );
         });
 
         it("credentials are considered valid, copybooks can be downloaded", async () => {
@@ -433,7 +439,7 @@ describe("Tests copybook download service", () => {
             "Incorrect credentials in Zowe profile profile.",
           );
 
-          expect(downloadService.resolveCopybookURI).toHaveBeenCalled();
+          expect(prerequisiteCheckSpy).toHaveBeenCalled();
         });
       });
     });
