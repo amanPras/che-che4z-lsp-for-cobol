@@ -106,7 +106,7 @@ describe("Tests copybook download service", () => {
     jest.restoreAllMocks();
   });
 
-  describe("checks the prerequisites are checked before resolving remote copybooks", () => {
+  describe("the prerequisites are checked before resolving remote copybooks", () => {
     describe("ZOWE API is missing", () => {
       it("checks download fails if ZE apis are missing", async () => {
         const resolver = new CopybookDownloadService(
@@ -115,7 +115,7 @@ describe("Tests copybook download service", () => {
           undefined,
         );
         const result = await resolver.resolveCopybookURI(
-          "file://doc-ui",
+          "file:///doc-ui",
           "copybook",
           DEFAULT_DIALECT,
         );
@@ -274,7 +274,7 @@ describe("Tests copybook download service", () => {
 
       it("checks download fails when provided profile is not a valid profile", async () => {
         await downloadService.resolveCopybookURI(
-          "file://document-uri",
+          "file:///document-uri",
           "copybook-name",
           DEFAULT_DIALECT,
         );
@@ -292,7 +292,7 @@ describe("Tests copybook download service", () => {
 
       it("checks download fails when provided profile is not provided", async () => {
         await downloadService.resolveCopybookURI(
-          "file://document-uri",
+          "file:///document-uri",
           "copybook-name",
           DEFAULT_DIALECT,
         );
@@ -311,7 +311,7 @@ describe("Tests copybook download service", () => {
 
       it("should not show the missing zowe profile message", async () => {
         await downloadService.resolveCopybookURI(
-          "file://document-uri",
+          "file:///document-uri",
           "copybook-name",
           DEFAULT_DIALECT,
         );
@@ -341,7 +341,7 @@ describe("Tests copybook download service", () => {
 
           it("checks profile with invalid credentials do not trigger download", async () => {
             await downloadService.resolveCopybookURI(
-              "file://document-uri",
+              "file:///document-uri",
               "copybook-name",
               DEFAULT_DIALECT,
             );
@@ -366,7 +366,7 @@ describe("Tests copybook download service", () => {
 
           it("checks profile with invalid credentials do not trigger download", async () => {
             await downloadService.resolveCopybookURI(
-              "file://document-uri",
+              "file:///document-uri",
               "copybook-name",
               DEFAULT_DIALECT,
             );
@@ -405,7 +405,7 @@ describe("Tests copybook download service", () => {
 
         it("credentials are considered valid, copybooks can be downloaded", async () => {
           const result = await downloadService.resolveCopybookURI(
-            "file://document-uri",
+            "file:///document-uri",
             "copybook-name",
             DEFAULT_DIALECT,
           );
@@ -436,7 +436,7 @@ describe("Tests copybook download service", () => {
 
         it("credentials are considered valid, copybooks can be downloaded", async () => {
           await downloadService.resolveCopybookURI(
-            "file://document-uri",
+            "file:///document-uri",
             "copybook-name",
             DEFAULT_DIALECT,
           );
@@ -460,7 +460,7 @@ describe("Tests copybook download service", () => {
 
       it("correct credentials don't trigger error message", async () => {
         await downloadService.resolveCopybookURI(
-          "file://document-uri",
+          "file:///document-uri",
           "copybook-name",
           DEFAULT_DIALECT,
         );
@@ -482,7 +482,7 @@ describe("Tests copybook download service", () => {
       workspaceConfigurationMock[PATHS_USS] = undefined;
       expect(
         await downloadService.resolveCopybookURI(
-          "file://document-uri",
+          "file:///document-uri",
           "copybook-name",
           DEFAULT_DIALECT,
         ),
@@ -502,7 +502,7 @@ describe("Tests copybook download service", () => {
       downloadService["processDownloadError"] = jest.fn();
       expect(
         await downloadService.resolveCopybookURI(
-          "file://document-uri",
+          "file:///document-uri",
           "copybook-name",
           DEFAULT_DIALECT,
         ),
@@ -525,7 +525,7 @@ describe("Tests copybook download service", () => {
 
       expect(
         await downloadService.resolveCopybookURI(
-          "file://document-uri",
+          "file:///document-uri",
           "copybook-name",
           DEFAULT_DIALECT,
         ),
