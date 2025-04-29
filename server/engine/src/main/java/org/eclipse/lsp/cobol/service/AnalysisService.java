@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
-
+import javax.annotation.Nullable;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.cfg.CFASTBuilder;
@@ -41,8 +41,6 @@ import org.eclipse.lsp.cobol.core.model.extendedapi.Program;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
 import org.eclipse.lsp.cobol.service.copybooks.CopybookIdentificationService;
 import org.eclipse.lsp.cobol.service.settings.ConfigurationService;
-
-import javax.annotation.Nullable;
 
 /** Provides async document analysis functionality */
 @Slf4j
@@ -132,19 +130,24 @@ public class AnalysisService {
   private List<Program> analyzeDocumentWithCopybooks(String uri, String text) {
     List<Program> astList = new LinkedList<>();
     try {
-      CopybookProcessingMode copybookProcessingMode = CopybookProcessingMode.getCopybookProcessingMode(uri, CopybookProcessingMode.ENABLED);
+      CopybookProcessingMode copybookProcessingMode =
+          CopybookProcessingMode.getCopybookProcessingMode(uri, CopybookProcessingMode.ENABLED);
       AnalysisConfig config = configurationService.getConfig(uri, copybookProcessingMode);
       ThreadInterruptionUtil.checkThreadInterrupted();
-      AnalysisResult result = engine.analyze(uri, text, config, documentService.get(uri).getLanguageId());
+      AnalysisResult result =
+          engine.analyze(uri, text, config, documentService.get(uri).getLanguageId());
       documentService.processAnalysisResult(uri, result, text);
       ThreadInterruptionUtil.checkThreadInterrupted();
       copybookService.sendCopybookDownloadRequest(
-              uri, DocumentServiceHelper.extractCopybookUris(result), copybookProcessingMode);
+          uri, DocumentServiceHelper.extractCopybookUris(result), copybookProcessingMode);
 
-      cfastBuilder.ifPresent(builder -> astList.addAll(result.getRootNode().findPrograms().stream()
-          .map(builder::build)
-          .flatMap(m -> m.getControlFlowAST().stream())
-          .collect(Collectors.toList())));
+      cfastBuilder.ifPresent(
+          builder ->
+              astList.addAll(
+                  result.getRootNode().findPrograms().stream()
+                      .map(builder::build)
+                      .flatMap(m -> m.getControlFlowAST().stream())
+                      .collect(Collectors.toList())));
 
       LOG.debug("[doAnalysis] Document " + uri + " analyzed: " + result.getDiagnostics());
 
@@ -157,4 +160,3 @@ public class AnalysisService {
     return astList;
   }
 }
-

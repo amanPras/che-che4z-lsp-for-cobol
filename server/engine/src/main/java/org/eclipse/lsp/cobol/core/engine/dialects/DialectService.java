@@ -28,6 +28,7 @@ import org.eclipse.lsp.cobol.common.DialectRegistryItem;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookModel;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.copybook.SQLBackend;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.dialects.DialectOutcome;
@@ -53,13 +54,18 @@ public class DialectService {
   private final Map<String, CobolDialect> dialectSuppliers;
   private final DialectDiscoveryService discoveryService;
   private final CopybookService copybookService;
+
+  private final PredefinedCopybookStore predefinedCopybookService;
+
   private final MessageService messageService;
 
   @Inject
   public DialectService(
       DialectDiscoveryService discoveryService,
       CopybookService copybookService,
+      PredefinedCopybookStore predefinedCopybookService,
       MessageService messageService) {
+    this.predefinedCopybookService = predefinedCopybookService;
     this.dialectSuppliers = new HashMap<>();
     this.discoveryService = discoveryService;
     this.copybookService = copybookService;
@@ -365,16 +371,17 @@ public class DialectService {
   /**
    * Add pre-defined copybooks from dialects to the copybook repository.
    *
-   * @param config     {@link AnalysisConfig}
+   * @param config {@link AnalysisConfig}
    * @param preprocessor - dialect specific preprocessor
    */
-  public void addDialectPredefinedCopybooks(AnalysisConfig config, CleanerPreprocessor preprocessor) {
+  public void addDialectPredefinedCopybooks(
+      AnalysisConfig config, CleanerPreprocessor preprocessor) {
     List<CobolDialect> dialects = new ArrayList<>();
     config.getDialects().forEach(dialect -> getDialectByName(dialect).ifPresent(dialects::add));
     dialects.addAll(getActiveImplicitDialects(config));
     for (CobolDialect dialect : dialects) {
       List<CopybookModel> predefinedCopybook = dialect.getPredefinedCopybook(config);
-      predefinedCopybook.forEach(model -> copybookService.store(model, preprocessor));
+      predefinedCopybook.forEach(model -> predefinedCopybookService.store(model, preprocessor));
     }
   }
 }

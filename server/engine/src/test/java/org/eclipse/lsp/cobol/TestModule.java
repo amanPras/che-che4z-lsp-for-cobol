@@ -31,9 +31,13 @@ import org.eclipse.lsp.cobol.common.LanguageEngineFacade;
 import org.eclipse.lsp.cobol.common.SubroutineService;
 import org.eclipse.lsp.cobol.common.action.CodeActionProvider;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.dialects.CobolDialect;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
+import org.eclipse.lsp.cobol.common.io.FileDownload;
+import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
+import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryService;
@@ -61,6 +65,9 @@ import org.eclipse.lsp.cobol.service.delegates.hover.VariableHover;
 import org.eclipse.lsp.cobol.service.delegates.references.ElementOccurrences;
 import org.eclipse.lsp.cobol.service.delegates.references.Occurrences;
 import org.eclipse.lsp.cobol.service.delegates.validations.CobolLanguageEngineFacade;
+import org.eclipse.lsp.cobol.service.io.impl.ClientDownloadFile;
+import org.eclipse.lsp.cobol.service.io.impl.DiskBasedFileContent;
+import org.eclipse.lsp.cobol.service.io.impl.NonCacheResolveCopybookUri;
 import org.eclipse.lsp.cobol.service.mocks.MockLanguageClient;
 import org.eclipse.lsp.cobol.service.mocks.MockLanguageServer;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
@@ -79,8 +86,12 @@ public class TestModule extends AbstractModule {
     bind(LanguageServer.class).to(MockLanguageServer.class);
     bind(DisposableLSPStateService.class).to(CobolLSPServerStateService.class);
     bind(LanguageEngineFacade.class).to(CobolLanguageEngineFacade.class);
-    bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
     bind(CopybookService.class).to(CopybookServiceImpl.class);
+    bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
+    bind(PredefinedCopybookStore.class).to(PredefinedCopybookStoreImpl.class);
+    bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
+    bind(ResolveFileContent.class).to(DiskBasedFileContent.class);
+    bind(FileDownload.class).to(ClientDownloadFile.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(TextDocumentService.class).to(CobolTextDocumentService.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);
@@ -100,35 +111,40 @@ public class TestModule extends AbstractModule {
     bind(Occurrences.class).to(ElementOccurrences.class);
     bind(CFASTBuilder.class).to(CFASTBuilderImpl.class);
     bind(CopybookIdentificationService.class)
-            .annotatedWith(Names.named("contentStrategy"))
-            .to(CopybookIdentificationServiceBasedOnContent.class);
+        .annotatedWith(Names.named("contentStrategy"))
+        .to(CopybookIdentificationServiceBasedOnContent.class);
     bind(CopybookIdentificationService.class)
-            .annotatedWith(Names.named("suffixStrategy"))
-            .to(CopybookIdentificationBasedOnExtension.class);
+        .annotatedWith(Names.named("suffixStrategy"))
+        .to(CopybookIdentificationBasedOnExtension.class);
     bind(CopybookIdentificationService.class)
-            .annotatedWith(Names.named("combinedStrategy"))
-            .to(CopybookIdentificationCombinedStrategy.class);
+        .annotatedWith(Names.named("combinedStrategy"))
+        .to(CopybookIdentificationCombinedStrategy.class);
     bind(LspEventConsumer.class).to(CobolWorkspaceServiceImpl.class);
-    bind(DialectDiscoveryService.class).toInstance(new DialectDiscoveryService() {
-      @Override
-      public void registerExecuteCommandCapabilities(List<String> capabilities, String id) {}
+    bind(DialectDiscoveryService.class)
+        .toInstance(
+            new DialectDiscoveryService() {
+              @Override
+              public void registerExecuteCommandCapabilities(
+                  List<String> capabilities, String id) {}
 
-      @Override
-      public void unregisterExecuteCommandCapabilities(String id) {}
+              @Override
+              public void unregisterExecuteCommandCapabilities(String id) {}
 
-      @Override
-      public void registerDialectCodeActionProviders(List<CodeActionProvider> providers) {}
+              @Override
+              public void registerDialectCodeActionProviders(List<CodeActionProvider> providers) {}
 
-      @Override
-      public List<CobolDialect> loadDialects(CopybookService copybookService, MessageService messageService) {
-        return ImmutableList.of();
-      }
+              @Override
+              public List<CobolDialect> loadDialects(
+                  CopybookService copybookService, MessageService messageService) {
+                return ImmutableList.of();
+              }
 
-      @Override
-      public List<CobolDialect> loadDialects(URI uri, CopybookService copybookService, MessageService messageService) {
-        return ImmutableList.of();
-      }
-    });
+              @Override
+              public List<CobolDialect> loadDialects(
+                  URI uri, CopybookService copybookService, MessageService messageService) {
+                return ImmutableList.of();
+              }
+            });
 
     bindFormations();
     bindCompletions();
@@ -137,7 +153,8 @@ public class TestModule extends AbstractModule {
   }
 
   private void bindHoverActions() {
-    Multibinder<HoverProvider> hoverProviderMultibinder = newSetBinder(binder(), HoverProvider.class);
+    Multibinder<HoverProvider> hoverProviderMultibinder =
+        newSetBinder(binder(), HoverProvider.class);
     hoverProviderMultibinder.addBinding().to(VariableHover.class);
     hoverProviderMultibinder.addBinding().to(CopybookHoverProvider.class);
   }
