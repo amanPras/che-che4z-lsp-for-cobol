@@ -74,7 +74,7 @@ export function getVariablesFromUri(
 
   return {
     filename: includeExt || dot <= 0 ? file : file.substring(0, dot),
-    dirName: p.fsPath,
+    dirName: p.path,
     dirBasename: p.path.substring(p.path.lastIndexOf("/") + 1),
     extension: dot > 0 ? file.substring(dot) : "",
   };

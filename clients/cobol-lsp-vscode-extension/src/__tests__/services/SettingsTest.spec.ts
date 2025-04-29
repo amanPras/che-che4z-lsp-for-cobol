@@ -40,20 +40,7 @@ describe("SettingsService evaluate variables", () => {
   beforeAll(() => {
     (vscode.workspace.workspaceFolders as vscode.WorkspaceFolder[]) = [
       {
-        uri: {
-          path: makePath("/tmp-ws"),
-          scheme: "",
-          authority: "",
-          query: "",
-          fragment: "",
-          fsPath: makefsPath("/tmp-ws"),
-          with: function (): vscode.Uri {
-            throw new Error("Function not implemented.");
-          },
-          toJSON: function () {
-            throw new Error("Function not implemented.");
-          },
-        },
+        uri: vscode.Uri.file(makefsPath("/tmp-ws")),
         name: "workspace",
         index: 0,
       },
@@ -101,7 +88,7 @@ describe("SettingsService evaluate variables", () => {
       "file://" + makePath("/toplevel/program"),
       "COBOL",
     );
-    expect(paths[0]).toEqual(makefsPath("/toplevel") + "/copybooks");
+    expect(paths[0]).toEqual(makefsPath("/toplevel") + `${path.sep}copybooks`);
   });
 
   test("Evaluate fileDirnameBasename", async () => {
@@ -123,7 +110,7 @@ describe("SettingsService evaluate variables", () => {
       "file://" + makePath("/toplevel/program"),
       "COBOL",
     );
-    expect(paths[0]).toEqual(makefsPath("/tmp-ws") + "/copybooks");
+    expect(paths[0]).toEqual(makefsPath("/tmp-ws") + `${path.sep}copybooks`);
   });
 
   test("Evaluate workspaceFolder with name", async () => {
@@ -136,7 +123,7 @@ describe("SettingsService evaluate variables", () => {
       "file://" + makePath("/toplevel/program"),
       "COBOL",
     );
-    expect(paths[0]).toEqual(makefsPath("/tmp-ws") + "/copybooks");
+    expect(paths[0]).toEqual(makefsPath("/tmp-ws") + `${path.sep}copybooks`);
   });
 
   test("Get local settings for a dialect", async () => {

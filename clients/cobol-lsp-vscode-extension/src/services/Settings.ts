@@ -243,10 +243,13 @@ export class SettingsService {
         dialectType,
       ),
     ];
-    const wsFolders = SettingsUtils.getWorkspaceFoldersPath(true);
 
     if (convertToAbsolutePaths) {
-      return SettingsService.prepareLocalSearchFolders(paths, wsFolders);
+      const uris = SettingsService.prepareLocalSearchUris(
+        paths,
+        vscode.workspace.workspaceFolders ?? [],
+      );
+      return uris.map((u) => u.fsPath);
     }
     return paths;
   }
