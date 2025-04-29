@@ -63,11 +63,9 @@ export class CopybookDownloaderForDsn extends ZoweExplorerDownloader {
   ): Promise<boolean> {
     const members = await this.getAllMembers(profileName, dataset);
 
-    return members.find(
+    return members.some(
       (member) => member.toUpperCase() === copybookName.toUpperCase(),
-    )
-      ? true
-      : false;
+    );
   }
 
   public async resolveCopybookUri(

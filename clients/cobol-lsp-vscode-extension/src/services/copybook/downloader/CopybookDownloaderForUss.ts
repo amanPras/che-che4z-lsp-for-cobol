@@ -79,11 +79,7 @@ export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
     copybookName: string,
   ): Promise<boolean> {
     const members = await this.getAllMembers(profileName, uss);
-
-    if (members.some((member) => member.name === copybookName)) {
-      return true;
-    }
-    return false;
+    return members.some((member) => member.name === copybookName);
   }
 
   public async resolveCopybookUri(
