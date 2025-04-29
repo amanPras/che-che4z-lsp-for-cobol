@@ -288,6 +288,6 @@ describe("Processor groups configurations prepared for download services", () =>
       WORKSPACE_URI + "/abs/TEST.cob",
       "COBOL",
     );
-    expect(paths).toStrictEqual(["/abs"]);
+    expect(paths).toStrictEqual([vscode.Uri.file("/abs").fsPath]);
   });
 });
