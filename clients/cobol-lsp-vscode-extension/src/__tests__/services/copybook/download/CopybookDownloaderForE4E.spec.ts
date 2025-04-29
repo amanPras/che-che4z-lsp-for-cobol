@@ -36,18 +36,6 @@ describe("e4e copybook downloader tests", () => {
 
   describe("checks copybook downloaded into correct path", () => {
     describe("windows", () => {
-      beforeEach(() => {
-        // jest
-        //   .spyOn(vscode.Uri, "joinPath")
-        //   .mockImplementation((base, ...args) =>
-        //     vscode.Uri.file(base.fsPath + "\\" + args.join("\\")),
-        //   );
-      });
-
-      afterEach(() => {
-        jest.restoreAllMocks();
-      });
-
       it("allocates the copybook path incrementally", async () => {
         const resultUri = await CopybookDownloaderForE4E["getCopybookPath"](
           ["Instance.Instance"],
@@ -92,29 +80,25 @@ describe("e4e copybook downloader tests", () => {
             "Copy.cpy",
           ),
         ).toEqual(
-          expect.objectContaining({
-            path: "/home/developer/globalStorage/e4e/copybooks/Instance.Instance/pgm/Copy",
-          }),
+          vscode.Uri.file(
+            "/home/developer/globalStorage/e4e/copybooks/Instance.Instance/pgm/Copy",
+          ),
         );
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
-          expect.objectContaining({
-            path: "/home/developer/globalStorage/e4e",
-          }),
+          vscode.Uri.file("/home/developer/globalStorage/e4e"),
         );
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
-          expect.objectContaining({
-            path: "/home/developer/globalStorage/e4e/copybooks",
-          }),
+          vscode.Uri.file("/home/developer/globalStorage/e4e/copybooks"),
         );
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
-          expect.objectContaining({
-            path: "/home/developer/globalStorage/e4e/copybooks/Instance.Instance",
-          }),
+          vscode.Uri.file(
+            "/home/developer/globalStorage/e4e/copybooks/Instance.Instance",
+          ),
         );
         expect(vscode.workspace.fs.createDirectory).toHaveBeenCalledWith(
-          expect.objectContaining({
-            path: "/home/developer/globalStorage/e4e/copybooks/Instance.Instance/pgm",
-          }),
+          vscode.Uri.file(
+            "/home/developer/globalStorage/e4e/copybooks/Instance.Instance/pgm",
+          ),
         );
       });
     });
@@ -279,9 +263,9 @@ describe("e4e copybook downloader tests", () => {
         { dataset: "dataset", member: "copybook" },
       );
       expect(vscode.workspace.fs.writeFile).toHaveBeenCalledWith(
-        expect.objectContaining({
-          path: "/storagePath/e4e/copybooks/instance.profile/dataset/copybook",
-        }),
+        vscode.Uri.file(
+          "/storagePath/e4e/copybooks/instance.profile/dataset/copybook",
+        ),
         Buffer.from("content"),
       );
     });
