@@ -295,15 +295,20 @@ public class CFASTBuilderImpl implements CFASTBuilder {
     int startLine = node.getLocality().getRange().getStart().getLine();
     int stopLine =
         Math.min(startLine + SNIPPET_LENGTH, node.getLocality().getRange().getEnd().getLine() + 1);
-    lines
-        .subList(startLine, stopLine)
-        .forEach(
-            line -> {
-              if (sb.length() > 0) {
-                sb.append("\r\n");
-              }
-              sb.append(line.getText());
-            });
+    if (stopLine < startLine) {
+      stopLine = startLine;
+    }
+    if (lines != null) {
+      lines
+          .subList(startLine, stopLine)
+          .forEach(
+              line -> {
+                if (sb.length() > 0) {
+                  sb.append("\r\n");
+                }
+                sb.append(line.getText());
+              });
+    }
     return sb.toString();
   }
 
