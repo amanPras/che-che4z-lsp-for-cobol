@@ -271,7 +271,8 @@ export enum DiagnosticSeverity {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace lm {
-  export function registerTool(name: string, tool: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export function registerTool(name: string, tool: any) {
     return {
       name,
       tool, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
