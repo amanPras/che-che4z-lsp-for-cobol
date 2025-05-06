@@ -268,3 +268,13 @@ export enum DiagnosticSeverity {
   Information = 2,
   Hint = 3,
 }
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace lm {
+  export function registerTool(name: string, tool: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    return {
+      name,
+      tool, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+    };
+  }
+}

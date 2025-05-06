@@ -63,6 +63,7 @@ import {
   ControlFlowAnalysisService,
 } from "./services/ControlFlowService";
 import { DownloadDiagnosticsService } from "./services/DiagnosticsService";
+import { Tool } from "./tools";
 
 interface __AnalysisApi {
   analysis(uri: string, text: string, pos?: vscode.Position): Promise<unknown>;
@@ -157,6 +158,10 @@ export async function activate(
   registerCommands(context, copyBooksDownloader);
 
   registerCodeActions(context);
+
+  context.subscriptions.push(
+    vscode.lm.registerTool("ccf-graph-tool", new Tool(analysisService)),
+  );
 
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
