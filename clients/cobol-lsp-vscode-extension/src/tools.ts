@@ -16,7 +16,15 @@ export class Tool implements vscode.LanguageModelTool<{ uri: string }> {
   // }
 
   private async getGraph(uri: string) {
-    const analysisResult = await this.analysisService.getAnalysis(uri);
+    const vscodeUri = vscode.Uri.file(uri).toString();
+    if (vscodeUri.endsWith(".cpy")) {
+      return new vscode.LanguageModelToolResult([
+        new vscode.LanguageModelTextPart(
+          "CCF for copybook is not supported yet",
+        ),
+      ]);
+    }
+    const analysisResult = await this.analysisService.getAnalysis(vscodeUri);
     return new vscode.LanguageModelToolResult([
       new vscode.LanguageModelTextPart(JSON.stringify(analysisResult.graphs)),
     ]);
