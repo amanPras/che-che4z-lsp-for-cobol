@@ -64,20 +64,6 @@ public class SourceUnitGraph implements AnalysisStateListener {
     asyncAnalysisService.register(ImmutableList.of(this));
   }
 
-  private static boolean isContainedInside(Position usage, NodeV nodeV) {
-    boolean isContained;
-    Set<Location> referencedLocations = nodeV.referencedLocation;
-    for (Location referencedLocation : referencedLocations) {
-      Position start = referencedLocation.getRange().getStart();
-      Position end = referencedLocation.getRange().getEnd();
-      isContained =
-          (RangeUtils.isAfter(usage, start) || usage.equals(start))
-              && (RangeUtils.isBefore(usage, end) || usage.equals(end));
-      if (isContained) return true;
-    }
-    return false;
-  }
-
   @Override
   public void notifyState(AnalysisState state, CobolDocumentModel model, EventSource eventSource) {
     switch (state) {
@@ -386,12 +372,18 @@ public class SourceUnitGraph implements AnalysisStateListener {
     return result;
   }
 
-  //
-
-  /** Represent different source for event for the LSP server */
-  public enum EventSource {
-    FILE_SYSTEM,
-    IDE
+  private static boolean isContainedInside(Position usage, NodeV nodeV) {
+    boolean isContained;
+    Set<Location> referencedLocations = nodeV.referencedLocation;
+    for (Location referencedLocation : referencedLocations) {
+      Position start = referencedLocation.getRange().getStart();
+      Position end = referencedLocation.getRange().getEnd();
+      isContained =
+          (RangeUtils.isAfter(usage, start) || usage.equals(start))
+              && (RangeUtils.isBefore(usage, end) || usage.equals(end));
+      if (isContained) return true;
+    }
+    return false;
   }
 
   /** Nodes in the {@link SourceUnitGraph} representing document and their links in a workspace */
@@ -406,5 +398,11 @@ public class SourceUnitGraph implements AnalysisStateListener {
     @Setter private boolean isDirty;
     @Setter private String content;
     @Setter private boolean isOpenInIde;
+  }
+
+  /** Represent different source for event for the LSP server */
+  public enum EventSource {
+    FILE_SYSTEM,
+    IDE
   }
 }
