@@ -77,4 +77,30 @@ export class LocalFilesystemResourceService {
 
     return resources;
   }
+
+  public static async searchDirectory(
+    localPath: vscode.Uri,
+    fileName: string,
+    allowedExtensions: string[],
+  ): Promise<vscode.Uri | undefined> {
+    // make sure extension definitions start with '.' (like '.CPY' not just 'CPY')
+    const sanitizedExtensions = allowedExtensions.map((extension) => {
+      if (extension.startsWith(".") || extension === "") {
+        return extension;
+      }
+      return `.${extension}`;
+    });
+
+    const fileNamePattern =
+      sanitizedExtensions.length > 0
+        ? "{" +
+          sanitizedExtensions
+            .map((extension) => `${fileName}${extension}`)
+            .join(",") +
+          "}"
+        : fileName;
+    const searchPattern = createFileSearchPattern(localPath, fileNamePattern);
+    const files = await vscode.workspace.findFiles(searchPattern);
+    return files[0];
+  }
 }
