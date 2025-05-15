@@ -8,8 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- * DAF Trucks NV – implementation of DaCo COBOL statements
- * and DAF development standards
+ *    Broadcom, Inc. - initial API and implementation
  */
 package org.eclipse.lsp.cobol.dialects.daco.usecases;
 
@@ -41,6 +40,8 @@ public class TestDaCoCopyMixture {
           + "           03 COPY MAID {~DC1!DaCo}.\n"
           + "       02 COPY IDMS {~ISC!IDMS}.\n"
           + "           03 COPY MAID {~DC1!DaCo}.\n"
+          + "           03 {$*SUB}.\n"
+          + "               04 {$*A} PIC X.\n"
           + "           03 COPY IDMS {~IC1!IDMS}.\n"
           + "       02 COPY MAID {~DSC!DaCo}.\n"
           + "           03 COPY MAID {~DC1!DaCo}.\n"
@@ -53,6 +54,7 @@ public class TestDaCoCopyMixture {
           + "           DISPLAY {$DACO-NODE} OF {$ISUBNODE} OF {$ROOT}.\n"
           + "           DISPLAY {$IDMS-NODE} OF {$ISUBNODE} OF {$ROOT}.\n"
           + "           DISPLAY {$DACO-NODE} OF {$DSUBNODE} OF {$ROOT}.\n"
+          + "           DISPLAY {$A} OF {$SUB} OF {$ISUBNODE} OF {$ROOT}.\n"
           + "           DISPLAY {$IDMS-NODE} OF {$DSUBNODE} OF {$ROOT}.\n";
 
   @Test
