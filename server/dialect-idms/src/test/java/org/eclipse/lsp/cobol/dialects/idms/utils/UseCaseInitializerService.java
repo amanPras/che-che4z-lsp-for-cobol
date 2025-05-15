@@ -35,7 +35,6 @@ import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.dialects.TrueDialectService;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
-import org.eclipse.lsp.cobol.common.io.FileDownload;
 import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
 import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryService;
@@ -52,7 +51,6 @@ import org.eclipse.lsp.cobol.service.copybooks.*;
 import org.eclipse.lsp.cobol.service.delegates.actions.CodeActions;
 import org.eclipse.lsp.cobol.service.delegates.actions.FindCopybookCommand;
 import org.eclipse.lsp.cobol.service.delegates.validations.CobolLanguageEngineFacade;
-import org.eclipse.lsp.cobol.service.io.impl.DummyFileDownloadService;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
 import org.eclipse.lsp.cobol.test.UseCaseInitializer;
 
@@ -87,7 +85,6 @@ public class UseCaseInitializerService implements UseCaseInitializer {
             bind(PredefinedCopybookStore.class).to(PredefinedCopybookStoreImpl.class);
             bind(ResolveCopybookUri.class).toInstance(mock(ResolveCopybookUri.class));
             bind(ResolveFileContent.class).toInstance(mock(ResolveFileContent.class));
-            bind(FileDownload.class).to(DummyFileDownloadService.class);
             bind(SubroutineService.class).to(SubroutineServiceImpl.class);
             bind(WatcherService.class).to(WatcherServiceImpl.class);
             bind(DialectDiscoveryService.class).to(ExplicitDialectDiscoveryService.class);

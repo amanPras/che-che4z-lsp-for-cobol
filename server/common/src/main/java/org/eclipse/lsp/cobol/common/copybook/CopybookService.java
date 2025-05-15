@@ -14,7 +14,6 @@
  */
 package org.eclipse.lsp.cobol.common.copybook;
 
-import java.util.Collection;
 import java.util.Set;
 import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
@@ -66,16 +65,6 @@ public interface CopybookService {
    * @param preprocessor - Cleanup preprocessor that will be used for new copybooks or null
    */
   void store(CopybookModel copybookModel, CleanerPreprocessor preprocessor);
-
-  /**
-   * Send downloading requests to the Client for copybooks not presented locally, if any.
-   *
-   * @param documentUri current document uri.
-   * @param copybookUris collection of copybook uris.
-   * @param processingMode copybook processing mode.
-   */
-  void sendCopybookDownloadRequest(
-      String documentUri, Collection<String> copybookUris, CopybookProcessingMode processingMode);
 
   /**
    * Get the list of copybook used by a document

@@ -30,7 +30,6 @@ import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.copybook.PredefinedCopybookStore;
 import org.eclipse.lsp.cobol.common.file.FileSystemService;
 import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
-import org.eclipse.lsp.cobol.common.io.FileDownload;
 import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
 import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.core.engine.dialects.DialectDiscoveryFolderService;
@@ -78,10 +77,8 @@ public class ServiceModule extends AbstractModule {
     // TODO: configure below commented binding based on some flag
     bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
     bind(ResolveFileContent.class).to(ClientBasedFileContent.class);
-    bind(FileDownload.class).to(ClientDownloadFile.class);
     //    bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
     //    bind(ResolveFileContent.class).to(ClientBasedFileContent.class);
-    //    bind(FileDownload.class).to(DummyFileDownloadService.class);
 
     bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
     bind(Communications.class).to(ServerCommunications.class);
