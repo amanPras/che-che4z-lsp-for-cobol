@@ -14,18 +14,14 @@
  */
 package org.eclipse.lsp.cobol.service.copybooks;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode.ENABLED;
 import static org.eclipse.lsp.cobol.test.engine.UseCaseUtils.DOCUMENT_URI;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -42,7 +38,6 @@ import org.eclipse.lsp.cobol.common.mapping.ExtendedText;
 import org.eclipse.lsp.cobol.common.mapping.OriginalLocation;
 import org.eclipse.lsp.cobol.common.utils.PredefinedCopybooks;
 import org.eclipse.lsp.cobol.lsp.jrpc.CobolLanguageClient;
-import org.eclipse.lsp.cobol.service.io.impl.ClientDownloadFile;
 import org.eclipse.lsp.cobol.service.io.impl.DiskBasedFileContent;
 import org.eclipse.lsp.cobol.service.io.impl.NonCacheResolveCopybookUri;
 import org.eclipse.lsp.cobol.service.providers.ClientProvider;
@@ -78,7 +73,6 @@ class CopybookServiceTest {
   private final ResolveCopybookUri resolveCopybookUri =
       new NonCacheResolveCopybookUri(() -> client);
   private final ResolveFileContent resolveFileContent = new DiskBasedFileContent(files);
-  private final ClientDownloadFile fileDownload = new ClientDownloadFile(() -> client);
 
   @BeforeEach
   void setupMocks() throws IOException {
@@ -383,22 +377,6 @@ class CopybookServiceTest {
         new CopybookModel(
             copybookInvalid2.toCopybookId(DOCUMENT_2_URI), copybookInvalid2, null, null),
         invalidCpy2);
-    CopyBookDTO invalidCopybook = new CopyBookDTO(copybookInvalid);
-    // First document parsing done
-    copybookService.sendCopybookDownloadRequest(DOCUMENT_URI, emptyList(), ENABLED);
-    verify(client, times(1))
-        .downloadCopybooks(DOCUMENT_URI, ImmutableList.of(invalidCopybook), true);
-
-    // Others parsing done events for first document are not trigger settingsService
-    copybookService.sendCopybookDownloadRequest(DOCUMENT_URI, emptyList(), ENABLED);
-
-    verify(client, times(1))
-        .downloadCopybooks(DOCUMENT_URI, ImmutableList.of(invalidCopybook), true);
-    CopyBookDTO invalidCopybook2 = new CopyBookDTO(copybookInvalid2);
-    // Second document parsing done
-    copybookService.sendCopybookDownloadRequest(DOCUMENT_2_URI, emptyList(), ENABLED);
-    verify(client, times(1))
-        .downloadCopybooks(DOCUMENT_2_URI, ImmutableList.of(invalidCopybook2), true);
   }
 
   /** Test that the service resolves the SQLDA predefined copybook */
@@ -490,15 +468,6 @@ class CopybookServiceTest {
     assertEquals(
         new CopybookModel(copybookNested.toCopybookId(DOCUMENT_URI), copybookNested, null, null),
         nestedCpy);
-
-    // Notify that analysis finished sending the document URI and copybook names that have nested
-    // copybooks
-    CopyBookDTO invalidCopybook = new CopyBookDTO(copybookInvalid);
-    CopyBookDTO nestedCopybook = new CopyBookDTO(copybookNested);
-    copybookService.sendCopybookDownloadRequest(
-        DOCUMENT_URI, asList(PARENT_CPY_URI, DOCUMENT_URI), ENABLED);
-    verify(client, times(1))
-        .downloadCopybooks(DOCUMENT_URI, asList(invalidCopybook, nestedCopybook), true);
   }
 
   @Test
@@ -539,7 +508,6 @@ class CopybookServiceTest {
     return new CopybookServiceImpl(
         resolveCopybookUri,
         resolveFileContent,
-        fileDownload,
         new PredefinedCopybookStoreImpl(),
         new CopybookCache(3, 3, "HOURS"));
   }

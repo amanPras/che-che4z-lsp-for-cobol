@@ -14,8 +14,6 @@
  */
 package org.eclipse.lsp.cobol.service.copybooks;
 
-import static java.util.stream.Collectors.toList;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +30,6 @@ import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.*;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
-import org.eclipse.lsp.cobol.common.io.FileDownload;
 import org.eclipse.lsp.cobol.common.io.ResolveCopybookUri;
 import org.eclipse.lsp.cobol.common.io.ResolveFileContent;
 import org.eclipse.lsp.cobol.common.utils.ThreadInterruptionUtil;
@@ -52,7 +49,6 @@ public class CopybookServiceImpl implements CopybookService {
   protected final Map<String, Set<CopybookModel>> copybookUsage = new ConcurrentHashMap<>();
   private final ResolveCopybookUri resolveCopybookUri;
   private final ResolveFileContent resolveFileContent;
-  private final FileDownload fileDownloadService;
   private final PredefinedCopybookStore predefinedCopybookStoreImpl;
   private final CopybookCache copybookCache;
 
@@ -63,12 +59,10 @@ public class CopybookServiceImpl implements CopybookService {
   public CopybookServiceImpl(
       ResolveCopybookUri resolveCopybookUri,
       ResolveFileContent resolveFileContent,
-      FileDownload fileDownloadService,
       PredefinedCopybookStore predefinedCopybookStoreImpl,
       CopybookCache copybookCache) {
     this.resolveCopybookUri = resolveCopybookUri;
     this.resolveFileContent = resolveFileContent;
-    this.fileDownloadService = fileDownloadService;
     this.predefinedCopybookStoreImpl = predefinedCopybookStoreImpl;
     this.copybookCache = copybookCache;
   }
@@ -188,30 +182,6 @@ public class CopybookServiceImpl implements CopybookService {
                 copybooksForDownloading.computeIfAbsent(name, s -> ConcurrentHashMap.newKeySet()))
         .ifPresent(it -> it.add(copybookName));
     return new CopybookModel(copybookName.toCopybookId(programUri), copybookName, null, null);
-  }
-
-  @Override
-  public void sendCopybookDownloadRequest(
-      String documentUri, Collection<String> copybookUris, CopybookProcessingMode processingMode) {
-    LOG.debug("Copybooks expecting downloading: {}", copybooksForDownloading);
-    Set<String> uris = new HashSet<>(copybookUris);
-    uris.add(documentUri);
-
-    if (processingMode.download) {
-      List<CopyBookDTO> copybooksToDownload =
-          uris.stream()
-              .map(CopybookUtility::getNameFromURI)
-              .map(copybooksForDownloading::remove)
-              .filter(Objects::nonNull)
-              .flatMap(Set::stream)
-              .map(CopyBookDTO::new)
-              .collect(toList());
-      LOG.debug("Copybooks to download: {}", copybooksToDownload);
-      if (!copybooksToDownload.isEmpty()) {
-        fileDownloadService.downloadCopybooks(
-            documentUri, copybooksToDownload, !processingMode.userInteraction);
-      }
-    }
   }
 
   @Override
