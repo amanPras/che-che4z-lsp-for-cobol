@@ -141,6 +141,7 @@ export class CopybookDownloadService {
     e4e?: E4E,
     private outputChannel?: vscode.OutputChannel,
     private diagnosticsService?: DownloadDiagnosticsService,
+    private configurationInvalidation?: () => unknown,
   ) {
     if (e4e) this.e4eAppeared(e4e);
     if (explorer) this.explorerAppeared(explorer);
@@ -161,6 +162,12 @@ export class CopybookDownloadService {
     this.ussDownloader = new CopybookDownloaderForUss(this.explorerApi);
     this.dsnDownloader = new CopybookDownloaderForDsn(this.explorerApi);
     this.diagnosticsService?.clearDiagnostics();
+    this.explorerApi.onProfileUpdated((profile: IProfileLoaded) => {
+      this.outputChannel?.appendLine(`Zowe profile ${profile.name} updated`);
+      if (this.configurationInvalidation) {
+        this.configurationInvalidation();
+      }
+    });
   }
 
   public async listRemoteCopybooks(

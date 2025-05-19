@@ -97,4 +97,5 @@ export const createZoweExplorerMock = (
   getMvsApi: mvsApiMock(allMembers),
   getUssApi: ussApiMock(fileList),
   registeredApiTypes: jest.fn().mockReturnValue([]),
+  onProfileUpdated: jest.fn(),
 });

@@ -78,7 +78,7 @@ describe("Tests copybook download service", () => {
   beforeEach(() => {
     downloadService = new CopybookDownloadService(
       vscode.Uri.file("/storage-path"),
-      {} as unknown as IApiRegisterClient,
+      createZoweExplorerMock(),
     );
     downloadService["processDownloadError"] = jest.fn();
 
@@ -593,6 +593,7 @@ describe("Tests copybook download service", () => {
             loadNamedProfile: () => ({ name: "profile" }),
           }),
         }),
+        onProfileUpdated: jest.fn(),
       } as unknown as IApiRegisterClient;
 
       jest.spyOn(SettingsService, "getProfileName").mockReturnValue("profile");
@@ -895,6 +896,7 @@ describe("Tests copybook download service", () => {
             loadNamedProfile: () => ({ name: "profile" }),
           }),
         }),
+        onProfileUpdated: jest.fn(),
       } as unknown as IApiRegisterClient;
 
       jest.spyOn(SettingsService, "getProfileName").mockReturnValue("profile");
