@@ -98,12 +98,27 @@ async function initialize(context: vscode.ExtensionContext) {
   }
   const maybeE4E = await getE4EAPI();
   const maybeZowe = await Utils.getZoweExplorerAPI();
+
+  languageClientService = new LanguageClientService(
+    outputChannel,
+    context.globalStorageUri,
+    {
+      executeCommand: (command, args, next) => {
+        if (command == "missing copybook") {
+          copyBooksDownloader.clearProfiles();
+        }
+        next(command, args);
+      },
+    },
+  );
+
   const copyBooksDownloader = new CopybookDownloadService(
     context.globalStorageUri,
     maybeZowe && "api" in maybeZowe ? maybeZowe.api : undefined,
     maybeE4E && "api" in maybeE4E ? maybeE4E.api : undefined,
     outputChannel,
     new DownloadDiagnosticsService(),
+    () => languageClientService.invalidateConfiguration(),
   );
 
   if (maybeZowe && "futureApi" in maybeZowe) {
@@ -119,18 +134,6 @@ async function initialize(context: vscode.ExtensionContext) {
       else outputChannel.appendLine(E4E_INCOMPATIBLE);
     });
 
-  languageClientService = new LanguageClientService(
-    outputChannel,
-    context.globalStorageUri,
-    {
-      executeCommand: (command, args, next) => {
-        if (command == "missing copybook") {
-          copyBooksDownloader.clearProfiles();
-        }
-        next(command, args);
-      },
-    },
-  );
   const configurationWatcher = new ConfigurationWatcher();
 
   return {
