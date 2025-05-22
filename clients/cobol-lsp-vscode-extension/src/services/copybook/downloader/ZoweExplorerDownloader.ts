@@ -25,6 +25,8 @@ export abstract class ZoweExplorerDownloader {
     new Map();
   protected memberListCache: Map<string, MemberCacheItem[]> = new Map();
   protected failedRequests: Map<string, number> = new Map();
+  protected abstract schema: string;
+  protected abstract separator: string;
 
   constructor(protected readonly explorerAPI: IApiRegisterClient) {}
 
@@ -72,6 +74,35 @@ export abstract class ZoweExplorerDownloader {
 
         throw err;
       }
+    }
+  }
+
+  public async hasMember(
+    profileName: string,
+    uss: string,
+    copybookName: string,
+  ): Promise<MemberCacheItem | undefined> {
+    const members = await this.getAllMembers(profileName, uss);
+    copybookName = copybookName.toUpperCase();
+    return members.find((member) => member.name.toUpperCase() === copybookName);
+  }
+
+  public abstract getAllMembers(
+    profileName: string,
+    dataset: string,
+  ): Promise<MemberCacheItem[]>;
+
+  public async resolveCopybookUri(
+    profileName: string,
+    dataset: string,
+    copybookName: string,
+  ) {
+    const member = await this.hasMember(profileName, dataset, copybookName);
+
+    if (member) {
+      return vscode.Uri.parse(
+        `${this.schema}:/${profileName}${this.separator}${dataset}/${member.name}${member.extension ? member.extension : ""}`,
+      );
     }
   }
 }

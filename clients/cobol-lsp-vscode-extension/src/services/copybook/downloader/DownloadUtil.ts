@@ -75,6 +75,7 @@ export class DownloadUtil {
     profileName: string,
     explorerAPI: IApiRegisterClient,
     remoteLocation: MainframeRemoteLocation,
+    retry = true,
   ): Promise<boolean> {
     if (
       ZoweExplorerDownloader.profileStore.get(profileName) === "valid-profile"
@@ -83,13 +84,30 @@ export class DownloadUtil {
     }
 
     try {
-      const profile = this.loadProfile(profileName, explorerAPI);
       if (remoteLocation.uss) {
-        await explorerAPI.getUssApi(profile).fileList(remoteLocation.uss);
+        await vscode.workspace.fs.stat(
+          vscode.Uri.parse(
+            `zowe-uss:/${profileName}/${remoteLocation.uss}?fetch=true`,
+          ),
+        );
       } else if (remoteLocation.dsn) {
-        await explorerAPI.getMvsApi(profile).allMembers(remoteLocation.dsn);
+        await vscode.workspace.fs.stat(
+          vscode.Uri.parse(
+            `zowe-ds:/${profileName}/${remoteLocation.dsn}?fetch=true`,
+          ),
+        );
       }
     } catch (error) {
+      // TODO: This retry mechanism should be removed once this ZE bug is fixed
+      // https://github.com/zowe/zowe-explorer-vscode/issues/3662
+      if (retry) {
+        return await this.checkForInvalidCredProfile(
+          profileName,
+          explorerAPI,
+          remoteLocation,
+          false,
+        );
+      }
       if (this.checkForInvalidCredentials(error, profileName)) {
         return true;
       }
@@ -126,11 +144,6 @@ export class DownloadUtil {
 
     if (this.isInvalidCredentials(e)) {
       ZoweExplorerDownloader.profileStore.set(profileName, "locked-profile");
-      const errorMessage = INVALID_CREDENTIALS_ERROR_MSG.replace(
-        PROFILE_NAME_PLACEHOLDER,
-        profileName,
-      );
-      vscode.window.showErrorMessage(errorMessage);
       return true;
     }
 
@@ -212,9 +225,11 @@ export class DownloadUtil {
    */
   private static isInvalidCredentials(e: unknown) {
     return (
-      hasMember(e, "mDetails") &&
-      hasMember(e.mDetails, "errorCode") &&
-      e.mDetails.errorCode === 401
+      hasMember(e, "message") &&
+      typeof e.message === "string" &&
+      e.message.includes(
+        "Rest API failure with HTTP(S) status 401\nThis operation requires authentication.",
+      )
     );
   }
 
@@ -225,9 +240,6 @@ export class DownloadUtil {
    */
   private static isPermissionError(e: unknown) {
     return (
-      hasMember(e, "mDetails") &&
-      hasMember(e.mDetails, "errorCode") &&
-      e.mDetails.errorCode === 500 &&
       hasMember(e, "message") &&
       typeof e.message === "string" &&
       (e.message.includes("EDC5111I Permission denied") ||
@@ -240,11 +252,7 @@ export class DownloadUtil {
    * selected dataset or uss folder doesn't exist.
    */
   private static isNotFoundError(e: unknown) {
-    return (
-      hasMember(e, "mDetails") &&
-      hasMember(e.mDetails, "errorCode") &&
-      e.mDetails.errorCode === 404
-    );
+    return hasMember(e, "code") && e.code === "FileNotFound";
   }
   public static endevorConfigToType(config: EndevorConfigModel): EndevorType {
     return {

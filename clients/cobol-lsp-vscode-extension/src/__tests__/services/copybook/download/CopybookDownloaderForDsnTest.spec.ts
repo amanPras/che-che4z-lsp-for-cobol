@@ -13,39 +13,22 @@
  */
 
 import { CopybookDownloaderForDsn } from "../../../../services/copybook/downloader/CopybookDownloaderForDsn";
-import { ProfileUtils } from "../../../../services/util/ProfileUtils";
-import {
-  createZoweExplorerMock,
-  allMemberMock,
-} from "../../../../__mocks__/getZoweExplorerMock.utility";
+import { createZoweExplorerMock } from "../../../../__mocks__/getZoweExplorerMock.utility";
 import * as vscode from "vscode";
-import { TextEncoder } from "util";
-import { SettingsService } from "../../../../services/Settings";
 
 describe("Tests Copybook download from DNS", () => {
+  let readDirectoryMock: jest.SpyInstance;
   beforeEach(() => {
     jest.clearAllMocks();
-    jest
-      .spyOn(vscode.workspace.fs, "readFile")
-      .mockReturnValue(
-        Promise.resolve(new TextEncoder().encode("copybook content")),
-      );
+    readDirectoryMock = jest
+      .spyOn(vscode.workspace.fs, "readDirectory")
+      .mockResolvedValue([["copybook.cpy", vscode.FileType.File]]);
   });
 
   describe("checks the copybook download using ZE DSN API's", () => {
     const downloader = new CopybookDownloaderForDsn(createZoweExplorerMock());
 
     describe("checks eligible copybook invoke appropriate ZE Api's", () => {
-      ProfileUtils.getProfileNameForCopybook = jest
-        .fn()
-        .mockReturnValue("test-profile");
-      SettingsService.getCopybookFileEncoding = jest
-        .fn()
-        .mockReturnValue("utf8");
-      vscode.Uri.joinPath = jest
-        .fn()
-        .mockReturnValue({ fsPath: "profile/dsn.path/copybook" });
-
       it("checks hasMember adds fetched list to cache when cache doesn't have the member and hasMember uses cache when have member is cached", async () => {
         await downloader.hasMember("profile", "dataset", "copybook");
         const res = await downloader.hasMember(
@@ -53,8 +36,8 @@ describe("Tests Copybook download from DNS", () => {
           "dataset",
           "copybook",
         );
-        expect(allMemberMock).toHaveBeenCalledTimes(1);
-        expect(res).toStrictEqual(true);
+        expect(readDirectoryMock).toHaveBeenCalledTimes(1);
+        expect(res).toStrictEqual({ extension: ".cpy", name: "copybook" });
       });
     });
   });

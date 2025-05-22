@@ -84,7 +84,7 @@ export function getVariablesFromUri(
   };
 }
 
-export function splitFilename(filename: string): [string, string | null] {
+export function splitFilename(filename: string): [string, string] | [string] {
   const lastDotIndex = filename.lastIndexOf(".");
   if (lastDotIndex > 0) {
     const name = filename.slice(0, lastDotIndex);
@@ -92,6 +92,6 @@ export function splitFilename(filename: string): [string, string | null] {
 
     return [name, extension];
   } else {
-    return [filename, null];
+    return [filename];
   }
 }

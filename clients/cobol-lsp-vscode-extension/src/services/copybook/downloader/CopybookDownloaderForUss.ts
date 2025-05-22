@@ -13,7 +13,6 @@
  */
 import { SettingsService } from "../../Settings";
 import { splitFilename } from "../../util/FSUtils";
-import { DownloadUtil } from "./DownloadUtil";
 import {
   MemberCacheItem,
   ZoweExplorerDownloader,
@@ -24,6 +23,9 @@ import * as vscode from "vscode";
  * Copybook downloader from USS using Zowe Explorer
  */
 export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
+  protected schema = "zowe-uss";
+  protected separator = "";
+
   constructor(explorerAPI: IApiRegisterClient) {
     super(explorerAPI);
   }
@@ -38,8 +40,6 @@ export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
       return this.memberListCache.get(id)!;
     }
 
-    const profile = DownloadUtil.loadProfile(profileName, this.explorerAPI);
-
     let allowedCopybooksExtensions =
       await SettingsService.getCopybookExtension();
     allowedCopybooksExtensions = allowedCopybooksExtensions?.map((ext) =>
@@ -52,13 +52,13 @@ export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
     await this.limitFailedRequests(
       `list USS directory ${profileName}/${dataset}`,
       async () => {
-        const response = await this.explorerAPI
-          .getUssApi(profile)
-          .fileList(dataset);
+        const response = await vscode.workspace.fs.readDirectory(
+          vscode.Uri.parse(`${this.schema}:/${profileName}${dataset}`),
+        );
 
-        for (const file of response.apiResponse.items) {
-          if (file.mode.charAt(0) === "-") {
-            const [name, extension] = splitFilename(file.name);
+        for (const file of response) {
+          if (file[1] === vscode.FileType.File) {
+            const [name, extension] = splitFilename(file[0]);
 
             if (extension) {
               if (
@@ -76,33 +76,5 @@ export class CopybookDownloaderForUss extends ZoweExplorerDownloader {
 
     this.memberListCache.set(id, members);
     return members;
-  }
-
-  public async hasMember(
-    profileName: string,
-    uss: string,
-    copybookName: string,
-  ): Promise<boolean> {
-    const members = await this.getAllMembers(profileName, uss);
-    copybookName = copybookName.toUpperCase();
-    return members.some((member) => member.name.toUpperCase() === copybookName);
-  }
-
-  public async resolveCopybookUri(
-    profileName: string,
-    uss: string,
-    copybookName: string,
-  ) {
-    const memberList = await this.getAllMembers(profileName, uss);
-    copybookName = copybookName.toUpperCase();
-    const member = memberList.find(
-      (m) => m.name.toUpperCase() === copybookName,
-    );
-
-    if (member) {
-      return vscode.Uri.parse(
-        `zowe-uss:/${profileName}${uss}/${member.name}${member.extension}`,
-      );
-    }
   }
 }
