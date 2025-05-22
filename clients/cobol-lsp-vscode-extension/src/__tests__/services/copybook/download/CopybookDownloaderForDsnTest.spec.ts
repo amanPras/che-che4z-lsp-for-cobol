@@ -15,14 +15,12 @@
 import { CopybookDownloaderForDsn } from "../../../../services/copybook/downloader/CopybookDownloaderForDsn";
 import { createZoweExplorerMock } from "../../../../__mocks__/getZoweExplorerMock.utility";
 import * as vscode from "vscode";
+import { readDirectoryResult } from "../../../../__mocks__/vscode";
 
 describe("Tests Copybook download from DNS", () => {
-  let readDirectoryMock: jest.SpyInstance;
   beforeEach(() => {
     jest.clearAllMocks();
-    readDirectoryMock = jest
-      .spyOn(vscode.workspace.fs, "readDirectory")
-      .mockResolvedValue([["copybook.cpy", vscode.FileType.File]]);
+    readDirectoryResult["/profile/dataset"] = ["copybook"];
   });
 
   describe("checks the copybook download using ZE DSN API's", () => {
@@ -36,7 +34,7 @@ describe("Tests Copybook download from DNS", () => {
           "dataset",
           "copybook",
         );
-        expect(readDirectoryMock).toHaveBeenCalledTimes(1);
+        expect(vscode.workspace.fs.readDirectory).toHaveBeenCalledTimes(1);
         expect(res).toStrictEqual({ extension: ".cpy", name: "copybook" });
       });
     });

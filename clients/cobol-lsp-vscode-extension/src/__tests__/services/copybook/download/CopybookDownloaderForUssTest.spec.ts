@@ -18,10 +18,9 @@ import * as vscode from "vscode";
 import { TextEncoder } from "util";
 import { SettingsService } from "../../../../services/Settings";
 import { CopybookDownloaderForUss } from "../../../../services/copybook/downloader/CopybookDownloaderForUss";
+import { readDirectoryResult } from "../../../../__mocks__/vscode";
 
 describe("Tests Copybook download from USS", () => {
-  let readDirectoryMock: jest.SpyInstance;
-
   beforeEach(() => {
     jest.clearAllMocks();
     jest
@@ -29,9 +28,10 @@ describe("Tests Copybook download from USS", () => {
       .mockReturnValue(
         Promise.resolve(new TextEncoder().encode("copybook content")),
       );
-    readDirectoryMock = jest
-      .spyOn(vscode.workspace.fs, "readDirectory")
-      .mockResolvedValue([["uss_copybook.cpy", vscode.FileType.File]]);
+
+    readDirectoryResult["/profile/ussFile"] = [
+      ["uss_copybook.cpy", vscode.FileType.File],
+    ];
   });
 
   describe("checks if the copybook is eligible to dowload passed on user settings", () => {
@@ -46,7 +46,7 @@ describe("Tests Copybook download from USS", () => {
     });
   });
 
-  describe("checks the copybook download using ZE USS API's", () => {
+  describe("checks the copybook download using ZE USS APIs", () => {
     let downloader: CopybookDownloaderForUss;
     beforeEach(() => {
       jest
@@ -55,7 +55,7 @@ describe("Tests Copybook download from USS", () => {
       downloader = new CopybookDownloaderForUss(createZoweExplorerMock());
     });
 
-    describe("checks eligible copybook invoke appropriate ZE Api's", () => {
+    describe("checks eligible copybook invoke appropriate ZE Apis", () => {
       beforeEach(() => {
         jest
           .spyOn(ProfileUtils, "getProfileNameForCopybook")
@@ -67,19 +67,16 @@ describe("Tests Copybook download from USS", () => {
         jest
           .spyOn(SettingsService, "getCopybookExtension")
           .mockResolvedValue([".cpy", ""]);
-        jest.spyOn(vscode.Uri, "joinPath").mockReturnValue({
-          fsPath: "profile/uss/path/copybook",
-        } as unknown as vscode.Uri);
       });
 
-      it("checks hasMember adds fetched list to cache when cache doesn't have the member and checks hasMember uses cache when have member is cached", async () => {
-        await downloader.hasMember("profile", "ussFile", "uss_copybook");
+      it("checks hasMember adds fetched list to cache when cache doesnt have the member and checks hasMember uses cache when have member is cached", async () => {
+        await downloader.hasMember("profile", "/ussFile", "uss_copybook");
         const res = await downloader.hasMember(
           "profile",
-          "ussFile",
+          "/ussFile",
           "uss_copybook",
         );
-        expect(readDirectoryMock).toHaveBeenCalledTimes(1);
+        expect(vscode.workspace.fs.readDirectory).toHaveBeenCalledTimes(1);
         expect(res).toStrictEqual({ extension: ".cpy", name: "uss_copybook" });
       });
     });
