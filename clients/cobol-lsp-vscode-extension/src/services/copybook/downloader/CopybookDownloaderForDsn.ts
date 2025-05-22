@@ -11,7 +11,7 @@
  * Contributors:
  *   Broadcom, Inc. - initial API and implementation
  */
-import { DownloadUtil } from "./DownloadUtil";
+import { splitFilename } from "../../util/FSUtils";
 import {
   MemberCacheItem,
   ZoweExplorerDownloader,
@@ -22,6 +22,9 @@ import * as vscode from "vscode";
  * Copybook downloader from MVS using Zowe Explorer
  */
 export class CopybookDownloaderForDsn extends ZoweExplorerDownloader {
+  protected schema = "zowe-ds";
+  protected separator = "/";
+
   constructor(explorerAPI: IApiRegisterClient) {
     super(explorerAPI);
   }
@@ -29,53 +32,32 @@ export class CopybookDownloaderForDsn extends ZoweExplorerDownloader {
   public async getAllMembers(
     profileName: string,
     dataset: string,
-  ): Promise<string[]> {
+  ): Promise<MemberCacheItem[]> {
     const id = this.createId(profileName, dataset);
 
     if (this.memberListCache.has(id)) {
-      return this.memberListCache.get(id)!.map((m) => m.name);
+      return this.memberListCache.get(id)!;
     }
-
-    const profile = DownloadUtil.loadProfile(profileName, this.explorerAPI);
 
     let members: MemberCacheItem[] = [];
     await this.limitFailedRequests(
       `list dataset members ${profileName}/${dataset}`,
       async () => {
-        const response = await this.explorerAPI
-          .getMvsApi(profile)
-          .allMembers(dataset);
-        members = response.apiResponse.items.map((item) => ({
-          name: item.member,
-        }));
+        const response = await vscode.workspace.fs.readDirectory(
+          vscode.Uri.parse(`${this.schema}:/${profileName}/${dataset}`),
+        );
+        members = response.map((item) => {
+          const [name, extension] = splitFilename(item[0]);
+          return {
+            name,
+            extension,
+          };
+        });
 
         this.memberListCache.set(id, members);
       },
     );
 
-    return members.map((m) => m.name);
-  }
-
-  public async hasMember(
-    profileName: string,
-    dataset: string,
-    copybookName: string,
-  ): Promise<boolean> {
-    const members = await this.getAllMembers(profileName, dataset);
-
-    copybookName = copybookName.toUpperCase();
-    return members.some((member) => member.toUpperCase() === copybookName);
-  }
-
-  public async resolveCopybookUri(
-    profileName: string,
-    dataset: string,
-    copybookName: string,
-  ) {
-    if (await this.hasMember(profileName, dataset, copybookName)) {
-      return vscode.Uri.parse(
-        `zowe-ds:/${profileName}/${dataset}/${copybookName}`,
-      );
-    }
+    return members;
   }
 }

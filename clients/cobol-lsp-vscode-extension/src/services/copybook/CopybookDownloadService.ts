@@ -207,13 +207,13 @@ export class CopybookDownloadService {
       }),
       ...ussPaths.map(async (uss) => {
         const ussFiles = await this.ussDownloader?.getAllMembers(profile, uss);
-        return ussFiles?.map((f) => f.name) ?? [];
+        return ussFiles ?? [];
       }),
     ]);
 
     results.forEach((result) => {
       if (result.status === "fulfilled") {
-        result.value.forEach((c) => copybooks.push(c));
+        result.value.forEach((c) => copybooks.push(c.name));
       } else {
         this.outputChannel?.appendLine(
           `Unable to load copybooks completions. ${result.reason}`,

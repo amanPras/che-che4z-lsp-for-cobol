@@ -13,16 +13,15 @@
  */
 
 import { ProfileUtils } from "../../../../services/util/ProfileUtils";
-import {
-  createZoweExplorerMock,
-  allUSSFilemembers,
-} from "../../../../__mocks__/getZoweExplorerMock.utility";
+import { createZoweExplorerMock } from "../../../../__mocks__/getZoweExplorerMock.utility";
 import * as vscode from "vscode";
 import { TextEncoder } from "util";
 import { SettingsService } from "../../../../services/Settings";
 import { CopybookDownloaderForUss } from "../../../../services/copybook/downloader/CopybookDownloaderForUss";
 
 describe("Tests Copybook download from USS", () => {
+  let readDirectoryMock: jest.SpyInstance;
+
   beforeEach(() => {
     jest.clearAllMocks();
     jest
@@ -30,6 +29,9 @@ describe("Tests Copybook download from USS", () => {
       .mockReturnValue(
         Promise.resolve(new TextEncoder().encode("copybook content")),
       );
+    readDirectoryMock = jest
+      .spyOn(vscode.workspace.fs, "readDirectory")
+      .mockResolvedValue([["uss_copybook.cpy", vscode.FileType.File]]);
   });
 
   describe("checks if the copybook is eligible to dowload passed on user settings", () => {
@@ -77,8 +79,8 @@ describe("Tests Copybook download from USS", () => {
           "ussFile",
           "uss_copybook",
         );
-        expect(allUSSFilemembers).toHaveBeenCalledTimes(1);
-        expect(res).toStrictEqual(true);
+        expect(readDirectoryMock).toHaveBeenCalledTimes(1);
+        expect(res).toStrictEqual({ extension: ".cpy", name: "uss_copybook" });
       });
     });
   });
