@@ -573,11 +573,11 @@ describe("Tests copybook download service", () => {
         .spyOn(vscode.workspace.fs, "stat")
         .mockResolvedValue({} as vscode.FileStat);
 
-      readDirectoryResult["NOT.FOUND.DATASET"] = new Error(
+      readDirectoryResult["/profile/NOT.FOUND.DATASET"] = new Error(
         notFoundErrorMessage,
       );
-      readDirectoryResult["DATASET.WITH.COPYBOOK"] = datasetMembers;
-      readDirectoryResult["/user/a/copybooks"] = ussFiles;
+      readDirectoryResult["/profile/DATASET.WITH.COPYBOOK"] = datasetMembers;
+      readDirectoryResult["/profile/user/a/copybooks"] = ussFiles;
     });
 
     afterEach(() => {
@@ -839,8 +839,8 @@ describe("Tests copybook download service", () => {
 
   describe("resolveCopybookURI", () => {
     beforeEach(() => {
-      readDirectoryResult["DATASET.WITH.COPYBOOKS"] = ["COPYBOOK"];
-      readDirectoryResult["/remote/uss/copybooks"] = [
+      readDirectoryResult["/profile/DATASET.WITH.COPYBOOKS"] = ["COPYBOOK"];
+      readDirectoryResult["/profile/remote/uss/copybooks"] = [
         ["COPYBOOK.CPY", vscode.FileType.File],
         ["CaSEsEnSiTiVe.CpY", vscode.FileType.File],
         ["directory", vscode.FileType.Directory],
@@ -935,8 +935,8 @@ describe("Tests copybook download service", () => {
         };
         profileName = "profile";
 
-        readDirectoryResult["OTHER.DATASET"] = [];
-        readDirectoryResult["DATASET.WITH.COPYBOOKS"] = ["COPYBOOK"];
+        readDirectoryResult["/profile/OTHER.DATASET"] = [];
+        readDirectoryResult["/profile/DATASET.WITH.COPYBOOKS"] = ["COPYBOOK"];
       });
 
       it("zowe ds uri is constructed", async () => {
@@ -1407,10 +1407,7 @@ describe("Tests copybook download service", () => {
         };
         jest
           .spyOn(ProcessorGroupLoader, "readProcessorGroupsFileContent")
-          // .mockResolvedValue(processorGroups);
-          .mockImplementation(() => {
-            return Promise.resolve(processorGroups);
-          });
+          .mockResolvedValue(processorGroups);
         jest
           .spyOn(ProcessorGroupLoader, "readProgramConfigFileContent")
           .mockResolvedValue(programConfigs);
@@ -1460,7 +1457,7 @@ describe("Tests copybook download service", () => {
         });
 
         beforeAll(() => {
-          readDirectoryResult["PROCGRP.COPYBOOKS"] = ["COPYBOOK"];
+          readDirectoryResult["/pg_profile/PROCGRP.COPYBOOKS"] = ["COPYBOOK"];
         });
 
         it("return zowe dsn copybook uri", async () => {
@@ -1484,9 +1481,8 @@ describe("Tests copybook download service", () => {
       describe("resolve uss processor in group copybooks", () => {
         beforeAll(() => {
           findFilesSpyResult = [];
-
-          readDirectoryResult["PROCGRP.COPYBOOKS"] = [];
-          readDirectoryResult["/uss/procgrp/copybooks"] = [
+          readDirectoryResult["/pg_profile/PROCGRP.COPYBOOKS"] = [];
+          readDirectoryResult["/pg_profile/uss/procgrp/copybooks"] = [
             { name: "COPYBOOK.cpy", mode: "-" },
           ];
         });
@@ -1601,7 +1597,7 @@ describe("Tests copybook download service", () => {
 
       describe("copybooks search respects processor group definitions order", () => {
         beforeEach(() => {
-          readDirectoryResult["PROCGRP.COPYBOOKS"] = ["COPYBOOK"];
+          readDirectoryResult["/pg_profile/PROCGRP.COPYBOOKS"] = ["COPYBOOK"];
         });
 
         it("datasetFirst group -> resolves to dataset uri", async () => {
@@ -1749,8 +1745,8 @@ describe("Tests copybook download service", () => {
           "copybook-extensions": [".CPY", ".cpy"],
         };
         profileName = "profile";
-        readDirectoryResult["DATASET.WITH.COPYBOOKS"] = ["COPYBOOK"];
-        readDirectoryResult["/user/copybooks"] = ["COPYBOOK"];
+        readDirectoryResult["/profile/DATASET.WITH.COPYBOOKS"] = ["COPYBOOK"];
+        readDirectoryResult["/profile/user/copybooks"] = ["COPYBOOK"];
       });
 
       it("return dsn copybook uri", async () => {

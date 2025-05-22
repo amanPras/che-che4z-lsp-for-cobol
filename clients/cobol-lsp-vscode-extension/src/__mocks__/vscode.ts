@@ -66,8 +66,8 @@ export namespace workspace {
     writeFile: jest.fn(),
     delete: jest.fn().mockReturnValue(true),
     readDirectory: jest.fn().mockImplementation((uri: UriType) => {
-      const resultKey = Object.keys(readDirectoryResult).find((key: string) =>
-        uri.path.endsWith(key),
+      const resultKey = Object.keys(readDirectoryResult).find(
+        (key: string) => uri.path === key,
       );
       if (!resultKey) {
         return Promise.resolve([]);

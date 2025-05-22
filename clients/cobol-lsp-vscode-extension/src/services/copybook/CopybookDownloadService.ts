@@ -449,7 +449,6 @@ export class CopybookDownloadService {
       !(await DownloadUtil.isProfileLocked(profile)) &&
       !(await DownloadUtil.checkForInvalidCredProfile(
         profile,
-        this.explorerApi,
         copybooksLocation,
       ))
     );
