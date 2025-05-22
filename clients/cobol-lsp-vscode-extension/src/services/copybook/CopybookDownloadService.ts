@@ -552,7 +552,6 @@ export class CopybookDownloadService {
         if (
           await DownloadUtil.checkForInvalidCredProfile(
             tempProfile,
-            this.explorerApi,
             DATASET in zoweConfig
               ? { dsn: zoweConfig.dataset }
               : { uss: zoweConfig.uss },
