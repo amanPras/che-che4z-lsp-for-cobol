@@ -46,7 +46,7 @@ describe("Tests Copybook download from USS", () => {
     });
   });
 
-  describe("checks the copybook download using ZE USS APIs", () => {
+  describe("checks the copybook download using ZE USS API's", () => {
     let downloader: CopybookDownloaderForUss;
     beforeEach(() => {
       jest
@@ -55,7 +55,7 @@ describe("Tests Copybook download from USS", () => {
       downloader = new CopybookDownloaderForUss(createZoweExplorerMock());
     });
 
-    describe("checks eligible copybook invoke appropriate ZE Apis", () => {
+    describe("checks eligible copybook invoke appropriate ZE Api's", () => {
       beforeEach(() => {
         jest
           .spyOn(ProfileUtils, "getProfileNameForCopybook")
@@ -69,7 +69,7 @@ describe("Tests Copybook download from USS", () => {
           .mockResolvedValue([".cpy", ""]);
       });
 
-      it("checks hasMember adds fetched list to cache when cache doesnt have the member and checks hasMember uses cache when have member is cached", async () => {
+      it("checks hasMember adds fetched list to cache when cache doesn't have the member and checks hasMember uses cache when have member is cached", async () => {
         await downloader.hasMember("profile", "/ussFile", "uss_copybook");
         const res = await downloader.hasMember(
           "profile",
