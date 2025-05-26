@@ -63,7 +63,7 @@ describe("Tests copybook download service", () => {
   beforeEach(() => {
     downloadService = new CopybookDownloadService(
       vscode.Uri.file("/storage-path"),
-      createZoweExplorerMock(),
+      zoweExplorerMock,
     );
     downloadService["processDownloadError"] = jest.fn();
 
