@@ -175,7 +175,8 @@ describe("LocalFilesystemResourceService test", () => {
 
       expect(findFilesSpy).toHaveBeenCalledWith({
         baseUri: testUri,
-        pattern: "{COPYBOOK.CPY,COPYBOOK.cpy,COPYBOOK.CPB,COPYBOOK.cpb}",
+        pattern:
+          "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY,[cC][oO][pP][yY][bB][oO][oO][kK].cpy,[cC][oO][pP][yY][bB][oO][oO][kK].CPB,[cC][oO][pP][yY][bB][oO][oO][kK].cpb}",
       });
     });
 
@@ -191,7 +192,8 @@ describe("LocalFilesystemResourceService test", () => {
 
       expect(findFilesSpy).toHaveBeenCalledWith({
         baseUri: testUri,
-        pattern: "{COPYBOOK.CPY,COPYBOOK.cpy,COPYBOOK.CPB,COPYBOOK.cpb}",
+        pattern:
+          "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY,[cC][oO][pP][yY][bB][oO][oO][kK].cpy,[cC][oO][pP][yY][bB][oO][oO][kK].CPB,[cC][oO][pP][yY][bB][oO][oO][kK].cpb}",
       });
     });
 
@@ -207,7 +209,8 @@ describe("LocalFilesystemResourceService test", () => {
 
       expect(findFilesSpy).toHaveBeenCalledWith({
         baseUri: testUri,
-        pattern: "{COPYBOOK.CPY,COPYBOOK.cpy,COPYBOOK}",
+        pattern:
+          "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY,[cC][oO][pP][yY][bB][oO][oO][kK].cpy,[cC][oO][pP][yY][bB][oO][oO][kK]}",
       });
     });
 
@@ -223,7 +226,7 @@ describe("LocalFilesystemResourceService test", () => {
 
       expect(findFilesSpy).toHaveBeenCalledWith({
         baseUri: testUri,
-        pattern: "COPYBOOK",
+        pattern: "[cC][oO][pP][yY][bB][oO][oO][kK]",
       });
     });
   });

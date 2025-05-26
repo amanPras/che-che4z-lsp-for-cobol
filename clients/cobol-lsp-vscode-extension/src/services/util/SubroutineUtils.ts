@@ -24,16 +24,21 @@ import * as vscode from "vscode";
 export async function resolveSubroutineURI(name: string) {
   const subroutinePaths = SettingsService.getSubroutineLocalPath();
 
+  const caseInsensitiveName = name
+    .split("")
+    .map((letter) => `[${letter.toLowerCase()}${letter.toUpperCase()}]`)
+    .join("");
+
   if (subroutinePaths) {
     for (const subroutinePath of subroutinePaths) {
       let pattern: vscode.RelativePattern | string;
       if (isAbsolute(subroutinePath)) {
         pattern = new vscode.RelativePattern(
           subroutinePath,
-          `**/${name}{${COBOL_EXT_ARRAY_CASE_INSENSITIVE.join(",")}}`,
+          `**/${caseInsensitiveName}{${COBOL_EXT_ARRAY_CASE_INSENSITIVE.join(",")}}`,
         );
       } else {
-        pattern = `${subroutinePath}/**/${name}{${COBOL_EXT_ARRAY_CASE_INSENSITIVE.join(",")}}`;
+        pattern = `${subroutinePath}/**/${caseInsensitiveName}{${COBOL_EXT_ARRAY_CASE_INSENSITIVE.join(",")}}`;
       }
 
       const uris = await vscode.workspace.findFiles(pattern, null, 1);
