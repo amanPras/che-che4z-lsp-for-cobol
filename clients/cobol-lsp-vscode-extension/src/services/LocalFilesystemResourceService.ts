@@ -91,14 +91,19 @@ export class LocalFilesystemResourceService {
       return `.${extension}`;
     });
 
+    const caseInsensitiveFilename = fileName
+      .split("")
+      .map((letter) => `[${letter.toLowerCase()}${letter.toUpperCase()}]`)
+      .join("");
+
     const fileNamePattern =
       sanitizedExtensions.length > 0
         ? "{" +
           sanitizedExtensions
-            .map((extension) => `${fileName}${extension}`)
+            .map((extension) => `${caseInsensitiveFilename}${extension}`)
             .join(",") +
           "}"
-        : fileName;
+        : caseInsensitiveFilename;
     const searchPattern = createFileSearchPattern(localPath, fileNamePattern);
     const files = await vscode.workspace.findFiles(searchPattern);
     return files[0];
