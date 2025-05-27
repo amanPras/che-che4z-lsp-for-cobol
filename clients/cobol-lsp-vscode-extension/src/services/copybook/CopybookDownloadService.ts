@@ -162,12 +162,14 @@ export class CopybookDownloadService {
     this.ussDownloader = new CopybookDownloaderForUss(this.explorerApi);
     this.dsnDownloader = new CopybookDownloaderForDsn(this.explorerApi);
     this.diagnosticsService?.clearDiagnostics();
-    this.explorerApi.onProfileUpdated((profile: IProfileLoaded) => {
-      this.outputChannel?.appendLine(`Zowe profile ${profile.name} updated`);
-      if (this.configurationInvalidation) {
-        this.configurationInvalidation();
-      }
-    });
+    if (this.explorerApi.onProfileUpdated) {
+      this.explorerApi.onProfileUpdated((profile: IProfileLoaded) => {
+        this.outputChannel?.appendLine(`Zowe profile ${profile.name} updated`);
+        if (this.configurationInvalidation) {
+          this.configurationInvalidation();
+        }
+      });
+    }
   }
 
   public async listRemoteCopybooks(
