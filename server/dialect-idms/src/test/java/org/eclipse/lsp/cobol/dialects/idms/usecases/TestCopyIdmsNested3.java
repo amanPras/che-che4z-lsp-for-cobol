@@ -22,11 +22,10 @@ import org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode;
 import org.eclipse.lsp.cobol.dialects.idms.IdmsDialect;
 import org.eclipse.lsp.cobol.test.CobolText;
 import org.eclipse.lsp.cobol.test.engine.UseCaseEngine;
-import org.eclipse.lsp.cobol.test.engine.UseCaseUtils;
 import org.junit.jupiter.api.Test;
 
 /** Test for nested COPY IDMS statement inside the IDMS copybook */
-public class TestCopyIdmsNested2 {
+public class TestCopyIdmsNested3 {
 
   private static final String TEXT =
       "0      ID DIVISION. PROGRAM-ID. A.\n"
@@ -39,18 +38,15 @@ public class TestCopyIdmsNested2 {
           + "7      01  {$*ROOT}.\n"
           + "8          02  COPY IDMS {~ISC!IDMS}.\n"
           + "9      PROCEDURE DIVISION.\n"
-          + "10         DISPLAY {$IDMS-NODE} OF {$ISUBNODE} OF {$ROOT}.\n";
-  private static final String ISC =
-      "       03  {$*ISUBNODE}.\n           04 COPY IDMS {~IC1!IDMS}.";
-  private static final String IC1 = "       05  {$*IDMS-NODE} PIC X.";
+          + "10         DISPLAY {$NODE} OF {$SUBNODE} OF {$ROOT}.\n";
+  private static final String ISC = "       03  {$*SUBNODE}.\n           COPY {~CC}.";
+  private static final String CC = "       05  {$*NODE} PIC X.";
 
   @Test
   void testNestedIdmsCopybook() {
     UseCaseEngine.runTest(
         TEXT,
-        ImmutableList.of(
-            new CobolText("ISC", IdmsDialect.NAME, ISC),
-            new CobolText("IC1", IdmsDialect.NAME, IC1, UseCaseUtils.toURI("NESTED_COPY"), false)),
+        ImmutableList.of(new CobolText("ISC", IdmsDialect.NAME, ISC), new CobolText("CC", CC)),
         ImmutableMap.of(),
         ImmutableList.of(),
         new AnalysisConfig(
