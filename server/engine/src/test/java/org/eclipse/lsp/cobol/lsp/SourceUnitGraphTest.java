@@ -50,7 +50,7 @@ class SourceUnitGraphTest {
         .thenReturn(CompletableFuture.completedFuture("some dummy text"));
     //    when(client.getFileContent(anyString()))
     //        .thenReturn(CompletableFuture.completedFuture("some dummy text"));
-    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(asyncAnalysisService, resolveFileContent);
+    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(resolveFileContent);
     String initialDocumentText = "sample text for test";
     String updatedContent = "Updated content";
     sourceUnitGraph.notifyState(
@@ -80,7 +80,7 @@ class SourceUnitGraphTest {
     //        .thenReturn(CompletableFuture.completedFuture("some dummy text"));
     when(resolveFileContent.getFileContent(anyString()))
         .thenReturn(CompletableFuture.completedFuture("some dummy text"));
-    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(asyncAnalysisService, resolveFileContent);
+    SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(resolveFileContent);
     RootNode rootNode = mock(RootNode.class);
     CopyNode copyNode1 =
         new CopyNode(

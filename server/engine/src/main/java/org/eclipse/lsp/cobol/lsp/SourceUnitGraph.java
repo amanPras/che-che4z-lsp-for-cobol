@@ -14,7 +14,6 @@
  */
 package org.eclipse.lsp.cobol.lsp;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -34,7 +33,6 @@ import org.eclipse.lsp.cobol.common.utils.ImplicitCodeUtils;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.analysis.AnalysisState;
 import org.eclipse.lsp.cobol.lsp.analysis.AnalysisStateListener;
-import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -58,10 +56,8 @@ public class SourceUnitGraph implements AnalysisStateListener {
       new ConcurrentHashMap<>();
 
   @Inject
-  public SourceUnitGraph(
-      AsyncAnalysisService asyncAnalysisService, ResolveFileContent resolveFileContent) {
+  public SourceUnitGraph(ResolveFileContent resolveFileContent) {
     this.resolveFileContent = resolveFileContent;
-    asyncAnalysisService.register(ImmutableList.of(this));
   }
 
   @Override
