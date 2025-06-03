@@ -60,6 +60,20 @@ export function createFileSearchPattern(
   return new vscode.RelativePattern(baseUri, pattern);
 }
 
+export function createCaseInsensitivePattern(name: string) {
+  return name
+    .split("")
+    .map((letter) => {
+      const lc = letter.toLowerCase();
+      const uc = letter.toUpperCase();
+      if (lc === uc) {
+        return lc;
+      }
+      return `[${lc}${uc}]`;
+    })
+    .join("");
+}
+
 export type SupportedVariables = {
   filename: string;
   dirName: string;

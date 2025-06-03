@@ -23,6 +23,6 @@ export async function readFileContent(fileUri: string): Promise<string> {
     return openFile.getText();
   }
   const data = await workspace.fs.readFile(uri);
-  const content = Buffer.from(data).toString();
+  const content = new TextDecoder().decode(data);
   return content;
 }
