@@ -15,6 +15,7 @@ import { isAbsolute } from "path";
 import { COBOL_EXT_ARRAY_CASE_INSENSITIVE } from "../../constants";
 import { SettingsService } from "../Settings";
 import * as vscode from "vscode";
+import { createCaseInsensitivePattern } from "./FSUtils";
 /**
  * This function try to resolve a given subroutine by searching COBOL source file
  * with the same name in local workspace directories specified in settings.
@@ -24,10 +25,7 @@ import * as vscode from "vscode";
 export async function resolveSubroutineURI(name: string) {
   const subroutinePaths = SettingsService.getSubroutineLocalPath();
 
-  const caseInsensitiveName = name
-    .split("")
-    .map((letter) => `[${letter.toLowerCase()}${letter.toUpperCase()}]`)
-    .join("");
+  const caseInsensitiveName = createCaseInsensitivePattern(name);
 
   if (subroutinePaths) {
     for (const subroutinePath of subroutinePaths) {

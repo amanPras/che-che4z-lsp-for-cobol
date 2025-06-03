@@ -13,7 +13,11 @@
  */
 
 import * as vscode from "vscode";
-import { createFileSearchPattern, getVariablesFromUri } from "./util/FSUtils";
+import {
+  createCaseInsensitivePattern,
+  createFileSearchPattern,
+  getVariablesFromUri,
+} from "./util/FSUtils";
 
 interface ResourceDirectory {
   resources: string[];
@@ -91,10 +95,7 @@ export class LocalFilesystemResourceService {
       return `.${extension}`;
     });
 
-    const caseInsensitiveFilename = fileName
-      .split("")
-      .map((letter) => `[${letter.toLowerCase()}${letter.toUpperCase()}]`)
-      .join("");
+    const caseInsensitiveFilename = createCaseInsensitivePattern(fileName);
 
     const fileNamePattern =
       sanitizedExtensions.length > 0

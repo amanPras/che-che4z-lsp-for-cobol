@@ -41,7 +41,7 @@ describe("SubroutineUtils", () => {
         const uri = await resolveSubroutineURI("SUB1");
         expect(uri).toEqual("file:///coding/cobol/subroutines/SUB1.cob");
         expect(findFilesSpy).toHaveBeenCalledWith(
-          "subroutines/**/[sS][uU][bB][11]{.CBL,.COB,.COBOL,.cbl,.cob,.cobol}",
+          "subroutines/**/[sS][uU][bB]1{.CBL,.COB,.COBOL,.cbl,.cob,.cobol}",
           null,
           1,
         );
@@ -95,7 +95,7 @@ describe("SubroutineUtils", () => {
       expect(findFilesSpy).toHaveBeenCalledWith(
         {
           baseUri: "/absolute/subroutines",
-          pattern: "**/[sS][uU][bB][11]{.CBL,.COB,.COBOL,.cbl,.cob,.cobol}",
+          pattern: "**/[sS][uU][bB]1{.CBL,.COB,.COBOL,.cbl,.cob,.cobol}",
         },
         null,
         1,
