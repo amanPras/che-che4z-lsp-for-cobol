@@ -38,7 +38,7 @@ import {
   setUpProcessorGroupConfigWatcher,
   setUpProgramConfigWatcher,
 } from "./ProcessorGroups";
-import { registerLocalCopybookChangesWatcher } from "./copybook/LocalCopybooksService";
+import { localCopybooks } from "./copybook/LocalCopybooksService";
 
 const extensionId = "BroadcomMFD.cobol-language-support";
 
@@ -160,7 +160,7 @@ export class LanguageClientService {
         this.createServerOptions(this.executablePath)!,
         this.createClientOptions(),
       );
-      registerLocalCopybookChangesWatcher(
+      localCopybooks.registerFileChangeWatcher(
         (uri: vscode.Uri) => void this.sendFileChangeNotification(uri),
       );
     }
