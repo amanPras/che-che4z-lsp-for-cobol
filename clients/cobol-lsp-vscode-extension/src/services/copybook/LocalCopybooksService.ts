@@ -93,3 +93,9 @@ export async function searchLocalCopybooks(
     }
   }
 }
+
+export function registerLocalCopybookChangesWatcher(
+  callback: (uri: vscode.Uri) => void,
+) {
+  localCopybooks.registerFileChangeWatcher(callback);
+}

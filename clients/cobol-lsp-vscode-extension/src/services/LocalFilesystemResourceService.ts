@@ -35,6 +35,7 @@ function generateCacheKey(localPath: vscode.Uri, allowedExtensions: string[]) {
 }
 export class LocalFilesystemResourceService {
   private folderContentCache: Record<string, ResourceDirectory> = {};
+  private fileChangeWatchers: ((changedFile: vscode.Uri) => void)[] = [];
 
   private invalidateCachedPath(cacheKey: string) {
     return () => {
@@ -73,6 +74,9 @@ export class LocalFilesystemResourceService {
     const fileWatcher = vscode.workspace.createFileSystemWatcher(searchPattern);
     fileWatcher.onDidCreate(this.invalidateCachedPath(cacheKey));
     fileWatcher.onDidDelete(this.invalidateCachedPath(cacheKey));
+    fileWatcher.onDidChange((changedFile) => {
+      this.fileChangeWatchers.forEach((watcher) => watcher(changedFile));
+    });
 
     this.folderContentCache[cacheKey] = {
       resources,
@@ -80,6 +84,10 @@ export class LocalFilesystemResourceService {
     };
 
     return resources;
+  }
+
+  public registerFileChangeWatcher(watcher: (uri: vscode.Uri) => void) {
+    this.fileChangeWatchers.push(watcher);
   }
 
   public static async searchDirectory(
