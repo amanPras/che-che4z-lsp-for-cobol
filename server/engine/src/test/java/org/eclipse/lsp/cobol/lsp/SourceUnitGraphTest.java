@@ -70,11 +70,6 @@ class SourceUnitGraphTest {
     String copy2Uri = "file://copy2.cpy";
     String copy3Uri = "file://copy3.cpy";
     ResolveFileContent resolveFileContent = mock(ResolveFileContent.class);
-    //    ClientProvider clientProvider = mock(ClientProvider.class);
-    //    CobolLanguageClient client = mock(CobolLanguageClient.class);
-    //    when(clientProvider.get()).thenReturn(client);
-    //    when(client.getFileContent(anyString()))
-    //        .thenReturn(CompletableFuture.completedFuture("some dummy text"));
     when(resolveFileContent.getFileContent(anyString()))
         .thenReturn(CompletableFuture.completedFuture("some dummy text"));
     SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(resolveFileContent);
