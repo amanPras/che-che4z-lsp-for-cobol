@@ -74,12 +74,8 @@ public class ServiceModule extends AbstractModule {
     bind(LanguageEngineFacade.class).to(CobolLanguageEngineFacade.class);
     bind(CopybookService.class).to(CopybookServiceImpl.class);
     bind(PredefinedCopybookStore.class).to(PredefinedCopybookStoreImpl.class);
-    // TODO: configure below commented binding based on some flag
     bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
     bind(ResolveFileContent.class).to(ClientBasedFileContent.class);
-    //    bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
-    //    bind(ResolveFileContent.class).to(ClientBasedFileContent.class);
-
     bind(WorkspaceService.class).to(CobolWorkspaceServiceImpl.class);
     bind(Communications.class).to(ServerCommunications.class);
     bind(CobolLanguageClient.class).toProvider(ClientProvider.class);

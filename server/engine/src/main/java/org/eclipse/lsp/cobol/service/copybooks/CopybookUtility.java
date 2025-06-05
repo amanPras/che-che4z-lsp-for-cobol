@@ -17,10 +17,8 @@ package org.eclipse.lsp.cobol.service.copybooks;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.CharMatcher;
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
@@ -67,10 +65,6 @@ public class CopybookUtility {
 
   CopybookModel getDefaultCopybook(CopybookName copybookName, String programUri) {
     return new CopybookModel(copybookName.toCopybookId(programUri), copybookName, null, null);
-  }
-
-  String getNameFromURI(@NonNull String uri) {
-    return new File(uri).getName().replaceFirst("\\?.*$", "");
   }
 
   private List<SyntaxError> adjustErrorLocation(

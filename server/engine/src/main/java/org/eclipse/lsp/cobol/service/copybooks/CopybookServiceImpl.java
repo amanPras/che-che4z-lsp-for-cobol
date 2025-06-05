@@ -174,13 +174,8 @@ public class CopybookServiceImpl implements CopybookService {
   }
 
   private CopybookModel registerForDownloading(CopybookName copybookName, String programUri) {
-    String cobolFileName = CopybookUtility.getNameFromURI(programUri);
-    LOG.debug("Registering copybook {} of {} for further downloading", copybookName, cobolFileName);
-    Optional.ofNullable(cobolFileName)
-        .map(
-            name ->
-                copybooksForDownloading.computeIfAbsent(name, s -> ConcurrentHashMap.newKeySet()))
-        .ifPresent(it -> it.add(copybookName));
+    LOG.debug("Not resolved copybook {} of {}", copybookName, programUri);
+    LOG.debug("Copybook download not supported any more.");
     return new CopybookModel(copybookName.toCopybookId(programUri), copybookName, null, null);
   }
 
