@@ -47,15 +47,21 @@ export class LocalFilesystemResourceService {
     };
   }
 
+  public clearCache() {
+    Object.keys(this.folderContentCache).forEach((key) =>
+      this.invalidateCachedPath(key)(),
+    );
+  }
+
   public async listDirectory(
     localPath: vscode.Uri,
     allowedExtensions: string[],
   ): Promise<ResourceCacheItem[]> {
     const sanitizedExtensions = allowedExtensions.map((extension) => {
       if (extension.startsWith(".") || extension === "") {
-        return extension;
+        return extension.toUpperCase();
       }
-      return `.${extension}`;
+      return `.${extension.toUpperCase()}`;
     });
 
     const cacheKey = generateCacheKey(localPath, sanitizedExtensions);
@@ -74,7 +80,7 @@ export class LocalFilesystemResourceService {
     const resources: ResourceCacheItem[] = [];
     files.forEach((resourceUri) => {
       const { filename, extension } = getVariablesFromUri(resourceUri);
-      if (sanitizedExtensions.includes(extension)) {
+      if (sanitizedExtensions.includes(extension.toUpperCase())) {
         resources.push({ filename: filename.toUpperCase(), uri: resourceUri });
       }
     });

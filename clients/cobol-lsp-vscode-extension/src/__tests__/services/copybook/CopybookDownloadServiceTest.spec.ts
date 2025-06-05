@@ -870,6 +870,7 @@ describe("Tests copybook download service", () => {
             .mockResolvedValue([
               vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
             ]);
+          localCopybooks.clearCache();
         });
 
         it("local copybook workspace folder is searched", async () => {
@@ -887,7 +888,7 @@ describe("Tests copybook download service", () => {
 
           expect(findFilesSpy).toHaveBeenCalledWith({
             baseUri: vscode.Uri.file("/workspace/copybooks"),
-            pattern: "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY}",
+            pattern: "*",
           });
         });
       });
@@ -922,7 +923,7 @@ describe("Tests copybook download service", () => {
           expect(findFilesSpy).toHaveBeenCalledTimes(1);
           expect(findFilesSpy).toHaveBeenCalledWith({
             baseUri: vscode.Uri.file("/dialect/copybooks"),
-            pattern: "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY}",
+            pattern: "*",
           });
         });
       });
@@ -1243,7 +1244,7 @@ describe("Tests copybook download service", () => {
         });
       });
 
-      describe("don't resolve endevor copybooks if SETTINGS_CPY_NDVR_DEPENDENCIES is not set to ENDEVOR_PROCESSOR", () => {
+      describe("dont resolve endevor copybooks if SETTINGS_CPY_NDVR_DEPENDENCIES is not set to ENDEVOR_PROCESSOR", () => {
         let dataset: string;
         let e4eMock: E4E;
 
@@ -1251,6 +1252,7 @@ describe("Tests copybook download service", () => {
           workspaceConfigurationMock = {
             [SETTINGS_CPY_NDVR_DEPENDENCIES]: "",
             "paths-local": ["copybooks"],
+            "copybook-extensions": [".CPY"],
           };
           dataset = "ENDEVOR.DATASET.COPYBOOK";
 
@@ -1281,6 +1283,7 @@ describe("Tests copybook download service", () => {
             .mockResolvedValue([
               vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
             ]);
+          localCopybooks.clearCache();
         });
 
         it("resolve local copybook instead", async () => {
@@ -1417,6 +1420,8 @@ describe("Tests copybook download service", () => {
           .spyOn(vscode.workspace, "findFiles")
           .mockResolvedValue(findFilesSpyResult);
 
+        localCopybooks.clearCache();
+
         workspaceConfigurationMock = {
           "copybook-extensions": [".cpy"],
           [PATHS_LOCAL_KEY]: ["copybooks"],
@@ -1443,7 +1448,7 @@ describe("Tests copybook download service", () => {
 
           expect(findFilesSpy).toHaveBeenCalledWith({
             baseUri: vscode.Uri.file("/workspace/local/pg/copybooks"),
-            pattern: "{[cC][oO][pP][yY][bB][oO][oO][kK].cpy}",
+            pattern: "*",
           });
 
           expect(result).toEqual(
@@ -1678,11 +1683,11 @@ describe("Tests copybook download service", () => {
           );
           expect(findFilesSpy).toHaveBeenCalledWith({
             baseUri: vscode.Uri.file("/workspace/local/pg/copybooks"),
-            pattern: "{[cC][oO][pP][yY][bB][oO][oO][kK].cpy}",
+            pattern: "*",
           });
           expect(findFilesSpy).not.toHaveBeenCalledWith({
             baseUri: vscode.Uri.file("/workspace/copybooks"),
-            pattern: "{[cC][oO][pP][yY][bB][oO][oO][kK].cpy}",
+            pattern: "*",
           });
         });
 
@@ -1701,7 +1706,7 @@ describe("Tests copybook download service", () => {
               path: "/workspace/copybooks",
               scheme: "file",
             }) as vscode.Uri,
-            pattern: "{[cC][oO][pP][yY][bB][oO][oO][kK].cpy}",
+            pattern: "*",
           });
         });
       });
@@ -1720,6 +1725,7 @@ describe("Tests copybook download service", () => {
           .mockResolvedValue([
             vscode.Uri.parse("file:///workspace/copybooks/COPYBOOK.cpy"),
           ]);
+        localCopybooks.clearCache();
       });
 
       it("return local copybook uri", async () => {
