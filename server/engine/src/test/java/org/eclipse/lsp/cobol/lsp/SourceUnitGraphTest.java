@@ -45,11 +45,8 @@ class SourceUnitGraphTest {
   @Test
   void testNotifyState() {
     ResolveFileContent resolveFileContent = mock(ResolveFileContent.class);
-    //    CobolLanguageClient client = mock(CobolLanguageClient.class);
     when(resolveFileContent.getFileContent(anyString()))
         .thenReturn(CompletableFuture.completedFuture("some dummy text"));
-    //    when(client.getFileContent(anyString()))
-    //        .thenReturn(CompletableFuture.completedFuture("some dummy text"));
     SourceUnitGraph sourceUnitGraph = new SourceUnitGraph(resolveFileContent);
     String initialDocumentText = "sample text for test";
     String updatedContent = "Updated content";
