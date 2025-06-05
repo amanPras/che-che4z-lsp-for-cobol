@@ -25,14 +25,23 @@ interface ResourceDirectory {
   fileWatcher: vscode.FileSystemWatcher;
 }
 
-function generateCacheKey(localPath: vscode.Uri, allowedExtensions: string[]) {
-  const uniqueSortedExtensions = allowedExtensions
+function sanitizeExtensions(extensions: string[]) {
+  return extensions
+    .map((extension) => {
+      if (extension.startsWith(".") || extension === "") {
+        return extension.toUpperCase();
+      }
+      return `.${extension.toUpperCase()}`;
+    })
     .sort()
     .filter(
       (extension, index, sortedExtensions) =>
         extension !== sortedExtensions[index - 1],
     );
-  return `${localPath.toString()}|${uniqueSortedExtensions.join(",")}`;
+}
+
+function generateCacheKey(localPath: vscode.Uri, extensions: string[]) {
+  return `${localPath.toString()}|${extensions.join(",")}`;
 }
 export class LocalFilesystemResourceService {
   private folderContentCache: Record<string, ResourceDirectory> = {};
@@ -57,12 +66,7 @@ export class LocalFilesystemResourceService {
     localPath: vscode.Uri,
     allowedExtensions: string[],
   ): Promise<ResourceCacheItem[]> {
-    const sanitizedExtensions = allowedExtensions.map((extension) => {
-      if (extension.startsWith(".") || extension === "") {
-        return extension.toUpperCase();
-      }
-      return `.${extension.toUpperCase()}`;
-    });
+    const sanitizedExtensions = sanitizeExtensions(allowedExtensions);
 
     const cacheKey = generateCacheKey(localPath, sanitizedExtensions);
     if (typeof this.folderContentCache[cacheKey] !== "undefined") {
