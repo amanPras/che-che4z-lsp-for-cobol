@@ -401,4 +401,15 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
         () ->
             this.analysisStateListeners.forEach(lis -> lis.notifyState(state, model, eventSource)));
   }
+
+  /**
+   * Check if given document is copybook or not
+   *
+   * @param uri - document uri
+   * @param text - document text
+   * @return true for copybook and false otherwise
+   */
+  public boolean isCopybook(String uri, String text) {
+    return this.analysisService.isCopybook(uri, text);
+  }
 }
