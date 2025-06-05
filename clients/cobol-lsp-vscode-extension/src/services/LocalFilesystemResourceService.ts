@@ -13,14 +13,15 @@
  */
 
 import * as vscode from "vscode";
-import {
-  createCaseInsensitivePattern,
-  createFileSearchPattern,
-  getVariablesFromUri,
-} from "./util/FSUtils";
+import { createFileSearchPattern, getVariablesFromUri } from "./util/FSUtils";
+
+interface ResourceCacheItem {
+  filename: string;
+  uri: vscode.Uri;
+}
 
 interface ResourceDirectory {
-  resources: string[];
+  resources: ResourceCacheItem[];
   fileWatcher: vscode.FileSystemWatcher;
 }
 
@@ -49,8 +50,15 @@ export class LocalFilesystemResourceService {
   public async listDirectory(
     localPath: vscode.Uri,
     allowedExtensions: string[],
-  ): Promise<string[]> {
-    const cacheKey = generateCacheKey(localPath, allowedExtensions);
+  ): Promise<ResourceCacheItem[]> {
+    const sanitizedExtensions = allowedExtensions.map((extension) => {
+      if (extension.startsWith(".") || extension === "") {
+        return extension;
+      }
+      return `.${extension}`;
+    });
+
+    const cacheKey = generateCacheKey(localPath, sanitizedExtensions);
     if (typeof this.folderContentCache[cacheKey] !== "undefined") {
       return this.folderContentCache[cacheKey].resources;
     }
@@ -63,11 +71,11 @@ export class LocalFilesystemResourceService {
     // directly in the search glob pattern, but that's not possible if
     // we want to filter files with no extensions and files with specific
     // extensions by same pattern.
-    const resources: string[] = [];
+    const resources: ResourceCacheItem[] = [];
     files.forEach((resourceUri) => {
       const { filename, extension } = getVariablesFromUri(resourceUri);
-      if (allowedExtensions.includes(extension)) {
-        resources.push(filename);
+      if (sanitizedExtensions.includes(extension)) {
+        resources.push({ filename: filename.toUpperCase(), uri: resourceUri });
       }
     });
 
@@ -90,31 +98,13 @@ export class LocalFilesystemResourceService {
     this.fileChangeWatchers.push(watcher);
   }
 
-  public static async searchDirectory(
+  public async searchDirectory(
     localPath: vscode.Uri,
     fileName: string,
     allowedExtensions: string[],
   ): Promise<vscode.Uri | undefined> {
-    // make sure extension definitions start with '.' (like '.CPY' not just 'CPY')
-    const sanitizedExtensions = allowedExtensions.map((extension) => {
-      if (extension.startsWith(".") || extension === "") {
-        return extension;
-      }
-      return `.${extension}`;
-    });
-
-    const caseInsensitiveFilename = createCaseInsensitivePattern(fileName);
-
-    const fileNamePattern =
-      sanitizedExtensions.length > 0
-        ? "{" +
-          sanitizedExtensions
-            .map((extension) => `${caseInsensitiveFilename}${extension}`)
-            .join(",") +
-          "}"
-        : caseInsensitiveFilename;
-    const searchPattern = createFileSearchPattern(localPath, fileNamePattern);
-    const files = await vscode.workspace.findFiles(searchPattern);
-    return files[0];
+    const allFiles = await this.listDirectory(localPath, allowedExtensions);
+    const upperCaseFilename = fileName.toUpperCase();
+    return allFiles.find((f) => f.filename === upperCaseFilename)?.uri;
   }
 }

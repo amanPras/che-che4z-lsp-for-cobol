@@ -39,8 +39,7 @@ import {
   ZoweUssConfigModel,
 } from "../ProcessorGroupsLoader";
 import { DownloadDiagnosticsService } from "../DiagnosticsService";
-import { searchLocalCopybooks } from "./LocalCopybooksService";
-import { LocalFilesystemResourceService } from "../LocalFilesystemResourceService";
+import { localCopybooks, searchLocalCopybooks } from "./LocalCopybooksService";
 import { getErrorMessage } from "../util/ErrorsUtils";
 
 export class CopybookName {
@@ -282,12 +281,11 @@ export class CopybookDownloadService {
 
     const promises = pgConfigs.map(async (config) => {
       if (config instanceof vscode.Uri) {
-        const localResult =
-          await LocalFilesystemResourceService.searchDirectory(
-            config,
-            copybookName,
-            allowedExtensions ?? [],
-          );
+        const localResult = await localCopybooks.searchDirectory(
+          config,
+          copybookName,
+          allowedExtensions ?? [],
+        );
         if (localResult) {
           return localResult;
         }

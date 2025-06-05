@@ -229,10 +229,6 @@ export class SettingsService {
       ),
     ];
 
-    setImmediate(() => {
-      void listLocalCopybooks(documentUri, dialectType);
-    });
-
     if (convertToAbsolutePaths) {
       const uris = SettingsService.prepareLocalSearchUris(
         paths,

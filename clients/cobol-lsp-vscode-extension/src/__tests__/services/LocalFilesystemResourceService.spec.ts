@@ -165,11 +165,13 @@ describe("LocalFilesystemResourceService test", () => {
 
     it("calls findFile with correct search pattern", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        [".CPY", ".cpy", ".CPB", ".cpb"],
-      );
+      const service = new LocalFilesystemResourceService();
+      const result = await service.searchDirectory(testUri, "COPYBOOK", [
+        ".CPY",
+        ".cpy",
+        ".CPB",
+        ".cpb",
+      ]);
 
       expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
 
@@ -182,11 +184,13 @@ describe("LocalFilesystemResourceService test", () => {
 
     it("extensions don't need to start with .", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        ["CPY", ".cpy", "CPB", ".cpb"],
-      );
+      const service = new LocalFilesystemResourceService();
+      const result = await service.searchDirectory(testUri, "COPYBOOK", [
+        "CPY",
+        ".cpy",
+        "CPB",
+        ".cpb",
+      ]);
 
       expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
 
@@ -199,11 +203,13 @@ describe("LocalFilesystemResourceService test", () => {
 
     it("searches files with empty extension", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        [".CPY", ".cpy", ""],
-      );
+      const service = new LocalFilesystemResourceService();
+
+      const result = await service.searchDirectory(testUri, "COPYBOOK", [
+        ".CPY",
+        ".cpy",
+        "",
+      ]);
 
       expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
 
@@ -216,11 +222,8 @@ describe("LocalFilesystemResourceService test", () => {
 
     it("searches files with no extensions", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        [],
-      );
+      const service = new LocalFilesystemResourceService();
+      const result = await service.searchDirectory(testUri, "COPYBOOK", []);
 
       expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
 

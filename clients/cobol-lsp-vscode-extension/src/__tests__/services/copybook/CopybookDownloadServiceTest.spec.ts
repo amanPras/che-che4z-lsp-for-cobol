@@ -39,6 +39,7 @@ import {
 } from "../../../__mocks__/getE4EMock.utility";
 import { DownloadDiagnosticsService } from "../../../services/DiagnosticsService";
 import { ZoweExplorerDownloader } from "../../../services/copybook/downloader/ZoweExplorerDownloader";
+import { localCopybooks } from "../../../services/copybook/LocalCopybooksService";
 
 jest.mock("../../../services/reporter");
 Utils.getZoweExplorerAPI = jest
