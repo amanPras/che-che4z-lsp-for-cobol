@@ -54,9 +54,16 @@ describe("LocalFilesystemResourceService test", () => {
           "",
         ]);
 
-        expect(results).toEqual(
-          expect.arrayContaining(["COPYBOOK", "SUBCOPY"]),
-        );
+        expect(results).toEqual([
+          {
+            filename: "COPYBOOK",
+            uri: vscode.Uri.file("/test/path/COPYBOOK.CPY"),
+          },
+          {
+            filename: "SUBCOPY",
+            uri: vscode.Uri.file("/test/path/subfolder/SUBCOPY.CPY"),
+          },
+        ]);
       });
     });
 
@@ -117,6 +124,7 @@ describe("LocalFilesystemResourceService test", () => {
           onCreateCallback = callback;
         },
         onDidDelete: jest.fn(),
+        onDidChange: jest.fn(),
         dispose: jest.fn(),
       } as unknown as vscode.FileSystemWatcher;
       beforeAll(() => {
@@ -158,6 +166,7 @@ describe("LocalFilesystemResourceService test", () => {
         "/test/path": [
           "/test/path/COPYBOOK.CPY",
           "/test/path/subfolder/SUBCOPY.CPY",
+          "/test/path/NOEXT",
         ],
         "/different/path": ["/different/path/COPYBK2"],
       };
@@ -165,68 +174,68 @@ describe("LocalFilesystemResourceService test", () => {
 
     it("calls findFile with correct search pattern", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        [".CPY", ".cpy", ".CPB", ".cpb"],
-      );
+      const service = new LocalFilesystemResourceService();
+      const result = await service.searchDirectory(testUri, "COPYBOOK", [
+        ".CPY",
+        ".cpy",
+        ".CPB",
+        ".cpb",
+      ]);
 
       expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
 
       expect(findFilesSpy).toHaveBeenCalledWith({
-        baseUri: testUri,
-        pattern:
-          "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY,[cC][oO][pP][yY][bB][oO][oO][kK].cpy,[cC][oO][pP][yY][bB][oO][oO][kK].CPB,[cC][oO][pP][yY][bB][oO][oO][kK].cpb}",
+        baseUri: Uri.from(testUri),
+        pattern: "*",
       });
     });
 
     it("extensions don't need to start with .", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        ["CPY", ".cpy", "CPB", ".cpb"],
-      );
+      const service = new LocalFilesystemResourceService();
+      const result = await service.searchDirectory(testUri, "COPYBOOK", [
+        "CPY",
+        ".cpy",
+        "CPB",
+        ".cpb",
+      ]);
 
       expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
 
       expect(findFilesSpy).toHaveBeenCalledWith({
-        baseUri: testUri,
-        pattern:
-          "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY,[cC][oO][pP][yY][bB][oO][oO][kK].cpy,[cC][oO][pP][yY][bB][oO][oO][kK].CPB,[cC][oO][pP][yY][bB][oO][oO][kK].cpb}",
+        baseUri: Uri.from(testUri),
+        pattern: "*",
       });
     });
 
     it("searches files with empty extension", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        [".CPY", ".cpy", ""],
-      );
+      const service = new LocalFilesystemResourceService();
+
+      const result = await service.searchDirectory(testUri, "COPYBOOK", [
+        ".CPY",
+        ".cpy",
+        "",
+      ]);
 
       expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
 
       expect(findFilesSpy).toHaveBeenCalledWith({
-        baseUri: testUri,
-        pattern:
-          "{[cC][oO][pP][yY][bB][oO][oO][kK].CPY,[cC][oO][pP][yY][bB][oO][oO][kK].cpy,[cC][oO][pP][yY][bB][oO][oO][kK]}",
+        baseUri: Uri.from(testUri),
+        pattern: "*",
       });
     });
 
     it("searches files with no extensions", async () => {
       const testUri = Uri.file("/test/path");
-      const result = await LocalFilesystemResourceService.searchDirectory(
-        testUri,
-        "COPYBOOK",
-        [],
-      );
+      const service = new LocalFilesystemResourceService();
+      const result = await service.searchDirectory(testUri, "NOEXT", [""]);
 
-      expect(result).toEqual(Uri.file("/test/path/COPYBOOK.CPY"));
+      expect(result).toEqual(Uri.file("/test/path/NOEXT"));
 
       expect(findFilesSpy).toHaveBeenCalledWith({
-        baseUri: testUri,
-        pattern: "[cC][oO][pP][yY][bB][oO][oO][kK]",
+        baseUri: Uri.from(testUri),
+        pattern: "*",
       });
     });
   });

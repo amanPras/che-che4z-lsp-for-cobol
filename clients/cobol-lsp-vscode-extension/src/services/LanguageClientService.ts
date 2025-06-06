@@ -19,6 +19,8 @@ import * as vscode from "vscode";
 
 import {
   DidChangeConfigurationNotification,
+  DidChangeWatchedFilesNotification,
+  FileChangeType,
   GenericNotificationHandler,
   GenericRequestHandler,
   LanguageClient,
@@ -36,6 +38,7 @@ import {
   setUpProcessorGroupConfigWatcher,
   setUpProgramConfigWatcher,
 } from "./ProcessorGroups";
+import { localCopybooks } from "./copybook/LocalCopybooksService";
 
 const extensionId = "BroadcomMFD.cobol-language-support";
 
@@ -124,6 +127,16 @@ export class LanguageClientService {
     );
   }
 
+  public async sendFileChangeNotification(file: vscode.Uri) {
+    const languageClient = this.getLanguageClient();
+    await languageClient.sendNotification(
+      DidChangeWatchedFilesNotification.type,
+      {
+        changes: [{ uri: file.toString(), type: FileChangeType.Changed }],
+      },
+    );
+  }
+
   public async start() {
     const languageClient = this.getLanguageClient();
     await languageClient.start();
@@ -147,6 +160,9 @@ export class LanguageClientService {
         this.createServerOptions(this.executablePath)!,
         this.createClientOptions(),
       );
+      localCopybooks.registerFileChangeWatcher(
+        (uri: vscode.Uri) => void this.sendFileChangeNotification(uri),
+      );
     }
     return this.languageClient;
   }
@@ -164,6 +180,18 @@ export class LanguageClientService {
             new vscode.RelativePattern(this.storagePath, "**/*"),
           ),
           setupBridge4GitWatcher(),
+          vscode.workspace.createFileSystemWatcher(
+            new vscode.RelativePattern(
+              vscode.Uri.from({ scheme: "zowe-uss", path: "/" }),
+              "**/*",
+            ),
+          ),
+          vscode.workspace.createFileSystemWatcher(
+            new vscode.RelativePattern(
+              vscode.Uri.from({ scheme: "zowe-ds", path: "/" }),
+              "**/*",
+            ),
+          ),
         ],
       },
     };

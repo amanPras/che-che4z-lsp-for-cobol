@@ -16,7 +16,7 @@ import * as vscode from "vscode";
 import { SettingsService } from "../Settings";
 import { LocalFilesystemResourceService } from "../LocalFilesystemResourceService";
 
-const localCopybooks = new LocalFilesystemResourceService();
+export const localCopybooks = new LocalFilesystemResourceService();
 
 export async function listLocalCopybooks(
   documentUri: string,
@@ -47,7 +47,7 @@ export async function listLocalCopybooks(
 
   results.forEach((result) => {
     if (result.status === "fulfilled") {
-      result.value.forEach((copybook) => copybooks.push(copybook));
+      result.value.forEach((copybook) => copybooks.push(copybook.filename));
     } else {
       outputChannel?.appendLine(
         `Unable to load copybooks completions: ${result.reason}`,
@@ -79,7 +79,7 @@ export async function searchLocalCopybooks(
 
   const results = await Promise.allSettled(
     searchDirectoryUris.map(async (directoryUri) =>
-      LocalFilesystemResourceService.searchDirectory(
+      localCopybooks.searchDirectory(
         directoryUri,
         copybookName,
         allowedExtensions ?? [],

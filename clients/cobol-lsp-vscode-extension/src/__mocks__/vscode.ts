@@ -52,6 +52,7 @@ export namespace workspace {
       onDidCreate: jest.fn(),
       onDidDelete: jest.fn(),
       onDidChange: jest.fn(),
+      dispose: jest.fn(),
     };
   }
   export const fs = {
