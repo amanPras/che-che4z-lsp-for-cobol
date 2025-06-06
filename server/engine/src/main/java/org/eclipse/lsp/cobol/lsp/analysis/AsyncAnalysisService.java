@@ -214,9 +214,7 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
     };
   }
 
-  /**
-   * Publishes diagnostics
-   */
+  /** Publishes diagnostics */
   public void republishDiagnostics() {
     communications.publishDiagnostics(documentModelService.getOpenedDiagnostic());
   }
