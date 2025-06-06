@@ -57,9 +57,8 @@ export class LocalFilesystemResourceService {
   }
 
   public clearCache() {
-    Object.keys(this.folderContentCache).forEach((key) =>
-      this.invalidateCachedPath(key)(),
-    );
+    Object.values(this.folderContentCache).forEach((v) => v.fileWatcher.dispose());
+    this.folderContentCache = {};
   }
 
   public async listDirectory(
