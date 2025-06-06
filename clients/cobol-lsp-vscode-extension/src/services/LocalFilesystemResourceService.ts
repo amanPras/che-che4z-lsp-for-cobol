@@ -57,9 +57,9 @@ export class LocalFilesystemResourceService {
   }
 
   public clearCache() {
-    Object.values(this.folderContentCache).forEach((v) =>
-      v.fileWatcher.dispose(),
-    );
+    Object.values(this.folderContentCache).forEach((v) => {
+      v.fileWatcher.dispose();
+    });
     this.folderContentCache = {};
   }
 

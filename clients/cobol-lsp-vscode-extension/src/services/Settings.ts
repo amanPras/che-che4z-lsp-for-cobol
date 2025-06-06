@@ -47,7 +47,6 @@ import {
 import { getVariablesFromUri, SupportedVariables } from "./util/FSUtils";
 import { decodeUnknown, DecodingError } from "./util/decoder";
 import * as t from "io-ts";
-import { listLocalCopybooks } from "./copybook/LocalCopybooksService";
 
 const NONE: string = "NONE";
 const MAX_VM_COUNT = 50000;
