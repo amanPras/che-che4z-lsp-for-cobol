@@ -53,6 +53,7 @@ public class DidOpenHandler {
 
     if (this.asyncAnalysisService.isCopybook(uri, params.getTextDocument().getText())
         || this.sourceUnitGraph.isUserSuppliedCopybook(uri)) {
+      asyncAnalysisService.republishDiagnostics();
       return;
     }
 

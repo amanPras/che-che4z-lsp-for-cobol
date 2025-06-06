@@ -215,6 +215,13 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
   }
 
   /**
+   * Publishes diagnostics
+   */
+  public void republishDiagnostics() {
+    communications.publishDiagnostics(documentModelService.getOpenedDiagnostic());
+  }
+
+  /**
    * IMPORTANT: 1. Never shutdown or terminate Executor service as we rely on this for
    * synchronization 2. Each uri will always have a singleThreadExecutor and should not be modified
    * as we rely on this for synchronization
