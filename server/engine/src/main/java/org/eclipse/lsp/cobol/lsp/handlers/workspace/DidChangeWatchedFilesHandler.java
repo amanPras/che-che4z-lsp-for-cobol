@@ -38,6 +38,8 @@ import org.eclipse.lsp4j.FileEvent;
 public class DidChangeWatchedFilesHandler {
   private static final String FILE_SCHEME = "file";
   private static final String GIT_SCHEME_PREFIX = "git:";
+  private static final String VSCODE_SCHEME_PREFIX = "vscode:";
+  public static final String VSCODE_USERDATA_SCHEME_PREFIX = "vscode-userdata:";
 
   private final DisposableLSPStateService lspStateService;
   private final SourceUnitGraph sourceUnitGraph;
@@ -75,11 +77,17 @@ public class DidChangeWatchedFilesHandler {
   }
 
   private boolean isRelevantFileChange(FileEvent change) {
-    return !isGitMetadataFile(change.getUri()) && !change.getUri().startsWith(GIT_SCHEME_PREFIX);
+    return !isGitMetadataFile(change.getUri())
+        && !change.getUri().startsWith(GIT_SCHEME_PREFIX)
+        && !isVscodeSchemaFile(change.getUri());
   }
 
   private boolean isGitMetadataFile(String uri) {
     return uri.startsWith("file:") && uri.contains("/.git/");
+  }
+
+  private boolean isVscodeSchemaFile(String uri) {
+    return uri.startsWith(VSCODE_SCHEME_PREFIX) || uri.startsWith(VSCODE_USERDATA_SCHEME_PREFIX);
   }
 
   private void logFileChanges(Set<FileEvent> changes) {
