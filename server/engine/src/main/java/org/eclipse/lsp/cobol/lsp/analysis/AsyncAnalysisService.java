@@ -149,10 +149,7 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
     }
     ExecutorService analysisExecutor = getExecutor(uri);
     CobolDocumentModel documentModel = documentModelService.get(uri);
-    if (documentModel.getLastAnalysisResult() != null) {
-      // initiate cancel on prev running analysis
-      cancelRunningAnalysis(ImmutableList.of(documentModel));
-    }
+    cancelRunningAnalysis(ImmutableList.of(documentModel));
     FutureTask<CobolDocumentModel> futureTask =
         new FutureTask<>(
             scheduleAnalysis(uri, text, currentRevision, open, force, eventSource, id));
