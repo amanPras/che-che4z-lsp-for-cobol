@@ -19,11 +19,16 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.UserInterruptException;
 import org.eclipse.lsp.cobol.lsp.DisposableLSPStateService;
@@ -39,7 +44,6 @@ public class DidChangeWatchedFilesHandler {
   private static final String FILE_SCHEME = "file";
   private static final String GIT_SCHEME_PREFIX = "git:";
   private static final String VSCODE_SCHEME_PREFIX = "vscode:";
-  public static final String VSCODE_USERDATA_SCHEME_PREFIX = "vscode-userdata:";
 
   private final DisposableLSPStateService lspStateService;
   private final SourceUnitGraph sourceUnitGraph;
@@ -87,7 +91,7 @@ public class DidChangeWatchedFilesHandler {
   }
 
   private boolean isVscodeSchemaFile(String uri) {
-    return uri.startsWith(VSCODE_SCHEME_PREFIX) || uri.startsWith(VSCODE_USERDATA_SCHEME_PREFIX);
+    return uri.startsWith(VSCODE_SCHEME_PREFIX);
   }
 
   private void logFileChanges(Set<FileEvent> changes) {
@@ -97,32 +101,63 @@ public class DidChangeWatchedFilesHandler {
   }
 
   private void processFileEvents(Set<FileEvent> changes) {
-    changes.forEach(
-        event -> {
-          URI uri = URI.create(event.getUri());
-          if (FILE_SCHEME.equals(uri.getScheme())) {
-            handleLocalFileSystemChange(event, uri);
-          } else {
-            triggerAnalysisForUri(event.getUri());
-          }
-        });
+    Set<ChangeEvent> changeEvents =
+        changes.stream().map(this::mapFileEventToChangeEvent).collect(Collectors.toSet());
+
+    boolean hasNullEvent = changeEvents.stream().anyMatch(Objects::isNull);
+    boolean hasDirectoryEvent =
+        changeEvents.stream().filter(Objects::nonNull).anyMatch(ChangeEvent::isDirectory);
+    if (hasDirectoryEvent || hasNullEvent) {
+      analyzeAllOpenedDocuments();
+    } else {
+      changeEvents.stream()
+          .filter(e -> !e.shouldIgnore)
+          .forEach(
+              e -> {
+                LOG.debug(
+                    "[File change event] Processing uri: {}, which affects doc uris: {}",
+                    e.uri,
+                    e.getAffectedUris());
+                updateFileContentAndTriggerAnalysis(e.uri, e.getAffectedUris());
+              });
+    }
   }
 
-  private void handleLocalFileSystemChange(FileEvent event, URI uri) {
-    LOG.debug("[File change event] Processing: {}", uri);
-
-    Path path = getEffectivePath(event, uri);
-    String fileUri = path.toUri().toString();
-
-    if (isOpenInEditor(fileUri)) {
-      LOG.debug("Ignoring change for open file: {}", fileUri);
-      return;
+  private ChangeEvent mapFileEventToChangeEvent(FileEvent event) {
+    try {
+      URI uri = URI.create(event.getUri());
+      if (FILE_SCHEME.equals(uri.getScheme())) {
+        return getLocalFileSystemChange(event, uri);
+      } else {
+        return getEffectedSourceChangeEvent(event.getUri());
+      }
+    } catch (IllegalArgumentException e) {
+      LOG.error("Invalid URI in FileEvent:{}, error:{}", event.getUri(), e.getMessage());
+      return null;
     }
+  }
 
-    if (Files.isDirectory(path)) {
-      handleDirectoryChange(path);
-    } else {
-      triggerAnalysisForUri(fileUri);
+  private ChangeEvent getLocalFileSystemChange(FileEvent event, URI uri) {
+    try {
+      Path path = getEffectivePath(event, uri);
+      String fileUri = path.toUri().toString();
+
+      if (isOpenInEditor(fileUri)) {
+        LOG.debug("Ignoring change for open file: {}", fileUri);
+        ChangeEvent changeEvent = new ChangeEvent(uri.getPath(), false);
+        changeEvent.setShouldIgnore(true);
+        return changeEvent;
+      }
+
+      if (Files.isDirectory(path)) {
+        return new ChangeEvent(uri.getPath(), true);
+      } else {
+        return getEffectedSourceChangeEvent(fileUri);
+      }
+    } catch (Exception e) {
+      LOG.error(
+          "Error handling local file system change:{}, for uri {}", e.getMessage(), event.getUri());
+      return null;
     }
   }
 
@@ -135,20 +170,14 @@ public class DidChangeWatchedFilesHandler {
     return sourceUnitGraph.isFileOpened(uri);
   }
 
-  private void handleDirectoryChange(Path directory) {
-    LOG.debug("Processing directory change: {}", directory);
-    analyzeAllOpenedDocuments();
-  }
-
-  private void triggerAnalysisForUri(String uri) {
+  private ChangeEvent getEffectedSourceChangeEvent(String uri) {
     List<String> associatedUris = sourceUnitGraph.getAllAssociatedFilesForACopybook(uri);
-
     if (associatedUris.isEmpty()) {
-      analyzeAllOpenedDocuments();
-      return;
+      ChangeEvent event = new ChangeEvent(uri, associatedUris);
+      event.setShouldIgnore(true);
+      return event;
     }
-
-    updateFileContentAndTriggerAnalysis(uri, associatedUris);
+    return new ChangeEvent(uri, associatedUris);
   }
 
   private void updateFileContentAndTriggerAnalysis(String uri, List<String> associatedUris) {
@@ -168,6 +197,30 @@ public class DidChangeWatchedFilesHandler {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new UserInterruptException("Analysis interrupted", e);
+    }
+  }
+
+  @Getter
+  @EqualsAndHashCode
+  private static final class ChangeEvent {
+    private final String uri;
+    private final boolean isDirectory;
+    private final List<String> affectedUris;
+    @Setter private boolean shouldIgnore;
+
+    private ChangeEvent(String uri, boolean isDirectory) {
+      this(uri, isDirectory, Collections.emptyList());
+    }
+
+    private ChangeEvent(String uri, List<String> affectedUris) {
+      this(uri, false, affectedUris);
+    }
+
+    private ChangeEvent(String uri, boolean isDirectory, List<String> affectedUris) {
+      this.uri = uri;
+      this.isDirectory = isDirectory;
+      this.affectedUris = affectedUris;
+      this.shouldIgnore = false;
     }
   }
 }
