@@ -148,8 +148,8 @@ public class DaCoMaidProcessor {
           SyntaxError.syntaxError()
               .errorSource(ErrorSource.DIALECT)
               .severity(ErrorSeverity.ERROR)
-              .suggestion(
-                  messageService.getMessage("GrammarPreprocessorListener.cannotRetrieveMaidSuffix"))
+              .messageTemplate(
+                  MessageTemplate.of("GrammarPreprocessorListener.cannotRetrieveMaidSuffix"))
               .location(locality.toOriginalLocation())
               .build());
     }
@@ -284,7 +284,7 @@ public class DaCoMaidProcessor {
               .errorSource(ErrorSource.DIALECT)
               .severity(ErrorSeverity.ERROR)
               .messageTemplate(
-                  MessageTemplate.of("GrammarPreprocessorListener.cannotRetrieveMaidSuffix"))
+                  MessageTemplate.of("GrammarPreprocessorListener.cannotRetrieveMaidWrkSuffix"))
               .location(node.getLocality().toOriginalLocation())
               .build();
       errors.add(error);
