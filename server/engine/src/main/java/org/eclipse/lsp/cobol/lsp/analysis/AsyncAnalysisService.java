@@ -247,6 +247,34 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
   }
 
   /**
+   * Trigger reanalyse of passed programs based on source event (IDE or FILE_SYSTEM).
+   *
+   * @param cobolDocUri document URI to be analyzed
+   * @param invalidCopybookUris List of copybook uri which has affected this analysis
+   * @param eventSource {@link org.eclipse.lsp.cobol.lsp.SourceUnitGraph.EventSource}
+   */
+  public void reanalyseProgram(
+      String cobolDocUri, Set<String> invalidCopybookUris, SourceUnitGraph.EventSource eventSource) {
+    copybookService.getCopybookUsage(cobolDocUri).stream()
+        .filter(model -> Objects.nonNull(model.getUri()))
+        .filter(model -> invalidCopybookUris.contains(model.getUri()))
+        .forEach(copybookService::invalidateCache);
+    LOG.info("Copybook cache for uris {} is cleared", invalidCopybookUris);
+
+    subroutineService.invalidateCache();
+    LOG.info("subroutine cache cleared!");
+
+    CobolDocumentModel document = documentModelService.get(cobolDocUri);
+    scheduleAnalysis(
+        cobolDocUri,
+        document.getText(),
+        analysisResultsRevisions.get(document.getUri()),
+        false,
+        true,
+        eventSource);
+  }
+
+  /**
    * Trigger reanalyse of opened programs based on source event (IDE or FILE_SYSTEM).
    *
    * @param eventSource {@link org.eclipse.lsp.cobol.lsp.SourceUnitGraph.EventSource}

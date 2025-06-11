@@ -19,9 +19,11 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -110,16 +112,25 @@ public class DidChangeWatchedFilesHandler {
     if (hasDirectoryEvent || hasNullEvent) {
       analyzeAllOpenedDocuments();
     } else {
-      changeEvents.stream()
-          .filter(e -> !e.shouldIgnore)
-          .forEach(
-              e -> {
-                LOG.debug(
-                    "[File change event] Processing uri: {}, which affects doc uris: {}",
-                    e.uri,
-                    e.getAffectedUris());
-                updateFileContentAndTriggerAnalysis(e.uri, e.getAffectedUris());
-              });
+      Map<String, Set<String>> cobolSourceToCopybookUris =
+          changeEvents.stream()
+              .filter(e -> !e.shouldIgnore)
+              .flatMap(
+                  e ->
+                      e.getAffectedUris().stream()
+                          .map(val -> new AbstractMap.SimpleEntry<>(val, e.getUri())))
+              .collect(
+                  Collectors.groupingBy(
+                      Map.Entry::getKey,
+                      Collectors.mapping(Map.Entry::getValue, Collectors.toSet())));
+
+      cobolSourceToCopybookUris.forEach(
+          (cobolDocUri, copybookUris) -> {
+            if (!sourceUnitGraph.isFileOpened(cobolDocUri)) {
+              asyncAnalysisService.reanalyseProgram(
+                  cobolDocUri, copybookUris, SourceUnitGraph.EventSource.FILE_SYSTEM);
+            }
+          });
     }
   }
 
@@ -178,17 +189,6 @@ public class DidChangeWatchedFilesHandler {
       return event;
     }
     return new ChangeEvent(uri, associatedUris);
-  }
-
-  private void updateFileContentAndTriggerAnalysis(String uri, List<String> associatedUris) {
-    sourceUnitGraph.updateContent(uri);
-    String fileContent = sourceUnitGraph.getContent(uri);
-
-    if (!sourceUnitGraph.isFileOpened(uri)) {
-      LOG.debug("Triggering analysis for: {}", String.join(", ", associatedUris));
-      asyncAnalysisService.reanalyseCopybooksAssociatedPrograms(
-          associatedUris, uri, fileContent, SourceUnitGraph.EventSource.FILE_SYSTEM);
-    }
   }
 
   private void analyzeAllOpenedDocuments() {
