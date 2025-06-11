@@ -11,8 +11,6 @@
  * Contributors:
  *   Broadcom, Inc. - initial API and implementation
  */
-
-// import { URI } from "vscode-uri";
 import {
   loadProcessorGroupCompileOptionsConfig,
   loadProcessorGroupCopybookExtensionsConfig,
