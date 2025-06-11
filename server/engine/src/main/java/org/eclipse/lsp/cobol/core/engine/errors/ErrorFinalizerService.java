@@ -276,7 +276,7 @@ public class ErrorFinalizerService {
    * @param nonFatalErrors
    * @return true if diagnostics is within the clients diagnostic level, false otherwise
    */
-  public boolean filterDiagnotics(SyntaxError syntaxError, Set<String> nonFatalErrors) {
+  public boolean keepDiagnotics(SyntaxError syntaxError, Set<String> toleratedErrors) {
     if (this.filterDiagnostics == NORMAL) return true;
     return ofNullable(syntaxError.getErrorCode())
         .map(errCode -> !nonFatalErrors.contains(errCode.getLabel()))
