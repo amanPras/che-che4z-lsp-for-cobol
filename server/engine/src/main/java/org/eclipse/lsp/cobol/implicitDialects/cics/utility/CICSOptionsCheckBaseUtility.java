@@ -62,25 +62,30 @@ public abstract class CICSOptionsCheckBaseUtility {
           put(CICSParser.RULE_cics_into, "INTO or SET");
         }
       };
+  private CICSCheckUtilityParameters utilityParameters;
 
   public CICSOptionsCheckBaseUtility(
       DialectProcessingContext context,
       List<SyntaxError> errors,
-      Map<Integer, ErrorSeverity> duplicateOptions) {
+      Map<Integer, ErrorSeverity> duplicateOptions,
+      CICSCheckUtilityParameters utilityParameters) {
     this.context = context;
     this.errors = errors;
     this.baseDuplicateOptions.putAll(duplicateOptions);
+    this.utilityParameters = utilityParameters;
   }
 
   public CICSOptionsCheckBaseUtility(
       DialectProcessingContext context,
       List<SyntaxError> errors,
       Map<Integer, ErrorSeverity> duplicateOptions,
-      Map<Integer, String> duplicateRulesOptions) {
+      Map<Integer, String> duplicateRulesOptions,
+      CICSCheckUtilityParameters utilityParameters) {
     this.context = context;
     this.errors = errors;
     this.baseDuplicateOptions.putAll(duplicateOptions);
     this.baseDuplicateRulesOptions.putAll(duplicateRulesOptions);
+    this.utilityParameters = utilityParameters;
   }
 
   /**
@@ -671,5 +676,45 @@ public abstract class CICSOptionsCheckBaseUtility {
       checkBrowsingInvalidOptions(ctx, coreToken);
       checkBrowsingHasNotParameter(ctx, coreToken);
     } else checkStatementHasParameter(ctx, coreToken);
+  }
+
+  /**
+   * Gets whether nolength options is provided in Cics directives
+   *
+   * @return isNolength enabled
+   */
+  protected boolean noLengthOptionsEnabled() {
+    return utilityParameters.noLengthEnabled;
+  }
+
+  /**
+   * Helper method to collect analysis errors if option becomes mandatory when no length directive
+   * specified
+   *
+   * @param field required field
+   * @param optionalField optional field
+   * @param ctx Context to extrapolate locality against
+   * @param fieldName required field name
+   * @param optionalFieldName required field name
+   */
+  protected void checkOptionalWithLength(
+      List<TerminalNode> field,
+      List<TerminalNode> optionalField,
+      ParserRuleContext ctx,
+      String fieldName,
+      String optionalFieldName) {
+    if (field.isEmpty() && !optionalField.isEmpty()) {
+      throwException(
+          ErrorSeverity.ERROR,
+          VisitorUtility.constructLocality(ctx, context),
+          "Missing required option: ",
+          optionalFieldName + " without " + fieldName);
+    } else if (noLengthOptionsEnabled() && !field.isEmpty() && optionalField.isEmpty()) {
+      throwException(
+          ErrorSeverity.ERROR,
+          VisitorUtility.constructLocality(ctx, context),
+          "Missing required option: ",
+          optionalFieldName);
+    }
   }
 }

@@ -24,10 +24,12 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
+import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
@@ -57,6 +59,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   private final MessageService messageService;
   private final CopybookPreprocessorService preprocessorService;
   private final ReplacingService replacingService;
+  private final CobolLanguageId languageId;
 
   private List<ReplacementContext> replacementContext;
 
@@ -70,6 +73,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
       ReplacingService replacingService) {
     this.copybookConfig = context.getCopybookProcessingMode();
     this.messageService = messageService;
+    this.languageId = context.getLanguageId();
     this.preprocessorService =
         new CopybookPreprocessorService(
             context.getProgramDocumentUri(),
@@ -81,7 +85,8 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
             context.getHierarchy(),
             messageService,
             replacingService,
-            preprocessor);
+            preprocessor,
+            context.getLanguageId());
     this.replacingService = replacingService;
   }
 
@@ -188,8 +193,15 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
     if (!ctx.replacePseudoText().isEmpty()) {
       replacementContext =
           ctx.replacePseudoText().stream()
-              .map(ReplacementHelper::createClause)
-              .map(c -> replacingService.retrievePseudoTextReplacingPattern(c, locality))
+              .map(
+                  c ->
+                      replacingService.retrievePseudoTextReplacingPattern(
+                          new ImmutablePair<>(
+                              ReplacementHelper.getPseudoText(c.pseudoReplaceable()),
+                              ReplacementHelper.getPseudoText(c.pseudoReplacement())),
+                          locality,
+                          languageId,
+                          ReplacementHelper.getSearchPattern(c)))
               .map(r -> r.unwrap(errors::addAll))
               .map(r -> new ReplacementContext(r, locality))
               .collect(Collectors.toList());

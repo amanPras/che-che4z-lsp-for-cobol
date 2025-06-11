@@ -68,6 +68,10 @@ export class CopybookDownloadService {
   clearProfiles() {
     this.e4eDownloader?.clearProfiles();
   }
+  
+  clearE4EConfig(uri: string) {
+    this.e4eDownloader?.clearInvalidConfig(uri);
+  }
 
   private handleAsEndevorElement(documentUri: string) {
     return (

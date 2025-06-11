@@ -20,8 +20,13 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.eclipse.lsp.cobol.common.AnalysisConfig;
 import org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode;
+import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.test.CobolText;
 import org.eclipse.lsp.cobol.test.engine.UseCaseEngine;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Range;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** Test the REPLACE compiler directive. */
@@ -170,4 +175,137 @@ class TestReplaceCompilerDirective {
         Collections.emptyList(),
         AnalysisConfig.defaultConfig(CopybookProcessingMode.ENABLED));
   }
+
+  public static final String TEXT6 =
+      "       IDENTIFICATION DIVISION.                          \n"
+          + "       PROGRAM-ID. PGMNAME.                              \n"
+          + "       ENVIRONMENT DIVISION.                             \n"
+          + "       DATA DIVISION.                                    \n"
+          + "               REPLACE ==     '000 000'      == BY ====. \n"
+          + "       PROCEDURE              {'000 000'^''} DIVISION.        \n"
+          + "               EXIT PROGRAM. ";
+
+  @Test
+  void testReplace_1() {
+    UseCaseEngine.runTest(TEXT6, ImmutableList.of(), ImmutableMap.of(), Collections.emptyList());
+  }
+
+  public static final String TEXT_MULTI_REPLACE_ON_OFF =
+      "       IDENTIFICATION DIVISION.                          \n"
+          + "       PROGRAM-ID. PGMNAME.                              \n"
+          + "       ENVIRONMENT DIVISION.                             \n"
+          + "       DATA DIVISION.        \n"
+          + "       WORKING-STORAGE SECTION.                            \n"
+          + "       01  {$*TEST-VAR-1}.\n"
+          + "       REPLACE ==:PFX:==  BY ==BLQ1==.\n"
+          + "           COPY {~CPY1}.\n"
+          + "           REPLACE OFF.\n"
+          + "       01  {$*TEST-VAR-2}.\n"
+          + "           REPLACE ==:PFX:== BY ==BPP1==.\n"
+          + "           COPY {~CPY1}.\n"
+          + "           REPLACE OFF.\n"
+          + "       REPLACE OFF.           \n"
+          + "       PROCEDURE DIVISION.       \n"
+          + "           DISPLAY {$BLQ1-PARM-AREA}.  \n"
+          + "           DISPLAY {$BPP1-PARM-AREA}.  \n"
+          + "               EXIT PROGRAM.            ";
+
+  public static final String CPY1_CONTENT =
+      "           05  {$*:PFX:-PARM-AREA`->BLQ1-PARM-AREA`->BPP1-PARM-AREA}.\n"
+          + "            07 "
+          + " {$*:PFX:-COMMON-LINKAGE`->BLQ1-COMMON-LINKAGE`->BPP1-COMMON-LINKAGE}.\n"
+          + "               10 "
+          + " {$*:PFX:-CALLING-PROGRAM`->BLQ1-CALLING-PROGRAM`->BPP1-CALLING-PROGRAM}          PIC "
+          + " X(08).";
+
+  @Test
+  void test_whenMultiCopybookUsedWithReplacePattern_thenResolutionWorksOnReplaceRange() {
+    UseCaseEngine.runTest(
+        TEXT_MULTI_REPLACE_ON_OFF,
+        ImmutableList.of(new CobolText("CPY1", CPY1_CONTENT)),
+        ImmutableMap.of(),
+        Collections.emptyList());
+  }
+
+  public static final String TEXT_PSEUDO_TEXT_ENDS_WITH_EQUAL_CHAR =
+      "       IDENTIFICATION DIVISION.\n"
+          + "       PROGRAM-ID. PGMNAME.\n"
+          + "       ENVIRONMENT DIVISION.\n"
+          + "       DATA DIVISION.\n"
+          + "       WORKING-STORAGE SECTION.\n"
+          + "          replace ==abcd== by ==abcd==   ==asdf=== by ==abcd==.\n"
+          + "          01 {$*ASDF=^abcd}.\n"
+          + "                05 {$*abcd1} pic x.\n"
+          + "       PROCEDURE DIVISION.\n"
+          + "           DISPLAY {$abcd}.\n"
+          + "               EXIT PROGRAM.\n";
+
+  @Test
+  void testReplace_whenPseudoTextEndsWithEqualChars() {
+    UseCaseEngine.runTest(
+        TEXT_PSEUDO_TEXT_ENDS_WITH_EQUAL_CHAR,
+        ImmutableList.of(),
+        ImmutableMap.of(),
+        Collections.emptyList());
+  }
+
+  // TODO: Add use case test scenario
+  // 1. Add support in usecase test engine
+  // 2. Diagnostics - IGYDS1082-E A period was required. is wrong and should be fixed.
+  public static final String TEXT7_ERROR =
+      "       IDENTIFICATION DIVISION.                          \n"
+          + "       PROGRAM-ID. PGMNAME.                              \n"
+          + "       ENVIRONMENT DIVISION.                             \n"
+          + "       DATA DIVISION.                                    \n"
+          + "               REPLACE ==     '000  000'      == BY ====.\n"
+          + "       PROCEDURE              '000 000' DIVISION.        \n"
+          + "               EXIT PROGRAM. ";
+
+  public static final String TEXT8_ERROR =
+      "       IDENTIFICATION DIVISION.                          \n"
+          + "       PROGRAM-ID. PGMNAME.                              \n"
+          + "       ENVIRONMENT DIVISION.                             \n"
+          + "       DATA DIVISION.                                    \n"
+          + "               REPLACE ==     '000 000'      == BY ====. \n"
+          + "       PROCEDURE              '000                       \n"
+          + "                                   000' DIVISION.        \n"
+          + "               EXIT PROGRAM.  ";
+
+  public static final String TEXT9 =
+      "       IDENTIFICATION DIVISION.                         \n"
+          + "       PROGRAM-ID. PGMNAME.                             \n"
+          + "       ENVIRONMENT DIVISION.                            \n"
+          + "       DATA DIVISION.                                   \n"
+          + "               REPLACE ==     {'|1}000                      \n"
+          + "                                   000{'|2}      == BY ====.\n"
+          + "       PROCEDURE              {_{'|3}000                      \n"
+          + "                                   000{'|4}^''_} DIVISION.       \n"
+          + "               EXIT PROGRAM. ";
+
+  @Disabled(
+      "2 reason. i.) fix diagnostics as these are unexpected. ii.) Add support for usecase tests")
+  @Test
+  void testReplace_2() {
+    Diagnostic diagnostic =
+        new Diagnostic(
+            new Range(),
+            "IGYDS1082-E A period was required.",
+            DiagnosticSeverity.Error,
+            ErrorSource.PREPROCESSING.getText());
+    UseCaseEngine.runTest(
+        TEXT9,
+        ImmutableList.of(),
+        ImmutableMap.of("1", diagnostic, "2", diagnostic, "3", diagnostic, "4", diagnostic));
+  }
+
+  public static final String TEXT10 =
+      "       IDENTIFICATION DIVISION.                              \n"
+          + "       PROGRAM-ID. PGMNAME.                                  \n"
+          + "       ENVIRONMENT DIVISION.                                 \n"
+          + "       DATA DIVISION.                                        \n"
+          + "               REPLACE ==     '000                           \n"
+          + "                       000'      == BY ====.                 \n"
+          + "       PROCEDURE              '000                           \n"
+          + "                                               000' DIVISION.\n"
+          + "               EXIT PROGRAM.      ";
 }
