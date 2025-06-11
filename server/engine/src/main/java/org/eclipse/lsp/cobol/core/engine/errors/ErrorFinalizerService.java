@@ -41,7 +41,7 @@ public class ErrorFinalizerService {
 
   private final MessageService messageService;
   private DiagnosticSensitivity filterDiagnostics = NORMAL;
-  public static final Set<String> NON_FATAL_ERRORS =
+  public static final Set<String> TOLARATED_ERRORS =
       ImmutableSet.of(
           "cobolParser.subSchemaNameLength",
           "cobolParser.ObsoleteCode",
