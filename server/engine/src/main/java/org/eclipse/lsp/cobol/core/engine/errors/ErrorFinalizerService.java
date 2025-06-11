@@ -207,7 +207,7 @@ public class ErrorFinalizerService {
   public void processLateErrors(AnalysisContext ctx, CopybooksRepository copybooksRepository) {
     List<SyntaxError> accumulatedErrors =
         ctx.getAccumulatedErrors().stream()
-            .filter(err -> filterDiagnotics(err, NON_FATAL_ERRORS))
+            .filter(err -> keepDiagnotics(err, TOLARATED_ERRORS))
             .collect(toList());
     accumulatedErrors.addAll(collectErrorsForCopybooks(accumulatedErrors, copybooksRepository));
     List<SyntaxError> distinct = accumulatedErrors.stream().distinct().collect(toList());
@@ -273,13 +273,13 @@ public class ErrorFinalizerService {
    * Filter diagnostic based on the diagnostic level provided by the client
    *
    * @param syntaxError syntax error to be processed
-   * @param nonFatalErrors
+   * @param toleratedErrors
    * @return true if diagnostics is within the clients diagnostic level, false otherwise
    */
   public boolean keepDiagnotics(SyntaxError syntaxError, Set<String> toleratedErrors) {
     if (this.filterDiagnostics == NORMAL) return true;
     return ofNullable(syntaxError.getErrorCode())
-        .map(errCode -> !nonFatalErrors.contains(errCode.getLabel()))
+        .map(errCode -> !toleratedErrors.contains(errCode.getLabel()))
         .orElse(true);
   }
 

@@ -94,8 +94,7 @@ public class DialectService {
       List<SyntaxError> dialectErrors = orderedDialect.extend(context);
       dialectErrors.stream()
           .filter(
-              err ->
-                  errorFinalizerService.filterDiagnotics(err, orderedDialect.getFatalErrorCodes()))
+              err -> errorFinalizerService.keepDiagnotics(err, orderedDialect.getFatalErrorCodes()))
           .forEach(
               e ->
                   e.getLocation()
