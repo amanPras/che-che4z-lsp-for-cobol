@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 import static org.eclipse.lsp.cobol.common.error.ErrorSource.WORKSPACE_SETTINGS;
 import static org.eclipse.lsp.cobol.common.model.NodeType.COPY;
 import static org.eclipse.lsp.cobol.common.model.tree.Node.hasType;
-import static org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService.TOLARATED_ERRORS;
+import static org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService.TOLERATED_ERRORS;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -176,7 +176,7 @@ public class CobolLanguageEngine {
                   .symbolTableMap(ImmutableMap.of())
                   .build(),
               ctx.getAccumulatedErrors().stream()
-                  .filter(err -> errorFinalizerService.keepDiagnotics(err, TOLARATED_ERRORS))
+                  .filter(err -> errorFinalizerService.keepDiagnotics(err, TOLERATED_ERRORS))
                   .map(errorFinalizerService::localizeErrorMessage)
                   .collect(toList())),
           documentUri);
@@ -191,7 +191,7 @@ public class CobolLanguageEngine {
                   .symbolTableMap(processingResult.getSymbolTableMap())
                   .build(),
               ctx.getAccumulatedErrors().stream()
-                  .filter(err -> errorFinalizerService.keepDiagnotics(err, TOLARATED_ERRORS))
+                  .filter(err -> errorFinalizerService.keepDiagnotics(err, TOLERATED_ERRORS))
                   .map(errorFinalizerService::localizeErrorMessage)
                   .collect(toList())),
           documentUri);

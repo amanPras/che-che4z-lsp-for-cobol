@@ -41,7 +41,7 @@ public class ErrorFinalizerService {
 
   private final MessageService messageService;
   private DiagnosticSensitivity filterDiagnostics = NORMAL;
-  public static final Set<String> TOLARATED_ERRORS =
+  public static final Set<String> TOLERATED_ERRORS =
       ImmutableSet.of(
           "cobolParser.subSchemaNameLength",
           "cobolParser.ObsoleteCode",
@@ -207,7 +207,7 @@ public class ErrorFinalizerService {
   public void processLateErrors(AnalysisContext ctx, CopybooksRepository copybooksRepository) {
     List<SyntaxError> accumulatedErrors =
         ctx.getAccumulatedErrors().stream()
-            .filter(err -> keepDiagnotics(err, TOLARATED_ERRORS))
+            .filter(err -> keepDiagnotics(err, TOLERATED_ERRORS))
             .collect(toList());
     accumulatedErrors.addAll(collectErrorsForCopybooks(accumulatedErrors, copybooksRepository));
     List<SyntaxError> distinct = accumulatedErrors.stream().distinct().collect(toList());
