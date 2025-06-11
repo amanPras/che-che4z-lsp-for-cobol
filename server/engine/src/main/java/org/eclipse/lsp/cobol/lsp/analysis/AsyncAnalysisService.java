@@ -254,7 +254,9 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
    * @param eventSource {@link org.eclipse.lsp.cobol.lsp.SourceUnitGraph.EventSource}
    */
   public void reanalyseProgram(
-      String cobolDocUri, Set<String> invalidCopybookUris, SourceUnitGraph.EventSource eventSource) {
+      String cobolDocUri,
+      Set<String> invalidCopybookUris,
+      SourceUnitGraph.EventSource eventSource) {
     copybookService.getCopybookUsage(cobolDocUri).stream()
         .filter(model -> Objects.nonNull(model.getUri()))
         .filter(model -> invalidCopybookUris.contains(model.getUri()))
