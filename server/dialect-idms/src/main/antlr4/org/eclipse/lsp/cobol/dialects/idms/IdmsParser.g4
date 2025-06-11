@@ -1176,6 +1176,7 @@ idmsKeywords
 cobolCompilerDirectivesKeywords
     :  ANY
     | DATA | DUMP
+    | LR
     | MAP
     | NAME
     | NODUMP
