@@ -168,6 +168,7 @@ export class CopybookDownloadService {
     if (this.explorerApi.onProfileUpdated) {
       this.explorerApi.onProfileUpdated((profile: IProfileLoaded) => {
         this.outputChannel?.appendLine(`Zowe profile ${profile.name} updated`);
+        this.clearCache();
         if (this.configurationInvalidation) {
           this.configurationInvalidation();
         }
