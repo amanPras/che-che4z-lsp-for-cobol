@@ -131,7 +131,7 @@ export class LanguageClientService {
   private fileChanges: FileEvent[] = [];
   private fileChangeTimer: ReturnType<typeof setTimeout> | undefined =
     undefined;
-  public async sendFileChangeNotification(file: vscode.Uri) {
+  public sendFileChangeNotification(file: vscode.Uri) {
     this.fileChanges.push({
       uri: file.toString(),
       type: FileChangeType.Changed,
@@ -175,8 +175,8 @@ export class LanguageClientService {
         this.createServerOptions(this.executablePath)!,
         this.createClientOptions(),
       );
-      localCopybooks.registerFileChangeWatcher(
-        (uri: vscode.Uri) => void this.sendFileChangeNotification(uri),
+      localCopybooks.registerFileChangeWatcher((uri: vscode.Uri) =>
+        this.sendFileChangeNotification(uri),
       );
     }
     return this.languageClient;
