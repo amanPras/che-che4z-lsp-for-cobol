@@ -21,6 +21,7 @@ import {
   DidChangeConfigurationNotification,
   DidChangeWatchedFilesNotification,
   FileChangeType,
+  FileEvent,
   GenericNotificationHandler,
   GenericRequestHandler,
   LanguageClient,
@@ -127,14 +128,28 @@ export class LanguageClientService {
     );
   }
 
+  private fileChanges: FileEvent[] = [];
+  private fileChangeTimer: ReturnType<typeof setTimeout> | undefined =
+    undefined;
   public async sendFileChangeNotification(file: vscode.Uri) {
-    const languageClient = this.getLanguageClient();
-    await languageClient.sendNotification(
-      DidChangeWatchedFilesNotification.type,
-      {
-        changes: [{ uri: file.toString(), type: FileChangeType.Changed }],
-      },
-    );
+    this.fileChanges.push({
+      uri: file.toString(),
+      type: FileChangeType.Changed,
+    });
+    if (this.fileChangeTimer !== undefined) return;
+    this.fileChangeTimer = setTimeout(() => {
+      const changes = this.fileChanges;
+      this.fileChangeTimer = undefined;
+      this.fileChanges = [];
+
+      const languageClient = this.getLanguageClient();
+      void languageClient.sendNotification(
+        DidChangeWatchedFilesNotification.type,
+        {
+          changes,
+        },
+      );
+    }, 250);
   }
 
   public async start() {
