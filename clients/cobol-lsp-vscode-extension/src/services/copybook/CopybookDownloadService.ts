@@ -110,7 +110,6 @@ export class CopybookDownloadService {
       const processorGroupsResult =
         await this.resolveCopybookUriInProcessorGroups(
           copybookName,
-          "profile",
           documentURI,
           pgConfigs,
         );
@@ -277,7 +276,6 @@ export class CopybookDownloadService {
 
   async resolveCopybookUriInProcessorGroups(
     copybookName: string,
-    defaultProfile: string,
     documentUri: string,
     pgConfigs: ProcessorGroupCopybookPathConfig[],
   ): Promise<vscode.Uri | undefined> {
@@ -295,7 +293,16 @@ export class CopybookDownloadService {
           return localResult;
         }
       } else {
-        const profile = config.profile ?? defaultProfile;
+        const profile =
+          config.profile ??
+          ProfileUtils.getProfileNameForCopybook(
+            copybookName,
+            this.explorerApi,
+          );
+        if (!profile) {
+          this.processDownloadError(PROVIDE_PROFILE_MSG);
+          return;
+        }
         if (
           !(await this.isPrerequisiteForDownloadSatisfied(documentUri, [
             DEFAULT_DIALECT,
