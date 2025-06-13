@@ -110,13 +110,15 @@ class TestCommentLines {
             new Range(new Position(6, 28), new Position(6, 29)),
             "Missing blank before inline comment",
             DiagnosticSeverity.Warning,
-            ErrorSource.PREPROCESSING.getText());
+            ErrorSource.PREPROCESSING.getText(),
+            "inlineComment.missingBlank");
     Diagnostic expectedLastDiagnostics =
         new Diagnostic(
             new Range(new Position(8, 28), new Position(8, 29)),
             "Missing blank before inline comment",
             DiagnosticSeverity.Warning,
-            ErrorSource.PREPROCESSING.getText());
+            ErrorSource.PREPROCESSING.getText(),
+            "inlineComment.missingBlank");
 
     assertEquals(expectedFirstDiagnostics, diagnostics.get(0));
     assertEquals(expectedLastDiagnostics, diagnostics.get(1));

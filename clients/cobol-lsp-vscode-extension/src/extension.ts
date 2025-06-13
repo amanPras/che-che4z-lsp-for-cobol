@@ -156,7 +156,7 @@ export async function activate(
   registerEvent(
     "analysis-mode",
     ["bootstrap", "analysis-mode"],
-    `COBOL LS is being used in ${vscode.workspace.getConfiguration().get(ANALYSIS_MODE)} mode`,
+    `COBOL LS is being used in ${vscode.workspace.getConfiguration().get(ANALYSIS_MODE) as string} mode`,
   );
 
   // Register Commands
