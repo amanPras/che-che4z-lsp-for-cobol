@@ -106,7 +106,7 @@ public class DidChangeConfigurationHandler {
         .fetchConfiguration(COBOL_PROGRAM_LAYOUT.label)
         .thenAccept(codeLayoutStore.updateCodeLayout());
     settingsService
-        .fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label)
+        .fetchConfiguration(ANALYSIS_MODE.label)
         .thenAccept(errorFinalizerService::updateDiagnosticsLevel);
     copybookNameService.collectLocalCopybookNames();
     keywords.updateStorage();

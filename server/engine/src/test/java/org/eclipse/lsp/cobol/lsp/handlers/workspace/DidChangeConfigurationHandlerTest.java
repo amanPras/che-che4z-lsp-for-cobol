@@ -86,7 +86,7 @@ class DidChangeConfigurationHandlerTest {
     when(watchingService.getWatchingFolders()).thenReturn(emptyList());
     when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
 
-    when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+    when(settingsService.fetchConfiguration(ANALYSIS_MODE.label))
         .thenReturn(completedFuture((ImmutableList.of(false))));
     didChangeConfigurationHandler.didChangeConfiguration(
         new DidChangeConfigurationParams(new Object()));
@@ -134,7 +134,7 @@ class DidChangeConfigurationHandlerTest {
         .thenReturn(completedFuture(ImmutableList.of(CobolLanguageId.COBOL.getLayout())));
     when(watchingService.getWatchingFolders()).thenReturn(singletonList(path));
     when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
-    when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+    when(settingsService.fetchConfiguration(ANALYSIS_MODE.label))
         .thenReturn(completedFuture((ImmutableList.of(false))));
 
     didChangeConfigurationHandler.didChangeConfiguration(
@@ -185,7 +185,7 @@ class DidChangeConfigurationHandlerTest {
         .thenReturn(completedFuture(ImmutableList.of(CobolLanguageId.COBOL.getLayout())));
     when(watchingService.getWatchingFolders()).thenReturn(emptyList());
     when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
-    when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+    when(settingsService.fetchConfiguration(ANALYSIS_MODE.label))
         .thenReturn(completedFuture((ImmutableList.of(false))));
 
     didChangeConfigurationHandler.didChangeConfiguration(
@@ -240,7 +240,7 @@ class DidChangeConfigurationHandlerTest {
     when(localeStore.notifyLocaleStore()).thenReturn(e -> {});
     when(settingsService.fetchConfiguration(COBOL_PROGRAM_LAYOUT.label))
         .thenReturn(completedFuture(ImmutableList.of(CobolLanguageId.COBOL.getLayout())));
-    when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+    when(settingsService.fetchConfiguration(ANALYSIS_MODE.label))
         .thenReturn(completedFuture((ImmutableList.of(false))));
 
     didChangeConfigurationHandler.didChangeConfiguration(

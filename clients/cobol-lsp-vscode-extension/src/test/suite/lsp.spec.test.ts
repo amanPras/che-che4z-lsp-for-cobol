@@ -685,7 +685,7 @@ suite("Integration Test Suite", function () {
     );
   });
 
-  test("No info message for missing copybooks if diagnostics sensitivity is LOW", async () => {
+  test("No info message for missing copybooks if diagnostics analysis mode is BASIC", async () => {
     await helper.updateConfig("low_severity_settings.json");
     const editor = await helper.showDocument(path.join("USERC1F.cbl"));
     await helper.waitFor(

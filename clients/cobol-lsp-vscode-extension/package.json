@@ -552,18 +552,18 @@
           "description": "List of preprocessors used by the LSPConfig",
           "uniqueItems": true
         },
-        "cobol-lsp.diagnostics.sensitivity": {
+        "cobol-lsp.analysis-mode": {
           "type": "string",
           "enum": [
-            "LOW",
-            "NORMAL"
+            "BASIC",
+            "ADVANCED"
           ],
           "enumDescriptions": [
-            "Lowers the diagnsotics sensitivity and ignores some of the diagnostics.",
-            "Shows all the diagnostics"
+            "Enables basic syntax checks",
+            "Enables advanced analysis including syntactic and semantic checks"
           ],
-          "description": "reduce diagnostics sensitivity",
-          "default": "NORMAL"
+          "description": "Enables advanced analysis including syntax and semantic checks",
+          "default": "ADVANCED"
         }
       }
     },

@@ -81,7 +81,7 @@ class InitializedHandlerTest {
     verify(settingsService).fetchConfiguration(LOCALE.label);
     verify(settingsService).fetchConfiguration(LOGGING_LEVEL.label);
     verify(settingsService).fetchConfiguration(CPY_EXTENSIONS.label);
-    verify(settingsService).fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label);
+    verify(settingsService).fetchConfiguration(ANALYSIS_MODE.label);
     verify(localeStore).notifyLocaleStore();
   }
 
@@ -106,7 +106,7 @@ class InitializedHandlerTest {
     when(settingsService.fetchConfiguration(COBOL_PROGRAM_LAYOUT.label))
         .thenReturn(
             completedFuture(ImmutableList.of(Optional.of(CobolLanguageId.COBOL.getLayout()))));
-    when(settingsService.fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label))
+    when(settingsService.fetchConfiguration(ANALYSIS_MODE.label))
         .thenReturn(completedFuture(ImmutableList.of(Optional.of(false))));
   }
 }

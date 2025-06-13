@@ -99,7 +99,7 @@ public class InitializedHandler {
 
   private void getDiagnosticsLevel() {
     settingsService
-        .fetchConfiguration(COBOL_DIAGNOSTICS_LEVEL.label)
+        .fetchConfiguration(ANALYSIS_MODE.label)
         .thenAccept(errorFinalizerService::updateDiagnosticsLevel);
   }
 

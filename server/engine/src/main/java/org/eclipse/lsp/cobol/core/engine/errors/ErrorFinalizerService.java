@@ -16,7 +16,7 @@ package org.eclipse.lsp.cobol.core.engine.errors;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.lsp.cobol.core.engine.errors.DiagnosticSensitivity.NORMAL;
+import static org.eclipse.lsp.cobol.core.engine.errors.AnalysisMode.ADVANCED;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
@@ -40,7 +40,7 @@ import org.eclipse.lsp.cobol.core.semantics.CopybooksRepository;
 public class ErrorFinalizerService {
 
   private final MessageService messageService;
-  private DiagnosticSensitivity filterDiagnostics = NORMAL;
+  private AnalysisMode filterDiagnostics = ADVANCED;
   public static final Set<String> TOLERATED_ERRORS =
       ImmutableSet.of(
           "cobolParser.subSchemaNameLength",
@@ -277,7 +277,7 @@ public class ErrorFinalizerService {
    * @return true if diagnostics is within the clients diagnostic level, false otherwise
    */
   public boolean keepDiagnotics(SyntaxError syntaxError, Set<String> toleratedErrors) {
-    if (this.filterDiagnostics == NORMAL) return true;
+    if (this.filterDiagnostics == ADVANCED) return true;
     return ofNullable(syntaxError.getErrorCode())
         .map(errCode -> !toleratedErrors.contains(errCode.getLabel()))
         .orElse(true);
@@ -292,7 +292,7 @@ public class ErrorFinalizerService {
     if (levels != null && !levels.isEmpty()) {
       if (levels.get(0) instanceof JsonElement) {
         JsonElement option = (JsonElement) levels.get(0);
-        filterDiagnostics = DiagnosticSensitivity.valueOf(option.getAsString());
+        filterDiagnostics = AnalysisMode.valueOf(option.getAsString());
       }
     }
   }

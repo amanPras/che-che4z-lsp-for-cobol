@@ -1,4 +1,4 @@
 {
     "cobol-lsp.maxVmCount": -1,
-    "cobol-lsp.diagnostics.sensitivity": "LOW"
+    "cobol-lsp.analysis-mode": "BASIC"
 }

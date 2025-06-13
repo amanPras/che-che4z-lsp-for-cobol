@@ -16,9 +16,9 @@ package org.eclipse.lsp.cobol.core.engine.errors;
 
 /**
  * Diagnostics sensitivity supplied by the client based on {@link
- * org.eclipse.lsp.cobol.service.settings.SettingsParametersEnum#COBOL_DIAGNOSTICS_LEVEL}
+ * org.eclipse.lsp.cobol.service.settings.SettingsParametersEnum#ANALYSIS_MODE}
  */
-public enum DiagnosticSensitivity {
-  LOW,
-  NORMAL;
+public enum AnalysisMode {
+  BASIC,
+  ADVANCED;
 }
