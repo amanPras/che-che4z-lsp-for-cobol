@@ -560,7 +560,7 @@
           ],
           "enumDescriptions": [
             "Enables basic syntax checks",
-            "Enables advanced analysis including syntactic and semantic checks"
+            "Enables advanced analysis including syntax and semantic checks"
           ],
           "description": "Analysis mode",
           "default": "ADVANCED"
