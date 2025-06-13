@@ -17,6 +17,7 @@ import { __ExtensionApi } from "@code4z/cobol-dialect-api";
 import { isV1RuntimeDialectDetail } from "./dialect/utils";
 import { gotoCopybookSettings } from "./commands/OpenSettingsCommand";
 import {
+  ANALYSIS_MODE,
   E4E_INCOMPATIBLE,
   EXP_LANGUAGE_ID,
   FAIL_CREATE_COPYBOOK_FOLDER_MSG,
@@ -154,6 +155,11 @@ export async function activate(
     "log",
     ["bootstrap", "experiment-tag"],
     "Extension activation event was triggered",
+  );
+  registerEvent(
+    "analysis-mode",
+    ["bootstrap", "analysis-mode"],
+    `COBOL LS is being used in ${vscode.workspace.getConfiguration().get(ANALYSIS_MODE) as string} mode`,
   );
 
   // Register Commands
