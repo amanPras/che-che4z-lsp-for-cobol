@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.service.settings.SettingsService;
 
@@ -30,7 +31,7 @@ import org.eclipse.lsp.cobol.service.settings.SettingsService;
  */
 @Slf4j
 public abstract class CompletionStorage<T> {
-  private List<String> dialectType = ImmutableList.of();
+  @Getter private List<String> dialectType = ImmutableList.of();
   private Map<String, T> storage;
   private final SettingsService settingsService;
 
