@@ -25,6 +25,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode;
@@ -35,6 +36,7 @@ import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
 import org.eclipse.lsp.cobol.common.model.Locality;
+import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.common.utils.ThreadInterruptionUtil;
 import org.eclipse.lsp.cobol.core.CobolPreprocessorBaseListener;
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.GrammarPreprocessor;
@@ -43,6 +45,7 @@ import org.eclipse.lsp.cobol.core.preprocessor.delegates.replacement.Replacement
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.replacement.ReplacementHelper;
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.replacement.ReplacingService;
 import org.eclipse.lsp.cobol.core.semantics.CopybooksRepository;
+import org.eclipse.lsp4j.Position;
 
 /**
  * ANTLR listener, which builds an extended document from the given COBOL program by executing COPY
@@ -61,6 +64,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   private final CopybookPreprocessorService preprocessorService;
   private final ReplacingService replacingService;
   private final CobolLanguageId languageId;
+  private final String currentDocumentUri;
 
   private List<ReplacementContext> replacementContext;
 
@@ -74,6 +78,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
       ReplacingService replacingService) {
     this.copybookConfig = context.getCopybookProcessingMode();
     this.messageService = messageService;
+    this.currentDocumentUri = context.getCurrentDocument().getUri();
     this.languageId = context.getLanguageId();
     this.preprocessorService =
         new CopybookPreprocessorService(
@@ -159,8 +164,18 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   @Override
   public void exitCopyStatement(@NonNull CopyStatementContext ctx) {
     if (requiresEarlyReturn(ctx)) return;
+    List<ReplacementContext> applicableReplacementContext =
+        null == replacementContext
+            ? Collections.emptyList()
+            : replacementContext.stream()
+                .filter(
+                    c ->
+                        c.getLocality().getUri().equals(this.currentDocumentUri)
+                            && RangeUtils.isInside(
+                                AntlrRangeUtils.constructRange(ctx), c.getLocality().getRange()))
+                .collect(Collectors.toList());
     preprocessorService.addCopybook(
-        ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_8, replacementContext);
+        ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_8, applicableReplacementContext);
   }
 
   @Override
@@ -208,7 +223,11 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
     }
 
     if (ctx.OFF() != null) {
-      replacementContext = null;
+      replacementContext
+          .get(replacementContext.size() - 1)
+          .getLocality()
+          .getRange()
+          .setEnd(new Position(ctx.getStop().getLine() - 1, ctx.getStop().getCharPositionInLine()));
     }
 
     preprocessorService.replaceWithSpaces(ctx);

@@ -129,8 +129,10 @@ public class ReplacePreProcessorListener extends CobolPreprocessorBaseListener {
     }
     if (hierarchy.getLastTextReplacing() != null) {
       Range range = hierarchy.getLastTextReplacing().getRange(extendedDocument.getUri());
-      range.setEnd(
-          new Position(ctx.getStop().getLine() - 1, ctx.getStop().getCharPositionInLine()));
+      if (range.getEnd() == null) {
+        range.setEnd(
+            new Position(ctx.getStop().getLine() - 1, ctx.getStop().getCharPositionInLine()));
+      }
     }
     applyReplacing();
   }

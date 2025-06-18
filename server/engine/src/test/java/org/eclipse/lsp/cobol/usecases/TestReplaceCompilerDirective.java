@@ -249,6 +249,62 @@ class TestReplaceCompilerDirective {
         Collections.emptyList());
   }
 
+  public static final String TEXT11 =
+      "       IDENTIFICATION DIVISION.                          \n"
+          + "       PROGRAM-ID. PGMNAME.                              \n"
+          + "       ENVIRONMENT DIVISION.                             \n"
+          + "       DATA DIVISION.        \n"
+          + "       WORKING-STORAGE SECTION.                            \n"
+          + "       01  {$*TEST-VAR-1}.\n"
+          + "       REPLACE ==:PFX:==  BY ==BL==.\n"
+          + "           COPY {~CPY1}.\n"
+          + "           COPY {~SOME1}.\n"
+          + "           REPLACE OFF.\n"
+          + "       01  {$*TEST-VAR-2}.\n"
+          + "           REPLACE ==:PFX:== BY ==BP==.\n"
+          + "           COPY {~CPY1}.\n"
+          + "           COPY {~SOME1}.\n"
+          + "           REPLACE OFF.\n"
+          + "       REPLACE OFF.           \n"
+          + "       PROCEDURE DIVISION.       \n"
+          + "           display  {$BP-PARAMETERS} of {$TEST-VAR-2} .\n"
+          + "           display {$BL-PARM-AREA} of {$BL-PARAMETERS}.\n"
+          + "               EXIT PROGRAM.   ";
+  public static final String CPY1_TEXT =
+      "           05  {$*:PFX:-PARM-AREA`->BL-PARM-AREA`->BP-PARM-AREA}.\n"
+          + "            07  {$*:PFX:-COMMON-LINKAGE`->BL-COMMON-LINKAGE`->BP-COMMON-LINKAGE}.\n"
+          + "               10  {$*:PFX:-CALLING-PROGRAM`->BL-CALLING-PROGRAM`->BP-CALLING-PROGRAM}"
+          + "          PIC  X(08).";
+
+  public static final String SOME1_TEXT =
+      "         05  {$*:PFX:-PARAMETERS`->BL-PARAMETERS`->BP-PARAMETERS}.\n"
+          + "           10 "
+          + " {$*:PFX:-INPUT-PARAMETERS`->BL-INPUT-PARAMETERS`->BP-INPUT-PARAMETERS}.\n"
+          + "              15  {$*:PFX:-REQUEST-CODE`->BL-REQUEST-CODE`->BP-REQUEST-CODE}         "
+          + " PIC X(01).\n"
+          + "                  88 {$*:PFX:-RET-BY-SEC`->BL-RET-BY-SEC`->BP-RET-BY-SEC}        "
+          + " VALUE 'S'.\n"
+          + "              15  {$*:PFX:-SEC-DETAIL`->BL-SEC-DETAIL`->BP-SEC-DETAIL}.\n"
+          + "                 20 {$*:PFX:-SEC-CATEGORY`->BL-SEC-CATEGORY`->BP-SEC-CATEGORY}       "
+          + " PIC X(02).\n"
+          + "                     COPY {~CCPY2}.\n"
+          + "                 20 {$*:PFX:-SEC-LOC-STREET`->BL-SEC-LOC-STREET`->BP-SEC-LOC-STREET}  "
+          + "    PIC X(40).";
+
+  public static final String CCPY2_TEXT =
+      "           20  {$*:PFX:-PARM-AREA`->BL-PARM-AREA`->BP-PARM-AREA} pic x.\n";
+
+  @Test
+  void testReplaceIsPropagatedToTheCopybooks() {
+    UseCaseEngine.runTest(
+        TEXT11,
+        ImmutableList.of(
+            new CobolText("CPY1", CPY1_TEXT),
+            new CobolText("SOME1", SOME1_TEXT),
+            new CobolText("CCPY2", CCPY2_TEXT)),
+        ImmutableMap.of());
+  }
+
   // TODO: Add use case test scenario
   // 1. Add support in usecase test engine
   // 2. Diagnostics - IGYDS1082-E A period was required. is wrong and should be fixed.
