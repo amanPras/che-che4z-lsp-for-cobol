@@ -305,6 +305,60 @@ class TestReplaceCompilerDirective {
         ImmutableMap.of());
   }
 
+  public static final String TEXT12 =
+      "       IDENTIFICATION DIVISION.                          \n"
+          + "       PROGRAM-ID. PGMNAME.                              \n"
+          + "       ENVIRONMENT DIVISION.                             \n"
+          + "       DATA DIVISION.        \n"
+          + "       WORKING-STORAGE SECTION.                            \n"
+          + "       01  {$*TEST-VAR-1}.\n"
+          + "       REPLACE ==:PF:==  BY ==BL==.\n"
+          + "           COPY {~CPY1} REPLACING ==:PFX:== BY ==:PF:==.\n"
+          + "           REPLACE OFF.\n"
+          + "       REPLACE OFF.           \n"
+          + "       PROCEDURE DIVISION.       \n"
+          + "                  display {$BL-PARM-AREA} of {$TEST-VAR-1}.\n"
+          + "               EXIT PROGRAM.   ";
+
+  public static final String CPY1_TEXT12 =
+      "           05  {$*:PFX:-PARM-AREA`->BL-PARM-AREA}.\n"
+          + "            07  {$*:PFX:-COMMON-LINKAGE`->BL-COMMON-LINKAGE}.\n"
+          + "               10  {$*:PFX:-CALLING-PROGRAM`->BL-CALLING-PROGRAM}"
+          + "          PIC  X(08).";
+
+  @Test
+  void testReplaceClauseChangesReplacingClauseOfCopyDirective() {
+    UseCaseEngine.runTest(
+        TEXT12, ImmutableList.of(new CobolText("CPY1", CPY1_TEXT12)), ImmutableMap.of());
+  }
+
+  public static final String TEXT13 =
+      "       IDENTIFICATION DIVISION.                          \n"
+          + "       PROGRAM-ID. PGMNAME.                              \n"
+          + "       ENVIRONMENT DIVISION.                             \n"
+          + "       DATA DIVISION.        \n"
+          + "       WORKING-STORAGE SECTION.                            \n"
+          + "       01  {$*TEST-VAR-1}.\n"
+          + "       REPLACE ==:PFX:==  BY ==BL==.\n"
+          + "           COPY {~CPY1} REPLACING ==:PFX:== BY ==JARA==.\n"
+          + "           REPLACE OFF.\n"
+          + "       REPLACE OFF.           \n"
+          + "       PROCEDURE DIVISION.       \n"
+          + "                  display {$JARA-PARM-AREA} of {$TEST-VAR-1}.\n"
+          + "               EXIT PROGRAM.   ";
+
+  public static final String CPY1_TEXT13 =
+      "           05  {$*:PFX:-PARM-AREA`->JARA-PARM-AREA}.\n"
+          + "            07  {$*:PFX:-COMMON-LINKAGE`->JARA-COMMON-LINKAGE}.\n"
+          + "               10  {$*:PFX:-CALLING-PROGRAM`->JARA-CALLING-PROGRAM}"
+          + "          PIC  X(08).";
+
+  @Test
+  void testCopyDirectiveReplacingHasHigherPriorityThenReplaceClause() {
+    UseCaseEngine.runTest(
+        TEXT13, ImmutableList.of(new CobolText("CPY1", CPY1_TEXT13)), ImmutableMap.of());
+  }
+
   // TODO: Add use case test scenario
   // 1. Add support in usecase test engine
   // 2. Diagnostics - IGYDS1082-E A period was required. is wrong and should be fixed.
