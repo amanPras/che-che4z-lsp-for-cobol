@@ -21,8 +21,10 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedDocument;
@@ -84,6 +86,13 @@ public class ReplacePreProcessorListener extends CobolPreprocessorBaseListener {
       currentTextReplaceData =
           new ReplaceData(new ArrayList<>(), extendedDocument.getUri(), new Range());
     }
+    replaceWithSpaces(ctx);
+  }
+
+  void replaceWithSpaces(ParserRuleContext ctx) {
+    Range range = AntlrRangeUtils.constructRange(ctx);
+    int size = ctx.getStop().getStopIndex() - ctx.getStart().getStartIndex() + 1;
+    extendedDocument.replace(range, org.apache.commons.lang3.StringUtils.rightPad(" ", size));
   }
 
   @Override

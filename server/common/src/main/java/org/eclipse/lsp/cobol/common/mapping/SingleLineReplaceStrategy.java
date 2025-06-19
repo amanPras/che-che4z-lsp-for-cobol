@@ -37,7 +37,7 @@ class SingleLineReplaceStrategy implements ReplaceStrategy {
       ExtendedText extendedText, Position position, String[] newLines, Location instantLocation) {
     if (newLines.length == 1) {
       extendedText.insert(
-          position, new ExtendedTextLine(newLines[0], instantLocation, extendedText.getUri()));
+          position, new ExtendedTextLine(newLines[0], instantLocation, instantLocation.getUri()));
     } else if (newLines.length > 1) {
       extendedText.addLineBreak(position);
       extendedText.append(

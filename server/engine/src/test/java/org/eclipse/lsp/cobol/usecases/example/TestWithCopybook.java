@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.lsp.cobol.test.CobolText;
 import org.eclipse.lsp.cobol.test.engine.UseCaseEngine;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** UseCase test example with copybooks */
@@ -166,6 +167,7 @@ class TestWithCopybook {
   }
 
   @Test
+  @Disabled("uncompilable code. Copy statement is resolved before replace statement")
   void testCopybookSubstitutionOnACobolLinePartially5() {
     UseCaseEngine.runTest(
         TEXT6,

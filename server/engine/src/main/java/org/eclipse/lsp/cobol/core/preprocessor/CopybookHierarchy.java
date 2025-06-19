@@ -20,14 +20,12 @@ import static java.util.stream.Collectors.toList;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp.cobol.common.copybook.CopybookName;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.mapping.ExtendedDocument;
-import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.core.model.CopyStatementModifier;
 import org.eclipse.lsp.cobol.core.model.CopybookUsage;
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.replacement.ReplaceData;
@@ -173,26 +171,7 @@ public class CopybookHierarchy {
    */
   public void replaceText(
       ExtendedDocument extendedDocument, BiConsumer<ExtendedDocument, ReplaceData> accumulator) {
-    textReplacing.stream()
-        .filter(shouldApplyReplacing(extendedDocument))
-        .forEach(tr -> accumulator.accept(extendedDocument, tr));
-  }
-
-  private Predicate<ReplaceData> shouldApplyReplacing(ExtendedDocument extendedDocument) {
-    return tr ->
-        // if replacement clause is present in the current document
-        isReplacementPresentOnlyForCurrentDocument(extendedDocument, tr)
-            ||
-            // if replacement is propagated from main document to the copybook
-            (tr.getRanges().containsKey(this.copybookStack.getLast().getLocality().getUri())
-                && RangeUtils.isInside(
-                    this.copybookStack.getLast().getLocality().getRange(),
-                    tr.getRange(this.copybookStack.getLast().getLocality().getUri())));
-  }
-
-  private static boolean isReplacementPresentOnlyForCurrentDocument(
-      ExtendedDocument extendedDocument, ReplaceData tr) {
-    return tr.getRanges().containsKey(extendedDocument.getUri()) && tr.getRanges().size() == 1;
+    textReplacing.forEach(tr -> accumulator.accept(extendedDocument, tr));
   }
 
   /**

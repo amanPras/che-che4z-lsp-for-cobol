@@ -229,7 +229,5 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
           .getRange()
           .setEnd(new Position(ctx.getStop().getLine() - 1, ctx.getStop().getCharPositionInLine()));
     }
-
-    preprocessorService.replaceWithSpaces(ctx);
   }
 }
