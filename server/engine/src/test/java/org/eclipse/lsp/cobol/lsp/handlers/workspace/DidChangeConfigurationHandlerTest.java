@@ -32,7 +32,6 @@ import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
-import org.eclipse.lsp.cobol.core.engine.dialects.DialectService;
 import org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService;
 import org.eclipse.lsp.cobol.lsp.*;
 import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
@@ -62,7 +61,6 @@ class DidChangeConfigurationHandlerTest {
     MessageService messageService = mock(MessageService.class);
     AsyncAnalysisService asyncAnalysisService = mock(AsyncAnalysisService.class);
     ErrorFinalizerService errorFinalizerService = mock(ErrorFinalizerService.class);
-    DialectService dialectService = mock(DialectService.class);
 
     DidChangeConfigurationHandler didChangeConfigurationHandler =
         new DidChangeConfigurationHandler(
@@ -76,7 +74,6 @@ class DidChangeConfigurationHandlerTest {
             asyncAnalysisService,
             getMockLayoutStore(),
             copybookService,
-            dialectService,
             errorFinalizerService);
 
     when(copybookNameService.copybookLocalFolders(null))
@@ -94,6 +91,7 @@ class DidChangeConfigurationHandlerTest {
 
     when(settingsService.fetchConfiguration(ANALYSIS_MODE.label))
         .thenReturn(completedFuture((ImmutableList.of(false))));
+    when(keywords.updateStorage()).thenReturn(CompletableFuture.completedFuture(null));
     didChangeConfigurationHandler.didChangeConfiguration(
         new DidChangeConfigurationParams(new Object()));
     verify(watchingService).addWatchers(ImmutableList.of("some-path"));
@@ -126,7 +124,6 @@ class DidChangeConfigurationHandlerTest {
             asyncAnalysisService,
             getMockLayoutStore(),
             copybookService,
-            mock(DialectService.class),
             mock(ErrorFinalizerService.class));
 
     String path = "foo/bar";
@@ -145,6 +142,7 @@ class DidChangeConfigurationHandlerTest {
         .thenReturn(completedFuture((ImmutableList.of(false))));
     when(settingsService.fetchTextConfiguration(DIALECTS.label))
         .thenReturn(completedFuture(ImmutableList.of()));
+    when(keywords.updateStorage()).thenReturn(CompletableFuture.completedFuture(null));
     didChangeConfigurationHandler.didChangeConfiguration(
         new DidChangeConfigurationParams(new Object()));
     verify(watchingService, never()).addWatchers(emptyList());
@@ -178,7 +176,6 @@ class DidChangeConfigurationHandlerTest {
             asyncAnalysisService,
             getMockLayoutStore(),
             copybookService,
-            mock(DialectService.class),
             mock(ErrorFinalizerService.class));
 
     ArgumentCaptor<List<String>> watcherCaptor = forClass(List.class);
@@ -198,6 +195,7 @@ class DidChangeConfigurationHandlerTest {
         .thenReturn(completedFuture((ImmutableList.of(false))));
     when(settingsService.fetchTextConfiguration(DIALECTS.label))
         .thenReturn(completedFuture(ImmutableList.of()));
+    when(keywords.updateStorage()).thenReturn(CompletableFuture.completedFuture(null));
     didChangeConfigurationHandler.didChangeConfiguration(
         new DidChangeConfigurationParams(new Object()));
 
@@ -234,7 +232,6 @@ class DidChangeConfigurationHandlerTest {
             asyncAnalysisService,
             getMockLayoutStore(),
             copybookService,
-            mock(DialectService.class),
             mock(ErrorFinalizerService.class));
     ArgumentCaptor<List<String>> watcherCaptor = forClass(List.class);
     JsonArray arr = new JsonArray();
@@ -255,6 +252,7 @@ class DidChangeConfigurationHandlerTest {
         .thenReturn(completedFuture((ImmutableList.of(false))));
     when(settingsService.fetchTextConfiguration(DIALECTS.label))
         .thenReturn(completedFuture(ImmutableList.of()));
+    when(keywords.updateStorage()).thenReturn(CompletableFuture.completedFuture(null));
     didChangeConfigurationHandler.didChangeConfiguration(
         new DidChangeConfigurationParams(localeStore));
     verify(watchingService).addWatchers(emptyList());

@@ -27,7 +27,6 @@ import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.utils.LogLevelUtils;
-import org.eclipse.lsp.cobol.core.engine.dialects.DialectService;
 import org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService;
 import org.eclipse.lsp.cobol.lsp.DisposableLSPStateService;
 import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
@@ -51,7 +50,6 @@ public class DidChangeConfigurationHandler {
   private final AsyncAnalysisService asyncAnalysisService;
   private final CodeLayoutStore codeLayoutStore;
   private final CopybookService copybookService;
-  private final DialectService dialectService;
   private final ErrorFinalizerService errorFinalizerService;
 
   @Inject
@@ -66,7 +64,6 @@ public class DidChangeConfigurationHandler {
       AsyncAnalysisService asyncAnalysisService,
       CodeLayoutStore codeLayoutStore,
       CopybookService copybookService,
-      DialectService dialectService,
       ErrorFinalizerService errorFinalizerService) {
     this.disposableLSPStateService = disposableLSPStateService;
     this.settingsService = settingsService;
@@ -78,7 +75,6 @@ public class DidChangeConfigurationHandler {
     this.asyncAnalysisService = asyncAnalysisService;
     this.codeLayoutStore = codeLayoutStore;
     this.copybookService = copybookService;
-    this.dialectService = dialectService;
     this.errorFinalizerService = errorFinalizerService;
   }
 
@@ -109,34 +105,29 @@ public class DidChangeConfigurationHandler {
 
   private void reanalyseIfRequired() {
     List<String> prevDialects = keywords.getDialectType();
-    keywords.updateStorage();
     AtomicBoolean shouldReAnalyse = new AtomicBoolean(false);
     CompletableFuture<Void> copybookFolderFuture =
         copybookNameService
             .copybookLocalFolders(null)
             .thenAccept(
                 localFolders -> {
-                  try {
-                    List<String> watchingFolders = watchingService.getWatchingFolders();
-                    if (!new HashSet<>(watchingFolders).equals(new HashSet<>(localFolders))) {
-                      shouldReAnalyse.set(true);
-                      acceptSettingsChange(localFolders);
-                    }
-                  } catch (InterruptedException e) {
-                    LOG.error("Interrupted while processing local folders", e);
-                    Thread.currentThread().interrupt();
+                  List<String> watchingFolders = watchingService.getWatchingFolders();
+                  if (!new HashSet<>(watchingFolders).equals(new HashSet<>(localFolders))) {
+                    shouldReAnalyse.set(true);
+                    acceptSettingsChange(localFolders);
                   }
                 });
-    CompletableFuture<Void> dialectsFuture =
-        settingsService
-            .fetchTextConfiguration(DIALECTS.label)
-            .thenAccept(
-                dialects -> {
-                  if (!new HashSet<>(prevDialects).equals(new HashSet<>(dialects))) {
+    CompletableFuture<Void> dialectFuture =
+        keywords
+            .updateStorage()
+            .thenRun(
+                () -> {
+                  if (!new HashSet<>(prevDialects)
+                      .equals(new HashSet<>(keywords.getDialectType()))) {
                     shouldReAnalyse.set(true);
                   }
                 });
-    CompletableFuture.allOf(copybookFolderFuture, dialectsFuture)
+    CompletableFuture.allOf(copybookFolderFuture, dialectFuture)
         .thenRun(
             () -> {
               if (shouldReAnalyse.get()) {
@@ -155,7 +146,7 @@ public class DidChangeConfigurationHandler {
             });
   }
 
-  private void acceptSettingsChange(List<String> localFolders) throws InterruptedException {
+  private void acceptSettingsChange(List<String> localFolders) {
     List<String> watchingFolders = watchingService.getWatchingFolders();
     updateWatchers(localFolders, watchingFolders);
   }

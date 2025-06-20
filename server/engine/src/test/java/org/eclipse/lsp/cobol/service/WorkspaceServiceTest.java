@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.error.ErrorCodes;
 import org.eclipse.lsp.cobol.common.message.MessageService;
-import org.eclipse.lsp.cobol.core.engine.dialects.DialectService;
 import org.eclipse.lsp.cobol.lsp.*;
 import org.eclipse.lsp.cobol.lsp.analysis.AsyncAnalysisService;
 import org.eclipse.lsp.cobol.lsp.events.queries.CodeActionQuery;
@@ -82,7 +81,6 @@ class WorkspaceServiceTest {
             asyncAnalysisService,
             getMockLayoutStore(),
             copybookService,
-            mock(DialectService.class),
             null);
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
@@ -135,7 +133,6 @@ class WorkspaceServiceTest {
             asyncAnalysisService,
             getMockLayoutStore(),
             copybookService,
-            mock(DialectService.class),
             null);
     ExecuteCommandHandler executeCommandHandler =
         new ExecuteCommandHandler(stateService, asyncAnalysisService);
@@ -255,7 +252,6 @@ class WorkspaceServiceTest {
             asyncAnalysisService,
             getMockLayoutStore(),
             copybookService,
-            mock(DialectService.class),
             null);
 
     ExecuteCommandHandler executeCommandHandler =
