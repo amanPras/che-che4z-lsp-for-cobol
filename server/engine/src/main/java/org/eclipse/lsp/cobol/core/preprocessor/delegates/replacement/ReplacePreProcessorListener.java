@@ -86,13 +86,7 @@ public class ReplacePreProcessorListener extends CobolPreprocessorBaseListener {
       currentTextReplaceData =
           new ReplaceData(new ArrayList<>(), extendedDocument.getUri(), new Range());
     }
-    replaceWithSpaces(ctx);
-  }
-
-  void replaceWithSpaces(ParserRuleContext ctx) {
-    Range range = AntlrRangeUtils.constructRange(ctx);
-    int size = ctx.getStop().getStopIndex() - ctx.getStart().getStartIndex() + 1;
-    extendedDocument.replace(range, org.apache.commons.lang3.StringUtils.rightPad(" ", size));
+    extendedDocument.fillArea(AntlrRangeUtils.constructRange(ctx), ' ');
   }
 
   @Override
