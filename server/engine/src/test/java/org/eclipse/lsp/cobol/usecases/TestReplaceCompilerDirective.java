@@ -359,6 +359,30 @@ class TestReplaceCompilerDirective {
         TEXT13, ImmutableList.of(new CobolText("CPY1", CPY1_TEXT13)), ImmutableMap.of());
   }
 
+  public static final String TEXT14 =
+      "       IDENTIFICATION DIVISION.    \n"
+          + "       PROGRAM-ID. PGMNAME.        \n"
+          + "       DATA DIVISION.              \n"
+          + "       WORKING-STORAGE SECTION.    \n"
+          + "       COPY {~CPY1}.                 \n"
+          + "       PROCEDURE DIVISION.         \n"
+          + "               DISPLAY {$PREFIX-TEXT}.\n"
+          + "               EXIT PROGRAM. ";
+
+  public static final String CPY1_TEXT14 =
+      "       COPY {~COPY2} REPLACING ==:PFX2:== BY ==:PFX1:==. ";
+  public static final String COPY2_TEXT14 =
+      "       REPLACE ==:PFX1:== BY ==PREFIX==.              \n"
+          + "       01 {$*:PFX2:-TEXT^PREFIX-TEXT} PIC X. ";
+
+  @Test
+  void testReplaceWithReplacingScenario1() {
+    UseCaseEngine.runTest(
+        TEXT14,
+        ImmutableList.of(new CobolText("CPY1", CPY1_TEXT14), new CobolText("COPY2", COPY2_TEXT14)),
+        ImmutableMap.of());
+  }
+
   // TODO: Add use case test scenario
   // 1. Add support in usecase test engine
   // 2. Diagnostics - IGYDS1082-E A period was required. is wrong and should be fixed.
