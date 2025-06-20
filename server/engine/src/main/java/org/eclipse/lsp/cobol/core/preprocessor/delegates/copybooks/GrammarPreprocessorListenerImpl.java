@@ -20,32 +20,23 @@ import static org.eclipse.lsp.cobol.core.CobolPreprocessor.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.eclipse.lsp.cobol.AntlrRangeUtils;
 import org.eclipse.lsp.cobol.common.CleanerPreprocessor;
 import org.eclipse.lsp.cobol.common.ResultWithErrors;
 import org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
-import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.common.error.SyntaxError;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.message.MessageTemplate;
-import org.eclipse.lsp.cobol.common.model.Locality;
-import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.common.utils.ThreadInterruptionUtil;
 import org.eclipse.lsp.cobol.core.CobolPreprocessorBaseListener;
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.GrammarPreprocessor;
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.PreprocessorContext;
-import org.eclipse.lsp.cobol.core.preprocessor.delegates.replacement.ReplacementContext;
-import org.eclipse.lsp.cobol.core.preprocessor.delegates.replacement.ReplacementHelper;
 import org.eclipse.lsp.cobol.core.preprocessor.delegates.replacement.ReplacingService;
 import org.eclipse.lsp.cobol.core.semantics.CopybooksRepository;
-import org.eclipse.lsp4j.Position;
 
 /**
  * ANTLR listener, which builds an extended document from the given COBOL program by executing COPY
@@ -60,13 +51,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   private final List<SyntaxError> errors = new ArrayList<>();
 
   private final CopybookProcessingMode copybookConfig;
-  private final MessageService messageService;
   private final CopybookPreprocessorService preprocessorService;
-  private final ReplacingService replacingService;
-  private final CobolLanguageId languageId;
-  private final String currentDocumentUri;
-
-  private List<ReplacementContext> replacementContext;
 
   @Inject
   GrammarPreprocessorListenerImpl(
@@ -77,9 +62,6 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
       MessageService messageService,
       ReplacingService replacingService) {
     this.copybookConfig = context.getCopybookProcessingMode();
-    this.messageService = messageService;
-    this.currentDocumentUri = context.getCurrentDocument().getUri();
-    this.languageId = context.getLanguageId();
     this.preprocessorService =
         new CopybookPreprocessorService(
             context.getProgramDocumentUri(),
@@ -93,7 +75,6 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
             replacingService,
             preprocessor,
             context.getLanguageId());
-    this.replacingService = replacingService;
   }
 
   /**
@@ -154,8 +135,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   @Override
   public void exitPlusplusIncludeStatement(PlusplusIncludeStatementContext ctx) {
     if (requiresEarlyReturn(ctx)) return;
-    preprocessorService.addCopybook(
-        ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_10, replacementContext);
+    preprocessorService.addCopybook(ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_10);
   }
 
   @Override
@@ -164,18 +144,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   @Override
   public void exitCopyStatement(@NonNull CopyStatementContext ctx) {
     if (requiresEarlyReturn(ctx)) return;
-    List<ReplacementContext> applicableReplacementContext =
-        null == replacementContext
-            ? Collections.emptyList()
-            : replacementContext.stream()
-                .filter(
-                    c ->
-                        c.getLocality().getUri().equals(this.currentDocumentUri)
-                            && RangeUtils.isInside(
-                                AntlrRangeUtils.constructRange(ctx), c.getLocality().getRange()))
-                .collect(Collectors.toList());
-    preprocessorService.addCopybook(
-        ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_8, applicableReplacementContext);
+    preprocessorService.addCopybook(ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_8);
   }
 
   @Override
@@ -184,8 +153,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   @Override
   public void exitIncludeStatement(@NonNull IncludeStatementContext ctx) {
     if (requiresEarlyReturn(ctx)) return;
-    preprocessorService.addCopybook(
-        ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_8, replacementContext);
+    preprocessorService.addCopybook(ctx, ctx.copySource(), MAX_COPYBOOK_NAME_LENGTH_8);
   }
 
   private boolean requiresEarlyReturn(ParserRuleContext ctx) {
@@ -200,34 +168,5 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   public void enterEveryRule(ParserRuleContext ctx) {
     ThreadInterruptionUtil.checkThreadInterrupted();
     super.enterEveryRule(ctx);
-  }
-
-  @Override
-  public void enterReplaceAreaStartOrOffStatement(ReplaceAreaStartOrOffStatementContext ctx) {
-    Locality locality = preprocessorService.retrieveLocality(ctx);
-    if (!ctx.replacePseudoText().isEmpty()) {
-      replacementContext =
-          ctx.replacePseudoText().stream()
-              .map(
-                  c ->
-                      replacingService.retrievePseudoTextReplacingPattern(
-                          new ImmutablePair<>(
-                              ReplacementHelper.getPseudoText(c.pseudoReplaceable()),
-                              ReplacementHelper.getPseudoText(c.pseudoReplacement())),
-                          locality,
-                          languageId,
-                          ReplacementHelper.getSearchPattern(c)))
-              .map(r -> r.unwrap(errors::addAll))
-              .map(r -> new ReplacementContext(r, locality))
-              .collect(Collectors.toList());
-    }
-
-    if (ctx.OFF() != null) {
-      replacementContext
-          .get(replacementContext.size() - 1)
-          .getLocality()
-          .getRange()
-          .setEnd(new Position(ctx.getStop().getLine() - 1, ctx.getStop().getCharPositionInLine()));
-    }
   }
 }
