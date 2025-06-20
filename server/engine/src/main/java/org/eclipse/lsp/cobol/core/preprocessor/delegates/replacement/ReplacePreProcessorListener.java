@@ -21,7 +21,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.lsp.cobol.AntlrRangeUtils;
