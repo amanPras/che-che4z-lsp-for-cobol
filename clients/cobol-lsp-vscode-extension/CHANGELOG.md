@@ -6,7 +6,7 @@ All notable changes to the COBOL Language Support extension are documented in th
 #### Added
 - Added more COBOL code snippets
 - Added missing keywords
-- Enable remote copybook definitions in processor groups
+- Enable remote copybook definitions in processor groups and preprocessor definitions
 - Filter diagnostics based on settings
 
 #### Fixed
