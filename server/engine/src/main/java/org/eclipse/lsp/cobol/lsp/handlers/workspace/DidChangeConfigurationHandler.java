@@ -21,7 +21,6 @@ import com.google.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.copybook.CopybookService;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
@@ -105,32 +104,29 @@ public class DidChangeConfigurationHandler {
 
   private void reanalyseIfRequired() {
     List<String> prevDialects = keywords.getDialectType();
-    AtomicBoolean shouldReAnalyse = new AtomicBoolean(false);
-    CompletableFuture<Void> copybookFolderFuture =
+    CompletableFuture<Boolean> copybookFolderFuture =
         copybookNameService
             .copybookLocalFolders(null)
-            .thenAccept(
+            .thenApply(
                 localFolders -> {
                   List<String> watchingFolders = watchingService.getWatchingFolders();
                   if (!new HashSet<>(watchingFolders).equals(new HashSet<>(localFolders))) {
-                    shouldReAnalyse.set(true);
                     acceptSettingsChange(localFolders);
+                    return true;
                   }
+                  return false;
                 });
-    CompletableFuture<Void> dialectFuture =
+    CompletableFuture<Boolean> dialectFuture =
         keywords
             .updateStorage()
-            .thenRun(
-                () -> {
-                  if (!new HashSet<>(prevDialects)
-                      .equals(new HashSet<>(keywords.getDialectType()))) {
-                    shouldReAnalyse.set(true);
-                  }
-                });
-    CompletableFuture.allOf(copybookFolderFuture, dialectFuture)
-        .thenRun(
-            () -> {
-              if (shouldReAnalyse.get()) {
+            .thenApply(
+                unused ->
+                    !new HashSet<>(prevDialects).equals(new HashSet<>(keywords.getDialectType())));
+    copybookFolderFuture
+        .thenCombine(dialectFuture, (b1, b2) -> b1 || b2)
+        .thenAccept(
+            shouldReAnalyse -> {
+              if (shouldReAnalyse) {
                 try {
                   asyncAnalysisService.reanalyseOpenedPrograms();
                 } catch (InterruptedException e) {
@@ -138,11 +134,6 @@ public class DidChangeConfigurationHandler {
                   Thread.currentThread().interrupt();
                 }
               }
-            })
-        .exceptionally(
-            e -> {
-              LOG.error("Error during configuration change processing", e);
-              return null;
             });
   }
 
