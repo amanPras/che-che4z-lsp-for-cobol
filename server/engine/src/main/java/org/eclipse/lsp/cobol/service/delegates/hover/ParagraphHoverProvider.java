@@ -15,21 +15,12 @@
 package org.eclipse.lsp.cobol.service.delegates.hover;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.Describable;
-import org.eclipse.lsp.cobol.common.model.Locality;
-import org.eclipse.lsp.cobol.common.model.NodeType;
-import org.eclipse.lsp.cobol.common.model.tree.Node;
-import org.eclipse.lsp.cobol.common.model.tree.ProgramNode;
-import org.eclipse.lsp.cobol.common.model.tree.RootNode;
-import org.eclipse.lsp.cobol.common.symbols.CodeBlockReference;
-import org.eclipse.lsp.cobol.common.symbols.ProcedureId;
-import org.eclipse.lsp.cobol.common.symbols.SymbolTable;
+import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
@@ -57,36 +48,16 @@ public class ParagraphHoverProvider implements HoverProvider {
         Optional.of(document)
             .map(CobolDocumentModel::getAnalysisResult)
             .map(AnalysisResult::getRootNode);
-    Optional<Node> node =
+    Optional<Node> nodeOpts =
         rootNode.flatMap(
             root ->
                 RangeUtils.findNodeByPosition(
                     root, position.getTextDocument().getUri(), position.getPosition()));
-    if (!node.isPresent()) return null;
-    Optional<ProgramNode> programNode =
-        node.get().getNearestParentByType(NodeType.PROGRAM).map(ProgramNode.class::cast);
-    if (!programNode.isPresent()) return null;
-    SymbolTable symbolTable =
-        analysisResult.get().getSymbolTableMap().get(SymbolTable.generateKey(programNode.get()));
-    Map<ProcedureId, CodeBlockReference> procedures = symbolTable.getProcedures();
-
-    List<Location> definitions =
-        procedures.values().stream()
-            .filter(
-                codeBlockReference ->
-                    codeBlockReference.getUsage().stream()
-                        .anyMatch(
-                            usage ->
-                                RangeUtils.isInside(
-                                    position.getTextDocument().getUri(),
-                                    position.getPosition(),
-                                    Locality.builder()
-                                        .range(usage.getRange())
-                                        .uri(usage.getUri())
-                                        .build())))
-            .map(CodeBlockReference::getDefinitions)
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+    if (!nodeOpts.isPresent()) return null;
+    Node node = nodeOpts.get();
+    if (!(node instanceof CodeBlockUsageNode)) return null;
+    List<Location> definitions = ((CodeBlockUsageNode) node).getDefinitions();
+    if (definitions == null || definitions.isEmpty()) return null;
 
     return rootNode
         .get()
