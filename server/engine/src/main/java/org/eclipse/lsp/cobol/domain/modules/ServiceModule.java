@@ -52,6 +52,7 @@ import org.eclipse.lsp.cobol.service.delegates.formations.Formations;
 import org.eclipse.lsp.cobol.service.delegates.formations.TrimFormation;
 import org.eclipse.lsp.cobol.service.delegates.hover.CopybookHoverProvider;
 import org.eclipse.lsp.cobol.service.delegates.hover.HoverProvider;
+import org.eclipse.lsp.cobol.service.delegates.hover.ParagraphHoverProvider;
 import org.eclipse.lsp.cobol.service.delegates.hover.VariableHover;
 import org.eclipse.lsp.cobol.service.delegates.references.ElementOccurrences;
 import org.eclipse.lsp.cobol.service.delegates.references.Occurrences;
@@ -108,6 +109,7 @@ public class ServiceModule extends AbstractModule {
         newSetBinder(binder(), HoverProvider.class);
     hoverProviderMultibinder.addBinding().to(VariableHover.class);
     hoverProviderMultibinder.addBinding().to(CopybookHoverProvider.class);
+    hoverProviderMultibinder.addBinding().to(ParagraphHoverProvider.class);
   }
 
   private void bindFormations() {

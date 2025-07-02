@@ -2068,7 +2068,16 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     void update(ParagraphNode paragraphNode, Token firstToken) {
       if (lastParagraphNode != null) {
         lastParagraphNode.getLocality().getRange().setEnd(lastSentensePosition);
-        lastParagraphNode.setText(extendedDocument.getBaseText(lastParagraphNode.getLocality()));
+        Range rangeInExtendedDocument =
+            new Range(
+                buildTokenRange(firstParagraphToken).getStart(),
+                buildTokenRange(lastSentenseToken).getEnd());
+        Locality localityInExtendedDocument =
+            Locality.builder()
+                .range(rangeInExtendedDocument)
+                .uri(extendedDocument.getUri())
+                .build();
+        lastParagraphNode.setText(extendedDocument.getBaseText(localityInExtendedDocument));
       }
       lastParagraphNode = paragraphNode;
       firstParagraphToken = firstToken;
