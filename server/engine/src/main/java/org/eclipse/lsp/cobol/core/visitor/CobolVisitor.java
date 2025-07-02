@@ -2068,16 +2068,8 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     void update(ParagraphNode paragraphNode, Token firstToken) {
       if (lastParagraphNode != null) {
         lastParagraphNode.getLocality().getRange().setEnd(lastSentensePosition);
-        Range rangeInExtendedDocument =
-            new Range(
-                buildTokenRange(firstParagraphToken).getStart(),
-                buildTokenRange(lastSentenseToken).getEnd());
-        Locality localityInExtendedDocument =
-            Locality.builder()
-                .range(rangeInExtendedDocument)
-                .uri(extendedDocument.getUri())
-                .build();
-        lastParagraphNode.setText(extendedDocument.getBaseText(localityInExtendedDocument));
+        lastParagraphNode.setText(
+            extendedDocument.getBaseText(getLocalityInExtendedDocument(firstParagraphToken)));
       }
       lastParagraphNode = paragraphNode;
       firstParagraphToken = firstToken;
@@ -2104,12 +2096,25 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
     void flush() {
       if (lastParagraphNode != null) {
         lastParagraphNode.getLocality().getRange().setEnd(lastSentensePosition);
-        lastParagraphNode.setText(extendedDocument.getBaseText(lastParagraphNode.getLocality()));
+        lastParagraphNode.setText(
+            extendedDocument.getBaseText(getLocalityInExtendedDocument(firstParagraphToken)));
       }
       if (lastSectionNode != null) {
         lastSectionNode.getLocality().getRange().setEnd(lastSentensePosition);
-        lastSectionNode.setText(extendedDocument.getBaseText(lastSectionNode.getLocality()));
+        lastSectionNode.setText(
+            extendedDocument.getBaseText(getLocalityInExtendedDocument(firstSectionToken)));
       }
+    }
+
+    private Locality getLocalityInExtendedDocument(Token firstSectionToken) {
+      Range rangeInExtendedDocument =
+          new Range(
+              buildTokenRange(firstSectionToken).getStart(),
+              buildTokenRange(lastSentenseToken).getEnd());
+      return Locality.builder()
+          .range(rangeInExtendedDocument)
+          .uri(extendedDocument.getUri())
+          .build();
     }
   }
 }
