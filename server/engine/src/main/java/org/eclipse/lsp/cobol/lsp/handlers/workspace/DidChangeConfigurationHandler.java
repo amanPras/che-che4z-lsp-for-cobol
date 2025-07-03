@@ -111,6 +111,9 @@ public class DidChangeConfigurationHandler {
             .thenApply(
                 localFolders -> {
                   List<String> watchingFolders = watchingService.getWatchingFolders();
+                  // TODO: remove below patch when proper solution exists
+                  // client doesnt return locale path to server now.
+                  if (localFolders.isEmpty() && watchingFolders.isEmpty()) return true;
                   if (!new HashSet<>(watchingFolders).equals(new HashSet<>(localFolders))) {
                     acceptSettingsChange(localFolders);
                     return true;
