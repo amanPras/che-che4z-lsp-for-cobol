@@ -70,8 +70,8 @@ public class ParagraphHoverProvider implements HoverProvider {
             .filter(n -> definitions.contains(n.getLocality().toLocation()))
             .collect(Collectors.toList());
 
+    Stream<Hover> hoverStream = getHoverStream(nodeStream, (DefinedAndUsedStructure) node);
     if (nodeStream.size() > 1) {
-      Stream<Hover> hoverStream = getHoverStream(nodeStream, (DefinedAndUsedStructure) node);
       hoverStream =
           Stream.concat(
               hoverStream,
@@ -79,12 +79,9 @@ public class ParagraphHoverProvider implements HoverProvider {
                   new Hover(
                       new MarkupContent(
                           "text", "___NOTE: other versions exist due to replacing___"))));
-      return hoverStream.reduce(HoverHandler::mergeHovers).orElse(null);
     }
 
-    return getHoverStream(nodeStream, (DefinedAndUsedStructure) node)
-        .reduce(HoverHandler::mergeHovers)
-        .orElse(null);
+    return hoverStream.reduce(HoverHandler::mergeHovers).orElse(null);
   }
 
   private static Stream<Hover> getHoverStream(List<Node> nodeStream, DefinedAndUsedStructure node) {
