@@ -16,13 +16,17 @@ package org.eclipse.lsp.cobol.service.delegates.hover;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
+import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
 import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
+import org.eclipse.lsp.cobol.lsp.handlers.text.HoverHandler;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
 import org.eclipse.lsp4j.*;
 
@@ -55,23 +59,45 @@ public class ParagraphHoverProvider implements HoverProvider {
                     root, position.getTextDocument().getUri(), position.getPosition()));
     if (!nodeOpts.isPresent()) return null;
     Node node = nodeOpts.get();
-    if (!(node instanceof CodeBlockUsageNode)) return null;
-    List<Location> definitions = ((CodeBlockUsageNode) node).getDefinitions();
+    if (!(node instanceof DefinedAndUsedStructure)) return null;
+    List<Location> definitions = ((DefinedAndUsedStructure) node).getDefinitions();
     if (definitions == null || definitions.isEmpty()) return null;
 
-    return rootNode
-        .get()
-        .getDepthFirstStream()
-        .filter(n -> definitions.contains(n.getLocality().toLocation()))
+    List<Node> nodeStream =
+        rootNode
+            .get()
+            .getDepthFirstStream()
+            .filter(n -> definitions.contains(n.getLocality().toLocation()))
+            .collect(Collectors.toList());
+
+    if (nodeStream.size() > 1) {
+      Stream<Hover> hoverStream = getHoverStream(nodeStream, (DefinedAndUsedStructure) node);
+      hoverStream =
+          Stream.concat(
+              hoverStream,
+              Stream.of(
+                  new Hover(
+                      new MarkupContent(
+                          "text", "___NOTE: other versions exist due to replacing___"))));
+      return hoverStream.reduce(HoverHandler::mergeHovers).orElse(null);
+    }
+
+    return getHoverStream(nodeStream, (DefinedAndUsedStructure) node)
+        .reduce(HoverHandler::mergeHovers)
+        .orElse(null);
+  }
+
+  private static Stream<Hover> getHoverStream(List<Node> nodeStream, DefinedAndUsedStructure node) {
+    return nodeStream.stream()
+        .filter(DefinedAndUsedStructure.class::isInstance)
+        .filter(n -> ((DefinedAndUsedStructure) n).getName().equals(node.getName()))
         .filter(Describable.class::isInstance)
         .map(Describable.class::cast)
-        .findFirst()
         .map(
             element ->
                 new Hover(
                     new MarkupContent(
                         MarkupKind.MARKDOWN,
-                        "```cobol\n" + element.getFormattedDisplayString() + "\n```")))
-        .orElse(null);
+                        "```cobol\n" + element.getFormattedDisplayString() + "\n```")));
   }
 }

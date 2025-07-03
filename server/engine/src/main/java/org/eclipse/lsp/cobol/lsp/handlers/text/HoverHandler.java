@@ -104,8 +104,12 @@ public class HoverHandler {
    * Merges two Hover objects based on the following logic: - If the first hover has no contents,
    * return the second hover. - Merge the Left (List<MarkedString>) contents by combining the lists.
    * - Merge the Right (MarkupContent) contents by concatenating their values with a newline.
+   *
+   * @param base
+   * @param toMerge
+   * @return a merged Hover object
    */
-  private Hover mergeHovers(Hover base, Hover toMerge) {
+  public static Hover mergeHovers(Hover base, Hover toMerge) {
     if (base.getContents() == null) {
       return toMerge;
     }
