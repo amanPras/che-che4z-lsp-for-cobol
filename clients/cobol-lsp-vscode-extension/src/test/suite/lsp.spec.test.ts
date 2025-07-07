@@ -699,13 +699,10 @@ suite("Integration Test Suite", function () {
     await helper.updateConfig("basic.json");
     const editor = await helper.showDocument(path.join("HOVER_PARA.CBL"));
     await helper.sleep(1000);
-    const hoverResults_para1: vscode.Hover[] =
-      await vscode.commands.executeCommand(
-        "vscode.executeHoverProvider",
-        editor.document.uri,
-        new vscode.Position(5, 10),
-      );
-    assert.strictEqual(hoverResults_para1?.length, 1);
+    const hoverResults_para1 = await helper.getHoverContent(
+      editor,
+      new vscode.Position(5, 10),
+    );
     assert.strictEqual(hoverResults_para1[0].contents.length, 1);
     assert.strictEqual(
       normalizeLineEndings(
@@ -722,11 +719,7 @@ suite("Integration Test Suite", function () {
     );
 
     const hoverResults_perform_para2: vscode.Hover[] =
-      await vscode.commands.executeCommand(
-        "vscode.executeHoverProvider",
-        editor.document.uri,
-        new vscode.Position(7, 22),
-      );
+      await helper.getHoverContent(editor, new vscode.Position(7, 22));
     assert.strictEqual(hoverResults_perform_para2?.length, 1);
     assert.strictEqual(hoverResults_perform_para2[0].contents.length, 1);
     assert.strictEqual(
@@ -745,11 +738,7 @@ ___NOTE: other versions exist due to replac(e/ing)___`),
     );
 
     const hoverResults_perform_para3: vscode.Hover[] =
-      await vscode.commands.executeCommand(
-        "vscode.executeHoverProvider",
-        editor.document.uri,
-        new vscode.Position(8, 19),
-      );
+      await helper.getHoverContent(editor, new vscode.Position(8, 19));
     assert.strictEqual(hoverResults_perform_para3?.length, 1);
     assert.strictEqual(hoverResults_perform_para3[0].contents.length, 1);
     assert.strictEqual(
@@ -774,9 +763,8 @@ ___NOTE: other versions exist due to replac(e/ing)___`),
       editor_copybook = vscode.window.activeTextEditor;
       return !!editor_copybook;
     });
-    const hover_copybook: vscode.Hover[] = await vscode.commands.executeCommand(
-      "vscode.executeHoverProvider",
-      editor_copybook?.document.uri,
+    const hover_copybook: vscode.Hover[] = await helper.getHoverContent(
+      editor_copybook!,
       new vscode.Position(0, 10),
     );
 
