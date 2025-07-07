@@ -70,7 +70,8 @@ public class ParagraphHoverProvider implements HoverProvider {
             .filter(n -> definitions.contains(n.getLocality().toLocation()))
             .collect(Collectors.toList());
 
-    Stream<Hover> hoverStream = getHoverStream(nodeStream, (DefinedAndUsedStructure) node);
+    Stream<Hover> hoverStream =
+        getHoverStream(nodeStream, (DefinedAndUsedStructure) node, document.getLanguageId());
     if (nodeStream.size() > 1) {
       hoverStream =
           Stream.concat(
@@ -84,7 +85,8 @@ public class ParagraphHoverProvider implements HoverProvider {
     return hoverStream.reduce(HoverHandler::mergeHovers).orElse(null);
   }
 
-  private static Stream<Hover> getHoverStream(List<Node> nodeStream, DefinedAndUsedStructure node) {
+  private static Stream<Hover> getHoverStream(
+      List<Node> nodeStream, DefinedAndUsedStructure node, String languageId) {
     return nodeStream.stream()
         .filter(DefinedAndUsedStructure.class::isInstance)
         .filter(n -> ((DefinedAndUsedStructure) n).getName().equals(node.getName()))
@@ -95,6 +97,8 @@ public class ParagraphHoverProvider implements HoverProvider {
                 new Hover(
                     new MarkupContent(
                         MarkupKind.MARKDOWN,
-                        "```cobol\n" + element.getFormattedDisplayString() + "\n```")));
+                        String.format(
+                            "```%s\n%s\n```",
+                            languageId.toLowerCase(), element.getFormattedDisplayString()))));
   }
 }
