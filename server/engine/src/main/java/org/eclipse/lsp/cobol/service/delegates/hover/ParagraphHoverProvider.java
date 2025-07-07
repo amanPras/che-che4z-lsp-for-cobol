@@ -80,7 +80,7 @@ public class ParagraphHoverProvider implements HoverProvider {
               Stream.of(
                   new Hover(
                       new MarkupContent(
-                          "text", "___NOTE: other versions exist due to replacing___"))));
+                          "text", "___NOTE: other versions exist due to replac(e/ing)___"))));
     }
 
     return hoverStream.reduce(HoverHandler::mergeHovers).orElse(null);

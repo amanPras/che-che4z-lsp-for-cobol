@@ -46,6 +46,7 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
   private final CopybookService copybookService;
   private final SubroutineService subroutineService;
   private final Communications communications;
+  private final SourceUnitGraph sourceUnitGraph;
 
   private final Map<String, FutureTask<CobolDocumentModel>> analysisResults =
       Collections.synchronizedMap(new HashMap<>());
@@ -81,6 +82,7 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
     this.subroutineService = subroutineService;
     this.communications = communications;
     analysisStateListeners = new ArrayList<>();
+    this.sourceUnitGraph = sourceUnitGraph;
     this.analysisStateListeners.add(sourceUnitGraph);
   }
 
@@ -393,7 +395,8 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
       if (doc == null) {
         return false;
       }
-      if (analysisService.isCopybook(uri, doc.getText())) {
+      if (analysisService.isCopybook(uri, doc.getText())
+          || sourceUnitGraph.isUserSuppliedCopybook(uri)) {
         return true;
       }
       return doc.getLastAnalysisResult() != null
