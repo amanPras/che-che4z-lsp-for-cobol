@@ -739,6 +739,7 @@ suite("Integration Test Suite", function () {
            DISPLAY 'PARAG3'.
                                                      
            STOP RUN.
+
 \`\`\`
 ___NOTE: other versions exist due to replacing___`),
     );
@@ -759,6 +760,7 @@ ___NOTE: other versions exist due to replacing___`),
       normalizeLineEndings(`\`\`\`cobol
        PARAG2.
            DISPLAY 'PARAG2'.
+
 \`\`\`
 ___NOTE: other versions exist due to replacing___`),
     );

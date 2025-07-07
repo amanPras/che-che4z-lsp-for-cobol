@@ -32,6 +32,7 @@ import org.eclipse.lsp4j.*;
 
 /** The class provides hover information for Procedures and Sections. */
 public class ParagraphHoverProvider implements HoverProvider {
+  private static final int MAX_HOVER_LINE_COUNT = 20;
 
   /**
    * @param document - document model that contains a semantic context
@@ -98,7 +99,16 @@ public class ParagraphHoverProvider implements HoverProvider {
                     new MarkupContent(
                         MarkupKind.MARKDOWN,
                         String.format(
-                            "```%s\n%s\n```",
-                            languageId.toLowerCase(), element.getFormattedDisplayString()))));
+                            "```%s\n%s\n```", languageId.toLowerCase(), getHoverLines(element)))));
+  }
+
+  private static String getHoverLines(Describable describable) {
+    String[] lines = describable.getFormattedDisplayString().split("\\r?\\n");
+    int limit = Math.min(MAX_HOVER_LINE_COUNT, lines.length);
+    StringBuilder trimmedHoverContent = new StringBuilder();
+    for (int i = 0; i < limit; i++) {
+      trimmedHoverContent.append(lines[i]).append("\n");
+    }
+    return trimmedHoverContent.toString();
   }
 }
