@@ -395,9 +395,16 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
       if (doc == null) {
         return false;
       }
-      if (analysisService.isCopybook(uri, doc.getText())
-          || sourceUnitGraph.isUserSuppliedCopybook(uri)) {
+      if (analysisService.isCopybook(uri, doc.getText())) {
         return true;
+      }
+      if (sourceUnitGraph.isUserSuppliedCopybook(uri)) {
+        return documentModelService.findMainSource(uri).stream()
+            .map(
+                documentModel ->
+                    documentModel.getLastAnalysisResult() != null
+                        && documentModel.getLastAnalysisResult() != AnalysisResult.EMPTY)
+            .reduce(Boolean.TRUE, Boolean::logicalAnd);
       }
       return doc.getLastAnalysisResult() != null
           && doc.getLastAnalysisResult() != AnalysisResult.EMPTY;
