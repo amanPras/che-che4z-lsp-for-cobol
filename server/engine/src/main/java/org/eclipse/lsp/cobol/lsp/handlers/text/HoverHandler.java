@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.lsp.LspEventDependency;
 import org.eclipse.lsp.cobol.lsp.LspQuery;
@@ -34,6 +35,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /** LSP Hover Handler */
@@ -117,32 +119,59 @@ public class HoverHandler {
     Either<List<Either<String, MarkedString>>, MarkupContent> baseContents = base.getContents();
     Either<List<Either<String, MarkedString>>, MarkupContent> toMergeContents =
         toMerge.getContents();
-
-    if (baseContents.isLeft() && toMergeContents.isLeft()) {
-      List<Either<String, MarkedString>> mergedList = new ArrayList<>(baseContents.getLeft());
-      mergedList.addAll(toMergeContents.getLeft());
-      base.setContents(Either.forLeft(mergedList));
-      return base;
-    }
-
     if (baseContents.isRight() && toMergeContents.isRight()) {
       MarkupContent baseMarkup = baseContents.getRight();
       MarkupContent toMergeMarkup = toMergeContents.getRight();
 
-      String combinedValue = baseMarkup.getValue() + "\n" + toMergeMarkup.getValue();
-      MarkupContent mergedMarkup = new MarkupContent(baseMarkup.getKind(), combinedValue);
-      base.setContents(Either.forRight(mergedMarkup));
+      String baseValue = baseMarkup.getValue();
+      String toMergeValue = toMergeMarkup.getValue();
+
+      if (!baseValue.contains(toMergeValue)) {
+        String combinedValue = baseValue + "\n\n" + toMergeValue;
+        MarkupContent mergedMarkup = new MarkupContent(baseMarkup.getKind(), combinedValue);
+        base.setContents(Either.forRight(mergedMarkup));
+      }
+      return base;
+    }
+
+    if (baseContents.isLeft() && toMergeContents.isLeft()) {
+      List<Either<String, MarkedString>> mergedList = new ArrayList<>(baseContents.getLeft());
+      for (Either<String, MarkedString> item : toMergeContents.getLeft()) {
+        if (!mergedList.contains(item)) {
+          mergedList.add(item);
+        }
+      }
+      base.setContents(Either.forLeft(mergedList));
       return base;
     }
 
     if (baseContents.isLeft() && toMergeContents.isRight()) {
-      return base;
+      return mergeContents(baseContents.getLeft(), toMerge, base);
     }
 
     if (baseContents.isRight() && toMergeContents.isLeft()) {
-      return base;
+      return mergeContents(toMergeContents.getLeft(), base, base);
     }
 
     return base;
+  }
+
+  private static Hover mergeContents(
+      List<Either<String, MarkedString>> contents, Hover hoverToAdd, Hover fallback) {
+    List<Hover> hovers =
+        contents.stream()
+            .map(
+                c ->
+                    c.isLeft()
+                        ? new MarkupContent(MarkupKind.PLAINTEXT, c.getLeft())
+                        : new MarkupContent(
+                            MarkupKind.MARKDOWN,
+                            String.format(
+                                "```%s\n%s\n```",
+                                c.getRight().getLanguage(), c.getRight().getValue())))
+            .map(Hover::new)
+            .collect(Collectors.toList());
+    hovers.add(hoverToAdd);
+    return hovers.stream().reduce(HoverHandler::mergeHovers).orElse(fallback);
   }
 }

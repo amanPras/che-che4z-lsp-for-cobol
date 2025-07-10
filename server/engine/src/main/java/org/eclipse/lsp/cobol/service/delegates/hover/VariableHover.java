@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.Describable;
+import org.eclipse.lsp.cobol.common.model.NodeType;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
@@ -32,6 +33,13 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 /** The class provides hover information for variables. */
 @Singleton
 public class VariableHover implements HoverProvider {
+
+  private static final ImmutableList<NodeType> VARIABLE_NODE_TYPES =
+      ImmutableList.of(
+          NodeType.VARIABLE,
+          NodeType.VARIABLE_USAGE,
+          NodeType.VARIABLE_DEFINITION_NAME,
+          NodeType.VARIABLE_DEFINITION);
 
   @Nullable
   @Override
@@ -46,6 +54,7 @@ public class VariableHover implements HoverProvider {
             root ->
                 RangeUtils.findNodeByPosition(
                     root, position.getTextDocument().getUri(), position.getPosition()))
+        .filter(n -> VARIABLE_NODE_TYPES.contains(n.getNodeType()))
         .filter(Describable.class::isInstance)
         .map(Describable.class::cast)
         .map(VariableHover::createHoverInfo)

@@ -734,7 +734,7 @@ suite("Integration Test Suite", function () {
            STOP RUN.
 
 \`\`\`
-_NOTE: other versions exist due to replac(e/ing)_`),
+_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
 
     const hoverResults_perform_para3: vscode.Hover[] =
@@ -751,7 +751,7 @@ _NOTE: other versions exist due to replac(e/ing)_`),
            DISPLAY 'PARAG2'.
 
 \`\`\`
-_NOTE: other versions exist due to replac(e/ing)_`),
+_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
 
     //Goto copybook
