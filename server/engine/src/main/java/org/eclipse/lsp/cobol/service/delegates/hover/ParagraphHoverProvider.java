@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.service.delegates.hover;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
+import org.eclipse.lsp.cobol.common.model.NodeType;
 import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
@@ -33,6 +35,13 @@ import org.eclipse.lsp4j.*;
 /** The class provides hover information for Procedures and Sections. */
 public class ParagraphHoverProvider implements HoverProvider {
   private static final int MAX_HOVER_LINE_COUNT = 20;
+  private static final ImmutableList<NodeType> PARAGRAPHS_NODE_TYPES =
+      ImmutableList.of(
+          NodeType.CODE_BLOCK_USAGE,
+          NodeType.PARAGRAPH,
+          NodeType.PARAGRAPH_NAME_NODE,
+          NodeType.SECTION_NAME_NODE,
+          NodeType.SECTION);
 
   /**
    * @param document - document model that contains a semantic context
@@ -58,7 +67,8 @@ public class ParagraphHoverProvider implements HoverProvider {
             root ->
                 RangeUtils.findNodeByPosition(
                     root, position.getTextDocument().getUri(), position.getPosition()));
-    if (!nodeOpts.isPresent()) return null;
+    if (!nodeOpts.filter(n -> PARAGRAPHS_NODE_TYPES.contains(n.getNodeType())).isPresent())
+      return null;
     Node node = nodeOpts.get();
     if (!(node instanceof DefinedAndUsedStructure)) return null;
     List<Location> definitions = ((DefinedAndUsedStructure) node).getDefinitions();
