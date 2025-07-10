@@ -81,7 +81,24 @@ class TestFileDescriptor {
           + "            CLOSE {$INFILE}.";
 
   private static final String HOVER =
-      "```cobol\nDESCRIPTION \n----------- \nFD  INFILE\nLABEL RECORDS ARE STANDARD\nDATA RECORD IS INPUTREC\nRECORD CONTAINS 80 CHARACTERS\nRECORDING MODE IS F\nBLOCK CONTAINS 0 RECORDS.\n \nFILE-CONTROL\n------------ \nASSIGN TO \"C:\\INFILE.DAT\"\nORGANIZATION IS LINE SEQUENTIAL\nACCESS MODE IS SEQUENTIAL\nFILE STATUS IS IFCODE \n\n```\n\n_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_";
+      "```cobol\n"
+          + "DESCRIPTION \n"
+          + "----------- \n"
+          + "FD  INFILE\n"
+          + "LABEL RECORDS ARE STANDARD\n"
+          + "DATA RECORD IS INPUTREC\n"
+          + "RECORD CONTAINS 80 CHARACTERS\n"
+          + "RECORDING MODE IS F\n"
+          + "BLOCK CONTAINS 0 RECORDS.\n"
+          + " \n"
+          + "FILE-CONTROL\n"
+          + "------------ \n"
+          + "ASSIGN TO \"C:\\INFILE.DAT\"\n"
+          + "ORGANIZATION IS LINE SEQUENTIAL\n"
+          + "ACCESS MODE IS SEQUENTIAL\n"
+          + "FILE STATUS IS IFCODE \n\n"
+          + "```\n\n"
+          + "_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_";
 
   private static final String NO_FILE_CONTROL_TEXT =
       "       IDENTIFICATION DIVISION.\n"
