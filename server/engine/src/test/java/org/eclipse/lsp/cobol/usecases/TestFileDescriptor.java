@@ -97,8 +97,7 @@ class TestFileDescriptor {
           + "ORGANIZATION IS LINE SEQUENTIAL\n"
           + "ACCESS MODE IS SEQUENTIAL\n"
           + "FILE STATUS IS IFCODE \n\n"
-          + "```\n\n"
-          + "_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_";
+          + "```";
 
   private static final String NO_FILE_CONTROL_TEXT =
       "       IDENTIFICATION DIVISION.\n"

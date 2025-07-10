@@ -14,6 +14,7 @@
  */
 package org.eclipse.lsp.cobol.service.delegates.hover;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
+import org.eclipse.lsp.cobol.common.model.NodeType;
 import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
@@ -33,6 +35,8 @@ import org.eclipse.lsp4j.*;
 /** The class provides hover information for Procedures and Sections. */
 public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
   private static final int MAX_HOVER_LINE_COUNT = 20;
+  private static final ImmutableList<NodeType> VARIABLE_DEFINITION_NODE_TYPES =
+      ImmutableList.of(NodeType.VARIABLE_DEFINITION, NodeType.VARIABLE_DEFINITION_NAME);
 
   /**
    * @param document - document model that contains a semantic context
@@ -69,6 +73,7 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
             .get()
             .getDepthFirstStream()
             .filter(n -> definitions.contains(n.getLocality().toLocation()))
+            .filter(n -> !VARIABLE_DEFINITION_NODE_TYPES.contains(n.getNodeType()))
             .collect(Collectors.toList());
 
     Stream<Hover> hoverStream =
