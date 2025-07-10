@@ -14,7 +14,6 @@
  */
 package org.eclipse.lsp.cobol.service.delegates.hover;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,7 +23,6 @@ import lombok.NonNull;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
-import org.eclipse.lsp.cobol.common.model.NodeType;
 import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
@@ -33,15 +31,8 @@ import org.eclipse.lsp.cobol.service.CobolDocumentModel;
 import org.eclipse.lsp4j.*;
 
 /** The class provides hover information for Procedures and Sections. */
-public class ParagraphHoverProvider implements HoverProvider {
+public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
   private static final int MAX_HOVER_LINE_COUNT = 20;
-  private static final ImmutableList<NodeType> PARAGRAPHS_NODE_TYPES =
-      ImmutableList.of(
-          NodeType.CODE_BLOCK_USAGE,
-          NodeType.PARAGRAPH,
-          NodeType.PARAGRAPH_NAME_NODE,
-          NodeType.SECTION_NAME_NODE,
-          NodeType.SECTION);
 
   /**
    * @param document - document model that contains a semantic context
@@ -67,14 +58,13 @@ public class ParagraphHoverProvider implements HoverProvider {
             root ->
                 RangeUtils.findNodeByPosition(
                     root, position.getTextDocument().getUri(), position.getPosition()));
-    if (!nodeOpts.filter(n -> PARAGRAPHS_NODE_TYPES.contains(n.getNodeType())).isPresent())
-      return null;
+    if (!nodeOpts.isPresent()) return null;
     Node node = nodeOpts.get();
     if (!(node instanceof DefinedAndUsedStructure)) return null;
     List<Location> definitions = ((DefinedAndUsedStructure) node).getDefinitions();
     if (definitions == null || definitions.isEmpty()) return null;
 
-    List<Node> nodeStream =
+    List<Node> nodeDefinitionLists =
         rootNode
             .get()
             .getDepthFirstStream()
@@ -82,8 +72,9 @@ public class ParagraphHoverProvider implements HoverProvider {
             .collect(Collectors.toList());
 
     Stream<Hover> hoverStream =
-        getHoverStream(nodeStream, (DefinedAndUsedStructure) node, document.getLanguageId());
-    if (nodeStream.size() > 1) {
+        getHoverStream(
+            nodeDefinitionLists, (DefinedAndUsedStructure) node, document.getLanguageId());
+    if (nodeDefinitionLists.size() > 1) {
       hoverStream =
           Stream.concat(
               hoverStream,
@@ -99,8 +90,17 @@ public class ParagraphHoverProvider implements HoverProvider {
   }
 
   private static Stream<Hover> getHoverStream(
-      List<Node> nodeStream, DefinedAndUsedStructure node, String languageId) {
-    return nodeStream.stream()
+      List<Node> nodeDefinitionLists, DefinedAndUsedStructure node, String languageId) {
+    if (node instanceof Describable) {
+      return Stream.of(
+          new Hover(
+              new MarkupContent(
+                  MarkupKind.MARKDOWN,
+                  String.format(
+                      "```%s\n%s\n```",
+                      languageId.toLowerCase(), getHoverLines((Describable) node)))));
+    }
+    return nodeDefinitionLists.stream()
         .filter(DefinedAndUsedStructure.class::isInstance)
         .filter(n -> ((DefinedAndUsedStructure) n).getName().equals(node.getName()))
         .filter(Describable.class::isInstance)

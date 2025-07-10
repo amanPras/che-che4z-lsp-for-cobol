@@ -59,8 +59,8 @@ import org.eclipse.lsp.cobol.service.delegates.formations.Formation;
 import org.eclipse.lsp.cobol.service.delegates.formations.Formations;
 import org.eclipse.lsp.cobol.service.delegates.formations.TrimFormation;
 import org.eclipse.lsp.cobol.service.delegates.hover.CopybookHoverProvider;
+import org.eclipse.lsp.cobol.service.delegates.hover.DefinedAndUsedStructureHoverProvider;
 import org.eclipse.lsp.cobol.service.delegates.hover.HoverProvider;
-import org.eclipse.lsp.cobol.service.delegates.hover.VariableHover;
 import org.eclipse.lsp.cobol.service.delegates.references.ElementOccurrences;
 import org.eclipse.lsp.cobol.service.delegates.references.Occurrences;
 import org.eclipse.lsp.cobol.service.delegates.validations.CobolLanguageEngineFacade;
@@ -152,7 +152,7 @@ public class TestModule extends AbstractModule {
   private void bindHoverActions() {
     Multibinder<HoverProvider> hoverProviderMultibinder =
         newSetBinder(binder(), HoverProvider.class);
-    hoverProviderMultibinder.addBinding().to(VariableHover.class);
+    hoverProviderMultibinder.addBinding().to(DefinedAndUsedStructureHoverProvider.class);
     hoverProviderMultibinder.addBinding().to(CopybookHoverProvider.class);
   }
 

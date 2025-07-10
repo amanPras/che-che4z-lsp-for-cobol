@@ -708,14 +708,13 @@ suite("Integration Test Suite", function () {
       normalizeLineEndings(
         (hoverResults_para1[0].contents[0] as vscode.MarkdownString).value,
       ),
-      normalizeLineEndings(`
-\`\`\`cobol
+      normalizeLineEndings(`\`\`\`cobol
        PARAG1.
            DISPLAY 'PARAG1'.
            PERFORM PARAG3.
            PERFORM PARAG2.
-\`\`\`
-`),
+
+\`\`\``),
     );
 
     const hoverResults_perform_para2: vscode.Hover[] =
@@ -734,6 +733,7 @@ suite("Integration Test Suite", function () {
            STOP RUN.
 
 \`\`\`
+
 _NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
 
@@ -751,6 +751,7 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
            DISPLAY 'PARAG2'.
 
 \`\`\`
+
 _NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
 
@@ -774,12 +775,13 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
       normalizeLineEndings(
         (hover_copybook[0].contents[0] as vscode.MarkdownString).value,
       ),
-      normalizeLineEndings(`
-\`\`\`cobol
+      normalizeLineEndings(`\`\`\`cobol
        PARAG2.
            DISPLAY 'PARAG2'.
+
 \`\`\`
-`),
+
+_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
   });
 });
