@@ -51,7 +51,7 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
       @NonNull TextDocumentPositionParams position,
       SourceUnitGraph documentGraph) {
     Optional<RootNode> rootNode =
-        Optional.of(document)
+        Optional.ofNullable(document)
             .map(CobolDocumentModel::getAnalysisResult)
             .map(AnalysisResult::getRootNode);
     Optional<Node> nodeOpts =
