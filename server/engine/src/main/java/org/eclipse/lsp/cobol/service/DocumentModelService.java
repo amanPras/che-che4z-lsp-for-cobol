@@ -77,6 +77,7 @@ public class DocumentModelService {
       return sourceUnitGraph.getAllAssociatedFilesForACopybook(uri).stream()
           .filter(a -> !sourceUnitGraph.isUserSuppliedCopybook(a))
           .map(docs::get)
+          .filter(m -> m != null && m.isOpened())
           .collect(Collectors.toList());
     }
 
