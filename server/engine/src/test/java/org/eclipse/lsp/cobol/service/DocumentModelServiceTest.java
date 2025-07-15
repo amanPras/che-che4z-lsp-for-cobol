@@ -15,7 +15,6 @@
 package org.eclipse.lsp.cobol.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.tree.RootNode;
@@ -163,7 +163,7 @@ class DocumentModelServiceTest {
     when(sourceUnitGraph.isUserSuppliedCopybook("file1")).thenReturn(false);
 
     // dont care about others.
-    when(sourceUnitGraph.isUserSuppliedCopybook("file2")).thenReturn(anyBoolean());
+    when(sourceUnitGraph.isUserSuppliedCopybook("file2")).thenReturn(new Random().nextBoolean());
     Collection<CobolDocumentModel> mainSources1 = service.findMainSource(uri);
     assertEquals(1, mainSources1.size());
 
