@@ -33,6 +33,7 @@ import org.eclipse.lsp.cobol.service.AnalysisService;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
 import org.eclipse.lsp.cobol.service.DocumentModelService;
 import org.eclipse.lsp.cobol.service.delegates.communications.Communications;
+import org.eclipse.lsp4j.Diagnostic;
 
 /** Asynchronous analysis */
 @Slf4j
@@ -372,12 +373,10 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
   public void cancelAnalysis(String uri) throws InterruptedException {
     String analysisID = makeId(uri, analysisResultsRevisions.get(uri));
     analysisResultsRevisions.remove(uri);
-    LOG.debug(
-        "[stopAnalysis] Document "
-            + uri
-            + " publish diagnostic: "
-            + documentModelService.getOpenedDiagnostic());
-    communications.publishDiagnostics(documentModelService.getOpenedDiagnostic());
+    Map<String, List<Diagnostic>> openedDiagnostic = documentModelService.getOpenedDiagnostic();
+    LOG.debug("[stopAnalysis] Document " + uri + " publish diagnostic: " + openedDiagnostic);
+    openedDiagnostic.putIfAbsent(uri, Collections.emptyList());
+    communications.publishDiagnostics(openedDiagnostic);
     if (analysisResults.containsKey(analysisID)) {
       analysisResults.get(analysisID).cancel(true);
     }
@@ -420,10 +419,7 @@ public class AsyncAnalysisService implements AnalysisStateNotifier {
   public LspEventCancelCondition createCancelConditionOnClose(String uri) {
     return () -> {
       CobolDocumentModel doc = documentModelService.get(uri);
-      if (doc == null) {
-        return true;
-      }
-      return !doc.isOpened();
+      return doc == null;
     };
   }
 

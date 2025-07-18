@@ -53,7 +53,7 @@ class DocumentModelServiceTest {
     String text = UUID.randomUUID().toString();
     service.openDocument(uri, text, "cobol");
 
-    assertTrue(service.get(uri).isOpened());
+    assertNotNull(service.get(uri));
   }
 
   private AnalysisResult createAnalysisResult(String uri) {

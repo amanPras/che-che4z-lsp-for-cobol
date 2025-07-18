@@ -110,8 +110,7 @@ class CobolTextDocumentServiceTest {
             asyncAnalysisService,
             documentModelService,
             watcherService,
-            copybookService,
-            documentGraph);
+            copybookService);
     DidChangeHandler didChangeHandler = new DidChangeHandler(asyncAnalysisService, documentGraph);
     DefinitionHandler definitionHandler =
         new DefinitionHandler(asyncAnalysisService, documentModelService, occurrences);
