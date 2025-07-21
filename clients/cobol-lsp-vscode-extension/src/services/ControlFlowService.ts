@@ -12,7 +12,7 @@
  *   Broadcom, Inc. - initial API and implementation
  */
 import * as vscode from "vscode";
-import { Program } from "@code4z/analysis/lib/model/cfast";
+import { Program } from "@code4z/analysis";
 import { Worker } from "worker_threads";
 import { join } from "path";
 import {

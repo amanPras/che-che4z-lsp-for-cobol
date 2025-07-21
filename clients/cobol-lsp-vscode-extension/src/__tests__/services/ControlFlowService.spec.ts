@@ -11,7 +11,7 @@
  * Contributors:
  *   Broadcom, Inc. - initial API and implementation
  */
-import { Program } from "@code4z/analysis/lib/model/cfast";
+import { Program } from "@code4z/analysis";
 import {
   ApiResult,
   ControlFlowAnalysisService,

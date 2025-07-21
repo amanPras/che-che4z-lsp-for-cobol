@@ -11,13 +11,13 @@
  * Contributors:
  *   Broadcom, Inc. - initial API and implementation
  */
-import { Program } from "@code4z/analysis/lib/model/cfast";
 import {
+  Program,
   DiagnosticDto,
   DiagnosticSeverityDto,
   EventDto,
-} from "@code4z/analysis/lib/model/external";
-import { GraphDTO } from "@code4z/analysis/lib/model/GraphDTO";
+  GraphDTO,
+} from "@code4z/analysis";
 
 export type WorkerMessage = {
   vmCount: number;
