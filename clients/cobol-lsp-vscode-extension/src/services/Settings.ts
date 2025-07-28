@@ -21,7 +21,6 @@ import {
   SERVER_PORT,
   SERVER_RUNTIME,
   SETTINGS_CPY_EXTENSIONS,
-  SETTINGS_CPY_FILE_ENCODING,
   SETTINGS_CPY_LOCAL_PATH,
   SETTINGS_CPY_SECTION,
   SETTINGS_DIALECT,
@@ -138,9 +137,6 @@ export async function lspConfigHandler(request: Request) {
             item,
             result,
           );
-          break;
-        case SETTINGS_CPY_FILE_ENCODING:
-          // server should not need to know copybook files encodings
           break;
         case SETTINGS_COMPILE_OPTIONS:
           await handleProcessorGroupConfigurationRequest(

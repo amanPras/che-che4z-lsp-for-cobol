@@ -16,8 +16,6 @@ export const SETTINGS_CPY_LOCAL_PATH: string =
   "cobol-lsp.cpy-manager.paths-local";
 export const SETTINGS_CPY_EXTENSIONS: string =
   "cobol-lsp.cpy-manager.copybook-extensions";
-export const SETTINGS_CPY_FILE_ENCODING: string =
-  "cobol-lsp.cpy-manager.copybook-file-encoding";
 export const SETTINGS_SQL_BACKEND: string = "cobol-lsp.target-sql-backend";
 export const SETTINGS_DIALECT = "cobol-lsp.dialects";
 export const SETTINGS_COMPILE_OPTIONS = "cobol-lsp.compiler.options";
