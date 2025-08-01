@@ -142,6 +142,28 @@ public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
           .forEach(c -> cloneVarNode(lvlShift, c, newSuffix).ifPresent(cloneNode::addChild));
       return Optional.of(cloneNode);
     }
+    if (node instanceof TableDataNameNode) {
+      TableDataNameNode srcNode = (TableDataNameNode) node;
+      String newName = srcNode.getName().substring(0, srcNode.getName().length() - 2) + newSuffix;
+      TableDataNameNode cloneNode =
+          new TableDataNameNode(
+              srcNode.getLocality(),
+              srcNode.getLevel(),
+              newName,
+              srcNode.isRedefines(),
+              srcNode.isGlobal(),
+              srcNode.getPicClause(),
+              srcNode.getValue(),
+              srcNode.getOccursTimes(),
+              srcNode.getUsageFormat(),
+              srcNode.isBlankWhenZeroPresent(),
+              srcNode.isSignClausePresent());
+      createVariableDefinitionNameNode(node, newName).ifPresent(cloneNode::addChild);
+      srcNode
+          .getChildren()
+          .forEach(c -> cloneVarNode(lvlShift, c, newSuffix).ifPresent(cloneNode::addChild));
+      return Optional.of(cloneNode);
+    }
     return Optional.empty();
   }
 
