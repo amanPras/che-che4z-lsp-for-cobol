@@ -46,7 +46,8 @@ public class RangeUtils {
         // compare the range of candidate before setting the candidate
         if (candidate == null) {
           candidate = child;
-        } else if (RangeUtils.isInside(child.getLocality().getRange(), candidate.getLocality().getRange())){
+        } else if (RangeUtils.isInside(
+            child.getLocality().getRange(), candidate.getLocality().getRange())) {
           candidate = child;
         }
       }

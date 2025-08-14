@@ -799,9 +799,11 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
     );
   });
 
-  test('hover over copybook - in a nested structure', async () => {
+  test("hover over copybook - in a nested structure", async () => {
     await helper.updateConfig("basic.json");
-    const editor = await helper.showDocument(path.join("HOVER_COPYBOOK_NESTED.CBL"));
+    const editor = await helper.showDocument(
+      path.join("HOVER_COPYBOOK_NESTED.CBL"),
+    );
     await helper.sleep(1000);
     const hoverResults_repl = await helper.getHoverContent(
       editor,
@@ -846,7 +848,6 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
 \`\`\`
 `),
     );
-
   });
 });
 
