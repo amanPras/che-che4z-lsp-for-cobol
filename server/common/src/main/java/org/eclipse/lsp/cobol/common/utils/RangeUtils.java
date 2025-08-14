@@ -43,7 +43,12 @@ public class RangeUtils {
       }
 
       if (isInside(uri, position, child.getLocality())) {
-        candidate = child;
+        // compare the range of candidate before setting the candidate
+        if (candidate == null) {
+          candidate = child;
+        } else if (RangeUtils.isInside(child.getLocality().getRange(), candidate.getLocality().getRange())){
+          candidate = child;
+        }
       }
       Optional<Node> nodeByPosition = findNodeByPosition(child, uri, position);
       if (nodeByPosition.isPresent()) {

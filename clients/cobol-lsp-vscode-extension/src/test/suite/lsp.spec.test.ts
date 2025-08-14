@@ -798,6 +798,56 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
 _NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
   });
+
+  test('hover over copybook - in a nested structure', async () => {
+    await helper.updateConfig("basic.json");
+    const editor = await helper.showDocument(path.join("HOVER_COPYBOOK_NESTED.CBL"));
+    await helper.sleep(1000);
+    const hoverResults_repl = await helper.getHoverContent(
+      editor,
+      new vscode.Position(8, 24),
+    );
+    assert.strictEqual(hoverResults_repl[0].contents.length, 1);
+    assert.strictEqual(
+      normalizeLineEndings(
+        (hoverResults_repl[0].contents[0] as vscode.MarkdownString).value,
+      ),
+      normalizeLineEndings(`
+\`\`\`cobol
+
+       05 ABC-ID. 
+\`\`\`
+`),
+    );
+    // go to COPYBOOK definition of STRUCT
+    helper.moveCursor(editor, new vscode.Position(11, 26));
+
+    await vscode.commands.executeCommand("editor.action.revealDefinition");
+    let editor_copybook: vscode.TextEditor | undefined;
+    await helper.waitFor(() => {
+      editor_copybook = vscode.window.activeTextEditor;
+      return !!editor_copybook;
+    });
+
+    const hoverResults_var = await helper.getHoverContent(
+      editor_copybook!,
+      new vscode.Position(1, 17),
+    );
+
+    assert.strictEqual(hoverResults_var[0].contents.length, 1);
+    assert.strictEqual(
+      normalizeLineEndings(
+        (hoverResults_var[0].contents[0] as vscode.MarkdownString).value,
+      ),
+      normalizeLineEndings(`
+\`\`\`cobol
+
+       05 ABC-ID. 
+\`\`\`
+`),
+    );
+
+  });
 });
 
 function normalizeLineEndings(str: string) {
