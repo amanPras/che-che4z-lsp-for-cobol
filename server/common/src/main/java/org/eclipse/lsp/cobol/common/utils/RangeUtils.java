@@ -39,24 +39,29 @@ public class RangeUtils {
     Node candidate = null;
     for (Node child : node.getChildren()) {
       if (isFromCopybook(uri, child)) {
-        candidate = child;
+        candidate = setCandidate(uri, child, candidate);
       }
 
       if (isInside(uri, position, child.getLocality())) {
-        // compare the range of candidate before setting the candidate
-        if (candidate == null) {
-          candidate = child;
-        } else if (RangeUtils.isInside(
-            child.getLocality().getRange(), candidate.getLocality().getRange())) {
-          candidate = child;
-        }
+        candidate = setCandidate(uri, child, candidate);
       }
       Optional<Node> nodeByPosition = findNodeByPosition(child, uri, position);
       if (nodeByPosition.isPresent()) {
-        return nodeByPosition;
+        candidate = nodeByPosition.get();
       }
     }
     return candidate == null ? Optional.empty() : Optional.of(candidate);
+  }
+
+  private static Node setCandidate(String uri, Node child, Node candidate) {
+    if (candidate == null) {
+      candidate = child;
+    } else if (child.getLocality().getUri().equals(uri)
+        && RangeUtils.isInside(
+            child.getLocality().getRange(), candidate.getLocality().getRange())) {
+      candidate = child;
+    }
+    return candidate;
   }
 
   private boolean isFromCopybook(String uri, Node node) {
