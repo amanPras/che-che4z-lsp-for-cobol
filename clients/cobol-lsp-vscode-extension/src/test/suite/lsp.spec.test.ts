@@ -792,8 +792,6 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
       normalizeLineEndings(`\`\`\`cobol
        PARAG3.
            DISPLAY 'PARAG3'.
-                                                     
-           STOP RUN.
 
 \`\`\`
 
