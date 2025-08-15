@@ -43,22 +43,21 @@ public class VariableUsageUtils {
       Multimap<String, VariableNode> definedVariables, List<VariableUsageNode> usagePath) {
     Collection<VariableNode> candidates = definedVariables.get(usagePath.get(0).getName());
     List<VariableUsageNode> parents = usagePath.subList(1, usagePath.size());
-
-    Map<VariableNode, Integer> stepToMatchParentsMap = new HashMap<>();
+    List<VariableNode> exactHierarchyMatchedVariables = new ArrayList<>();
+    List<VariableNode> matchedCandidates = new ArrayList<>();
     for (VariableNode variable : candidates) {
       countToMatchParents(variable, parents)
-          .ifPresent(steps -> stepToMatchParentsMap.put(variable, steps + 1));
-    }
-
-    List<VariableNode> exactHierarchyMatchedVariables = new ArrayList<>();
-    for (Map.Entry<VariableNode, Integer> entry : stepToMatchParentsMap.entrySet()) {
-      if (entry.getValue().equals(usagePath.size())) {
-        exactHierarchyMatchedVariables.add(entry.getKey());
-      }
+          .ifPresent(
+              steps -> {
+                if ((steps + 1) == (usagePath.size())) {
+                  exactHierarchyMatchedVariables.add(variable);
+                }
+                matchedCandidates.add(variable);
+              });
     }
 
     return exactHierarchyMatchedVariables.isEmpty()
-        ? new ArrayList<>(stepToMatchParentsMap.keySet())
+        ? matchedCandidates
         : exactHierarchyMatchedVariables;
   }
 
