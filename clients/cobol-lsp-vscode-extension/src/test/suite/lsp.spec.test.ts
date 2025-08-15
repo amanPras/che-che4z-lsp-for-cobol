@@ -877,11 +877,11 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
 
     // find all refences for ABC-ID
     // helper.moveCursor(editor_copybook!, new vscode.Position(1, 14));
-    const locations = (await vscode.commands.executeCommand(
+    const locations: vscode.Location[] = await vscode.commands.executeCommand(
       "vscode.executeReferenceProvider",
       editor_copybook!.document.uri,
       new vscode.Position(1, 14),
-    )) as vscode.Location[];
+    );
     assert.strictEqual(locations.length, 1);
   });
 });
