@@ -2216,7 +2216,8 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
       }
       if (lastSectionNode != null) {
         lastSectionNode.getLocality().getRange().setEnd(lastSentensePosition);
-        lastSectionNode.setText(extendedDocument.getBaseText(getLocalityInExtendedDocument(firstSectionToken)));
+        lastSectionNode.setText(
+            extendedDocument.getBaseText(getLocalityInExtendedDocument(firstSectionToken)));
       }
       firstSectionToken = firstToken;
       lastSectionNode = section;
