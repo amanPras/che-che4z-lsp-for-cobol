@@ -183,7 +183,8 @@ public class QualifiedReferenceUpdateVariableUsage implements Processor<Qualifie
       if (!parent.isPresent()) return false;
       n = parent.get();
     }
-    return depth != 0 && n instanceof VariableWithLevelNode
+    return depth != 0
+        && n instanceof VariableWithLevelNode
         && ((VariableWithLevelNode) n).getName().equalsIgnoreCase(parentName);
   }
 }
