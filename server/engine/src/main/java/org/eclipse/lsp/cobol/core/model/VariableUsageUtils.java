@@ -41,39 +41,22 @@ public class VariableUsageUtils {
    */
   public static List<VariableNode> findVariablesForUsage(
       Multimap<String, VariableNode> definedVariables, List<VariableUsageNode> usagePath) {
-    List<VariableUsageNode> usagePathCopy = new ArrayList<>(usagePath);
-    return new ArrayList<>(collectMatchingNodes(usagePathCopy, definedVariables));
+    if (usagePath == null || usagePath.isEmpty()) return Collections.emptyList();
+    return definedVariables.get(usagePath.get(0).getName()).stream()
+        .filter(v -> matchToParents(v, usagePath))
+        .collect(Collectors.toList());
   }
 
-  private List<VariableNode> collectMatchingNodes(
-      List<VariableUsageNode> usagePath, Multimap<String, VariableNode> definedVariables) {
-    if (usagePath == null || usagePath.isEmpty()) return Collections.emptyList(); // A -> B -> C
-    String firstNodeName = usagePath.get(0).getName();
-    List<VariableNode> result = new ArrayList<>();
-    Collection<VariableNode> variableNodes = definedVariables.get(firstNodeName);
-    for (VariableNode variableNode : variableNodes) {
-      if (matchToParents(variableNode, usagePath, 1)) {
-        result.add(variableNode);
-      }
+  private static boolean matchToParents(VariableNode candidate, List<VariableUsageNode> usagePath) {
+    int depth = 1;
+    for (VariableNode parent = candidate; depth < usagePath.size(); ++depth) {
+      String nextTarget = usagePath.get(depth).getName();
+      do {
+        parent = getNearestParentVariable(parent);
+        if (parent == null) return false;
+      } while (!parent.getName().equalsIgnoreCase(nextTarget));
     }
-    return result;
-  }
-
-  private static boolean matchToParents(
-      VariableNode candidate, List<VariableUsageNode> usagePath, int depth) {
-    if (candidate == null) return false;
-    if (depth == usagePath.size()) {
-      return candidate.getName().equalsIgnoreCase(usagePath.get(depth - 1).getName());
-    }
-    String nextTarget = usagePath.get(depth).getName();
-    VariableNode probableMatchCandidate = candidate;
-    do {
-      probableMatchCandidate = getNearestParentVariable(probableMatchCandidate);
-      if (probableMatchCandidate == null) {
-        return false;
-      }
-    } while (!probableMatchCandidate.getName().equals(nextTarget));
-    return matchToParents(probableMatchCandidate, usagePath, depth + 1);
+    return true;
   }
 
   private static VariableNode getNearestParentVariable(VariableNode variable) {

@@ -68,7 +68,7 @@ public class QualifiedReferenceUpdateVariableUsage implements Processor<Qualifie
                 ctx.getCurrentProgramNode(), variableUsageChain)
             : ImmutableList.of();
 
-    if (isQualifyExtendedDirectiveEnabled(ctx) && foundDefinitions.size() > 1) {
+    if (foundDefinitions.size() > 1 && isQualifyExtendedDirectiveEnabled(ctx)) {
       foundDefinitions =
           updateDefinitionForQualifyExtended(node, foundDefinitions, variableUsageChain);
     }
@@ -150,41 +150,41 @@ public class QualifiedReferenceUpdateVariableUsage implements Processor<Qualifie
       QualifiedReferenceNode node,
       List<VariableNode> foundDefinitions,
       List<VariableUsageNode> variableUsageChain) {
-    int chainLength = variableUsageChain.size();
-    List<VariableNode> resultNode = new ArrayList<>();
-    List<VariableWithLevelNode> variableDefNodes =
+    final int parentLevel = variableUsageChain.size() - 1;
+    final String topParentName = variableUsageChain.get(parentLevel).getName();
+    List<VariableNode> variableDefsWithLevelNode =
         foundDefinitions.stream()
             .filter(VariableWithLevelNode.class::isInstance)
             .map(VariableWithLevelNode.class::cast)
             .collect(Collectors.toList());
-    for (VariableWithLevelNode varDefNode : variableDefNodes) {
-      Node target = varDefNode;
-      if (chainLength == 1) {
-        if (varDefNode.getLevel() == 1) {
-          resultNode.add(varDefNode);
-        }
-        continue;
-      }
-      for (int i = 0; i < chainLength - 1; i++) {
-        Optional<Node> nearestParentByType = target.getNearestParentByType(NodeType.VARIABLE);
-        if (!nearestParentByType.isPresent()) {
-          target = null;
-          break;
-        } else {
-          target = nearestParentByType.get();
-        }
-      }
-      if (target instanceof VariableWithLevelNode
-          && ((VariableWithLevelNode) target)
-              .getName()
-              .equalsIgnoreCase(variableUsageChain.get(chainLength - 1).getName())) {
-        resultNode.add(varDefNode);
-      }
+    List<VariableNode> resultNodes =
+        variableDefsWithLevelNode.stream()
+            .map(VariableWithLevelNode.class::cast)
+            .filter(v -> matchingExtendedQualification(v, parentLevel, topParentName))
+            .collect(Collectors.toList());
+    if (resultNodes.size() == 1) {
+      node.setVariableDefinitionNode(resultNodes.get(0));
+      variableDefsWithLevelNode = resultNodes;
     }
-    if (resultNode.size() == 1) {
-      foundDefinitions = resultNode;
-      node.setVariableDefinitionNode(resultNode.get(0));
+    return variableDefsWithLevelNode;
+  }
+
+  private static boolean matchingExtendedQualification(
+      VariableWithLevelNode v, int parentLevel, String topParentName) {
+    return parentLevel == 0 && v.getLevel() == 1
+        || matchesNthVariableParentName(v, parentLevel, topParentName);
+  }
+
+  private static boolean matchesNthVariableParentName(
+      VariableWithLevelNode v, int depth, String parentName) {
+    if (depth == 0) return false;
+    Node n = v;
+    for (int i = 0; i < depth; ++i) {
+      Optional<Node> parent = n.getNearestParentByType(NodeType.VARIABLE);
+      if (!parent.isPresent()) return false;
+      n = parent.get();
     }
-    return foundDefinitions;
+    return n instanceof VariableWithLevelNode
+        && ((VariableWithLevelNode) n).getName().equalsIgnoreCase(parentName);
   }
 }

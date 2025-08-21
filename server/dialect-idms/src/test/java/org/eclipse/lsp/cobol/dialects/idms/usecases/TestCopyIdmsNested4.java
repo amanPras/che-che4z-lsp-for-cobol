@@ -57,7 +57,9 @@ public class TestCopyIdmsNested4 {
         ImmutableList.of(
             new CobolText("ISC", IdmsDialect.NAME, ISC),
             new CobolText("IC1", IdmsDialect.NAME, IC1, UseCaseUtils.toURI("NESTED_COPY"), false)),
-        ImmutableMap.of("1", new Diagnostic(
+        ImmutableMap.of(
+            "1",
+            new Diagnostic(
                 new Range(),
                 "semantics.ambiguous",
                 DiagnosticSeverity.Error,

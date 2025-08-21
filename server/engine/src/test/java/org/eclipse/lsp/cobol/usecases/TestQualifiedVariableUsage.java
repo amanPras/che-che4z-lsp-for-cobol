@@ -108,6 +108,23 @@ public class TestQualifiedVariableUsage {
           + "           DISPLAY {$ABC-ID|1} . \n"
           + "           STOP RUN.    ";
 
+  public static final String CASE6 =
+      "       Identification Division.\n"
+          + "       Program-Id. 'P11'.\n"
+          + "       Data Division.\n"
+          + "       Working-Storage Section.\n"
+          + "       01 {$*A} .\n"
+          + "           05 {$*B}.\n"
+          + "           10 {$*C}.\n"
+          + "            15 {$*D} PIC X.\n"
+          + "       01 {$*A2}.\n"
+          + "            05 {$*B}.\n"
+          + "               07 {$*X}.\n"
+          + "               10 {$*C}.\n"
+          + "               15 {$*D} PIC X.\n"
+          + "       Procedure Division.\n"
+          + "           DISPLAY {_{$D} OF {$C} OF {$B}|1_}.\n"
+          + "       End Program 'P11'.";
   public static final String STRUCT1_CONTENT =
       "       COPY {~REPL}.\n" + "       10 {$*TAG-STRUCT1} PIC 9.";
   public static final String REPL_CONTENT = "\n" + "       05 {$*ABC-ID}. ";
@@ -148,6 +165,20 @@ public class TestQualifiedVariableUsage {
             new Diagnostic(
                 new Range(),
                 "Ambiguous reference for ABC-ID",
+                DiagnosticSeverity.Error,
+                ErrorSource.PARSING.getText())));
+  }
+
+  @Test
+  void testAmbiguityForSimilarUsageChain() {
+    UseCaseEngine.runTest(
+        CASE6,
+        ImmutableList.of(),
+        ImmutableMap.of(
+            "1",
+            new Diagnostic(
+                new Range(),
+                "Ambiguous reference for D",
                 DiagnosticSeverity.Error,
                 ErrorSource.PARSING.getText())));
   }
