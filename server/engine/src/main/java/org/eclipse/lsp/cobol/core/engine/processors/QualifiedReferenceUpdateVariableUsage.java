@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.core.engine.processors;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
@@ -68,7 +69,8 @@ public class QualifiedReferenceUpdateVariableUsage implements Processor<Qualifie
             : ImmutableList.of();
 
     if (isQualifyExtendedDirectiveEnabled(ctx) && foundDefinitions.size() > 1) {
-      foundDefinitions = updateDefinitionForQualifyExtended(node, foundDefinitions);
+      foundDefinitions =
+          updateDefinitionForQualifyExtended(node, foundDefinitions, variableUsageChain);
     }
     for (VariableNode definitionNode : foundDefinitions) {
       node.setVariableDefinitionNode(definitionNode);
@@ -131,17 +133,57 @@ public class QualifiedReferenceUpdateVariableUsage implements Processor<Qualifie
         .orElse(false);
   }
 
+  /**
+   * If compiler option QUALIFY(EXTEND) is in effect, and if there is only one fully qualified name
+   * that matches your combination of qualifiers, that reference will be considered unique, even if
+   * the set of qualifiers also matches a partial qualification for a different data item. Fully
+   * qualified means every qualifier is specified.
+   *
+   * <p>Ref: https://www.ibm.com/docs/en/cobol-zos/6.3.0?topic=reference-qualification
+   *
+   * @param node
+   * @param foundDefinitions
+   * @param variableUsageChain
+   * @return
+   */
   private List<VariableNode> updateDefinitionForQualifyExtended(
-      QualifiedReferenceNode node, List<VariableNode> foundDefinitions) {
-    List<VariableNode> definitionWithLevel01 =
+      QualifiedReferenceNode node,
+      List<VariableNode> foundDefinitions,
+      List<VariableUsageNode> variableUsageChain) {
+    int chainLength = variableUsageChain.size();
+    List<VariableNode> resultNode = new ArrayList<>();
+    List<VariableWithLevelNode> variableDefNodes =
         foundDefinitions.stream()
             .filter(VariableWithLevelNode.class::isInstance)
             .map(VariableWithLevelNode.class::cast)
-            .filter(n -> n.getLevel() == 1)
             .collect(Collectors.toList());
-    if (definitionWithLevel01.size() == 1) {
-      foundDefinitions = definitionWithLevel01;
-      node.setVariableDefinitionNode(definitionWithLevel01.get(0));
+    for (VariableWithLevelNode varDefNode : variableDefNodes) {
+      Node target = varDefNode;
+      if (chainLength == 1) {
+        if (varDefNode.getLevel() == 1) {
+          resultNode.add(varDefNode);
+        }
+        continue;
+      }
+      for (int i = 0; i < chainLength - 1; i++) {
+        Optional<Node> nearestParentByType = target.getNearestParentByType(NodeType.VARIABLE);
+        if (!nearestParentByType.isPresent()) {
+          target = null;
+          break;
+        } else {
+          target = nearestParentByType.get();
+        }
+      }
+      if (target instanceof VariableWithLevelNode
+          && ((VariableWithLevelNode) target)
+              .getName()
+              .equalsIgnoreCase(variableUsageChain.get(chainLength - 1).getName())) {
+        resultNode.add(varDefNode);
+      }
+    }
+    if (resultNode.size() == 1) {
+      foundDefinitions = resultNode;
+      node.setVariableDefinitionNode(resultNode.get(0));
     }
     return foundDefinitions;
   }
