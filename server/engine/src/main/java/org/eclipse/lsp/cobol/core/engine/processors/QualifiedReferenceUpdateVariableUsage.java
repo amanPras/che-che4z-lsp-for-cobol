@@ -177,14 +177,13 @@ public class QualifiedReferenceUpdateVariableUsage implements Processor<Qualifie
 
   private static boolean matchesNthVariableParentName(
       VariableWithLevelNode v, int depth, String parentName) {
-    if (depth == 0) return false;
     Node n = v;
     for (int i = 0; i < depth; ++i) {
       Optional<Node> parent = n.getNearestParentByType(NodeType.VARIABLE);
       if (!parent.isPresent()) return false;
       n = parent.get();
     }
-    return n instanceof VariableWithLevelNode
+    return depth != 0 && n instanceof VariableWithLevelNode
         && ((VariableWithLevelNode) n).getName().equalsIgnoreCase(parentName);
   }
 }
