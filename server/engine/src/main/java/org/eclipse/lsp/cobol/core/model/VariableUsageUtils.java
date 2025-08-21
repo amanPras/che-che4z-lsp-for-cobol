@@ -48,8 +48,8 @@ public class VariableUsageUtils {
   }
 
   private static boolean matchToParents(VariableNode candidate, List<VariableUsageNode> usagePath) {
-    int depth = 1;
-    for (VariableNode parent = candidate; depth < usagePath.size(); ++depth) {
+    VariableNode parent = candidate;
+    for (int depth = 1; depth < usagePath.size(); ++depth) {
       String nextTarget = usagePath.get(depth).getName();
       do {
         parent = getNearestParentVariable(parent);
