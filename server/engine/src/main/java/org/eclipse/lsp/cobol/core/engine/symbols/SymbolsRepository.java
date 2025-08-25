@@ -14,7 +14,6 @@
  */
 package org.eclipse.lsp.cobol.core.engine.symbols;
 
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;

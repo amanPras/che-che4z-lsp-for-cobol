@@ -21,10 +21,9 @@ import static org.mockito.Mockito.*;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
-
-import com.google.common.collect.ImmutableSet;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.core.engine.symbols.SymbolsRepository;

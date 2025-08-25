@@ -59,7 +59,7 @@ public class RangeUtils {
     if (candidate == null) {
       candidate = child;
     } else if (child.getLocality().getUri().equals(uri)
-            && RangeUtils.isInside(
+        && RangeUtils.isInside(
             child.getLocality().getRange(), candidate.getLocality().getRange())) {
       candidate = child;
     }
@@ -67,9 +67,8 @@ public class RangeUtils {
   }
 
   /**
-   * Find all the syntax tree node that contains the position.
-   * This is useful only in context of a copybook.
-   * For e.g.
+   * Find all the syntax tree node that contains the position. This is useful only in context of a
+   * copybook. For e.g.
    *
    * {@snippet :
    * 01 A.
@@ -77,6 +76,7 @@ public class RangeUtils {
    * 01 B.
    *     COPY ABC.
    * }
+   *
    * Any position inside copybook ABC is present at Group Variable nodes namely A and B.
    *
    * @param uri the uri of the node locality
@@ -84,7 +84,8 @@ public class RangeUtils {
    * @param position a cursor position
    * @return the found node
    */
-  public static List<Node> findAllApplicableNodesByPosition(Node node, String uri, Position position) {
+  public static List<Node> findAllApplicableNodesByPosition(
+      Node node, String uri, Position position) {
     List<Node> result = new ArrayList<>();
     Node candidate = null;
     for (Node child : node.getChildren()) {
