@@ -23,7 +23,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+
+import com.google.common.collect.ImmutableSet;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.core.engine.symbols.SymbolsRepository;
@@ -78,7 +79,7 @@ class TestDefinitionOnLongCopybooks {
     SourceUnitGraph documentGraph = mock(SourceUnitGraph.class);
     when(documentGraph.isUserSuppliedCopybook(anyString())).thenReturn(false);
 
-    try (MockedStatic mocked = mockStatic(SymbolsRepository.class)) {
+    try (MockedStatic<SymbolsRepository> mocked = mockStatic(SymbolsRepository.class)) {
       mocked
           .when(
               () ->
@@ -86,7 +87,7 @@ class TestDefinitionOnLongCopybooks {
                       eq(DOCUMENT_URI),
                       eq(document.getAnalysisResult()),
                       eq(position.getPosition())))
-          .thenReturn(Optional.of(ctx));
+          .thenReturn(ImmutableSet.of(ctx));
       List<Location> definitions =
           new ElementOccurrences(documentGraph).findDefinitions(document, position);
 

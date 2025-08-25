@@ -15,6 +15,8 @@
 
 package org.eclipse.lsp.cobol.common.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import lombok.experimental.UtilityClass;
 import org.eclipse.lsp.cobol.common.model.Locality;
@@ -28,7 +30,7 @@ import org.eclipse.lsp4j.Range;
 public class RangeUtils {
 
   /**
-   * Find the syntax tree node that contains the position.
+   * Find the first syntax tree node that contains the position.
    *
    * @param uri the uri of the node locality
    * @param node a root node for finding
@@ -39,29 +41,65 @@ public class RangeUtils {
     Node candidate = null;
     for (Node child : node.getChildren()) {
       if (isFromCopybook(uri, child)) {
-        candidate = setCandidate(uri, child, candidate);
+        candidate = getCandidate(uri, child, candidate);
       }
 
       if (isInside(uri, position, child.getLocality())) {
-        candidate = setCandidate(uri, child, candidate);
+        candidate = getCandidate(uri, child, candidate);
       }
       Optional<Node> nodeByPosition = findNodeByPosition(child, uri, position);
       if (nodeByPosition.isPresent()) {
-        candidate = nodeByPosition.get();
+        return nodeByPosition;
       }
     }
     return candidate == null ? Optional.empty() : Optional.of(candidate);
   }
 
-  private static Node setCandidate(String uri, Node child, Node candidate) {
+  private static Node getCandidate(String uri, Node child, Node candidate) {
     if (candidate == null) {
       candidate = child;
     } else if (child.getLocality().getUri().equals(uri)
-        && RangeUtils.isInside(
+            && RangeUtils.isInside(
             child.getLocality().getRange(), candidate.getLocality().getRange())) {
       candidate = child;
     }
     return candidate;
+  }
+
+  /**
+   * Find all the syntax tree node that contains the position.
+   * This is useful only in context of a copybook.
+   * For e.g.
+   *
+   * {@snippet :
+   * 01 A.
+   *     COPY ABC.
+   * 01 B.
+   *     COPY ABC.
+   * }
+   * Any position inside copybook ABC is present at Group Variable nodes namely A and B.
+   *
+   * @param uri the uri of the node locality
+   * @param node a root node for finding
+   * @param position a cursor position
+   * @return the found node
+   */
+  public static List<Node> findAllApplicableNodesByPosition(Node node, String uri, Position position) {
+    List<Node> result = new ArrayList<>();
+    Node candidate = null;
+    for (Node child : node.getChildren()) {
+      if (isInside(uri, position, child.getLocality())) {
+        candidate = getCandidate(uri, child, candidate);
+      }
+      List<Node> nodesByPosition = findAllApplicableNodesByPosition(child, uri, position);
+      if (!nodesByPosition.isEmpty()) {
+        result.addAll(nodesByPosition);
+      }
+    }
+    if (candidate != null) {
+      result.add(candidate);
+    }
+    return result;
   }
 
   private boolean isFromCopybook(String uri, Node node) {

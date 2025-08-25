@@ -790,8 +790,8 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
         (hover_copybook[0].contents[0] as vscode.MarkdownString).value,
       ),
       normalizeLineEndings(`\`\`\`cobol
-       PARAG3.
-           DISPLAY 'PARAG3'.
+       PARAG2.
+           DISPLAY 'PARAG2'.
 
 \`\`\`
 
