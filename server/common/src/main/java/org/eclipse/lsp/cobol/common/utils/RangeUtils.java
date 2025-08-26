@@ -148,7 +148,7 @@ public class RangeUtils {
     if (scope.getStart() != null && compareTo(range.getStart(), scope.getStart()) < 0) {
       return false;
     }
-      return scope.getEnd() == null || compareTo(range.getEnd(), scope.getEnd()) <= 0;
+    return scope.getEnd() == null || compareTo(range.getEnd(), scope.getEnd()) <= 0;
   }
 
   /**
