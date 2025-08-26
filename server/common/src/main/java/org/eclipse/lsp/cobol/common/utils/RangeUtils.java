@@ -87,20 +87,22 @@ public class RangeUtils {
   public static List<Node> findAllApplicableNodesByPosition(
       Node node, String uri, Position position) {
     List<Node> result = new ArrayList<>();
+    findAllApplicableNodesByPositionImpl(result, node, uri, position);
+    return result;
+  }
+
+  private static void findAllApplicableNodesByPositionImpl(
+      List<Node> result, Node node, String uri, Position position) {
     Node candidate = null;
     for (Node child : node.getChildren()) {
       if (isInside(uri, position, child.getLocality())) {
         candidate = getCandidate(uri, child, candidate);
       }
-      List<Node> nodesByPosition = findAllApplicableNodesByPosition(child, uri, position);
-      if (!nodesByPosition.isEmpty()) {
-        result.addAll(nodesByPosition);
-      }
+      findAllApplicableNodesByPositionImpl(result, child, uri, position);
     }
     if (candidate != null) {
       result.add(candidate);
     }
-    return result;
   }
 
   private boolean isFromCopybook(String uri, Node node) {
@@ -146,10 +148,7 @@ public class RangeUtils {
     if (scope.getStart() != null && compareTo(range.getStart(), scope.getStart()) < 0) {
       return false;
     }
-    if (scope.getEnd() != null && compareTo(range.getEnd(), scope.getEnd()) > 0) {
-      return false;
-    }
-    return true;
+      return scope.getEnd() == null || compareTo(range.getEnd(), scope.getEnd()) <= 0;
   }
 
   /**
