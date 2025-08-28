@@ -16,7 +16,6 @@ package org.eclipse.lsp.cobol.common.model.tree;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
