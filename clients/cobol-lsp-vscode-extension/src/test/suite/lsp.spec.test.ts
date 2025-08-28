@@ -732,7 +732,7 @@ suite("Integration Test Suite", function () {
 
 \`\`\`
 
-_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
+_NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
 
     const hoverResults_perform_para3: vscode.Hover[] =
@@ -750,7 +750,7 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
 
 \`\`\`
 
-_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
+_NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
 
     const hoverResults_perform_para4: vscode.Hover[] =
@@ -790,12 +790,18 @@ _NOTE: other versions exist due to replac(e/ing) or multiple use of same copyboo
         (hover_copybook[0].contents[0] as vscode.MarkdownString).value,
       ),
       normalizeLineEndings(`\`\`\`cobol
+       PARAG3.
+           DISPLAY 'PARAG3'.
+
+\`\`\`
+
+\`\`\`cobol
        PARAG2.
            DISPLAY 'PARAG2'.
 
 \`\`\`
 
-_NOTE: other versions exist due to replac(e/ing) or multiple use of same copybook_`),
+_NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copybook_`),
     );
   });
 

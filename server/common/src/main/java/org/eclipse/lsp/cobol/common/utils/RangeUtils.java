@@ -49,7 +49,7 @@ public class RangeUtils {
       }
       Optional<Node> nodeByPosition = findNodeByPosition(child, uri, position);
       if (nodeByPosition.isPresent()) {
-        return nodeByPosition;
+        return Optional.ofNullable(getCandidate(uri, nodeByPosition.get(), candidate));
       }
     }
     return candidate == null ? Optional.empty() : Optional.of(candidate);
