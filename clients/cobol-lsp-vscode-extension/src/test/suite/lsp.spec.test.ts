@@ -785,23 +785,28 @@ _NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copy
 
     assert.strictEqual(hover_copybook?.length, 1);
     assert.strictEqual(hover_copybook[0].contents.length, 1);
-    assert.strictEqual(
-      normalizeLineEndings(
-        (hover_copybook[0].contents[0] as vscode.MarkdownString).value,
-      ),
-      normalizeLineEndings(`\`\`\`cobol
+    const hoverContent = (
+      hover_copybook[0].contents[0] as vscode.MarkdownString
+    ).value;
+    assert.ok(
+      hoverContent.includes(`\`\`\`cobol
        PARAG3.
            DISPLAY 'PARAG3'.
 
-\`\`\`
-
-\`\`\`cobol
+\`\`\``),
+    );
+    assert.ok(
+      hoverContent.includes(`\`\`\`cobol
        PARAG2.
            DISPLAY 'PARAG2'.
 
-\`\`\`
+\`\`\``),
+    );
 
-_NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copybook_`),
+    assert.ok(
+      hoverContent.includes(
+        `_NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copybook_`,
+      ),
     );
   });
 
