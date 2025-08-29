@@ -864,13 +864,14 @@ _NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copy
     await helper.sleep(1000);
 
     // see definition of `SOME` var
-    const var_locations: vscode.Location[] = await vscode.commands.executeCommand(
-      "vscode.executeReferenceProvider",
-      editor!.document.uri,
-      new vscode.Position(9, 26),
-    );
-    assert.strictEqual(var_locations.length, 1)
-    
+    const var_locations: vscode.Location[] =
+      await vscode.commands.executeCommand(
+        "vscode.executeReferenceProvider",
+        editor!.document.uri,
+        new vscode.Position(9, 26),
+      );
+    assert.strictEqual(var_locations.length, 1);
+
     // goto STRUCT copybook
     helper.moveCursor(editor, new vscode.Position(11, 26));
 
