@@ -867,7 +867,7 @@ _NOTE: multiple versions exist due to replac(e/ing) or multiple use of same copy
     const var_locations: vscode.Location[] =
       await vscode.commands.executeCommand(
         "vscode.executeReferenceProvider",
-        editor!.document.uri,
+        editor.document.uri,
         new vscode.Position(9, 26),
       );
     assert.strictEqual(var_locations.length, 1);
