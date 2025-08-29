@@ -103,11 +103,11 @@ public class RangeUtils {
     }
     if (candidate != null) {
       Node finalCandidate = candidate;
-      boolean shouldNotAdd =
+      boolean shouldAdd =
           result.stream()
               .map(n -> n.getNearestParent(finalCandidate::equals))
-              .anyMatch(Optional::isPresent);
-      if (!shouldNotAdd && finalCandidate instanceof DefinedAndUsedStructure) {
+              .noneMatch(Optional::isPresent);
+      if (shouldAdd && finalCandidate instanceof DefinedAndUsedStructure) {
         result.add(finalCandidate);
       }
     }
