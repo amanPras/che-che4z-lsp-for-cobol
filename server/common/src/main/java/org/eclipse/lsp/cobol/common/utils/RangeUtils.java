@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.experimental.UtilityClass;
+import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.model.tree.CopyNode;
 import org.eclipse.lsp.cobol.common.model.tree.Node;
@@ -101,7 +102,11 @@ public class RangeUtils {
       findAllApplicableNodesByPositionImpl(result, child, uri, position);
     }
     if (candidate != null) {
-      result.add(candidate);
+      Node finalCandidate = candidate;
+      boolean shouldNotAdd =   result.stream().map(n -> n.getNearestParent(finalCandidate::equals)).anyMatch(Optional::isPresent);
+      if (!shouldNotAdd && finalCandidate instanceof DefinedAndUsedStructure) {
+          result.add(finalCandidate);
+      }
     }
   }
 
