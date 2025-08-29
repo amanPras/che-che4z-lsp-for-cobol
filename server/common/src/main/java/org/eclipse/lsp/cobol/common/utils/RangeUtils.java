@@ -103,9 +103,12 @@ public class RangeUtils {
     }
     if (candidate != null) {
       Node finalCandidate = candidate;
-      boolean shouldNotAdd =   result.stream().map(n -> n.getNearestParent(finalCandidate::equals)).anyMatch(Optional::isPresent);
+      boolean shouldNotAdd =
+          result.stream()
+              .map(n -> n.getNearestParent(finalCandidate::equals))
+              .anyMatch(Optional::isPresent);
       if (!shouldNotAdd && finalCandidate instanceof DefinedAndUsedStructure) {
-          result.add(finalCandidate);
+        result.add(finalCandidate);
       }
     }
   }
