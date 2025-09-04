@@ -210,21 +210,13 @@ class IdmsVisitor extends IdmsParserBaseVisitor<List<Node>> {
 
   private void addReplacementImperativeStatementContext(
       ParserRuleContext ctx, ImperativeStatementCallContext imperativeStatementCallContext) {
-    String newText =
-        context
-            .getExtendedDocument()
-            .toString()
-            .substring(
-                ctx.start.getStartIndex(), imperativeStatementCallContext.start.getStartIndex() + 1)
-            .replaceAll("[^ \n]", CobolDialect.FILLER);
-
     Range range =
         new Range(
             new Position(ctx.getStart().getLine() - 1, ctx.getStart().getCharPositionInLine()),
             new Position(
                 imperativeStatementCallContext.getStart().getLine() - 1,
                 imperativeStatementCallContext.getStart().getCharPositionInLine()));
-    context.getExtendedDocument().replace(range, newText);
+    context.getExtendedDocument().clear(range);
     context
         .getExtendedDocument()
         .replace(DialectUtils.constructRange(imperativeStatementCallContext), "IF 1 + 1 = 2");

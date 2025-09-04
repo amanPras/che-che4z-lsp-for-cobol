@@ -1170,7 +1170,8 @@ cobolKeywords
    ;
 
 idmsKeywords
-   : DAY | DATE | DAY_OF_WEEK | TIME | ALL
+   : DAY | DATE | DAY_OF_WEEK | TIME | ALL | MATCHES | CONTAINS | AND
+   | EQ | GE | GT | LT | LE | OR | WHERE
    ;
 
 cobolCompilerDirectivesKeywords
