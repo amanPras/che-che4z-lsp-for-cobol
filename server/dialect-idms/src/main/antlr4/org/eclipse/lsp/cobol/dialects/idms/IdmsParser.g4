@@ -1205,6 +1205,6 @@ imperativeStatementCall: ON pathStatus;
 booleanExpression: NOT? (comparison | logicalRecordField) ((AND | OR) NOT?  (comparison | logicalRecordField))*;
 logicalRecordField: cobolWord | literal;
 comparison: ((logicalRecordField | arithmeticExpression) (OF LR)?) (operator ((logicalRecordField | arithmeticExpression) (OF LR)?)) ;
-operator: CONTAINS | MATCHES | EQ | EQUALCHAR | NE | GT | MORETHANCHAR | LT | LESSTHANCHAR | GR | LE;
+operator: CONTAINS | MATCHES | EQ | EQUALCHAR | NE | GT | MORETHANCHAR | LT | LESSTHANCHAR | GE | LE;
 altLogicalRecordLocation: idms_db_entity_name;
 logicalRecordName: cobolWord;
