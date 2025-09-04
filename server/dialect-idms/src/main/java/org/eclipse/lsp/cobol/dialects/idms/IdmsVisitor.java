@@ -209,8 +209,7 @@ class IdmsVisitor extends IdmsParserBaseVisitor<List<Node>> {
   }
 
   private void addReplacementImperativeStatementContext(
-      ParserRuleContext ctx,
-      IdmsParser.ImperativeStatementCallContext imperativeStatementCallContext) {
+      ParserRuleContext ctx, ImperativeStatementCallContext imperativeStatementCallContext) {
     String newText =
         context
             .getExtendedDocument()
@@ -228,11 +227,6 @@ class IdmsVisitor extends IdmsParserBaseVisitor<List<Node>> {
     context.getExtendedDocument().replace(range, newText);
     context
         .getExtendedDocument()
-        .replace(
-            DialectUtils.constructRange(imperativeStatementCallContext.ON().getSymbol()), "IF");
-    context
-        .getExtendedDocument()
-        .replace(
-            DialectUtils.constructRange(imperativeStatementCallContext.pathStatus()), "1 + 1 = 2");
+        .replace(DialectUtils.constructRange(imperativeStatementCallContext), "IF 1 + 1 = 2");
   }
 }

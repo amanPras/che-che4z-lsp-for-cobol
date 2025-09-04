@@ -16,7 +16,6 @@ package org.eclipse.lsp.cobol.dialects.idms;
 
 import lombok.experimental.UtilityClass;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
@@ -38,24 +37,5 @@ class DialectUtils {
                 + ctx.getStop().getStopIndex()
                 - ctx.getStop().getStartIndex()
                 + 1));
-  }
-
-  /**
-   * Construct the range from ANTLR token
-   *
-   * @param token the ANTLR token
-   * @return the range
-   */
-  public static Range constructRange(Token token) {
-    int line = token.getLine() - 1;
-    int position = token.getCharPositionInLine();
-
-    Position start = new Position(line, position);
-    boolean zeroSize = token.getStopIndex() == -1 || token.getStopIndex() < token.getStartIndex();
-    Position end =
-        zeroSize
-            ? start
-            : new Position(line, position + token.getStopIndex() - token.getStartIndex() + 1);
-    return new Range(start, end);
   }
 }

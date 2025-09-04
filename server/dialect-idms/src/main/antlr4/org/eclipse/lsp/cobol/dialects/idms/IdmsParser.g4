@@ -1201,8 +1201,7 @@ obtainLRStatement
       imperativeStatementCall?
     ;
 pathStatus: {validateLength(_input.LT(1).getText(), "path-status", 16);} cobolWord;
-imperativeStatementCall: ON pathStatus imperativeStatement;
-imperativeStatement: (~DOT_FS)*;
+imperativeStatementCall: ON pathStatus;
 booleanExpression: NOT? (comparison | logicalRecordField) ((AND | OR) NOT?  (comparison | logicalRecordField))*;
 logicalRecordField: cobolWord | literal;
 comparison: ((logicalRecordField | arithmeticExpression) (OF LR)?) (operator ((logicalRecordField | arithmeticExpression) (OF LR)?)) ;
