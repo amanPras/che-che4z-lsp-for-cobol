@@ -128,7 +128,7 @@ FREE: F R E E;
 FROM: F R O M;
 FUNCTION: F U N C T I O N;
 GET : G E T;
-GR: G R;
+GE: G E;
 GREEN : G R E E N;
 GT: G T;
 HEADER: H E A D E R;
