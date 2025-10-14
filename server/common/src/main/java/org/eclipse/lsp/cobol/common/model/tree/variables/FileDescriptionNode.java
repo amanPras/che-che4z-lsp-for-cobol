@@ -50,13 +50,14 @@ public class FileDescriptionNode extends VariableNode {
 
   @Override
   protected String getVariableDisplayString() {
-    return String.format(
-        "DESCRIPTION %n----------- %n%S%n %nFILE-CONTROL%n------------ %n%S %n",
-        fileDescriptorText, fileControlClause);
+    return "";
   }
 
   @Override
   protected List<String> getChildrenDescription(String prefix) {
-    return ImmutableList.of();
+    return ImmutableList.of(
+        String.format(
+            "DESCRIPTION %n----------- %n%S%n %nFILE-CONTROL%n------------ %n%S %n",
+            fileDescriptorText, fileControlClause));
   }
 }
