@@ -145,10 +145,7 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
     StringBuilder trimmedHoverContent = new StringBuilder();
     String prefix = StringUtils.repeat(" ", startCharIndex);
     for (int i = 0; i < limit; i++) {
-      if (!lines[i].startsWith(prefix)) {
-        trimmedHoverContent.append(prefix);
-      }
-      trimmedHoverContent.append(lines[i]).append("\n");
+      trimmedHoverContent.append(prefix).append(lines[i]).append("\n");
     }
     return trimmedHoverContent.toString();
   }
