@@ -21,6 +21,7 @@ import static org.eclipse.lsp.cobol.common.model.NodeType.VARIABLE_DEFINITION_NA
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +42,7 @@ import org.eclipse.lsp4j.Range;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public abstract class VariableNode extends Node implements DefinedAndUsedStructure {
-  public static final String PREFIX = "  ";
+  //  public static final String PREFIX = "  ";
   @Getter private final VariableType variableType;
   @Getter private final String name;
   @Getter @Setter private boolean global;
@@ -132,7 +133,9 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
               .build();
   }
 
-  protected abstract String getVariableDisplayString();
+  protected String getVariableDisplayString() {
+    return Optional.ofNullable(getText()).map(String::toUpperCase).orElse("");
+  }
 
   /**
    * Get user friendly variable description.
@@ -144,10 +147,10 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
     List<String> lines = new ArrayList<>();
     for (String parentLine : parentsDescription()) {
       lines.add(prepend(prefix.toString(), parentLine));
-      prefix.append(PREFIX);
+      //      prefix.append(PREFIX);
     }
     lines.add(prepend(prefix.toString(), getVariableDisplayString()));
-    prefix.append(PREFIX);
+    //    prefix.append(PREFIX);
     lines.addAll(getChildrenDescription(prefix.toString()));
     return String.join("\n", lines);
   }
@@ -181,7 +184,7 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
         .map(VariableNode.class::cast)
         .filter(variableNode -> variableNode.variableType == VariableType.CONDITION_DATA_NAME)
         .map(VariableNode::getVariableDisplayString)
-        .map(displayString -> prepend(PREFIX, displayString))
+        //        .map(displayString -> prepend(PREFIX, displayString))
         .forEach(result::add);
     return String.join("\n", result);
   }

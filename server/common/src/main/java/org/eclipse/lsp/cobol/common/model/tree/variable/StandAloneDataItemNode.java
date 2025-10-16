@@ -19,7 +19,6 @@ import static org.eclipse.lsp.cobol.common.VariableConstants.LEVEL_77;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp.cobol.common.model.Locality;
 
 /**
@@ -86,13 +85,5 @@ public class StandAloneDataItemNode extends ElementaryNode {
         picClause,
         usageFormat);
     this.value = value;
-  }
-
-  @Override
-  protected String getVariableDisplayString() {
-    StringBuilder stringBuilder = new StringBuilder(getFormattedSuffix());
-    if (picClause != null) stringBuilder.append(" PIC ").append(picClause);
-    if (StringUtils.isNoneBlank(value)) stringBuilder.append(" VALUE ").append(value);
-    return stringBuilder.append(".").toString();
   }
 }

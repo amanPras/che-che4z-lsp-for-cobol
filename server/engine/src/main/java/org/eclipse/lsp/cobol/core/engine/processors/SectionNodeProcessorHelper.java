@@ -365,6 +365,7 @@ public class SectionNodeProcessorHelper {
             getName(definitionNode),
             definitionNode.hasRedefines(),
             global);
+    variable.setText(definitionNode.getText());
     createVariableNameNode(variable, definitionNode.getVariableName());
     List<SyntaxError> errors = processRenamesBoundaries(variable, group, definitionNode);
     if (errors.isEmpty()) variable.setVarGroupParent(group);
@@ -382,6 +383,7 @@ public class SectionNodeProcessorHelper {
               definitionNode.isExternal(),
               definitionNode.getFileDescriptor(),
               definitionNode.getFileControlClause());
+      variable.setText(definitionNode.getText());
       createVariableNameNode(variable, definitionNode.getVariableName());
       return new ResultWithErrors<>(variable, Collections.emptyList());
     }
@@ -399,6 +401,7 @@ public class SectionNodeProcessorHelper {
             definitionNode.hasRedefines(),
             definitionNode.getValueIntervals(),
             definitionNode.getValueToken());
+    variable.setText(definitionNode.getText());
     createVariableNameNode(variable, definitionNode.getVariableName());
     VariableWithLevelNode precedingVariable = getVariableForConditional(definitionNode);
     List<SyntaxError> errors = ImmutableList.of();
@@ -417,6 +420,7 @@ public class SectionNodeProcessorHelper {
               definitionNode.getLocality(),
               definitionNode.getSystemName(),
               getName(definitionNode));
+      variable.setText(definitionNode.getText());
       createVariableNameNode(variable, definitionNode.getVariableName());
       return new ResultWithErrors<>(variable, ImmutableList.of());
     }
@@ -426,6 +430,7 @@ public class SectionNodeProcessorHelper {
   private ResultWithErrors<VariableNode> mapNameMatcher(VariableDefinitionNode definitionNode) {
     if (definitionNode.getLevel() == LEVEL_MAP_NAME) {
       MapNameNode variable = new MapNameNode(definitionNode.getLocality(), getName(definitionNode));
+      variable.setText(definitionNode.getText());
       createVariableNameNode(variable, definitionNode.getVariableName());
       return new ResultWithErrors<>(variable, ImmutableList.of());
     }
@@ -450,6 +455,7 @@ public class SectionNodeProcessorHelper {
             definitionNode.isJustified(),
             definitionNode.isUnBounded());
 
+    variable.setText(definitionNode.getText());
     createVariableNameNode(variable, definitionNode.getVariableName());
     return new ResultWithErrors<>(variable, ImmutableList.of());
   }
@@ -469,6 +475,7 @@ public class SectionNodeProcessorHelper {
               definitionNode.getOccursClauses().get(0),
               definitionNode.getUsage(),
               definitionNode.isGlobal());
+      variable.setText(definitionNode.getText());
       createVariableNameNode(variable, definitionNode.getVariableName());
       for (VariableNameAndLocality nameAndLocality : definitionNode.getOccursIndexes())
         variable.addChild(
@@ -496,6 +503,7 @@ public class SectionNodeProcessorHelper {
               definitionNode.isGlobal(),
               definitionNode.hasRedefines(),
               definitionNode.getUsage());
+      variable.setText(definitionNode.getText());
       createVariableNameNode(variable, definitionNode.getVariableName());
       return new ResultWithErrors<>(variable, ImmutableList.of());
     }
@@ -523,6 +531,7 @@ public class SectionNodeProcessorHelper {
               definitionNode.isDynamicLength(),
               definitionNode.isJustified(),
               definitionNode.isUnBounded());
+      variable.setText(definitionNode.getText());
       createVariableNameNode(variable, definitionNode.getVariableName());
       for (VariableNameAndLocality nameAndLocality : definitionNode.getOccursIndexes())
         variable.addChild(
@@ -553,6 +562,7 @@ public class SectionNodeProcessorHelper {
               definitionNode.isDynamicLength(),
               definitionNode.isJustified(),
               definitionNode.isUnBounded());
+      variable.setText(definitionNode.getText());
       createVariableNameNode(variable, definitionNode.getVariableName());
       return new ResultWithErrors<>(variable, errors);
     }
@@ -571,6 +581,7 @@ public class SectionNodeProcessorHelper {
         || nameAndLocality.getLocality() == null) return;
     Node varName =
         new VariableDefinitionNameNode(nameAndLocality.getLocality(), nameAndLocality.getName());
+    varName.setText(parent.getText());
     parent.addChild(varName);
   }
 

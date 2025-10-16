@@ -91,11 +91,11 @@ class VariableHoverTest {
     String result =
         "```cobol\n"
             + "       01 TOP2.\n"
-            + "         05 MIDDLE-2.\n"
+            + "           05 MIDDLE-2.\n"
             + "           10 LEAF-2 PIC 9.\n"
-            + "             88 COND-ITEM1 VALUE 0.\n"
-            + "             88 COND-ITEM2 VALUES 1 THRU 3\n"
-            + "                                  4 THROUGH 5.\n"
+            + "           88 COND-ITEM1 VALUE 0.\n"
+            + "           88 COND-ITEM2 VALUES 1 THRU 3\n"
+            + "                                4 THROUGH 5.\n"
             + "\n"
             + "```";
 

@@ -40,11 +40,6 @@ public class IndexItemNode extends VariableNode implements EffectiveData {
   }
 
   @Override
-  protected String getVariableDisplayString() {
-    return "INDEXED BY " + getName();
-  }
-
-  @Override
   public EffectiveDataType getEffectiveDataType() {
     return EffectiveDataType.INTEGER;
   }

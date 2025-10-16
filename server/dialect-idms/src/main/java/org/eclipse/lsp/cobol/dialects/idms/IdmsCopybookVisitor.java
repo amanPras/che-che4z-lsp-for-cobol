@@ -117,6 +117,7 @@ class IdmsCopybookVisitor extends IdmsCopyParserBaseVisitor<List<Node>> {
     return addTreeNode(
         VariableDefinitionNode.builder()
             .level(calculateLevel(VisitorHelper.getLevel(ctx.levelNumber().LEVEL_NUMBER())))
+            .text(getIntervalTextFromBeginningOfLine(ctx))
             .levelLocality(getLevelLocality(ctx.levelNumber().LEVEL_NUMBER()))
             .statementLocality(retrieveRangeLocality(ctx))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
@@ -144,6 +145,7 @@ class IdmsCopybookVisitor extends IdmsCopyParserBaseVisitor<List<Node>> {
     VariableDefinitionNode.Builder builder =
         VariableDefinitionNode.builder()
             .level(LEVEL_66)
+            .text(getIntervalTextFromBeginningOfLine(ctx))
             .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_66()))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
             .statementLocality(retrieveRangeLocality(ctx));
@@ -172,6 +174,7 @@ class IdmsCopybookVisitor extends IdmsCopyParserBaseVisitor<List<Node>> {
     return addTreeNode(
         VariableDefinitionNode.builder()
             .level(LEVEL_77)
+            .text(getIntervalTextFromBeginningOfLine(ctx))
             .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_77()))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
             .statementLocality(retrieveRangeLocality(ctx))
@@ -203,6 +206,7 @@ class IdmsCopybookVisitor extends IdmsCopyParserBaseVisitor<List<Node>> {
                 addTreeNode(
                     VariableDefinitionNode.builder()
                         .level(LEVEL_88)
+                        .text(getIntervalTextFromBeginningOfLine(ctx))
                         .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_88()))
                         .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
                         .statementLocality(retrieveRangeLocality(ctx))
@@ -223,6 +227,7 @@ class IdmsCopybookVisitor extends IdmsCopyParserBaseVisitor<List<Node>> {
     return addTreeNode(
         VariableDefinitionNode.builder()
             .level(LEVEL_FD_SD)
+            .text(getIntervalTextFromBeginningOfLine(ctx))
             .variableNameAndLocality(
                 extractNameAndLocality(ctx.fileDescriptionEntryClauses().cobolWord()))
             .statementLocality(retrieveRangeLocality(ctx.fileDescriptionEntryClauses().cobolWord()))

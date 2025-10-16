@@ -17,7 +17,6 @@ package org.eclipse.lsp.cobol.common.model.tree.variable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp.cobol.common.model.Locality;
 
 /**
@@ -89,15 +88,5 @@ public class ElementaryItemNode extends ElementaryNode {
         picClause,
         usageFormat);
     this.value = value;
-  }
-
-  @Override
-  protected String getVariableDisplayString() {
-    StringBuilder stringBuilder = new StringBuilder(getFormattedSuffix());
-    if (picClause != null) stringBuilder.append(" PIC ").append(picClause);
-    if (usageFormat != null && usageFormat != UsageFormat.UNDEFINED)
-      stringBuilder.append(" USAGE ").append(usageFormat.toDisplayString());
-    if (StringUtils.isNoneBlank(value)) stringBuilder.append(" VALUE ").append(value);
-    return stringBuilder.append(".").toString();
   }
 }

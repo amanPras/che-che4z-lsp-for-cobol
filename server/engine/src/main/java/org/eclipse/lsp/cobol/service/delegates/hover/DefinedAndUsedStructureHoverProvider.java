@@ -22,9 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
-import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
 import org.eclipse.lsp.cobol.common.model.NodeType;
@@ -113,7 +111,6 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
 
   private static Stream<Hover> getHoverStream(
       Set<Node> nodeDefinitionLists, DefinedAndUsedStructure node, String languageId) {
-    int startCharIndex = CobolLanguageId.MAPPER.get(languageId).getLayout().getAriaAStart();
     if (node instanceof Describable) {
       return Stream.of(
           new Hover(
@@ -121,8 +118,7 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
                   MarkupKind.MARKDOWN,
                   String.format(
                       "```%s\n%s\n```",
-                      languageId.toLowerCase(),
-                      getHoverLines((Describable) node, startCharIndex)))));
+                      languageId.toLowerCase(), getHoverLines((Describable) node)))));
     }
     return nodeDefinitionLists.stream()
         .filter(DefinedAndUsedStructure.class::isInstance)
@@ -135,17 +131,15 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
                     new MarkupContent(
                         MarkupKind.MARKDOWN,
                         String.format(
-                            "```%s\n%s\n```",
-                            languageId.toLowerCase(), getHoverLines(element, startCharIndex)))));
+                            "```%s\n%s\n```", languageId.toLowerCase(), getHoverLines(element)))));
   }
 
-  private static String getHoverLines(Describable describable, int startCharIndex) {
+  private static String getHoverLines(Describable describable) {
     String[] lines = describable.getFormattedDisplayString().split("\\r?\\n");
     int limit = Math.min(MAX_HOVER_LINE_COUNT, lines.length);
     StringBuilder trimmedHoverContent = new StringBuilder();
-    String prefix = StringUtils.repeat(" ", startCharIndex);
     for (int i = 0; i < limit; i++) {
-      trimmedHoverContent.append(prefix).append(lines[i]).append("\n");
+      trimmedHoverContent.append(lines[i]).append("\n");
     }
     return trimmedHoverContent.toString();
   }

@@ -73,7 +73,7 @@ class VariableCompletionTest {
 
   private List<CompletionItem> createExpected() {
     return ImmutableList.of(
-        createItem("VAR1", "01 VAR1 PIC 9."), createItem("VAR2", "01 VAR2 PIC 9."));
+        createItem("VAR1", "       01 VAR1 PIC 9."), createItem("VAR2", "       01 VAR2 PIC 9."));
   }
 
   private CompletionItem createItem(String name, String desc) {

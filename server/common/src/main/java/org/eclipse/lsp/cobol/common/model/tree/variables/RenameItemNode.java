@@ -45,11 +45,6 @@ public class RenameItemNode extends VariableWithLevelNode {
   }
 
   @Override
-  protected String getVariableDisplayString() {
-    return getFormattedSuffix() + ".";
-  }
-
-  @Override
   public Optional<Node> getNearestParentByType(NodeType type) {
     if (type == NodeType.VARIABLE)
       return Optional.ofNullable(varGroupParent)

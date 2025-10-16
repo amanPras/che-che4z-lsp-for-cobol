@@ -140,10 +140,12 @@ class Db2SqlVisitor extends Db2SqlParserBaseVisitor<List<Node>> {
       VariableNode variableNode =
           createVariableNode(
               variableDefinitionNode, generatedVariableLevel, suffixes[i], formats[i], usages[i]);
+      variableNode.setText(variableDefinitionNode.getText());
       variableDefinitionNode.addChild(variableNode);
-      variableNode.addChild(
+      VariableDefinitionNameNode childNode =
           new VariableDefinitionNameNode(
-              variableDefinitionNode.getVariableName().getLocality(), variableNode.getName()));
+              variableDefinitionNode.getVariableName().getLocality(), variableNode.getName());
+      variableNode.addChild(childNode);
     }
   }
 
@@ -172,17 +174,20 @@ class Db2SqlVisitor extends Db2SqlParserBaseVisitor<List<Node>> {
       String suffix,
       String format,
       UsageFormat usage) {
-    return new ElementaryItemNode(
-        variableDefinitionNode.getLevelLocality(),
-        generatedVariableLevel,
-        variableDefinitionNode.getVariableName().getName() + suffix,
-        false,
-        format,
-        "",
-        usage,
-        false,
-        false,
-        false);
+    ElementaryItemNode elementaryItemNode =
+        new ElementaryItemNode(
+            variableDefinitionNode.getLevelLocality(),
+            generatedVariableLevel,
+            variableDefinitionNode.getVariableName().getName() + suffix,
+            false,
+            format,
+            "",
+            usage,
+            false,
+            false,
+            false);
+    elementaryItemNode.setText(variableDefinitionNode.getText());
+    return elementaryItemNode;
   }
 
   @Override
@@ -227,6 +232,7 @@ class Db2SqlVisitor extends Db2SqlParserBaseVisitor<List<Node>> {
             .levelLocality(
                 getLocality(
                     this.context.getExtendedDocument().mapLocation(constructRange(levelCtx))))
+            .text(VisitorHelper.getIntervalTextFromBeginningOfLine(ctx))
             .statementLocality(statementLocality)
             .variableNameAndLocality(
                 new VariableNameAndLocality(
@@ -251,6 +257,7 @@ class Db2SqlVisitor extends Db2SqlParserBaseVisitor<List<Node>> {
 
     VariableDefinitionNode variableDefinitionNode =
         VariableDefinitionNode.builder()
+            .text(VisitorHelper.getIntervalTextFromBeginningOfLine(ctx))
             .level(Integer.parseInt(ctx.dbs_level_01().getText()))
             .levelLocality(
                 getLocality(

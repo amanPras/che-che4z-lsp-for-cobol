@@ -59,9 +59,4 @@ public class GroupItemNode extends VariableWithLevelNode implements UsageClause 
     super(location, level, name, redefines, VariableType.GROUP_ITEM, global);
     this.usageFormat = usageFormat;
   }
-
-  @Override
-  protected String getVariableDisplayString() {
-    return getFormattedSuffix() + ".";
-  }
 }
