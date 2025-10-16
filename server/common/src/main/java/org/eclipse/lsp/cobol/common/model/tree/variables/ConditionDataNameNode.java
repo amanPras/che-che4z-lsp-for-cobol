@@ -14,12 +14,16 @@
  */
 package org.eclipse.lsp.cobol.common.model.tree.variables;
 
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static org.eclipse.lsp.cobol.common.VariableConstants.LEVEL_88;
 
 import java.util.List;
+import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.model.tree.variable.ValueInterval;
 import org.eclipse.lsp.cobol.common.model.tree.variable.VariableType;
@@ -46,5 +50,29 @@ public class ConditionDataNameNode extends VariableWithLevelNode {
     super(location, LEVEL_88, name, redefines, VariableType.CONDITION_DATA_NAME);
     this.valueIntervals = valueIntervals;
     this.valueToken = valueToken;
+  }
+
+  @Override
+  protected String getVariableDisplayString() {
+    final String formattedSuffix = getFormattedSuffix();
+    int thruPadding = formattedSuffix.length() + valueToken.length() + 2; // number of spaces
+
+    return String.format(
+        "%s %s %s.",
+        formattedSuffix,
+        valueToken,
+        valueIntervals.stream()
+            .map(intervalToText())
+            .collect(joining("\n" + StringUtils.repeat(' ', thruPadding))));
+  }
+
+  private Function<ValueInterval, String> intervalToText() {
+    return it -> it.getFrom() + ofNullable(it.getTo()).map(addThru(it)).orElse("");
+  }
+
+  private Function<String, String> addThru(ValueInterval interval) {
+    return it ->
+        ofNullable(interval.getThruToken()).map(thru -> " " + thru + " ").orElse("")
+            + interval.getTo();
   }
 }

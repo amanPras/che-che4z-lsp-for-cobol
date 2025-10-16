@@ -49,8 +49,15 @@ public class FileDescriptionNode extends VariableNode {
   }
 
   @Override
+  protected String getVariableDisplayString() {
+    return "";
+  }
+
+  @Override
   protected List<String> getChildrenDescription(String prefix) {
     return ImmutableList.of(
-        String.format("*******    FILE-CONTROL ****\n" + "%S %n", fileControlClause));
+        String.format(
+            "DESCRIPTION %n----------- %n%S%n %nFILE-CONTROL%n------------ %n%S %n",
+            fileDescriptorText, fileControlClause));
   }
 }

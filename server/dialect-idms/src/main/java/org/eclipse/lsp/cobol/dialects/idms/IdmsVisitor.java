@@ -155,7 +155,6 @@ class IdmsVisitor extends IdmsParserBaseVisitor<List<Node>> {
             varName ->
                 addTreeNode(
                     VariableDefinitionNode.builder()
-                        .text(IdmsParserHelper.getIntervalTextFromBeginningOfLine(ctx))
                         .level(LEVEL_MAP_NAME)
                         .variableNameAndLocality(varName)
                         .statementLocality(constructLocality(ctx))

@@ -52,7 +52,6 @@ public class DaCoCopybookVisitor extends VariableParserBaseVisitor<List<Node>> {
             .level(calculateLevel(VisitorHelper.getLevel(ctx.levelNumber().LEVEL_NUMBER())))
             .levelLocality(getLevelLocality(ctx.levelNumber().LEVEL_NUMBER()))
             .statementLocality(retrieveRangeLocality(ctx))
-            .text(getIntervalTextFromBeginningOfLine(ctx))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
             .global(!ctx.dataGlobalClause().isEmpty())
             .picClauses(VisitorHelper.retrievePicTexts(ctx.dataPictureClause()))
@@ -79,7 +78,6 @@ public class DaCoCopybookVisitor extends VariableParserBaseVisitor<List<Node>> {
     VariableDefinitionNode.Builder builder =
         VariableDefinitionNode.builder()
             .level(LEVEL_66)
-            .text(getIntervalTextFromBeginningOfLine(ctx))
             .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_66()))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
             .statementLocality(retrieveRangeLocality(ctx));
@@ -110,7 +108,6 @@ public class DaCoCopybookVisitor extends VariableParserBaseVisitor<List<Node>> {
     VariableDefinitionNode variableDefinitionNode =
         VariableDefinitionNode.builder()
             .level(LEVEL_77)
-            .text(getIntervalTextFromBeginningOfLine(ctx))
             .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_77()))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
             .statementLocality(retrieveRangeLocality(ctx))
@@ -142,7 +139,6 @@ public class DaCoCopybookVisitor extends VariableParserBaseVisitor<List<Node>> {
                 addTreeNode(
                     VariableDefinitionNode.builder()
                         .level(LEVEL_88)
-                        .text(getIntervalTextFromBeginningOfLine(ctx))
                         .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_88()))
                         .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
                         .statementLocality(retrieveRangeLocality(ctx))

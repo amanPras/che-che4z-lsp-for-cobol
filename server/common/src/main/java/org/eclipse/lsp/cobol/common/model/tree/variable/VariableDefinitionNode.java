@@ -60,7 +60,6 @@ public final class VariableDefinitionNode extends Node {
   private final boolean isDynamicLength;
   private final boolean isJustified;
   private final boolean isUnBounded;
-  private final String text;
 
   private VariableDefinitionNode(
       Locality location,
@@ -85,8 +84,7 @@ public final class VariableDefinitionNode extends Node {
       boolean isDynamicLength,
       boolean isJustified,
       boolean isUnBounded,
-      boolean isExternal,
-      String text) {
+      boolean isExternal) {
     super(location, NodeType.VARIABLE_DEFINITION);
     this.level = level;
     this.variableName = variableName;
@@ -110,7 +108,6 @@ public final class VariableDefinitionNode extends Node {
     this.isJustified = isJustified;
     this.isUnBounded = isUnBounded;
     this.isExternal = isExternal;
-    this.text = text;
   }
 
   private static SyntaxError checkClauseIsSingle(
@@ -324,7 +321,7 @@ public final class VariableDefinitionNode extends Node {
    */
   public String getFileControlClause() {
     return Optional.ofNullable(fileControlClause)
-        //        .map(c -> c.replaceAll(SPACES_AFTER_NEWLINE_REGEX, System.lineSeparator()))
+        .map(c -> c.replaceAll(SPACES_AFTER_NEWLINE_REGEX, System.lineSeparator()))
         .orElse("");
   }
 
@@ -364,7 +361,6 @@ public final class VariableDefinitionNode extends Node {
     boolean isJustified;
     boolean isUnBounded;
     boolean isExternal;
-    String text;
 
     private Builder() {}
 
@@ -397,8 +393,7 @@ public final class VariableDefinitionNode extends Node {
           isDynamicLength,
           isJustified,
           isUnBounded,
-          isExternal,
-          text);
+          isExternal);
     }
   }
 }

@@ -554,7 +554,6 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
             .level(LEVEL_FD_SD)
             .variableNameAndLocality(
                 extractNameAndLocality(ctx.fileDescriptionEntryClauses().cobolWord()))
-            .text(getIntervalTextFromBeginningOfLine(ctx.fileDescriptionEntryClauses()))
             .statementLocality(
                 retrieveLocality(
                         ctx.fileDescriptionEntryClauses().cobolWord(), extendedDocument, copybooks)
@@ -1271,7 +1270,6 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
             .valueClauses(retrieveValues(ctx.dataValueClause()))
             .usageClauses(retrieveUsageFormat(ctx.dataUsageClause()))
             .occursClauses(retrieveOccursValues(ctx.dataOccursClause()))
-            .text(getIntervalTextFromBeginningOfLine(ctx))
             .redefinesClauses(
                 ctx.dataRedefinesClause().stream()
                     .map(DataRedefinesClauseContext::dataName)
@@ -1303,7 +1301,6 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
             .statementLocality(locality)
             .variableNameAndLocality(new VariableNameAndLocality(name, locality))
             .systemName(systemName)
-            .text(getIntervalTextFromBeginningOfLine(ctx))
             .build(),
         visitChildren(ctx));
   }
@@ -1315,7 +1312,6 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
             .level(LEVEL_66)
             .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_66()))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
-            .text(getIntervalTextFromBeginningOfLine(ctx))
             .statementLocality(retrieveLocality(ctx, extendedDocument, copybooks).orElse(null));
     ofNullable(ctx.dataRenamesClause())
         .map(
@@ -1352,7 +1348,6 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
                             retrieveLocality(ctx, extendedDocument, copybooks).orElse(null))
                         .valueClauses(retrieveValues(ImmutableList.of(ctx.dataValueClause())))
                         .valueToken(retrieveValueToken(valueToken))
-                        .text(getIntervalTextFromBeginningOfLine(ctx))
                         .build(),
                     visitChildren(ctx)))
         .orElse(ImmutableList.of());
@@ -1366,7 +1361,6 @@ public final class CobolVisitor extends CobolParserBaseVisitor<List<Node>> {
             .level(LEVEL_77)
             .levelLocality(getLevelLocality(ctx.LEVEL_NUMBER_77()))
             .variableNameAndLocality(extractNameAndLocality(ctx.entryName()))
-            .text(getIntervalTextFromBeginningOfLine(ctx))
             .statementLocality(retrieveLocality(ctx, extendedDocument, copybooks).orElse(null))
             .global(!ctx.dataGlobalClause().isEmpty())
             .picClauses(retrievePicTexts(ctx.dataPictureClause()))

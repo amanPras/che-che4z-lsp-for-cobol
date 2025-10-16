@@ -176,20 +176,6 @@ public class VisitorHelper {
     return ofNullable(ctx).map(VisitorHelper::retrieveIntervalText).orElse("");
   }
 
-  /**
-   * Retrieve the text in the initial representation including the hidden tokens from the start of
-   * the line to the end of the context rule.
-   *
-   * @param ctx the rule context that contains the required tokens
-   * @return a string representation of the given context
-   */
-  public static String getIntervalTextFromBeginningOfLine(ParserRuleContext ctx) {
-    if (ctx == null || ctx.getStart() == null || ctx.getStop() == null) return "";
-    int start = ctx.getStart().getStartIndex() - ctx.getStart().getCharPositionInLine();
-    int stop = ctx.getStop().getStopIndex();
-    return stop < start ? "" : ctx.getStart().getInputStream().getText(new Interval(start, stop));
-  }
-
   private static String retrieveIntervalText(@Nonnull ParserRuleContext ctx) {
     int start = ctx.getStart().getStartIndex();
     int stop = ctx.getStop().getStopIndex();
