@@ -20,10 +20,9 @@ import static org.eclipse.lsp.cobol.common.model.NodeType.VARIABLE;
 import static org.eclipse.lsp.cobol.common.model.NodeType.VARIABLE_DEFINITION_NAME;
 import static org.eclipse.lsp.cobol.common.model.tree.variable.VariableType.*;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -163,9 +162,9 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
 
   private Boolean shouldAppendPrefix() {
     return getNearestParentByType(VARIABLE)
-            .map(VariableNode.class::cast)
-            .map(t -> !ImmutableList.of(FD, SD, MAP_NAME).contains(t.getVariableType()))
-            .orElse(false);
+        .map(VariableNode.class::cast)
+        .map(t -> !ImmutableList.of(FD, SD, MAP_NAME).contains(t.getVariableType()))
+        .orElse(false);
   }
 
   private List<String> parentsDescription() {

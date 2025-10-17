@@ -15,7 +15,6 @@
 package org.eclipse.lsp.cobol.service.delegates.hover;
 
 import com.google.common.collect.ImmutableList;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -145,7 +144,9 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
     String prefix = StringUtils.repeat(" ", startCharIndex);
     for (int i = 0; i < limit; i++) {
       if (!Objects.equals(lines.get(i).getKind(), MarkupKind.PLAINTEXT)) {
-        trimmedHoverContent.append(lines.get(i).getValue().replaceAll("(?m)^", prefix)).append("\n");
+        trimmedHoverContent
+            .append(lines.get(i).getValue().replaceAll("(?m)^", prefix))
+            .append("\n");
       } else {
         trimmedHoverContent.append(lines.get(i).getValue()).append("\n");
       }
