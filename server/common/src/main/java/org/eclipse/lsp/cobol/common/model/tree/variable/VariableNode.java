@@ -142,38 +142,41 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
   /**
    * Get user friendly variable description.
    *
-   * @return the string with described variable.
+   * @return the List of {@link MarkupContent} with described variable.
    */
   public List<MarkupContent> getFullVariableDescription() {
     StringBuilder prefix = new StringBuilder();
     List<MarkupContent> lines = new ArrayList<>();
-    for (String parentLine : parentsDescription()) {
-      lines.add(new MarkupContent(MarkupKind.MARKDOWN, parentLine));
+    List<MarkupContent> otherDetails = new ArrayList<>();
+    for (VariableNode node : getParentVariableNodes()) {
+      if (doesNodeHaveLevel(node)) {
+        lines.add(new MarkupContent(MarkupKind.MARKDOWN, node.getVariableDisplayString()));
+      } else {
+        otherDetails.add(new MarkupContent(MarkupKind.MARKDOWN, node.getVariableDisplayString()));
+      }
     }
-    if (shouldAppendPrefix()) prefix.append(PREFIX);
+    if (!lines.isEmpty()) prefix.append(PREFIX);
     lines.add(
         new MarkupContent(
             MarkupKind.MARKDOWN, prepend(prefix.toString(), getVariableDisplayString())));
     prefix.append(PREFIX);
     List<MarkupContent> childrenDescription = getChildrenDescription(prefix.toString());
     lines.addAll(childrenDescription);
+    lines.addAll(otherDetails);
     return lines;
   }
 
-  private Boolean shouldAppendPrefix() {
-    return getNearestParentByType(VARIABLE)
-        .map(VariableNode.class::cast)
-        .map(t -> !ImmutableList.of(FD, SD, MAP_NAME).contains(t.getVariableType()))
-        .orElse(false);
+  private static Boolean doesNodeHaveLevel(VariableNode vn) {
+    return !ImmutableList.of(FD, SD, MAP_NAME).contains(vn.getVariableType());
   }
 
-  private List<String> parentsDescription() {
+  private List<VariableNode> getParentVariableNodes() {
     return getNearestParentByType(VARIABLE)
         .map(VariableNode.class::cast)
         .map(
             variableNode -> {
-              List<String> result = variableNode.parentsDescription();
-              result.add(variableNode.getVariableDisplayString());
+              List<VariableNode> result = variableNode.getParentVariableNodes();
+              result.add(variableNode);
               return result;
             })
         .orElseGet(ArrayList::new);

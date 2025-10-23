@@ -32,22 +32,32 @@ import org.junit.jupiter.api.Test;
 
 /** Test {@link DefinedAndUsedStructureHoverProvider} */
 class VariableHoverTest {
-  private final DefinedAndUsedStructureHoverProvider variableHover =
-      new DefinedAndUsedStructureHoverProvider();
-  SourceUnitGraph documentGraph;
-
-  @BeforeEach
-  void setUp() {
-    this.documentGraph = mock(SourceUnitGraph.class);
-    when(documentGraph.isUserSuppliedCopybook(anyString())).thenReturn(false);
-  }
-
+  public static final String FD_SOURCE_UNIT =
+      "       IDENTIFICATION DIVISION.\n"
+          + "       PROGRAM-ID. TEST1.\n"
+          + "       ENVIRONMENT DIVISION.\n"
+          + "       INPUT-OUTPUT SECTION.\n"
+          + "       FILE-CONTROL.\n"
+          + "           SELECT {$ACCTFILE}\n"
+          + "               ASSIGN        TO UT-ACCTFILE\n"
+          + "               ORGANIZATION  IS INDEXED\n"
+          + "               ACCESS MODE   IS DYNAMIC\n"
+          + "               RECORD KEY    IS {$ACCOUNT-KEY}\n"
+          + "               FILE STATUS   IS {$FS-ACCTFILE}.\n"
+          + "       DATA DIVISION.\n"
+          + "       FILE SECTION.\n"
+          + "       FD  {$*ACCTFILE}                          IS EXTERNAL\n"
+          + "           DATA RECORD IS {$ACCOUNT-RECORD}.\n"
+          + "       01  {$*ACCOUNT-RECORD}.\n"
+          + "           03  {$*ACCOUNT-KEY}.\n"
+          + "               05  {$*ACCOUNT-ID}                 PIC 9(06)  VALUE ZERO.\n"
+          + "       WORKING-STORAGE SECTION.\n"
+          + "       77  {$*FS-ACCTFILE}                    PIC 9(02) VALUE ZERO.";
   private static final String HEADER =
       "       Identification Division.\n"
           + "       Program-id. TEST1.\n"
           + "       Data Division.\n"
           + "       Working-Storage Section.\n";
-
   private static final String FULL_TEXT =
       HEADER
           + "       01 {$*TEST2} PIC 9.\n"
@@ -60,6 +70,15 @@ class VariableHoverTest {
           + "           88 {$*COND-ITEM2} VALUES 1 THRU 3\n"
           + "                                4 THROUGH 5.\n"
           + "       01 {$*ANOTHER} PIC X(6) USAGE UTF-8.";
+  private final DefinedAndUsedStructureHoverProvider variableHover =
+      new DefinedAndUsedStructureHoverProvider();
+  SourceUnitGraph documentGraph;
+
+  @BeforeEach
+  void setUp() {
+    this.documentGraph = mock(SourceUnitGraph.class);
+    when(documentGraph.isUserSuppliedCopybook(anyString())).thenReturn(false);
+  }
 
   @Test
   void getHoverForNullDocument() {
@@ -114,6 +133,24 @@ class VariableHoverTest {
     assertEquals(MarkupKind.MARKDOWN, markupContent.getKind());
     assertEquals(
         "```cobol\n" + "       01 ANOTHER PIC X(6) USAGE UTF-8.\n" + "\n" + "```",
+        markupContent.getValue());
+  }
+
+  @Test
+  void testFDVariableHover() {
+    Hover hover =
+        variableHover.getHover(getModel(FD_SOURCE_UNIT), getPosition(14, 30), documentGraph);
+    assertNotNull(hover);
+    MarkupContent markupContent = hover.getContents().getRight();
+    assertEquals(MarkupKind.MARKDOWN, markupContent.getKind());
+    assertEquals(
+        "```cobol\n"
+            + "       01 ACCOUNT-RECORD.\n"
+            + "         03 ACCOUNT-KEY.\n"
+            + "       FD  ACCTFILE                          IS EXTERNAL\n"
+            + "       DATA RECORD IS ACCOUNT-RECORD.\n"
+            + "\n"
+            + "```",
         markupContent.getValue());
   }
 
