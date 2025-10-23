@@ -162,7 +162,10 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
     prefix.append(PREFIX);
     List<MarkupContent> childrenDescription = getChildrenDescription(prefix.toString());
     lines.addAll(childrenDescription);
-    lines.addAll(otherDetails);
+    if (!otherDetails.isEmpty()) {
+      lines.add(new MarkupContent(MarkupKind.MARKDOWN, ""));
+      lines.addAll(otherDetails);
+    }
     return lines;
   }
 

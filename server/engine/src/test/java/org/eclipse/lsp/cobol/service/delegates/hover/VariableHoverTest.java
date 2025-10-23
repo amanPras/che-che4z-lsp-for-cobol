@@ -147,6 +147,7 @@ class VariableHoverTest {
         "```cobol\n"
             + "       01 ACCOUNT-RECORD.\n"
             + "         03 ACCOUNT-KEY.\n"
+            + "\n"
             + "       FD  ACCTFILE                          IS EXTERNAL\n"
             + "       DATA RECORD IS ACCOUNT-RECORD.\n"
             + "\n"

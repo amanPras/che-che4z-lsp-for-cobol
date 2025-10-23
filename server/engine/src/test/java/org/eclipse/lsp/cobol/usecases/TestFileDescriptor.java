@@ -88,7 +88,7 @@ class TestFileDescriptor {
           + "       RECORD CONTAINS 80 CHARACTERS\n"
           + "       RECORDING MODE IS F\n"
           + "       BLOCK CONTAINS 0 RECORDS.\n"
-          + "*******    FILE-CONTROL ****\n"
+          + "*******    FILE-CONTROL\n"
           + "       ASSIGN TO \"c:\\infile.dat\"\n"
           + "       ORGANIZATION IS LINE SEQUENTIAL\n"
           + "       ACCESS MODE IS SEQUENTIAL\n"
