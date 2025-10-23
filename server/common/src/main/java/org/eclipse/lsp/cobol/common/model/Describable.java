@@ -14,7 +14,9 @@
  */
 package org.eclipse.lsp.cobol.common.model;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import org.eclipse.lsp4j.MarkupContent;
 
 /** The interface represents structure that can show formatted line to the user. */
@@ -22,7 +24,20 @@ public interface Describable {
   /**
    * Get user friendly node description.
    *
+   * @param prefix prefix for the display string
    * @return the {@link MarkupContent} with description.
    */
-  List<MarkupContent> getFormattedDisplayString();
+  List<MarkupContent> getFormattedDisplayString(String prefix);
+
+  /**
+   * Get text from the source code for a specific node.
+   *
+   * @param stringExtractor object which has a method which that takes a {@link Locality} and
+   *     Returns List of {@link MarkupContent}
+   * @return the {@link MarkupContent} with description.
+   */
+  default List<MarkupContent> getSourceDisplayString(
+      Function<Locality, List<MarkupContent>> stringExtractor, String prefix) {
+    return Collections.emptyList();
+  }
 }

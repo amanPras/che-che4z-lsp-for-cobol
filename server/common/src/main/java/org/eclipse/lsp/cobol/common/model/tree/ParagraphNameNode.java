@@ -17,6 +17,7 @@ package org.eclipse.lsp.cobol.common.model.tree;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
@@ -54,7 +55,7 @@ public class ParagraphNameNode extends Node implements DefinedAndUsedStructure, 
   }
 
   @Override
-  public List<MarkupContent> getFormattedDisplayString() {
+  public List<MarkupContent> getFormattedDisplayString(String prefix) {
     return getNearestParentByType(NodeType.PARAGRAPH)
         .map(ParagraphNode.class::cast)
         .map(ParagraphNode::getFullVariableDescription)
@@ -62,5 +63,14 @@ public class ParagraphNameNode extends Node implements DefinedAndUsedStructure, 
         .orElse(Stream.empty())
         .map(line -> new MarkupContent(MarkupKind.MARKDOWN, line))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<MarkupContent> getSourceDisplayString(
+      Function<Locality, List<MarkupContent>> stringExtractor, String prefix) {
+    return getNearestParentByType(NodeType.PARAGRAPH)
+        .map(ParagraphNode.class::cast)
+        .map(n -> stringExtractor.apply(n.getLocality()))
+        .orElseGet(() -> getFormattedDisplayString(prefix));
   }
 }

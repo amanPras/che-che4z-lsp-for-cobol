@@ -16,6 +16,7 @@ package org.eclipse.lsp.cobol.common.model.tree;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
@@ -53,12 +54,21 @@ public class SectionNameNode extends Node implements DefinedAndUsedStructure, De
    * @return
    */
   @Override
-  public List<MarkupContent> getFormattedDisplayString() {
+  public List<MarkupContent> getFormattedDisplayString(String prefix) {
     return ImmutableList.of(
         getNearestParentByType(NodeType.PROCEDURE_SECTION)
             .map(ProcedureSectionNode.class::cast)
             .map(ProcedureSectionNode::getFullVariableDescription)
             .map(desc -> new MarkupContent(MarkupKind.MARKDOWN, desc))
             .orElse(new MarkupContent(MarkupKind.MARKDOWN, "")));
+  }
+
+  @Override
+  public List<MarkupContent> getSourceDisplayString(
+      Function<Locality, List<MarkupContent>> stringExtractor, String prefix) {
+    return getNearestParentByType(NodeType.PROCEDURE_SECTION)
+        .map(ParagraphNode.class::cast)
+        .map(n -> stringExtractor.apply(n.getLocality()))
+        .orElseGet(() -> getFormattedDisplayString(prefix));
   }
 }

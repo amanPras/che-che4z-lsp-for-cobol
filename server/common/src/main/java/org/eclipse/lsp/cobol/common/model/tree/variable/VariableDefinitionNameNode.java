@@ -17,6 +17,8 @@ package org.eclipse.lsp.cobol.common.model.tree.variable;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -75,10 +77,28 @@ public class VariableDefinitionNameNode extends Node
   }
 
   @Override
-  public List<MarkupContent> getFormattedDisplayString() {
+  public List<MarkupContent> getFormattedDisplayString(String prefix) {
     return getNearestParentByType(NodeType.VARIABLE)
         .map(VariableNode.class::cast)
-        .map(VariableNode::getFullVariableDescription)
+        .map(n -> n.getFullVariableDescription(prefix))
         .orElse(Collections.emptyList());
+  }
+
+  @Override
+  public List<MarkupContent> getSourceDisplayString(
+      Function<Locality, List<MarkupContent>> stringExtractor, String prefix) {
+    Optional<VariableNode> variableNode =
+        getNearestParentByType(NodeType.VARIABLE).map(VariableNode.class::cast);
+    List<MarkupContent> variableMarkupContents =
+        variableNode
+            .map(n -> stringExtractor.apply(n.getLocality()))
+            .orElse(getFormattedDisplayString(prefix));
+    return variableNode
+        .map(
+            n ->
+                n.getNearestParentByType(NodeType.VARIABLE)
+                    .map(n1 -> stringExtractor.apply(n1.getLocality()))
+                    .orElse(variableMarkupContents))
+        .orElse(getFormattedDisplayString(prefix));
   }
 }

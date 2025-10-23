@@ -57,11 +57,11 @@ public class FileDescriptionNode extends VariableNode {
   }
 
   @Override
-  protected List<MarkupContent> getChildrenDescription(String prefix) {
+  protected List<MarkupContent> getChildrenDescription(String prefix, String prefixString) {
     List<MarkupContent> result = new ArrayList<>();
     result.add(new MarkupContent(MarkupKind.PLAINTEXT, "*******    FILE-CONTROL ****"));
     Arrays.stream(fileControlClause.split("\\r?\\n"))
-        .map(e -> new MarkupContent(MarkupKind.MARKDOWN, e))
+        .map(e -> new MarkupContent(MarkupKind.MARKDOWN, prefixString + e))
         .forEach(result::add);
     return result;
   }

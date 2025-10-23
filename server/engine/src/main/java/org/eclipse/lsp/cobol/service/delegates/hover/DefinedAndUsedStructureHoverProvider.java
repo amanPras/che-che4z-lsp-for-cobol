@@ -91,9 +91,7 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
     for (DefinedAndUsedStructure definedAndUsedStructure : definedAndUsedStructures.get()) {
       hoverStream =
           Stream.concat(
-              hoverStream,
-              getHoverStream(
-                  nodeDefinitionLists, definedAndUsedStructure, document.getLanguageId()));
+              hoverStream, getHoverStream(nodeDefinitionLists, definedAndUsedStructure, document));
     }
     if (nodeDefinitionLists.size() > 1) {
       hoverStream =
@@ -110,8 +108,8 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
   }
 
   private static Stream<Hover> getHoverStream(
-      Set<Node> nodeDefinitionLists, DefinedAndUsedStructure node, String languageId) {
-    int startCharIndex = CobolLanguageId.MAPPER.get(languageId).getLayout().getAriaAStart();
+      Set<Node> nodeDefinitionLists, DefinedAndUsedStructure node, CobolDocumentModel document) {
+    String languageId = document.getLanguageId();
     if (node instanceof Describable) {
       return Stream.of(
           new Hover(
@@ -119,8 +117,7 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
                   MarkupKind.MARKDOWN,
                   String.format(
                       "```%s\n%s\n```",
-                      languageId.toLowerCase(),
-                      getHoverLines((Describable) node, startCharIndex)))));
+                      languageId.toLowerCase(), getHoverLines((Describable) node, document)))));
     }
     return nodeDefinitionLists.stream()
         .filter(DefinedAndUsedStructure.class::isInstance)
@@ -134,22 +131,36 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
                         MarkupKind.MARKDOWN,
                         String.format(
                             "```%s\n%s\n```",
-                            languageId.toLowerCase(), getHoverLines(element, startCharIndex)))));
+                            languageId.toLowerCase(), getHoverLines(element, document)))));
   }
 
-  private static String getHoverLines(Describable describable, int startCharIndex) {
-    List<MarkupContent> lines = describable.getFormattedDisplayString();
+  //  private static String getHoverLines(Describable describable, int startCharIndex) {
+  //    List<MarkupContent> lines = describable.getFormattedDisplayString();
+  //    int limit = Math.min(MAX_HOVER_LINE_COUNT, lines.size());
+  //    StringBuilder trimmedHoverContent = new StringBuilder();
+  //    String prefix = StringUtils.repeat(" ", startCharIndex);
+  //    for (int i = 0; i < limit; i++) {
+  //      if (!Objects.equals(lines.get(i).getKind(), MarkupKind.PLAINTEXT)) {
+  //        trimmedHoverContent
+  //            .append(lines.get(i).getValue().replaceAll("(?m)^", prefix))
+  //            .append("\n");
+  //      } else {
+  //        trimmedHoverContent.append(lines.get(i).getValue()).append("\n");
+  //      }
+  //    }
+  //    return trimmedHoverContent.toString();
+  //  }
+
+  private static String getHoverLines(Describable describable, CobolDocumentModel document) {
+    int startCharIndex =
+        CobolLanguageId.MAPPER.get(document.getLanguageId()).getLayout().getAriaAStart();
+    String prefix = StringUtils.repeat(" ", startCharIndex);
+    List<MarkupContent> lines =
+        describable.getSourceDisplayString(document::getTextInRange, prefix);
     int limit = Math.min(MAX_HOVER_LINE_COUNT, lines.size());
     StringBuilder trimmedHoverContent = new StringBuilder();
-    String prefix = StringUtils.repeat(" ", startCharIndex);
     for (int i = 0; i < limit; i++) {
-      if (!Objects.equals(lines.get(i).getKind(), MarkupKind.PLAINTEXT)) {
-        trimmedHoverContent
-            .append(lines.get(i).getValue().replaceAll("(?m)^", prefix))
-            .append("\n");
-      } else {
-        trimmedHoverContent.append(lines.get(i).getValue()).append("\n");
-      }
+      trimmedHoverContent.append(lines.get(i).getValue()).append("\n");
     }
     return trimmedHoverContent.toString();
   }

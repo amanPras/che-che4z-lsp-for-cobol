@@ -31,6 +31,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.model.tree.ProgramNode;
 import org.eclipse.lsp.cobol.common.model.tree.variable.VariableNode;
 import org.eclipse.lsp.cobol.common.utils.ImplicitCodeUtils;
@@ -57,6 +59,13 @@ public class VariableCompletion implements Completion {
   public @NonNull Collection<CompletionItem> getCompletionItems(
       @NonNull String token, @Nullable CobolDocumentModel document) {
     if (!isDocumentReadyForSemanticCollection(document)) return emptyList();
+    String prefix =
+        StringUtils.repeat(
+            " ",
+            CobolLanguageId.MAPPER
+                .getOrDefault(document.getLanguageId(), CobolLanguageId.COBOL)
+                .getLayout()
+                .getAriaAStart());
     return document
         .getLastAnalysisResult()
         .getRootNode()
@@ -67,7 +76,7 @@ public class VariableCompletion implements Completion {
         .map(Multimap::values)
         .flatMap(Collection::stream)
         .filter(matchNames(token))
-        .map(this::toCompletionItem)
+        .map(n -> toCompletionItem(n, prefix))
         .collect(toList());
   }
 
@@ -75,13 +84,13 @@ public class VariableCompletion implements Completion {
     return it -> it.getName().regionMatches(true, 0, token, 0, token.length());
   }
 
-  private CompletionItem toCompletionItem(VariableNode it) {
+  private CompletionItem toCompletionItem(VariableNode it, String prefix) {
     String name = it.getName();
     CompletionItem item = new CompletionItem(name);
     item.setLabel(name);
     item.setInsertText(name);
     item.setDocumentation(
-        it.getFullVariableDescription().stream()
+        it.getFullVariableDescription(prefix).stream()
             .map(MarkupContent::getValue)
             .collect(Collectors.joining("\n")));
     if (ImplicitCodeUtils.isImplicit(it.getLocality().getUri())) {

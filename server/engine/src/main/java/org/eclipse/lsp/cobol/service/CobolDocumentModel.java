@@ -17,13 +17,22 @@ package org.eclipse.lsp.cobol.service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp.cobol.common.AnalysisResult;
+import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp4j.DocumentSymbol;
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 /**
  * This class stores a COBOL program text to be processed. Provides a list of lines and text tokens
@@ -101,6 +110,22 @@ public class CobolDocumentModel {
     this.text = text;
     parse(text);
     analysisResult = null;
+  }
+
+  /**
+   * Get {@link MarkupContent} from a document based on the passed locality.
+   * @param locality {@link Locality} for which the text needs to be extracted
+   * @return List of {@link MarkupContent}
+   */
+  public List<MarkupContent> getTextInRange(Locality locality) {
+    List<MarkupContent> result = new ArrayList<>();
+    if (!locality.getUri().equals(uri)) return null;
+    Range range = locality.getRange();
+    if (range.getStart().getLine() > range.getEnd().getLine()) return null; // some copybook issue
+    for (int i = range.getStart().getLine(); i <= range.getEnd().getLine(); i++) {
+      result.add(new MarkupContent(MarkupKind.MARKDOWN, lines.get(i).getText()));
+    }
+    return result;
   }
 
   String getFullTokenAtPosition(Position position) {

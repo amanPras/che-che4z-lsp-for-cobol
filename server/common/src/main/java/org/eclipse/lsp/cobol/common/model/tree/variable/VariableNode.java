@@ -144,18 +144,20 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
    *
    * @return the string with described variable.
    */
-  public List<MarkupContent> getFullVariableDescription() {
+  public List<MarkupContent> getFullVariableDescription(String prefixString) {
     StringBuilder prefix = new StringBuilder();
     List<MarkupContent> lines = new ArrayList<>();
     for (String parentLine : parentsDescription()) {
-      lines.add(new MarkupContent(MarkupKind.MARKDOWN, parentLine));
+      lines.add(new MarkupContent(MarkupKind.MARKDOWN, prefixString + parentLine));
     }
     if (shouldAppendPrefix()) prefix.append(PREFIX);
     lines.add(
         new MarkupContent(
-            MarkupKind.MARKDOWN, prepend(prefix.toString(), getVariableDisplayString())));
+            MarkupKind.MARKDOWN,
+            prepend(prefix.toString(), prefixString + getVariableDisplayString())));
     prefix.append(PREFIX);
-    List<MarkupContent> childrenDescription = getChildrenDescription(prefix.toString());
+    List<MarkupContent> childrenDescription =
+        getChildrenDescription(prefix.toString(), prefixString);
     lines.addAll(childrenDescription);
     return lines;
   }
@@ -179,12 +181,12 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
         .orElseGet(ArrayList::new);
   }
 
-  protected List<MarkupContent> getChildrenDescription(String prefix) {
+  protected List<MarkupContent> getChildrenDescription(String prefix, String prefixString) {
     return getChildren().stream()
         .filter(hasType(VARIABLE))
         .map(VariableNode.class::cast)
         .map(VariableNode::getDisplayStringWithConditionals)
-        .map(description -> prepend(prefix, description))
+        .map(description -> prepend(prefix, prefixString + description))
         .map(desc1 -> new MarkupContent(MarkupKind.MARKDOWN, desc1))
         .collect(toList());
   }
