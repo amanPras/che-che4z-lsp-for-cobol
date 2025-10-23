@@ -89,6 +89,15 @@ public class DocumentModelService {
     return Collections.emptyList();
   }
 
+  /***
+   * Returns model based on uri
+   * @param uri - document uri
+   * @return   document models
+   */
+  public String getDocumentModelFromUri(String uri) {
+    return sourceUnitGraph.getContent(uri);
+  }
+
   /**
    * Process analysis result and store diagnostics
    *

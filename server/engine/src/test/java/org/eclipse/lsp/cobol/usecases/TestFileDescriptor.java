@@ -29,6 +29,7 @@ import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
+import org.eclipse.lsp.cobol.service.DocumentModelService;
 import org.eclipse.lsp.cobol.service.delegates.hover.DefinedAndUsedStructureHoverProvider;
 import org.eclipse.lsp.cobol.service.delegates.hover.HoverProvider;
 import org.eclipse.lsp.cobol.test.engine.UseCaseEngine;
@@ -80,21 +81,43 @@ class TestFileDescriptor {
           + "            READ {$INFILE}.\n"
           + "            CLOSE {$INFILE}.";
 
-  private static final String HOVER =
-      "```cobol\n"
+  public static final String CLEANED_TEXT =
+      "      *****************************************************************\n"
+          + "       IDENTIFICATION DIVISION.\n"
+          + "       PROGRAM-ID.  calc2.\n"
+          + "       ENVIRONMENT DIVISION.\n"
+          + "       INPUT-OUTPUT SECTION.\n"
+          + "       FILE-CONTROL.\n"
+          + "             SELECT INFILE ASSIGN TO \"c:\\\\infile.dat\"\n"
+          + "             ORGANIZATION IS LINE SEQUENTIAL\n"
+          + "             ACCESS MODE IS SEQUENTIAL\n"
+          + "             FILE STATUS IS IFCODE.\n"
+          + "      *****************************************************************\n"
+          + "      *****************************************************************\n"
+          + "       DATA DIVISION.\n"
+          + "       FILE SECTION.\n"
           + "       FD  INFILE\n"
-          + "       LABEL RECORDS ARE STANDARD\n"
-          + "       DATA RECORD IS InputRec\n"
-          + "       RECORD CONTAINS 80 CHARACTERS\n"
-          + "       RECORDING MODE IS F\n"
-          + "       BLOCK CONTAINS 0 RECORDS.\n"
-          + "*******    FILE-CONTROL ****\n"
-          + "       ASSIGN TO \"c:\\infile.dat\"\n"
-          + "       ORGANIZATION IS LINE SEQUENTIAL\n"
-          + "       ACCESS MODE IS SEQUENTIAL\n"
-          + "       FILE STATUS IS IFCODE\n"
+          + "           LABEL RECORDS ARE STANDARD\n"
+          + "           DATA RECORD IS InputRec\n"
+          + "      * ------- some comments ,dont expect this on hover\n"
+          + "           RECORD CONTAINS 80 CHARACTERS\n"
+          + "           RECORDING MODE IS F\n"
+          + "           BLOCK CONTAINS 0 RECORDS.\n"
+          + "       01  IInputRec.\n"
+          + "           05 IField1 PIC X(40).\n"
+          + "           05 IField2 PIC X(40).\n"
           + "\n"
-          + "```";
+          + "       WORKING-STORAGE SECTION.\n"
+          + "       01  IFILE-STATUS-CODES.\n"
+          + "           05  IFCODE           PIC X(2).\n"
+          + "               88 ICODE-READ     VALUE SPACES.\n"
+          + "               88 INO-MORE-DATA  VALUE \"10\".\n"
+          + "\n"
+          + "       PROCEDURE DIVISION.\n"
+          + "            OPEN INPUT INFILE.\n"
+          + "            READ INFILE.\n"
+          + "            CLOSE INFILE.";
+  private static final String HOVER = "```cobol\n" + "       FD  INFILE\n" + "\n" + "```";
 
   private static final String NO_FILE_CONTROL_TEXT =
       "       IDENTIFICATION DIVISION.\n"
@@ -189,7 +212,9 @@ class TestFileDescriptor {
 
   private void assertHover(AnalysisResult result) {
     SourceUnitGraph documentGraph = mock(SourceUnitGraph.class);
-    HoverProvider provider = new DefinedAndUsedStructureHoverProvider();
+    DocumentModelService documentModelService = mock(DocumentModelService.class);
+    when(documentModelService.getDocumentModelFromUri(anyString())).thenReturn(CLEANED_TEXT);
+    HoverProvider provider = new DefinedAndUsedStructureHoverProvider(documentModelService);
     when(documentGraph.isUserSuppliedCopybook(anyString())).thenReturn(false);
     CobolDocumentModel document = new CobolDocumentModel("", "", result);
     document.setLanguageId(CobolLanguageId.COBOL.getId());

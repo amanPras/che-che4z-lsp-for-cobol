@@ -32,12 +32,12 @@ public interface Describable {
   /**
    * Get text from the source code for a specific node.
    *
-   * @param stringExtractor object which has a method which that takes a {@link Locality} and
-   *     Returns List of {@link MarkupContent}
+   * @param contentExtractor {@link Function} which takes uri and returns a {@link Function} which
+   *     takes the {@link Locality} and gives List of {@link MarkupContent}
    * @return the {@link MarkupContent} with description.
    */
   default List<MarkupContent> getSourceDisplayString(
-      Function<Locality, List<MarkupContent>> stringExtractor, String prefix) {
+      Function<String, Function<Locality, List<MarkupContent>>> contentExtractor, String prefix) {
     return Collections.emptyList();
   }
 }

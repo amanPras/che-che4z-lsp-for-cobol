@@ -15,7 +15,9 @@
 package org.eclipse.lsp.cobol.service.delegates.hover;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -25,19 +27,27 @@ import org.eclipse.lsp.cobol.common.AnalysisResult;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
+import org.eclipse.lsp.cobol.common.model.Locality;
 import org.eclipse.lsp.cobol.common.model.NodeType;
 import org.eclipse.lsp.cobol.common.model.tree.*;
 import org.eclipse.lsp.cobol.common.utils.RangeUtils;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.lsp.handlers.text.HoverHandler;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
+import org.eclipse.lsp.cobol.service.DocumentModelService;
 import org.eclipse.lsp4j.*;
 
 /** The class provides hover information for Procedures and Sections. */
 public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
+  private static DocumentModelService documentModelService;
   private static final int MAX_HOVER_LINE_COUNT = 20;
   private static final ImmutableList<NodeType> VARIABLE_DEFINITION_NODE_TYPES =
       ImmutableList.of(NodeType.VARIABLE_DEFINITION, NodeType.VARIABLE_DEFINITION_NAME);
+
+  @Inject
+  public DefinedAndUsedStructureHoverProvider(DocumentModelService documentModelService) {
+    DefinedAndUsedStructureHoverProvider.documentModelService = documentModelService;
+  }
 
   /**
    * @param document - document model that contains a semantic context
@@ -55,7 +65,6 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
         Optional.ofNullable(document)
             .map(CobolDocumentModel::getAnalysisResult)
             .map(AnalysisResult::getRootNode);
-
     Optional<Set<DefinedAndUsedStructure>> definedAndUsedStructures =
         rootNode
             .map(
@@ -134,34 +143,37 @@ public class DefinedAndUsedStructureHoverProvider implements HoverProvider {
                             languageId.toLowerCase(), getHoverLines(element, document)))));
   }
 
-  //  private static String getHoverLines(Describable describable, int startCharIndex) {
-  //    List<MarkupContent> lines = describable.getFormattedDisplayString();
-  //    int limit = Math.min(MAX_HOVER_LINE_COUNT, lines.size());
-  //    StringBuilder trimmedHoverContent = new StringBuilder();
-  //    String prefix = StringUtils.repeat(" ", startCharIndex);
-  //    for (int i = 0; i < limit; i++) {
-  //      if (!Objects.equals(lines.get(i).getKind(), MarkupKind.PLAINTEXT)) {
-  //        trimmedHoverContent
-  //            .append(lines.get(i).getValue().replaceAll("(?m)^", prefix))
-  //            .append("\n");
-  //      } else {
-  //        trimmedHoverContent.append(lines.get(i).getValue()).append("\n");
-  //      }
-  //    }
-  //    return trimmedHoverContent.toString();
-  //  }
-
   private static String getHoverLines(Describable describable, CobolDocumentModel document) {
     int startCharIndex =
         CobolLanguageId.MAPPER.get(document.getLanguageId()).getLayout().getAriaAStart();
     String prefix = StringUtils.repeat(" ", startCharIndex);
-    List<MarkupContent> lines =
-        describable.getSourceDisplayString(document::getTextInRange, prefix);
+    Function<String, Function<Locality, List<MarkupContent>>> contentExtractor =
+        uri ->
+            locality -> getTextInRange(documentModelService.getDocumentModelFromUri(uri), locality);
+    List<MarkupContent> lines = describable.getSourceDisplayString(contentExtractor, prefix);
     int limit = Math.min(MAX_HOVER_LINE_COUNT, lines.size());
     StringBuilder trimmedHoverContent = new StringBuilder();
     for (int i = 0; i < limit; i++) {
       trimmedHoverContent.append(lines.get(i).getValue()).append("\n");
     }
     return trimmedHoverContent.toString();
+  }
+
+  /**
+   * Get {@link MarkupContent} from a text content based on the passed locality.
+   *
+   * @param locality {@link Locality} for which the text needs to be extracted
+   * @return List of {@link MarkupContent}
+   */
+  static List<MarkupContent> getTextInRange(String content, Locality locality) {
+    if (content == null) return Collections.emptyList();
+    List<MarkupContent> result = new ArrayList<>();
+    String[] lines = content.split("\r?\n");
+    Range range = locality.getRange();
+    if (range.getStart().getLine() > range.getEnd().getLine()) return null; // some copybook issue
+    for (int i = range.getStart().getLine(); i <= range.getEnd().getLine(); i++) {
+      result.add(new MarkupContent(MarkupKind.MARKDOWN, lines[i]));
+    }
+    return result;
   }
 }

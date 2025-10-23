@@ -14,6 +14,8 @@
  */
 package org.eclipse.lsp.cobol.common.model.tree.variable;
 
+import static org.eclipse.lsp.cobol.common.model.tree.variable.VariableType.*;
+
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
 import org.eclipse.lsp.cobol.common.model.Locality;
@@ -92,17 +95,29 @@ public class VariableUsageNode extends Node implements DefinedAndUsedStructure, 
 
   @Override
   public List<MarkupContent> getSourceDisplayString(
-      Function<Locality, List<MarkupContent>> stringExtractor, String prefix) {
+      Function<String, Function<Locality, List<MarkupContent>>> stringExtractor, String prefix) {
     Optional<VariableNode> variableNode = getDefinition();
     List<MarkupContent> variableMarkupContents =
         variableNode
-            .map(n -> stringExtractor.apply(n.getLocality()))
+            .map(
+                node ->
+                    ImmutablePair.of(
+                        node.getLocality(), stringExtractor.apply(node.getLocality().getUri())))
+            .map(pr -> pr.getRight().apply(pr.getLeft()))
             .orElse(getFormattedDisplayString(prefix));
     return variableNode
         .map(
             n ->
                 n.getNearestParentByType(NodeType.VARIABLE)
-                    .map(n1 -> stringExtractor.apply(n1.getLocality()))
+                    .map(VariableNode.class::cast)
+                    .filter(
+                        vn -> !ImmutableList.of(FD, SD, MAP_NAME).contains(vn.getVariableType()))
+                    .map(
+                        node ->
+                            ImmutablePair.of(
+                                node.getLocality(),
+                                stringExtractor.apply(node.getLocality().getUri())))
+                    .map(pr -> pr.getRight().apply(pr.getLeft()))
                     .orElse(variableMarkupContents))
         .orElse(getFormattedDisplayString(prefix));
   }

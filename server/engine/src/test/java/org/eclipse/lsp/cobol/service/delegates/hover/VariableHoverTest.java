@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
+import org.eclipse.lsp.cobol.service.DocumentModelService;
 import org.eclipse.lsp.cobol.test.engine.UseCaseEngine;
 import org.eclipse.lsp4j.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +33,9 @@ import org.junit.jupiter.api.Test;
 
 /** Test {@link DefinedAndUsedStructureHoverProvider} */
 class VariableHoverTest {
+  private final DocumentModelService documentModelService = mock(DocumentModelService.class);
   private final DefinedAndUsedStructureHoverProvider variableHover =
-      new DefinedAndUsedStructureHoverProvider();
+      new DefinedAndUsedStructureHoverProvider(documentModelService);
   SourceUnitGraph documentGraph;
 
   @BeforeEach
@@ -42,6 +44,21 @@ class VariableHoverTest {
     when(documentGraph.isUserSuppliedCopybook(anyString())).thenReturn(false);
   }
 
+  private static final String CLEANED_DOC =
+      "       Identification Division.\n"
+          + "       Program-id. TEST1.\n"
+          + "       Data Division.\n"
+          + "       Working-Storage Section.\n"
+          + "       01 TEST2 PIC 9.\n"
+          + "       01 TOP2.\n"
+          + "           05 MIDDLE-1.\n"
+          + "           10 LEAF-1 PIC 9.\n"
+          + "           05 MIDDLE-2.\n"
+          + "           10 LEAF-2 PIC 9.\n"
+          + "           88 COND-ITEM1 VALUE 0.\n"
+          + "           88 COND-ITEM2 VALUES 1 THRU 3\n"
+          + "                                4 THROUGH 5.\n"
+          + "       01 ANOTHER PIC X(6) USAGE UTF-8.";
   private static final String HEADER =
       "       Identification Division.\n"
           + "       Program-id. TEST1.\n"
@@ -78,6 +95,8 @@ class VariableHoverTest {
 
   @Test
   void getHoverForOneVariable() {
+
+    when(documentModelService.getDocumentModelFromUri(anyString())).thenReturn(CLEANED_DOC);
     Hover hover = variableHover.getHover(getModel(FULL_TEXT), getPosition(4, 12), documentGraph);
     assertNotNull(hover);
     MarkupContent markupContent = hover.getContents().getRight();
@@ -91,14 +110,32 @@ class VariableHoverTest {
     String result =
         "```cobol\n"
             + "       01 TOP2.\n"
-            + "         05 MIDDLE-2.\n"
+            + "           05 MIDDLE-1.\n"
+            + "           10 LEAF-1 PIC 9.\n"
+            + "           05 MIDDLE-2.\n"
             + "           10 LEAF-2 PIC 9.\n"
-            + "             88 COND-ITEM1 VALUE 0.\n"
-            + "             88 COND-ITEM2 VALUES 1 THRU 3\n"
-            + "                                  4 THROUGH 5.\n"
+            + "           88 COND-ITEM1 VALUE 0.\n"
+            + "           88 COND-ITEM2 VALUES 1 THRU 3\n"
+            + "                                4 THROUGH 5.\n"
             + "\n"
             + "```";
 
+    when(documentModelService.getDocumentModelFromUri(anyString()))
+        .thenReturn(
+            "       Identification Division.\n"
+                + "       Program-id. TEST1.\n"
+                + "       Data Division.\n"
+                + "       Working-Storage Section.\n"
+                + "       01 TEST2 PIC 9.\n"
+                + "       01 TOP2.\n"
+                + "           05 MIDDLE-1.\n"
+                + "           10 LEAF-1 PIC 9.\n"
+                + "           05 MIDDLE-2.\n"
+                + "           10 LEAF-2 PIC 9.\n"
+                + "           88 COND-ITEM1 VALUE 0.\n"
+                + "           88 COND-ITEM2 VALUES 1 THRU 3\n"
+                + "                                4 THROUGH 5.\n"
+                + "       01 ANOTHER PIC X(6) USAGE UTF-8.");
     Hover hover = variableHover.getHover(getModel(FULL_TEXT), getPosition(8, 16), documentGraph);
     assertNotNull(hover);
     MarkupContent markupContent = hover.getContents().getRight();
@@ -108,6 +145,22 @@ class VariableHoverTest {
 
   @Test
   void getHoverWithUsage() {
+    when(documentModelService.getDocumentModelFromUri(anyString()))
+        .thenReturn(
+            "       Identification Division.\n"
+                + "       Program-id. TEST1.\n"
+                + "       Data Division.\n"
+                + "       Working-Storage Section.\n"
+                + "       01 TEST2 PIC 9.\n"
+                + "       01 TOP2.\n"
+                + "           05 MIDDLE-1.\n"
+                + "           10 LEAF-1 PIC 9.\n"
+                + "           05 MIDDLE-2.\n"
+                + "           10 LEAF-2 PIC 9.\n"
+                + "           88 COND-ITEM1 VALUE 0.\n"
+                + "           88 COND-ITEM2 VALUES 1 THRU 3\n"
+                + "                                4 THROUGH 5.\n"
+                + "       01 ANOTHER PIC X(6) USAGE UTF-8.");
     Hover hover = variableHover.getHover(getModel(FULL_TEXT), getPosition(13, 16), documentGraph);
     assertNotNull(hover);
     MarkupContent markupContent = hover.getContents().getRight();

@@ -29,6 +29,7 @@ import org.eclipse.lsp.cobol.common.copybook.CopybookProcessingMode;
 import org.eclipse.lsp.cobol.common.dialects.CobolLanguageId;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
+import org.eclipse.lsp.cobol.service.DocumentModelService;
 import org.eclipse.lsp.cobol.service.delegates.hover.DefinedAndUsedStructureHoverProvider;
 import org.eclipse.lsp.cobol.service.delegates.hover.HoverProvider;
 import org.eclipse.lsp.cobol.test.engine.UseCaseEngine;
@@ -49,15 +50,28 @@ class Test88ThruHover {
           + "          88 {$*BIT-THREE}   VALUE  X'80' THRU X'FF'.\n"
           + "          88 {$*BIT-FOUR} VALUES X'40'  THRU  X'7F'\n"
           + "                              X'C0' THRU X'FF'.";
+  public static final String CLEANED_TEXT =
+      "       IDENTIFICATION DIVISION.\n"
+          + "       PROGRAM-ID.  TEST1.\n"
+          + "       DATA DIVISION.\n"
+          + "       WORKING-STORAGE SECTION.\n"
+          + "       01 EIGHT-BITS            PIC X.\n"
+          + "          88 BIT-ONE   value  Is    X'80' THRU X'FF'.\n"
+          + "          88 BIT-TWO   Values    ARE X'40'  THRU  X'7F'\n"
+          + "                              X'C0' THRU X'FF'.\n"
+          + "          88 BIT-THREE   VALUE  X'80' THRU X'FF'.\n"
+          + "          88 BIT-FOUR VALUES X'40'  THRU  X'7F'\n"
+          + "                              X'C0' THRU X'FF'.";
   public static final String HOVER =
       "```cobol\n"
-          + "       01 EIGHT-BITS PIC X.\n"
-          + "         88 BIT-ONE VALUE IS X'80' THRU X'FF'.\n"
-          + "         88 BIT-TWO VALUES ARE X'40' THRU X'7F'\n"
-          + "                               X'C0' THRU X'FF'.\n"
-          + "         88 BIT-THREE VALUE X'80' THRU X'FF'.\n"
-          + "         88 BIT-FOUR VALUES X'40' THRU X'7F'\n"
-          + "                            X'C0' THRU X'FF'.\n\n"
+          + "       01 EIGHT-BITS            PIC X.\n"
+          + "          88 BIT-ONE   value  Is    X'80' THRU X'FF'.\n"
+          + "          88 BIT-TWO   Values    ARE X'40'  THRU  X'7F'\n"
+          + "                              X'C0' THRU X'FF'.\n"
+          + "          88 BIT-THREE   VALUE  X'80' THRU X'FF'.\n"
+          + "          88 BIT-FOUR VALUES X'40'  THRU  X'7F'\n"
+          + "                              X'C0' THRU X'FF'.\n"
+          + "\n"
           + "```";
 
   @Test
@@ -74,7 +88,9 @@ class Test88ThruHover {
   }
 
   private void assertHover(AnalysisResult result) {
-    HoverProvider provider = new DefinedAndUsedStructureHoverProvider();
+    DocumentModelService documentModelService = mock(DocumentModelService.class);
+    when(documentModelService.getDocumentModelFromUri(anyString())).thenReturn(CLEANED_TEXT);
+    HoverProvider provider = new DefinedAndUsedStructureHoverProvider(documentModelService);
 
     SourceUnitGraph documentGraph = mock(SourceUnitGraph.class);
     when(documentGraph.isUserSuppliedCopybook(anyString())).thenReturn(false);

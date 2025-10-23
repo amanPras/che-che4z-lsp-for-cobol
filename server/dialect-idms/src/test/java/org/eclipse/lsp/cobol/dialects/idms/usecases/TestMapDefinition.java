@@ -30,6 +30,7 @@ import org.eclipse.lsp.cobol.dialects.idms.IdmsDialect;
 import org.eclipse.lsp.cobol.dialects.idms.utils.Fixtures;
 import org.eclipse.lsp.cobol.lsp.SourceUnitGraph;
 import org.eclipse.lsp.cobol.service.CobolDocumentModel;
+import org.eclipse.lsp.cobol.service.DocumentModelService;
 import org.eclipse.lsp.cobol.service.delegates.hover.DefinedAndUsedStructureHoverProvider;
 import org.eclipse.lsp.cobol.test.engine.UseCaseEngine;
 import org.eclipse.lsp.cobol.test.engine.UseCaseUtils;
@@ -76,15 +77,30 @@ class TestMapDefinition {
     when(documentGraph.isUserSuppliedCopybook(anyString())).thenReturn(false);
     CobolDocumentModel document = new CobolDocumentModel(UseCaseUtils.DOCUMENT_URI, TEXT, result);
     document.setLanguageId(CobolLanguageId.COBOL.getId());
+    DocumentModelService documentModelService = mock(DocumentModelService.class);
+    when(documentModelService.getDocumentModelFromUri(anyString()))
+        .thenReturn(
+            "        IDENTIFICATION DIVISION.\n"
+                + "        PROGRAM-ID. test1.\n"
+                + "        DATA DIVISION.\n"
+                + "        MAP    SECTION.\n"
+                + "           MAX FIELD LIST 30.\n"
+                + "           MAP ABCDE.\n"
+                + "        WORKING-STORAGE SECTION.\n"
+                + "        01 LDAR.\n"
+                + "             07 ITENUM PIC X(7).\n"
+                + "        PROCEDURE DIVISION.\n"
+                + "            MODIFY MAP ABCDE CURSOR AT DFLD ITENUM.\n"
+                + "            DISPLAY ABCDE.");
     final Hover mapHover =
-        new DefinedAndUsedStructureHoverProvider()
+        new DefinedAndUsedStructureHoverProvider(documentModelService)
             .getHover(
                 document,
                 new TextDocumentPositionParams(
                     new TextDocumentIdentifier(UseCaseUtils.DOCUMENT_URI), new Position(5, 19)),
                 documentGraph);
     assertEquals(
-        new Hover(new MarkupContent(MarkupKind.MARKDOWN, "```cobol\n       MAP ABCDE.\n\n```")),
+        new Hover(new MarkupContent(MarkupKind.MARKDOWN, "```cobol\n           MAP ABCDE.\n\n```")),
         mapHover);
   }
 }

@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
 import org.eclipse.lsp.cobol.common.model.Describable;
 import org.eclipse.lsp.cobol.common.model.Locality;
@@ -67,10 +68,16 @@ public class ParagraphNameNode extends Node implements DefinedAndUsedStructure, 
 
   @Override
   public List<MarkupContent> getSourceDisplayString(
-      Function<Locality, List<MarkupContent>> stringExtractor, String prefix) {
+      Function<String, Function<Locality, List<MarkupContent>>> stringExtractor, String prefix) {
     return getNearestParentByType(NodeType.PARAGRAPH)
-        .map(ParagraphNode.class::cast)
-        .map(n -> stringExtractor.apply(n.getLocality()))
-        .orElseGet(() -> getFormattedDisplayString(prefix));
+        .map(n -> n.getChildren().stream())
+        .orElse(Stream.empty())
+        .map(
+            node ->
+                ImmutablePair.of(
+                    node.getLocality(), stringExtractor.apply(node.getLocality().getUri())))
+        .map(pr -> pr.getRight().apply(pr.getLeft()))
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
   }
 }

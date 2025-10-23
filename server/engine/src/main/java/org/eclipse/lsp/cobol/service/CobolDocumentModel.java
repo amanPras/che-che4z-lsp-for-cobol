@@ -114,6 +114,7 @@ public class CobolDocumentModel {
 
   /**
    * Get {@link MarkupContent} from a document based on the passed locality.
+   *
    * @param locality {@link Locality} for which the text needs to be extracted
    * @return List of {@link MarkupContent}
    */
