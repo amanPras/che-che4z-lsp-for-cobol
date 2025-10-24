@@ -58,7 +58,7 @@ public class SectionNameNode extends Node implements DefinedAndUsedStructure, De
         getNearestParentByType(NodeType.PROCEDURE_SECTION)
             .map(ProcedureSectionNode.class::cast)
             .map(ProcedureSectionNode::getFullVariableDescription)
-            .map(desc -> new MarkupContent(MarkupKind.MARKDOWN, desc))
+            .map(desc -> new MarkupContent(MarkupKind.PLAINTEXT, desc))
             .orElse(new MarkupContent(MarkupKind.MARKDOWN, "")));
   }
 }

@@ -60,7 +60,7 @@ public class ParagraphNameNode extends Node implements DefinedAndUsedStructure, 
         .map(ParagraphNode::getFullVariableDescription)
         .map(desc -> Arrays.stream(desc.split("\\r?\\n")))
         .orElse(Stream.empty())
-        .map(line -> new MarkupContent(MarkupKind.MARKDOWN, line))
+        .map(line -> new MarkupContent(MarkupKind.PLAINTEXT, line))
         .collect(Collectors.toList());
   }
 }
