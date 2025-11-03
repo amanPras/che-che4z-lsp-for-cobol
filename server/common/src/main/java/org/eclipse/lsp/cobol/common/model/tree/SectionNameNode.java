@@ -15,7 +15,11 @@
 package org.eclipse.lsp.cobol.common.model.tree;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.lsp.cobol.common.model.DefinedAndUsedStructure;
@@ -54,11 +58,12 @@ public class SectionNameNode extends Node implements DefinedAndUsedStructure, De
    */
   @Override
   public List<MarkupContent> getFormattedDisplayString() {
-    return ImmutableList.of(
-        getNearestParentByType(NodeType.PROCEDURE_SECTION)
+    return getNearestParentByType(NodeType.PROCEDURE_SECTION)
             .map(ProcedureSectionNode.class::cast)
             .map(ProcedureSectionNode::getFullVariableDescription)
-            .map(desc -> new MarkupContent(MarkupKind.PLAINTEXT, desc))
-            .orElse(new MarkupContent(MarkupKind.MARKDOWN, "")));
+            .map(desc -> Arrays.stream(desc.split("\\r?\\n")))
+            .orElse(Stream.empty())
+            .map(line -> new MarkupContent(MarkupKind.PLAINTEXT, line))
+            .collect(Collectors.toList());
   }
 }
