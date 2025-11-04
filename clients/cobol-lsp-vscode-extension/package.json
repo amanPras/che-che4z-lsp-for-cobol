@@ -232,6 +232,19 @@
           "HP-COBOL"
         ],
         "configuration": "./syntaxes/lang-config-hp.json"
+      },
+      {
+        "id": "ndvr-cobol",
+        "extensions": [
+          ".cbl.prnt",
+          ".cob.prnt",
+          ".cobol.prnt",
+          ".copy.prnt",
+          ".cpy.prnt"
+        ],
+        "aliases": [
+          "NDVR-COBOL"
+        ]
       }
     ],
     "grammars": [
@@ -247,7 +260,8 @@
         "scopeName": "meta.embedded.block.cics",
         "path": "./syntaxes/CICS.tmLanguage.json",
         "injectTo": [
-          "source.cobol"
+          "source.cobol",
+          "source.ndvr.cobol"
         ]
       },
       {
@@ -257,13 +271,22 @@
           "meta.embedded.block.sql": "sql"
         },
         "injectTo": [
-          "source.cobol"
+          "source.cobol",
+          "source.ndvr.cobol"
         ]
       },
       {
         "language": "hpcobol",
         "scopeName": "source.hpcobol",
         "path": "./syntaxes/HP.COBOL.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.html": "html"
+        }
+      },
+      {
+        "language": "ndvr-cobol",
+        "scopeName": "source.ndvr.cobol",
+        "path": "./syntaxes/NDVR.COBOL.tmLanguage.json",
         "embeddedLanguages": {
           "meta.embedded.block.html": "html"
         }
