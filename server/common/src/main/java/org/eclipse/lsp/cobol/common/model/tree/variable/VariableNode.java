@@ -22,6 +22,7 @@ import static org.eclipse.lsp.cobol.common.model.tree.variable.VariableType.*;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -149,16 +150,21 @@ public abstract class VariableNode extends Node implements DefinedAndUsedStructu
     List<MarkupContent> lines = new ArrayList<>();
     List<MarkupContent> otherDetails = new ArrayList<>();
     for (VariableNode node : getParentVariableNodes()) {
+      List<MarkupContent> details =
+          Arrays.stream(node.getVariableDisplayString().split("\\r?\\n"))
+              .map(line -> new MarkupContent(MarkupKind.MARKDOWN, line))
+              .collect(toList());
       if (doesNodeHaveLevel(node)) {
-        lines.add(new MarkupContent(MarkupKind.MARKDOWN, node.getVariableDisplayString()));
+        lines.addAll(details);
       } else {
-        otherDetails.add(new MarkupContent(MarkupKind.MARKDOWN, node.getVariableDisplayString()));
+        otherDetails.addAll(details);
       }
     }
     if (!lines.isEmpty()) prefix.append(PREFIX);
-    lines.add(
-        new MarkupContent(
-            MarkupKind.MARKDOWN, prepend(prefix.toString(), getVariableDisplayString())));
+    Arrays.stream(getVariableDisplayString().split("\\r?\\n"))
+        .map(line -> new MarkupContent(MarkupKind.MARKDOWN, prepend(prefix.toString(), line)))
+        .forEach(lines::add);
+
     prefix.append(PREFIX);
     List<MarkupContent> childrenDescription = getChildrenDescription(prefix.toString());
     lines.addAll(childrenDescription);
