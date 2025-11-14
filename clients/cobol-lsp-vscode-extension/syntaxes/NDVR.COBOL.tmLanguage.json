@@ -44,7 +44,7 @@
           "begin": "^ *[-]+\\s+(.*?)\\s+[-]+ *$",
           "end": "(^\\s+(?:\\w+\\s+)+$)",
           "endCaptures": {
-            "1" : {
+            "1": {
               "name": "entity.name.tag.ndvor"
             }
           },
