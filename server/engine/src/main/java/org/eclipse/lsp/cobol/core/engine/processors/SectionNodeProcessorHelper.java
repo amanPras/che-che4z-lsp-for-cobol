@@ -212,7 +212,7 @@ public class SectionNodeProcessorHelper {
       if (node instanceof VariableDefinitionNode) {
         VariableDefinitionNode varNode = (VariableDefinitionNode) node;
         if (varNode.getLocality().equals(variable.getLocality())
-            && varNode.getVariableName().equals(variable.getVariableName())) {
+            && Objects.equals(varNode.getVariableName(), variable.getVariableName())) {
           return true;
         }
       }
