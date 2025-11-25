@@ -14,27 +14,39 @@
 import * as cp from "child_process";
 import { SettingsService } from "./Settings";
 
-const versionPattern = new RegExp(
-  '(java|openjdk) (version)? ?"?((9|[0-9][0-9])|(1|9|[0-9][0-9]).(1|8|[0-9][0-9]).*).*',
-);
+export const SUPPORTED_JAVA_VERSION = 8;
+
+const versionCapturer =
+  /\b(?:java|openjdk)\b(?:\s+version)?\s+"?(?:1\.)?(\d+)/i;
 
 export class JavaCheck {
   public static isJavaVersionSupported(versionString: string) {
-    return versionPattern.test(versionString);
+    const match = versionCapturer.exec(versionString);
+    if (match) {
+      const major = Number.parseInt(match[1]);
+      if (major >= SUPPORTED_JAVA_VERSION) return major;
+    }
+    return undefined;
   }
-  public async isJavaInstalled() {
-    return new Promise((resolve, reject) => {
+
+  public async getInstalledJavaVersion() {
+    return new Promise<number>((resolve, reject) => {
       let resolved = false;
       const ls = cp.spawn(SettingsService.getJavaCommand(), ["-version"]);
       ls.stderr.on("data", (data: Buffer) => {
-        if (JavaCheck.isJavaVersionSupported(data.toString())) {
+        const version = JavaCheck.isJavaVersionSupported(data.toString());
+        if (version) {
           resolved = true;
-          resolve(resolved);
+          resolve(version);
         }
       });
       ls.on("error", (error: NodeJS.ErrnoException) => {
         if (error.code === "ENOENT") {
-          reject(new Error("Java 8 not found. Switching to native builds"));
+          reject(
+            new Error(
+              `Java ${SUPPORTED_JAVA_VERSION} not found. Switching to native builds`,
+            ),
+          );
         }
         reject(error);
       });
@@ -49,7 +61,7 @@ export class JavaCheck {
         if (!resolved) {
           reject(
             new Error(
-              "Minimum expected Java version is 8. Switching to native builds",
+              `Minimum expected Java version is ${SUPPORTED_JAVA_VERSION}. Switching to native builds`,
             ),
           );
         }
