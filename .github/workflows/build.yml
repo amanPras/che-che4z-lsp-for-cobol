@@ -120,6 +120,7 @@ jobs:
           path: server/engine/target/native/agent-output/test/*
 
   setEnvVarible:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         project:
