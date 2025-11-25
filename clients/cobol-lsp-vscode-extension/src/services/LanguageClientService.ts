@@ -30,7 +30,7 @@ import {
   StreamInfo,
 } from "vscode-languageclient/node";
 import { HP_LANGUAGE_ID, EXP_LANGUAGE_ID, LANGUAGE_ID } from "../constants";
-import { JavaCheck } from "./JavaCheck";
+import { JavaCheck, SUPPORTED_JAVA_VERSION } from "./JavaCheck";
 import { NativeExecutableService } from "./nativeLanguageClient/nativeExecutableService";
 import { SettingsService } from "./Settings";
 import { telemetryEvent } from "./reporter";
@@ -78,11 +78,12 @@ export class LanguageClientService {
     );
   }
 
-  public async checkPrerequisites(): Promise<void> {
-    await new JavaCheck().isJavaInstalled();
+  public async checkPrerequisites() {
+    const version = await new JavaCheck().getInstalledJavaVersion();
     if (!SettingsService.getLspPort() && !fs.existsSync(this.executablePath)) {
       throw new Error("LSP server for " + LANGUAGE_ID + " not found");
     }
+    telemetryEvent("log", ["bootstrap", "java-version"], `${version}`);
   }
 
   public addNotificationHandler(
@@ -152,10 +153,31 @@ export class LanguageClientService {
     }, 250);
   }
 
-  public async start() {
+  public async start(context: vscode.ExtensionContext) {
     const languageClient = this.getLanguageClient();
-    await languageClient.start();
+    try {
+      await languageClient.start();
+    } catch {
+      this.infoUserAboutRuntimeAbilities(context);
+    }
     this.initHandlers();
+  }
+
+  private infoUserAboutRuntimeAbilities(context: vscode.ExtensionContext) {
+    const message =
+      SettingsService.serverRuntime() === "NATIVE"
+        ? "Native Server Runtime failed to start. Select Java Server Runtime in the extension settings and reload VS Code"
+        : `Both Java and Native Server Runtimes failed to start. Ensure that the binaries specified in the Java Home setting are version ${SUPPORTED_JAVA_VERSION} or later`;
+    vscode.window
+      .showInformationMessage(message, "Settings")
+      .then((selection) => {
+        if (selection === "Settings") {
+          vscode.commands.executeCommand(
+            "workbench.action.openSettings",
+            `@ext:${context.extension.id}`,
+          );
+        }
+      });
   }
 
   private initHandlers() {
@@ -167,11 +189,15 @@ export class LanguageClientService {
     return this.languageClient?.dispose();
   }
 
+  private getName(): string {
+    return "LSP extension for " + LANGUAGE_ID.toUpperCase() + " language";
+  }
+
   private getLanguageClient() {
     if (!this.languageClient) {
       this.languageClient = new LanguageClient(
         LANGUAGE_ID,
-        "LSP extension for " + LANGUAGE_ID.toUpperCase() + " language",
+        this.getName(),
         this.createServerOptions(this.executablePath)!,
         this.createClientOptions(),
       );

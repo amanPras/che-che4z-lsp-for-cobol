@@ -47,6 +47,12 @@ jest.mock("vscode-languageclient/node", () => ({
   LanguageClient: jest.fn(),
 }));
 
+const context = {
+  extension: {
+    id: "Publisher.Extension-Name",
+  },
+} as unknown as vscode.ExtensionContext;
+
 Utils.getZoweExplorerAPI = jest.fn();
 let languageClientService: LanguageClientService;
 let middleware: Middleware;
@@ -68,7 +74,7 @@ describe("LanguageClientService positive scenario", () => {
       vscode.Uri.file("/storagePath"),
       middleware,
     );
-    new JavaCheck().isJavaInstalled = jest.fn().mockResolvedValue(true);
+    new JavaCheck().getInstalledJavaVersion = jest.fn().mockResolvedValue(17);
   });
 
   test("Test LanguageClientService switches native flag", () => {
@@ -170,7 +176,7 @@ describe("LanguageClientService positive scenario", () => {
       .mockReturnValue(Promise.resolve());
     const serverPath = join("/test", "server", "jar", "server.jar");
     const expectedDialectPath = join("/test", "server", "jar", "dialects");
-    expect(await languageClientService.start()).toBe(undefined);
+    expect(await languageClientService.start(context)).toBe(undefined);
     expect(LanguageClient).toHaveBeenCalledTimes(1);
     expect(LanguageClient).toHaveBeenCalledWith(
       SERVER_ID,
@@ -206,7 +212,7 @@ describe("LanguageClientService positive scenario", () => {
     const expectedDialectPath = join("/test", "server", "jar", "dialects");
     SettingsService.getJavaHome = jest.fn().mockReturnValue("/usr/");
 
-    expect(await languageClientService.start()).toBe(undefined);
+    expect(await languageClientService.start(context)).toBe(undefined);
     expect(LanguageClient).toHaveBeenCalledTimes(1);
     expect(LanguageClient).toHaveBeenCalledWith(
       SERVER_ID,
@@ -235,12 +241,12 @@ describe("LanguageClientService positive scenario", () => {
   });
 
   test("LanguageClientService starts the language server when port is provided", async () => {
-    new JavaCheck().isJavaInstalled = jest.fn().mockResolvedValue(true);
+    new JavaCheck().getInstalledJavaVersion = jest.fn().mockResolvedValue(17);
     vscode.workspace.getConfiguration().get = jest.fn().mockReturnValue(9999);
     LanguageClient.prototype.start = jest
       .fn()
       .mockReturnValue(Promise.resolve());
-    expect(await languageClientService.start()).toBe(undefined);
+    expect(await languageClientService.start(context)).toBe(undefined);
     expect(LanguageClient).toHaveBeenLastCalledWith(
       SERVER_ID,
       SERVER_DESC,
@@ -261,7 +267,7 @@ describe("LanguageClientService positive scenario", () => {
       .fn()
       .mockReturnValue(SERVER_STOPPED_MSG);
     // start the server, before shutdown.
-    await languageClientService.start();
+    await languageClientService.start(context);
     const returnedValue = await languageClientService.dispose();
     expect(returnedValue).toBe(SERVER_STOPPED_MSG);
   });
