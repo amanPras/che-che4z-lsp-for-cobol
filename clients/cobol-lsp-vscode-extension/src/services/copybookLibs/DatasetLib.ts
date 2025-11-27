@@ -12,20 +12,29 @@
  *   Broadcom, Inc. - initial API and implementation
  */
 
-import { DATASET } from "../../constants";
+import { DATASET, TAR_FOLDER } from "../../constants";
 import * as vscode from "vscode";
 import CopybookLib from "./CopybookLib";
 import { LibDefinition } from "../ProcessorGroupsLoader";
 import { externalApis } from "../ExternalAPIsService";
 import { ZoweLib } from "./ZoweLib";
 import { zoweSemaphore } from "../copybook/ZoweThrottling";
+import { extractTarPath, isTarPath } from "../util/Utils";
+import { TarUtil } from "../util/TarUtil";
 
 export class DatasetLib extends ZoweLib implements CopybookLib {
+  private internalPath: string | undefined;
+  private isTar: boolean = false;
   constructor(
     private dsn: string,
     profile?: string,
   ) {
     super(profile);
+    if (isTarPath(dsn)) {
+      ({ tarPath: this.dsn, internalPath: this.internalPath } =
+        extractTarPath(dsn));
+      this.isTar = true;
+    }
   }
 
   static create(config: LibDefinition) {
@@ -54,6 +63,26 @@ export class DatasetLib extends ZoweLib implements CopybookLib {
     const profile = this.getProfile(documentUri);
 
     if (!(await this.configCheck(documentUri))) {
+      return;
+    }
+    if (this.isTar) {
+      if (
+        !(await externalApis?.isPresentLocally(`${TAR_FOLDER}/${this.dsn}`))
+      ) {
+        await externalApis.dsnService?.downloadFile(this.dsn, profile);
+      }
+      if (externalApis.dsnService) {
+        return await TarUtil.resolveTarFile(
+          documentUri,
+          _dialect,
+          copybookName,
+          externalApis,
+          {
+            tarPath: this.dsn,
+            internalPath: this.internalPath,
+          },
+        );
+      }
       return;
     }
 
