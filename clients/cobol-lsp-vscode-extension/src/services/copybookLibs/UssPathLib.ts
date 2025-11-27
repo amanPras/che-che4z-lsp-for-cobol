@@ -62,27 +62,6 @@ export class UssPathLib extends ZoweLib implements CopybookLib {
       return;
     }
 
-    if (this.isTar) {
-      if (
-        !(await externalApis?.isPresentLocally(`${TAR_FOLDER}/${this.uss}`))
-      ) {
-        await externalApis.ussService?.downloadFile(this.uss, profile);
-      }
-      if (externalApis.ussService) {
-        return await TarUtil.resolveTarFile(
-          documentUri,
-          dialect,
-          copybookName,
-          externalApis,
-          {
-            tarName: this.uss,
-            internalPath: this.internalPath,
-            tarFileUri: externalApis.ussService.getTarFileUri(this.uss),
-          },
-        );
-      }
-      return;
-    }
     const allowedExtensions = await SettingsService.getCopybookExtension(
       documentUri,
       dialect,
@@ -148,5 +127,34 @@ export class UssPathLib extends ZoweLib implements CopybookLib {
         }),
       ),
     );
+  }
+
+  async resolveCopybookUriInTar(
+    copybookName: string,
+    documentUri: vscode.Uri,
+    dialect: string,
+  ): Promise<vscode.Uri | (() => Promise<vscode.Uri | undefined>) | undefined> {
+    const profile = this.getProfile(documentUri);
+    if (!(await externalApis?.isPresentLocally(`${TAR_FOLDER}/${this.uss}`))) {
+      await externalApis.ussService?.downloadFile(this.uss, profile);
+    }
+    if (externalApis.ussService) {
+      return await TarUtil.resolveTarFile(
+        documentUri,
+        dialect,
+        copybookName,
+        externalApis,
+        {
+          tarName: this.uss,
+          internalPath: this.internalPath,
+          tarFileUri: externalApis.ussService.getTarFileUri(this.uss),
+        },
+      );
+    }
+    return;
+  }
+
+  isCopybookInTar(): boolean {
+    return this.isTar;
   }
 }
