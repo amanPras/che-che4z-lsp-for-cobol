@@ -271,6 +271,7 @@
                                 </manifest>
                                 <manifestEntries>
                                     <Build-Time>${maven.build.timestamp}</Build-Time>
+                                    <Latest-client-version>${env.CLIENT_DETAIL}</Latest-client-version>
                                 </manifestEntries>
                             </archive>
                             <descriptorRefs>
