@@ -94,6 +94,27 @@ jobs:
           name: clients-for-bd-scan
           path: clients/**
           if-no-files-found: error
+  generateManifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: create client manifest
+        working-directory: clients/cobol-lsp-vscode-extension
+        if: github.event_name == 'pull_request' || github.event.inputs.include_build_number == 'true'
+        env:
+          BUILD_ID: ${{github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_number }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          touch clientVersionManifest.mf
+          echo "Latest-client-version: ${PACKAGE_VERSION}+${{ env.BUILD_ID }}" >> clientVersionManifest.mf
+          echo "" >> clientVersionManifest.mf
+      - name: Upload native build configuration        
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: warn
+          name: client-manifest
+          path: clients/cobol-lsp-vscode-extension/clientVersionManifest.mf  
+
 
   generateNativeConfig:
     runs-on: ubuntu-latest
@@ -132,6 +153,15 @@ jobs:
       - name: Build Server and Dialects Jars
         working-directory: server
         run: mvn clean verify --no-transfer-progress
+      - name: Retrieve client manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: client-manifest
+          path: client-manifest  
+      - name: update server manifest
+        working-directory: server/engine/target
+        run: |
+          jar -ufm server.jar ../../../client-manifest/clientVersionManifest.mf
       - name: Upload performance data
         uses: actions/upload-artifact@v4
         with:
@@ -337,6 +367,11 @@ jobs:
         with:
           name: native-build-configuration
           path: native-build-configuration
+      - name: Retrieve client manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: client-manifest
+          path: client-manifest  
       - name: Verify musl setup
         if: matrix.os == 'ubuntu-latest' && matrix.arch == 'x64'
         run: ./.github/scripts/verify_musl_setup.sh
@@ -354,6 +389,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.arch == 'x64'
         working-directory: server
         run: mvn -e -B -Plinux-native -DskipTests clean package
+      - name: update server manifest
+        working-directory: server/engine/target
+        run: |
+          jar -ufm server.jar ../../../client-manifest/clientVersionManifest.mf
       - name: Prepare windows artifacts
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
