@@ -26,7 +26,7 @@ import picocli.CommandLine;
 public class VersionProvider implements CommandLine.IVersionProvider {
 
   public static final String SEPARATOR = " : ";
-  public static final String LATEST_CLIENT_VERSION = "Latest-client-version";
+  public static final String LATEST_CLIENT_VERSION = "Latest-Client-Version";
   public static final String BUILD_TIME = "Build-Time";
   public static final String MAIN_CLASS = "org.eclipse.lsp.cobol.LangServerBootstrap";
 
