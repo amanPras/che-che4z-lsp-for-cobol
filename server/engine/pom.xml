@@ -267,7 +267,6 @@
                             <archive>
                                 <manifest>
                                     <mainClass>org.eclipse.lsp.cobol.LangServerBootstrap</mainClass>
-                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                 </manifest>
                                 <manifestEntries>
                                     <Build-Time>${maven.build.timestamp}</Build-Time>

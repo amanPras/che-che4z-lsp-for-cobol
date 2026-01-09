@@ -25,11 +25,10 @@ import picocli.CommandLine;
 /** Reads version information */
 public class VersionProvider implements CommandLine.IVersionProvider {
 
-  public static final String IMPLEMENTATION_TITLE = "Implementation-Title";
   public static final String SEPARATOR = " : ";
-  public static final String IMPLEMENTATION_VERSION = "Implementation-Version";
   public static final String LATEST_CLIENT_VERSION = "Latest-client-version";
   public static final String BUILD_TIME = "Build-Time";
+  public static final String MAIN_CLASS = "org.eclipse.lsp.cobol.LangServerBootstrap";
 
   private static String get(Attributes attributes, String key) {
     return Objects.toString(attributes.get(new Attributes.Name(key)));
@@ -53,8 +52,7 @@ public class VersionProvider implements CommandLine.IVersionProvider {
         if (isApplicableManifest(manifest)) {
           Attributes attr = manifest.getMainAttributes();
           return new String[] {
-            IMPLEMENTATION_TITLE + SEPARATOR + get(attr, IMPLEMENTATION_TITLE),
-            IMPLEMENTATION_VERSION + SEPARATOR + get(attr, IMPLEMENTATION_VERSION),
+            "COBOL LSP : Server",
             LATEST_CLIENT_VERSION + SEPARATOR + get(attr, LATEST_CLIENT_VERSION),
             BUILD_TIME + SEPARATOR + get(attr, BUILD_TIME)
           };
@@ -68,6 +66,6 @@ public class VersionProvider implements CommandLine.IVersionProvider {
 
   private boolean isApplicableManifest(Manifest manifest) {
     Attributes attributes = manifest.getMainAttributes();
-    return "COBOL LSP :: Server".equals(get(attributes, IMPLEMENTATION_TITLE));
+    return MAIN_CLASS.equals(get(attributes, "Main-Class"));
   }
 }
