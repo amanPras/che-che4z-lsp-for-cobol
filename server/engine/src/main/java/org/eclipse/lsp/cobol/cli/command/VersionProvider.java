@@ -55,7 +55,7 @@ public class VersionProvider implements CommandLine.IVersionProvider {
           return new String[] {
             IMPLEMENTATION_TITLE + SEPARATOR + get(attr, IMPLEMENTATION_TITLE),
             IMPLEMENTATION_VERSION + SEPARATOR + get(attr, IMPLEMENTATION_VERSION),
-            LATEST_CLIENT_VERSION + SEPARATOR + get(attr, LATEST_CLIENT_VERSION), // Build-Time
+            LATEST_CLIENT_VERSION + SEPARATOR + get(attr, LATEST_CLIENT_VERSION),
             BUILD_TIME + SEPARATOR + get(attr, BUILD_TIME)
           };
         }
