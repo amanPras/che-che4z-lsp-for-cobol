@@ -130,7 +130,7 @@ public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
       MultiTableDataNameNode cloneNode =
           new MultiTableDataNameNode(
               srcNode.getLocality(),
-              srcNode.getLevel(),
+              srcNode.getLevel() + lvlShift,
               newName,
               srcNode.isRedefines(),
               srcNode.getOccursClause(),
@@ -148,7 +148,7 @@ public class DaCoCopyFromProcessor implements Processor<DaCoCopyFromNode> {
       TableDataNameNode cloneNode =
           new TableDataNameNode(
               srcNode.getLocality(),
-              srcNode.getLevel(),
+              srcNode.getLevel() + lvlShift,
               newName,
               srcNode.isRedefines(),
               srcNode.isGlobal(),
