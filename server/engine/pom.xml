@@ -270,7 +270,8 @@
                                 </manifest>
                                 <manifestEntries>
                                     <Build-Time>${maven.build.timestamp}</Build-Time>
-                                    <Latest-Client-Version>${env.CLIENT_DETAIL}</Latest-Client-Version>
+                                    <Version>${env.CLIENT_DETAIL}</Version>
+                                    <Commit>${env.GIT_SHA}</Commit>
                                 </manifestEntries>
                             </archive>
                             <descriptorRefs>

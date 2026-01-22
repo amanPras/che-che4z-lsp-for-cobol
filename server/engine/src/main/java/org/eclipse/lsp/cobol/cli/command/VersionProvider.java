@@ -26,9 +26,10 @@ import picocli.CommandLine;
 public class VersionProvider implements CommandLine.IVersionProvider {
 
   public static final String SEPARATOR = " : ";
-  public static final String LATEST_CLIENT_VERSION = "Latest-Client-Version";
+  public static final String LATEST_CLIENT_VERSION = "Version";
   public static final String BUILD_TIME = "Build-Time";
   public static final String MAIN_CLASS = "org.eclipse.lsp.cobol.LangServerBootstrap";
+  public static final String COMMIT = "Commit";
 
   private static String get(Attributes attributes, String key) {
     return Objects.toString(attributes.get(new Attributes.Name(key)));
@@ -54,7 +55,8 @@ public class VersionProvider implements CommandLine.IVersionProvider {
           return new String[] {
             "COBOL LSP : Server",
             LATEST_CLIENT_VERSION + SEPARATOR + get(attr, LATEST_CLIENT_VERSION),
-            BUILD_TIME + SEPARATOR + get(attr, BUILD_TIME)
+            BUILD_TIME + SEPARATOR + get(attr, BUILD_TIME),
+            COMMIT + SEPARATOR + get(attr, COMMIT)
           };
         }
       } catch (IOException ex) {
