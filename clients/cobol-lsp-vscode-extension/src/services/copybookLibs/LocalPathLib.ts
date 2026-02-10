@@ -55,7 +55,6 @@ export default class LocalPathLib implements CopybookLib {
       documentUri,
       dialect,
     );
-
     const promises = uris.map(async (uri) => {
       return await localCopybooks.searchDirectory(
         uri,
