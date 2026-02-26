@@ -107,4 +107,4 @@ export const ANALYSIS_LIMIT_REASON = {
   event: "ccf.analysis.limit",
 };
 
-export const TAR_PREFIX = "tar:";
+export const TAR_PREFIX = "TAR:";
