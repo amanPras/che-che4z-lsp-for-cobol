@@ -406,10 +406,17 @@ export class VirtualMachineState {
  * COBOL Virtual Machine that executes COBOL instructions
  */
 export class VirtualMachine {
-  private context: VmContext;
+  private _context: VmContext;
 
   public constructor(context: VmContext) {
-    this.context = context;
+    this._context = context;
+  }
+
+  /**
+   * context getter
+   */
+  public get context() {
+    return this._context.clone();
   }
 
   /**
@@ -428,7 +435,7 @@ export class VirtualMachine {
    * @returns vistual machine identifier
    */
   public getId(): string {
-    return this.context.getVmId();
+    return this._context.getVmId();
   }
 
   /**
@@ -436,7 +443,7 @@ export class VirtualMachine {
    * @returns current COBOL instruction
    */
   public currentInstruction(): CobolInstruction | undefined {
-    return this.context.getInstructionByPosition(this.context.ic);
+    return this._context.getInstructionByPosition(this._context.ic);
   }
 
   /**
@@ -444,7 +451,7 @@ export class VirtualMachine {
    * @returns instuction counter
    */
   public ic(): number {
-    return this.context.ic;
+    return this._context.ic;
   }
 
   /**
@@ -452,7 +459,7 @@ export class VirtualMachine {
    * @returns true for conditional VM and false otherwise
    */
   public isConditional(): boolean {
-    return this.context.getNestedLevel() > 0;
+    return this._context.getNestedLevel() > 0;
   }
 
   /**
@@ -460,7 +467,7 @@ export class VirtualMachine {
    * @returns VM State object
    */
   public generateState(): VirtualMachineState {
-    return this.context.generateVmState();
+    return this._context.generateVmState();
   }
 
   /**
@@ -468,7 +475,7 @@ export class VirtualMachine {
    * @returns current program unit (Paragraph, Section or Program)
    */
   public getCurrentProgramUnit(): Paragraph | Section | Program {
-    return this.context.getCurrentProgramUnit();
+    return this._context.getCurrentProgramUnit();
   }
 
   /**
@@ -476,14 +483,14 @@ export class VirtualMachine {
    * @returns forked Virtual Machines after performing or undefined if VM was stopped
    */
   public step(): VirtualMachine[] | undefined {
-    const instruction = this.context.getInstructionByPosition(this.context.ic);
+    const instruction = this._context.getInstructionByPosition(this._context.ic);
     if (!instruction) {
       return undefined;
     }
     const positions = instruction
-      .execute(this.context)
+      .execute(this._context)
       .filter((p) =>
-        this.context.getProgramListing().getInstructionByPosition(p),
+        this._context.getProgramListing().getInstructionByPosition(p),
       );
     if (positions.length === 0) {
       return undefined;
@@ -494,7 +501,7 @@ export class VirtualMachine {
         forked.push(this.clone(positions[i]));
       }
     }
-    this.context.ic = positions[0];
+    this._context.ic = positions[0];
     return forked;
   }
 
@@ -502,25 +509,25 @@ export class VirtualMachine {
    * Updates current program unit (Program, Section or Paragraph) if needed
    */
   public updateProgramUnit() {
-    const instruction = this.context.getInstructionByPosition(this.context.ic);
+    const instruction = this._context.getInstructionByPosition(this._context.ic);
     if (instruction && instruction instanceof ProgramUnit) {
       const programUnit = (instruction as ProgramUnit).getInitialNode() as
         | Paragraph
         | Section
         | Program;
-      if (this.context.getCurrentProgramUnit().id !== programUnit.id) {
-        this.context.setCurrentProgramUnitByPosition(this.context.ic);
+      if (this._context.getCurrentProgramUnit().id !== programUnit.id) {
+        this._context.setCurrentProgramUnitByPosition(this._context.ic);
       }
     }
   }
 
   private clone(position: number): VirtualMachine {
-    const newVm = new VirtualMachine(this.context.clone());
+    const newVm = new VirtualMachine(this._context.clone());
 
-    newVm.context.returnCurrentProgramUnit(
-      this.context.getCurrentProgramUnit(),
+    newVm._context.returnCurrentProgramUnit(
+      this._context.getCurrentProgramUnit(),
     );
-    newVm.context.ic = position;
+    newVm._context.ic = position;
 
     return newVm;
   }

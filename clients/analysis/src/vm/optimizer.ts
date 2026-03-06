@@ -25,10 +25,17 @@ class OptimizerItem {
  * Optimizer stops COBOL Virtual Machine if it process the same COBOL instruction with the same VM state
  */
 export class IbmOptimizer {
-  private stateMap: Map<number, Map<number, OptimizerItem[]>>;
+  private _stateMap: Map<number, Map<number, OptimizerItem[]>>;
 
   public constructor() {
-    this.stateMap = new Map<number, Map<number, OptimizerItem[]>>();
+    this._stateMap = new Map<number, Map<number, OptimizerItem[]>>();
+  }
+
+  /**
+   * state map getter
+   */
+  public get stateMap() {
+    return new Map(this._stateMap);
   }
 
   /**
@@ -53,17 +60,17 @@ export class IbmOptimizer {
 
     if (!currentInstruction.isProcessed()) {
       const states =
-        this.stateMap.get(vm.ic()) ?? new Map<number, OptimizerItem[]>();
+        this._stateMap.get(vm.ic()) ?? new Map<number, OptimizerItem[]>();
       const array = states.get(vmHash) ?? [];
 
       array.push(new OptimizerItem(vmState, vm.isConditional()));
       states.set(vmHash, array);
-      this.stateMap.set(vm.ic(), states);
+      this._stateMap.set(vm.ic(), states);
       return false;
     }
 
     const states =
-      this.stateMap.get(vm.ic()) ?? new Map<number, OptimizerItem[]>();
+      this._stateMap.get(vm.ic()) ?? new Map<number, OptimizerItem[]>();
     const array = states.get(vmHash) ?? [];
 
     for (const item of array) {
@@ -80,7 +87,7 @@ export class IbmOptimizer {
     }
     array.push(new OptimizerItem(vmState, vm.isConditional()));
     states.set(vmHash, array);
-    this.stateMap.set(vm.ic(), states);
+    this._stateMap.set(vm.ic(), states);
 
     return false;
   }

@@ -40,11 +40,18 @@ export class VirtualProcessor {
         this.remove(vm);
       }
       // Guard condition
-      if (this.vms.length > this.maxVmCount) {
+      if (this.isTooComplexToHandle(vm)) {
         this.listener.maximumVMCountReached(this.maxVmCount);
         return;
       }
     }
+  }
+
+  private isTooComplexToHandle(vm: VirtualMachine) {
+    return (
+      this.vms.length > this.maxVmCount ||
+      (this.optimizer.stateMap.get(vm.ic())?.size || 0) > 10000
+    );
   }
 
   /**
@@ -83,7 +90,14 @@ export class VirtualProcessor {
       return false;
     }
     for (const newVm of newVms) {
-      this.vms.push(newVm);
+      const found = this.vms.find(
+        (vm) =>
+          vm.ic() === newVm.ic() &&
+          vm.getCurrentProgramUnit().id === newVm.getCurrentProgramUnit().id,
+      );
+      if (!found) {
+        this.vms.push(newVm);
+      }
     }
     return true;
   }
