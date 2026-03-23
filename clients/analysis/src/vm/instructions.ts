@@ -352,12 +352,16 @@ export class ExitParagraph extends ImportantCobolInstruction {
  * Alter instruction
  */
 export class AlterInstruction extends ImportantCobolInstruction {
+  public from: number;
+  public to: number;
   public constructor(
     node: CFASTNode,
-    private from: number,
-    private to: number,
+     from: number,
+     to: number,
   ) {
     super(node);
+    this.from =  from;
+    this.to = to;
   }
 
   override doExecute(context: VmContext): number {

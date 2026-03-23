@@ -90,14 +90,7 @@ export class VirtualProcessor {
       return false;
     }
     for (const newVm of newVms) {
-      const found = this.vms.find(
-        (vm) =>
-          vm.ic() === newVm.ic() &&
-          vm.getCurrentProgramUnit().id === newVm.getCurrentProgramUnit().id,
-      );
-      if (!found) {
-        this.vms.push(newVm);
-      }
+      this.vms.push(newVm);
     }
     return true;
   }

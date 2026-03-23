@@ -48,6 +48,10 @@ import {
   RangeDto,
 } from "./model/external";
 import { Channel } from "./vm/logger";
+import { StructureTracker } from "./vm/block/structureTracker";
+import { CFGGenerator } from "./vm/block/cfgGenerator";
+import { BlockGenerator } from "./vm/block/block";
+import { GraphVisualizer } from "./vm/block/GraphVisualizer";
 
 export class EngineProcessingResult {
   enters: Graph[] = [];
@@ -128,7 +132,14 @@ export class ControlFlowGraphBuilder {
 
       const listener = new BuildGraphListener(program, diagnostics, events);
       const optimizer = new IbmOptimizer();
-
+      const strtTracker = new StructureTracker();
+      const blockBuilder = new BlockGenerator(
+        listing.getInstructions(),
+        strtTracker,
+      );
+      const blocks = blockBuilder.generateBlocksOptimized();
+      const grph = new CFGGenerator(strtTracker).generate(blocks);
+      const dotNotation = GraphVisualizer.toDotFormat(grph);
       const processor = new VirtualProcessor(
         listing,
         listener,
@@ -158,12 +169,14 @@ class BuildGraphListener implements VirtualProcessorListener {
   private readonly latestLocation: Location;
   private _vmLimitReached = false;
 
-  public get vmLimitRearch() { return this._vmLimitReached; }
+  public get vmLimitRearch() {
+    return this._vmLimitReached;
+  }
 
   public constructor(
     private program: Program,
     private diagnostics: Map<string, DiagnosticDto[]>,
-    private events: EventDto[]
+    private events: EventDto[],
   ) {
     this.builder = new GraphBuilder(program);
     this.latestLocation = {

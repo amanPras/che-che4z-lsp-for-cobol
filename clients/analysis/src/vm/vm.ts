@@ -42,12 +42,13 @@ export class VmContext {
   private id: string;
   public ic: number;
   private currentProgramUnit: Paragraph | Section | Program;
-  private alterMap: Map<number, number>;
-  private stickyMap: Map<string, number>;
-  private redirectMap: Map<number, number>;
-  private storage: Map<number, PerformStorageItem>;
-  private path: CobolInstruction[];
-  private nestedLevel: number = 0;
+  private alterMap: Map<number, number>; // alter stmt
+  private stickyMap: Map<string, number>; // CicsHandleAbendInstruction
+  private redirectMap: Map<number, number>; // perform stmt
+  private storage: Map<number, PerformStorageItem>; //no idea: something related to updating VNcell position after perform
+  private path: CobolInstruction[]; // FallThruDiagnosticChecker
+
+  private nestedLevel: number = 0; // conditiona node
   private static staticInt = 0;
 
   public constructor(
