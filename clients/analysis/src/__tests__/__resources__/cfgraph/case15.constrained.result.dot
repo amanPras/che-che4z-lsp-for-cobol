@@ -1,0 +1,6 @@
+digraph A {
+rankdir=LR;
+<CFGPSQE>-><PARAG1>;
+<CFGPSQE>-><PARAG2>;
+<PARAG1>-><PARAG2>;
+}
