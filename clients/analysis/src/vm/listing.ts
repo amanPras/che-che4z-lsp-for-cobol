@@ -918,4 +918,3 @@ private getTargetProcedureFromNode(node: Goto | CicsHandleAbend | SqlWhenever): 
     );
   }
 }
-
