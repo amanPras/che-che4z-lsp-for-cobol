@@ -490,7 +490,6 @@ export class ProgramListing {
     }
 
     if (node.type === "goto") {
-      // const target = (node as Goto).targetName[0];
       this.instructions.push(new GotoPlaceholder(node, this.getTargetProcedureFromNode((node as Goto))));
       return;
     }
