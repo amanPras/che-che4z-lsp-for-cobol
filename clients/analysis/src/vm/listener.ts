@@ -12,7 +12,6 @@
  *   Broadcom, Inc. - initial API and implementation
  */
 import { Program, Location, Paragraph, Section } from "../model/cfast";
-import { Graph } from "../model/Graph";
 import { CobolInstruction } from "./instructions";
 
 /**
@@ -46,9 +45,4 @@ export interface VirtualProcessorListener {
    * @param path a VM path as a array of executed cobol instructions
    */
   reportFallThru(path: CobolInstruction[]): void;
-
-  /**
-   * Gives the graph sketched by listner while moving the nodes
-   */
-  getGraph(): Graph ;
 }

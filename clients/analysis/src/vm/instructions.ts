@@ -354,21 +354,14 @@ export class ExitParagraph extends ImportantCobolInstruction {
 export class AlterInstruction extends ImportantCobolInstruction {
   public constructor(
     node: CFASTNode,
-    private _from: number,
-    private _to: number,
+    private from: number,
+    private to: number,
   ) {
     super(node);
   }
 
-  public get to() {
-    return this._to;
-  }
-
-  public get from() {
-    return this._from;
-  }
   override doExecute(context: VmContext): number {
-    context.addAtler(this._from, this._to);
+    context.addAtler(this.from, this.to);
     return super.doExecute(context);
   }
 }

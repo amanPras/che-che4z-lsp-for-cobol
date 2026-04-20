@@ -441,7 +441,6 @@ export class ProgramListing {
         this.addChildren(child);
       }
     }
-    //ConditionalBlockPlaceholder /EvaluateBranchPlaceholder/ IfBranchPlaceholder
     if (node.type === "section") {
       if (
         !(this.instructions[this.instructions.length - 1] instanceof VNCell)
@@ -581,15 +580,14 @@ export class ProgramListing {
       performInfo.endCycleIndex = this.instructions.length;
 
       if (performInfo.performUntilType === "UNTIL_CONDITION") {
-        const initialNode =
-          this.instructions[performInfo.position].getInitialNode();
+        const initialNode = this.instructions[performInfo.position].getInitialNode();
         this.instructions[performInfo.position] = new ConditionEntry(
-          initialNode,
-          [performInfo.position + 1],
-          this.instructions.length + 1,
-          false,
-          [],
-        );
+            initialNode,
+            [performInfo.position + 1],
+            this.instructions.length + 1,
+            false,
+            [],
+          );
         this.instructions.push(new JumpInstruction(performInfo.position + 1));
         this.instructions.push(new ConditionExit(node));
       } else if (performInfo.performUntilType === "UNTIL_EXIT") {

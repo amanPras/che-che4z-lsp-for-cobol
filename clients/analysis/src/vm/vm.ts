@@ -19,7 +19,7 @@ import {
 } from "../model/cfast";
 import { VirtualProcessorListener } from "./listener";
 import { ProgramListing } from "./listing";
-import { AlterInstruction, CobolInstruction, ProgramUnit, SqlInstruction } from "./instructions";
+import { CobolInstruction, ProgramUnit } from "./instructions";
 
 const HANDLE_ABEND_KEY: string = "%handle_abend%";
 const WHENEVER_KEY: string = "%sql_whenever%";
@@ -51,7 +51,7 @@ export class VmContext {
   private static staticInt = 0;
 
   public constructor(
-    public programListing: ProgramListing,
+    private programListing: ProgramListing,
     private listener: VirtualProcessorListener,
   ) {
     this.currentProgramUnit = programListing.getProgram();
@@ -189,10 +189,7 @@ export class VmContext {
    * Assign current program unit to the new program unit by position and updats the Listener
    * @param position is a Program, Section or Paragraph listing position
    */
-  public setCurrentProgramUnitByPosition(
-    position: number,
-    moveControl: boolean = true,
-  ) {
+  public setCurrentProgramUnitByPosition(position: number) {
     const programUnit =
       this.getInstructionByPosition(position)?.getInitialNode();
     if (
@@ -201,11 +198,10 @@ export class VmContext {
         programUnit.type === "section" ||
         programUnit.type === "program")
     ) {
-      if (moveControl)
-        this.listener.moveControl(
-          this.currentProgramUnit,
-          programUnit as Paragraph | Section | Program,
-        );
+      this.listener.moveControl(
+        this.currentProgramUnit,
+        programUnit as Paragraph | Section | Program,
+      );
       this.currentProgramUnit = programUnit as Paragraph | Section | Program;
     }
   }
@@ -274,13 +270,9 @@ export class VmContext {
    * Clones COBOL Cirtual Machine Context
    * @returns cloned VM Context
    */
-  public clone(
-    snapshotAt: Paragraph | Section | Program | undefined = undefined,
-  ): VmContext {
+  public clone(): VmContext {
     const newContext = new VmContext(this.getProgramListing(), this.listener);
-    if (snapshotAt) {
-      newContext.currentProgramUnit = snapshotAt;
-    }
+
     newContext.redirectMap = new Map<number, number>(this.redirectMap);
     newContext.alterMap = new Map<number, number>(this.alterMap);
     newContext.stickyMap = new Map<string, number>(this.stickyMap);
@@ -408,43 +400,6 @@ export class VirtualMachineState {
     }
     return true;
   }
-
-  public getHash(): number {
-    const stateString = `R:${this.hashMap(this.vnCellStates)}|A:${this.hashMap(this.alterMap)}|S:${this.hashMap(this.stickyMap)}`;
-    return this.cyrb53(stateString);
-  }
-
-  private hashMap<K extends string | number, V>(map: Map<K, V>): string {
-    if (map.size === 0) return "";
-
-    const keys = Array.from(map.keys());
-    if (typeof keys[0] === "number") {
-      (keys as number[]).sort((a, b) => a - b);
-    } else {
-      keys.sort();
-    }
-
-    let res = "";
-    for (const key of keys) {
-      res += `${key},${map.get(key)};`;
-    }
-    return res;
-  }
-
-  /**
-   * 53-bit string hash algorithm.
-   */
-  private cyrb53(str: string, seed = 0): number {
-    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-    for (let i = 0, ch; i < str.length; i++) {
-      ch = str.charCodeAt(i);
-      h1 = Math.imul(h1 ^ ch, 2654435761);
-      h2 = Math.imul(h2 ^ ch, 1597334677);
-    }
-    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-  }
 }
 
 /**
@@ -474,10 +429,6 @@ export class VirtualMachine {
    */
   public getId(): string {
     return this.context.getVmId();
-  }
-
-  public getContext(): VmContext {
-    return this.context.clone(this.context.getCurrentProgramUnit());
   }
 
   /**
@@ -546,72 +497,6 @@ export class VirtualMachine {
     this.context.ic = positions[0];
     return forked;
   }
-
-  /**
-   * Performs current COBOL VM instruction and moves instruction counter to the next istruction
-   * @returns forked Virtual Machines after performing or undefined if VM was stopped
-   */
-  public passThroughStep(): VirtualMachine[] | undefined {
-  const instruction = this.context.getInstructionByPosition(this.context.ic);
-  if (!instruction) {
-    return undefined;
-  }
-
-  // Snapshot the context before execution
-  const currentContext = this.context.clone(this.getCurrentProgramUnit());
-  
-  // Execute and find valid target positions
-  const positions = instruction
-    .execute(this.context)
-    .filter((p) => this.context.getProgramListing().getInstructionByPosition(p));
-
-  if (positions.length === 0) {
-    return undefined;
-  }
-
-  const isAlter = instruction instanceof AlterInstruction;
-  //  AlterInstruction: Append incoming edge positions
-  if (isAlter) {
-    const edges = this.context.getListener().getGraph().getAllEdges();
-    for (const [key, valueSet] of edges.entries()) {
-      if (valueSet.has(instruction.from)) {
-        positions.push(key);
-      }
-    }
-  }
-
-  // Generate forked VMs for all valid positions
-  const forkedVms: VirtualMachine[] = positions.map(pos => this.clone(pos));
-
-  // Advance Instruction Counter and update context state
-  this.context.ic += 1;
-  
-  if (!(instruction instanceof ProgramUnit)) {
-    currentContext.ic = this.context.ic;
-    this.context = currentContext;
-  }
-
-  //  AlterInstruction: Apply side-effects to context and auxiliary forks
-  if (isAlter) {
-    // Copy the alter map state over
-    this.context.getAlterMap().forEach((value, key) => {
-      currentContext.addAtler(key, value);
-    });
-
-    // Process program units for newly forked VMs (skipping the main path at index 0)
-    for (let i = 1; i < forkedVms.length; i++) {
-      const forkedVm = forkedVms[i];
-      const forkedInst = forkedVm.context.programListing.getInstructionByPosition(forkedVm.ic());
-      const programUnit = forkedInst?.getInitialNode();
-      
-      if (programUnit && ["paragraph", "section", "program"].includes(programUnit.type)) {
-        forkedVm.context.returnCurrentProgramUnit(programUnit as Program | Paragraph | Section);
-      }
-    }
-  }
-
-  return forkedVms;
-}
 
   /**
    * Updates current program unit (Program, Section or Paragraph) if needed
