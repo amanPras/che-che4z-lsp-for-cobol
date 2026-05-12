@@ -7,7 +7,7 @@ All notable changes to the COBOL Language Support extension are documented in th
 - Miscellaneous bug fixes
 
 #### Changed
-- Readme update
+- Readme update and redesign
 - Improve replacing performance
 
 #### Added
