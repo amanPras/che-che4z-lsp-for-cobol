@@ -1,6 +1,26 @@
 # Changelog
 All notable changes to the COBOL Language Support extension are documented in this file.
 
+## [2.5.0](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.4.3...2.5.0) (2026-05-XX)
+
+#### Fixed
+- Miscellaneous bug fixes
+
+#### Changed
+- Readme update
+- Improve replacing performance
+
+#### Added
+- Synchronous copybook resolution
+- Zowe request throttling
+- Unused variables diagnostics support
+- Support copybooks in TAR files
+- Support British Pound sign
+- Add hover information to paragraphs
+- Allow to specify Java location
+- Bulk copybook prefetching
+- Introduce setting that enables use of comma as a decimal marker in SQL statements
+
 ## [2.4.3](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.4.2...2.4.3) (2025-07-23)
 
 #### Changed
