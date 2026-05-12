@@ -4,6 +4,13 @@ All notable changes to the COBOL Language Support extension are documented in th
 ## [2.5.0](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.4.3...2.5.0) (2026-05-XX)
 
 #### Fixed
+- Allow fullselect as an option after db2 IN keyword
+- Allow PARAGRAPH as a variable name
+- Allow SQL expressions prior to db2 LIKE keyword
+- Apply REPLACE statements after evaluating COPY statements
+- Relax ordering requirements on FETCH FIRST in ROWS and other clauses
+- UTF8 PIC clauses not recognized as alphanumeric
+- Fix wrong redirection of procedures in control flow graph
 - Miscellaneous bug fixes
 
 #### Changed
