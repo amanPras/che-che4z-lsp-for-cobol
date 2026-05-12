@@ -5,10 +5,8 @@ All notable changes to the "COBOL Language Support for IDMS" extension are docum
 ## 1.0.8 (2026-05-XX)
 
 - Readme update
-- Settings documentaion update
+- Settings documentation update
 - Tolerate IDMS OBTAIN, ERASE, MODIFY, STORE LR statements
-
-
 
 ## 1.0.7 (2025-07-23)
 
