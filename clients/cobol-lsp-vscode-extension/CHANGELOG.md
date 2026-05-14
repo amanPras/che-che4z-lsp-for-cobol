@@ -14,6 +14,7 @@ All notable changes to the COBOL Language Support extension are documented in th
 - Miscellaneous bug fixes
 
 #### Changed
+- Remote copybooks are now opened directly in Zowe Explorer rather than being downloaded to the workspace
 - Readme update and redesign
 - Improve replacing performance
 
