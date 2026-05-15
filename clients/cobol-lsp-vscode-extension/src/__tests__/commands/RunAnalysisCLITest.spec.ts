@@ -22,10 +22,19 @@ const context = {
 };
 
 describe("Test Analysis CLI command functionality", () => {
+  let outputChannel: vscode.LogOutputChannel;
+  beforeEach(() => {
+    outputChannel = {
+      appendLine: jest.fn(),
+      show: jest.fn(),
+    } as unknown as vscode.LogOutputChannel;
+  });
+
   test("Cobol Analysis - Java", async () => {
     const testAnalysis = new RunAnalysis(
       context.globalStorageUri,
       context.extensionUri,
+      outputChannel,
     );
     vscode.window.showQuickPick = jest
       .fn()
@@ -52,10 +61,6 @@ describe("Test Analysis CLI command functionality", () => {
       testAnalysis,
       "buildAnalysisCommandPortion" as keyof RunAnalysis,
     );
-    const sendToTerminalSpy = jest.spyOn(
-      testAnalysis,
-      "sendToTerminal" as keyof RunAnalysis,
-    );
 
     await testAnalysis.runCobolAnalysisCommand();
 
@@ -70,7 +75,12 @@ describe("Test Analysis CLI command functionality", () => {
     expect(buildAnalysisCommandPortionSpy).toHaveReturnedWith(
       'analysis -s "/storagePath" -cf=.',
     );
-    expect(sendToTerminalSpy).toHaveBeenCalled();
+    expect(outputChannel.appendLine).toHaveBeenCalledWith(
+      process.platform === "win32"
+        ? 'java -jar "\\test\\server\\jar\\server.jar" analysis -s "/storagePath" -cf=.'
+        : 'java -jar "/test/server/jar/server.jar" analysis -s "/storagePath" -cf=.',
+    );
+    expect(outputChannel.show).toHaveBeenCalled();
 
     expect(buildNativeCommandSpy).toHaveBeenCalledTimes(0);
   });
@@ -79,6 +89,7 @@ describe("Test Analysis CLI command functionality", () => {
     const testAnalysis = new RunAnalysis(
       context.globalStorageUri,
       context.extensionUri,
+      outputChannel,
     );
     vscode.window.showQuickPick = jest
       .fn()
@@ -105,10 +116,6 @@ describe("Test Analysis CLI command functionality", () => {
       testAnalysis,
       "buildAnalysisCommandPortion" as keyof RunAnalysis,
     );
-    const sendToTerminalSpy = jest.spyOn(
-      testAnalysis,
-      "sendToTerminal" as keyof RunAnalysis,
-    );
 
     await testAnalysis.runCobolAnalysisCommand();
 
@@ -121,8 +128,10 @@ describe("Test Analysis CLI command functionality", () => {
     expect(buildAnalysisCommandPortionSpy).toHaveReturnedWith(
       'analysis -s "/storagePath" -cf=.',
     );
-    expect(sendToTerminalSpy).toHaveBeenCalled();
-
+    expect(outputChannel.show).toHaveBeenCalled();
+    expect(outputChannel.appendLine).toHaveBeenCalledWith(
+      '/test/server/native/server-mac analysis -s "/storagePath" -cf=.',
+    );
     expect(buildJavaCommandSpy).toHaveBeenCalledTimes(0);
   });
 
@@ -130,6 +139,7 @@ describe("Test Analysis CLI command functionality", () => {
     const testAnalysis = new RunAnalysis(
       context.globalStorageUri,
       context.extensionUri,
+      outputChannel,
     );
     vscode.window.showQuickPick = jest.fn().mockReturnValue(undefined);
 
@@ -153,12 +163,14 @@ describe("Test Analysis CLI command functionality", () => {
     expect(getVersionToRunSpy).toHaveBeenCalled();
     expect(buildJavaCommandSpy).not.toHaveBeenCalled();
     expect(buildNativeCommandSpy).not.toHaveBeenCalled();
+    expect(outputChannel.show).not.toHaveBeenCalled();
   });
 
   test("Cobol Analysis - Save temp file", async () => {
     const testAnalysis = new RunAnalysis(
       context.globalStorageUri,
       context.extensionUri,
+      outputChannel,
     );
     vscode.window.showQuickPick = jest.fn().mockReturnValue("Java");
     if (vscode.window.activeTextEditor) {
@@ -186,6 +198,7 @@ describe("Test Analysis CLI command functionality", () => {
     const testAnalysis = new RunAnalysis(
       context.globalStorageUri,
       context.extensionUri,
+      outputChannel,
     );
 
     const result = testAnalysis["buildJavaCommand"]("");
@@ -197,6 +210,7 @@ describe("Test Analysis CLI command functionality", () => {
     const testAnalysis = new RunAnalysis(
       context.globalStorageUri,
       context.extensionUri,
+      outputChannel,
     );
 
     let result = testAnalysis["getServerPath"]("initialPath", "win32");

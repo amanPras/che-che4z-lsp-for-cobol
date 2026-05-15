@@ -522,11 +522,12 @@ function registerCommands(
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "cobol-lsp.analysis.runAnalysis",
+      "cobol-lsp.analysis.logCliAnalysisCommand",
       async () => {
         const tempAnalysis: RunAnalysis = new RunAnalysis(
           context.globalStorageUri,
           context.extensionUri,
+          outputChannel,
         );
         await tempAnalysis.runCobolAnalysisCommand();
       },
