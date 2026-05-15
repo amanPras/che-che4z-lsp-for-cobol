@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -76,9 +75,9 @@ class DidChangeConfigurationHandlerTest {
             errorFinalizerService);
 
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(CPY_LOCAL_PATHS.label)))
-            .thenReturn(CompletableFuture.completedFuture(ImmutableList.of("some-path")));
+        .thenReturn(CompletableFuture.completedFuture(ImmutableList.of("some-path")));
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(DIALECTS.label)))
-            .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+        .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
     when(settingsService.fetchConfiguration(LOCALE.label))
         .thenReturn(completedFuture(singletonList("LOCALE")));
     when(settingsService.fetchConfiguration(LOGGING_LEVEL.label))
@@ -128,9 +127,9 @@ class DidChangeConfigurationHandlerTest {
     String path = "foo/bar";
 
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(CPY_LOCAL_PATHS.label)))
-            .thenReturn(CompletableFuture.completedFuture(ImmutableList.of(path)));
+        .thenReturn(CompletableFuture.completedFuture(ImmutableList.of(path)));
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(DIALECTS.label)))
-            .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+        .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
     when(settingsService.fetchConfiguration(LOCALE.label))
         .thenReturn(completedFuture(singletonList("LOCALE")));
     when(settingsService.fetchConfiguration(LOGGING_LEVEL.label))
@@ -181,9 +180,9 @@ class DidChangeConfigurationHandlerTest {
     String path = "foo/bar";
 
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(CPY_LOCAL_PATHS.label)))
-            .thenReturn(CompletableFuture.completedFuture(ImmutableList.of(path)));
+        .thenReturn(CompletableFuture.completedFuture(ImmutableList.of(path)));
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(DIALECTS.label)))
-            .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+        .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
     when(settingsService.fetchConfiguration(LOCALE.label))
         .thenReturn(completedFuture(singletonList("LOCALE")));
     when(settingsService.fetchConfiguration(LOGGING_LEVEL.label))
@@ -238,9 +237,9 @@ class DidChangeConfigurationHandlerTest {
     arr.add(new JsonPrimitive(path));
 
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(CPY_LOCAL_PATHS.label)))
-            .thenReturn(CompletableFuture.completedFuture(ImmutableList.of()));
+        .thenReturn(CompletableFuture.completedFuture(ImmutableList.of()));
     when(settingsService.fetchTextConfigurationWithScope(any(), eq(DIALECTS.label)))
-            .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+        .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
     when(settingsService.fetchConfiguration(LOCALE.label))
         .thenReturn(completedFuture(singletonList("LOCALE")));
     when(settingsService.fetchConfiguration(LOGGING_LEVEL.label))
