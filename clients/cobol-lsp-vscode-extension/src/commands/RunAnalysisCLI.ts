@@ -14,7 +14,6 @@
 
 import * as vscode from "vscode";
 import { Terminal } from "vscode";
-import { SettingsService } from "../services/Settings";
 
 export interface AnalysisConfiguration {
   typeToRun?: string;
@@ -159,7 +158,7 @@ export class RunAnalysis {
 
     if (extensionFolder && currentFileLocation !== "") {
       return (
-        `${SettingsService.getJavaCommand()} -jar "` +
+        'java -jar "' +
         extensionFolder +
         '" ' +
         this.buildAnalysisCommandPortion(currentFileLocation)
@@ -184,9 +183,9 @@ export class RunAnalysis {
     }`;
 
     return (
-      "analysis -s " +
+      'analysis -s "' +
       currentFileLocation +
-      " " +
+      '" ' +
       copyBookCommand +
       (this.showDiagnostics ? "" : " -nd")
     );
@@ -206,33 +205,8 @@ export class RunAnalysis {
       ? existingTerminal
       : vscode.window.createTerminal("Analysis");
 
-    if (this.checkIfPowerShell()) {
-      command = `& '${command}'`;
-    }
     terminal.sendText(command);
     terminal.show(true);
-  }
-
-  private checkIfPowerShell() {
-    const isWindows = process.platform === "win32";
-    const isMac = process.platform === "darwin";
-    const osKey = isWindows ? "windows" : isMac ? "osx" : "linux";
-
-    const config = vscode.workspace.getConfiguration("terminal.integrated");
-    const defaultProfile = config.get<string>(`defaultProfile.${osKey}`);
-
-    if (defaultProfile) {
-      const profileLower = defaultProfile.toLowerCase();
-      if (
-        profileLower.includes("powershell") ||
-        profileLower.includes("pwsh")
-      ) {
-        return true;
-      }
-      return false;
-    }
-    const shellPath = vscode.env.shell?.toLowerCase() || "";
-    return shellPath.includes("powershell") || shellPath.includes("pwsh");
   }
 
   /**
@@ -246,37 +220,10 @@ export class RunAnalysis {
       if (vscode.window.activeTextEditor.document.uri.scheme !== "file") {
         return this.saveTempFile();
       } else {
-        return this.getQuotedPath(
-          vscode.window.activeTextEditor.document.uri.fsPath,
-        );
+        return vscode.window.activeTextEditor.document.uri.fsPath;
       }
     }
     return "";
-  }
-
-  /**
-   * Safely quotes a file path for terminal execution.
-   * @param fsPath The raw file path from the VS Code URI
-   * @returns The safely quoted path string
-   */
-  private getQuotedPath(fsPath: string): string {
-    if (this.checkIfPowerShell()) {
-      // Double quotes are dangerous because they allow variable expansion in PowerShell.
-      if (fsPath.includes('"')) {
-        throw new Error(
-          "Paths containing quote characters cannot be safely executed in PowerShell.",
-        );
-      }
-      // Escape single quotes by doubling them up (' -> '')
-      const escapedPath = fsPath.replace(/'/g, "''");
-      return `'${escapedPath}'`;
-    } else {
-      // POSIX: Escape embedded single quotes by closing the string,
-      // adding an escaped single quote, and reopening the string.
-      const escapedPath = fsPath.replace(/'/g, "'\\''");
-      // Wrap the entire path in single quotes
-      return `'${escapedPath}'`;
-    }
   }
 
   /**
