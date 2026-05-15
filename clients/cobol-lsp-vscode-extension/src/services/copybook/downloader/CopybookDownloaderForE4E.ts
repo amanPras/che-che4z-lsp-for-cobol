@@ -240,8 +240,19 @@ export class CopybookDownloaderForE4E {
     );
     let finishedPath = downloadFolder;
     for (const subdirectory of subdirectories) {
+      if (
+        subdirectory === ".." ||
+        subdirectory === "." ||
+        subdirectory.includes("/") ||
+        subdirectory.includes("\\")
+      ) {
+        throw Error(
+          `Can't download E4E copybooks. Encountered issue while deciding the download path.
+          Subdirectory ${subdirectory} contains not allowed chars /, \\, or ..
+          `,
+        );
+      }
       finishedPath = vscode.Uri.joinPath(finishedPath, subdirectory);
-
       try {
         await vscode.workspace.fs.createDirectory(finishedPath);
       } catch (err) {
