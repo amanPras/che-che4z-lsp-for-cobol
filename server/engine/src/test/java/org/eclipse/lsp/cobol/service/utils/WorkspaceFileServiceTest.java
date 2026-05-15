@@ -15,15 +15,14 @@
 
 package org.eclipse.lsp.cobol.service.utils;
 
-import org.apache.commons.io.FileSystem;
-import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.apache.commons.io.FileSystem;
+import org.eclipse.lsp.cobol.common.file.WorkspaceFileService;
+import org.junit.jupiter.api.Test;
 
 /** This test checks the logic File Service methods that do not interact with the file system */
 class WorkspaceFileServiceTest {

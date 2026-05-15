@@ -140,26 +140,27 @@ public class DidChangeConfigurationHandler {
   private CompletableFuture<List<String>> copybookLocalFolders(String documentUri) {
     List<CompletableFuture<List<String>>> copybookLocalFolders = new ArrayList<>();
     copybookLocalFolders.add(
-            settingsService.fetchTextConfigurationWithScope(documentUri, CPY_LOCAL_PATHS.label));
+        settingsService.fetchTextConfigurationWithScope(documentUri, CPY_LOCAL_PATHS.label));
     return settingsService
-            .fetchTextConfigurationWithScope(documentUri, DIALECTS.label)
-            .thenAccept(
-                    dialects ->
-                            dialects.forEach(
-                                    dialect ->
-                                            copybookLocalFolders.add(
-                                                    settingsService.fetchTextConfigurationWithScope(
-                                                            documentUri, "cobol-lsp.dialect.libs", dialect))))
-            .thenCompose(
-                    c ->
-                            CompletableFuture.allOf(copybookLocalFolders.toArray(new CompletableFuture<?>[0]))
-                                    .thenApply(
-                                            v ->
-                                                    copybookLocalFolders.stream()
-                                                            .map(CompletableFuture::join)
-                                                            .flatMap(List::stream)
-                                                            .collect(toList())));
+        .fetchTextConfigurationWithScope(documentUri, DIALECTS.label)
+        .thenAccept(
+            dialects ->
+                dialects.forEach(
+                    dialect ->
+                        copybookLocalFolders.add(
+                            settingsService.fetchTextConfigurationWithScope(
+                                documentUri, "cobol-lsp.dialect.libs", dialect))))
+        .thenCompose(
+            c ->
+                CompletableFuture.allOf(copybookLocalFolders.toArray(new CompletableFuture<?>[0]))
+                    .thenApply(
+                        v ->
+                            copybookLocalFolders.stream()
+                                .map(CompletableFuture::join)
+                                .flatMap(List::stream)
+                                .collect(toList())));
   }
+
   private void acceptSettingsChange(List<String> localFolders) {
     List<String> watchingFolders = watchingService.getWatchingFolders();
     updateWatchers(localFolders, watchingFolders);
