@@ -93,7 +93,6 @@ public class CliModule extends AbstractModule {
     bind(MessageService.class).to(PropertiesMessageService.class);
     bind(LocaleStore.class).to(LocaleStoreImpl.class);
     bind(ConfigurationService.class).to(CachingConfigurationService.class);
-    bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
     bind(ResolveCopybookUri.class).to(NonCacheResolveCopybookUri.class);
     bind(ResolveFileContent.class).to(DiskBasedFileContent.class);
     bind(PredefinedCopybookStore.class).to(PredefinedCopybookStoreImpl.class);

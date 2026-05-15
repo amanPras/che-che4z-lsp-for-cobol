@@ -79,7 +79,6 @@ public class ClientServerTestModule extends AbstractModule {
     bind(Communications.class).to(ServerCommunications.class);
     bind(WatcherService.class).to(WatcherServiceImpl.class);
     bind(FileSystemService.class).to(WorkspaceFileService.class);
-    bind(CopybookNameService.class).to(CopybookNameServiceImpl.class);
     bind(ConfigurationService.class).to(CachingConfigurationService.class);
     bind(String.class)
         .annotatedWith(named(PATH_TO_TEST_RESOURCES))
