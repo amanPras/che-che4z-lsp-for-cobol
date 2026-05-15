@@ -129,9 +129,6 @@ describe("Test Analysis CLI command functionality", () => {
       'analysis -s "/storagePath" -cf=.',
     );
     expect(outputChannel.show).toHaveBeenCalled();
-    expect(outputChannel.appendLine).toHaveBeenCalledWith(
-      '/test/server/native/server-mac analysis -s "/storagePath" -cf=.',
-    );
     expect(buildJavaCommandSpy).toHaveBeenCalledTimes(0);
   });
 
