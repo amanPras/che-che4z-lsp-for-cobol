@@ -145,11 +145,19 @@ public class DialectDiscoveryFolderService implements DialectDiscoveryService {
       }
 
       for (String classname : classnames) {
-        Class<CobolDialect> clazz =
-            (Class<CobolDialect>) Class.forName(classname, true, classLoader);
-        Constructor<CobolDialect> constructor =
-            clazz.getConstructor(CopybookService.class, MessageService.class);
-        dialects.add(constructor.newInstance(copybookService, messageService));
+        //Load the class WITHOUT initializing - recommended
+        Class<?> clazz = Class.forName(classname, false, classLoader);
+        //check if the loaded class implements the CobolDialect interface
+        if (CobolDialect.class.isAssignableFrom(clazz)) {
+          // safely cast the class
+          Class<? extends CobolDialect> dialectClass = clazz.asSubclass(CobolDialect.class);
+          //Get the constructor and instantiate  - this will trigger class initialization
+          Constructor<? extends CobolDialect> constructor =
+                  dialectClass.getConstructor(CopybookService.class, MessageService.class);
+          dialects.add(constructor.newInstance(copybookService, messageService));
+        } else {
+          LOG.error("{} class is not of type CobolDialect. Check with the dialect author", classname);
+        }
       }
     } catch (Exception e) {
       LOG.warn("Cannot create dialect {}: {}", jarUri, e.getMessage());
