@@ -46,13 +46,15 @@ import picocli.CommandLine;
  * server to accept the connections using either socket on LSP_PORT or pipes using STDIO. After the
  * establishing of the connection the main thread suspends until it is stopped forcibly.
  *
- * <p>To run the extension using path, you may specify "pipeEnabled" as a program argument. In other
- * case the server will start using socket.
+ * <p>By default, the server runs using secure Standard I/O (Pipes). To enable socket communication
+ * for local debugging, specify "socketDebugEnabled" as a program argument or set the JVM system
+ * property "-Dlsp.debug.socket=true".
  */
 public class LangServerBootstrap {
   public static boolean cliMode = false;
   private static final Integer LSP_PORT = 1044;
   private static final String PIPE_ARG = "pipeEnabled";
+  private static final String SOCKET_DEBUG_ARG = "socketDebugEnabled";
   // It's need to be static, so it will be initialized after cliMode mode calculated (it is used in
   // logger setup)
   private final Logger logger = LoggerFactory.getLogger(LangServerBootstrap.class);
@@ -83,7 +85,8 @@ public class LangServerBootstrap {
     if (args.length == 0) {
       return false;
     }
-    return !isPipeEnabled(args);
+    // If it's a server launch (Pipe or Socket Debug), bypass the CLI parser
+    return !isPipeEnabled(args) && !isSocketDebugEnabled(args);
   }
 
   static Injector initCtx() {
@@ -95,9 +98,7 @@ public class LangServerBootstrap {
       throws IOException, InterruptedException, ExecutionException {
     logger.info(String.format("Java version: %s", System.getProperty("java.version")));
     try {
-      if (isPipeEnabled(args)) {
-        launchServerWithPipes(server, provider);
-      } else {
+      if (isSocketDebugEnabled(args) || Boolean.getBoolean("lsp.debug.socket")) {
         // Enable logging
         ch.qos.logback.classic.Logger rootLogger =
             (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -107,6 +108,9 @@ public class LangServerBootstrap {
         rootLogger.addAppender(ca);
         rootLogger.setLevel(Level.ALL);
         launchServerWithSocket(server, provider);
+      } else {
+        // production default
+        launchServerWithPipes(server, provider);
       }
     } catch (ExecutionException e) {
       logger.error("An error occurred while starting a language server", e);
@@ -145,6 +149,10 @@ public class LangServerBootstrap {
 
   static boolean isPipeEnabled(@NonNull String[] args) {
     return args.length > 0 && PIPE_ARG.equals(args[0]);
+  }
+
+  static boolean isSocketDebugEnabled(@NonNull String[] args) {
+    return args.length > 0 && SOCKET_DEBUG_ARG.equals(args[0]);
   }
 
   static Launcher<CobolLanguageClient> createServerLauncher(
