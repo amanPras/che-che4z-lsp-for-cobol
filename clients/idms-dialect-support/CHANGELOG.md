@@ -2,7 +2,7 @@
 
 All notable changes to the "COBOL Language Support for IDMS" extension are documented in this file.
 
-## 1.0.8 (2026-05-XX)
+## 1.0.8 (2026-05-26)
 
 - Readme update
 - Settings documentation update

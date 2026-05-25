@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to the COBOL Language Support extension are documented in this file.
 
-## [2.5.0](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.4.3...2.5.0) (2026-05-XX)
+## [2.5.0](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.4.3...2.5.0) (2026-05-26)
 
 ### Bug Fixes
 * Allow fullselect as an option after IN keyword ([#3005](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3005)) ([a45578b](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/a45578bab58823567ff516ab6d1d4b5f57d8a2cb))
