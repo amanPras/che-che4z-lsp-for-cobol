@@ -13,15 +13,17 @@ COBOL Language Support enhances the COBOL programming experience on your IDE. Th
 
 COBOL Language Support recognizes files with the extensions `.cob`, `.cbl` and `.cobol` as COBOL files.
 
-This extension is a part of the Che4z open-source project. To contribute and report issues, visit our [Git repository](https://github.com/eclipse/che-che4z-lsp-for-cobol).
+COBOL Language Support is a part of [Code4z](https://techdocs.broadcom.com/code4z), which offers a modern experience for mainframe application developers. To get started with Code4z, check out our foundational [extension pack](https://marketplace.visualstudio.com/items?itemName=broadcomMFD.code4z-extension-pack).
 
-COBOL Language Support is also part of [Code4z](https://techdocs.broadcom.com/code4z), an all-round VS Code extension package that offers a modern experience for mainframe application developers, including tools for language support, data editing, testing, and source code management. For an interactive overview of Code4z, see the [Code4z Developer Cockpit](https://mainframe.broadcom.com/code4z-developer-cockpit).
+> 
+> COBOL Language Support is part of the **Che4z** open-source project. Contributions and feedback are always welcome. To contribute, see our [GitHub repository](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/). If you have a question about how to accomplish something with the extension, or come across a problem, file an issue on [GitHub](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol). 
+> 
 
 ## Address Software Requirements
 
 There are no client or server-side prerequisites for COBOL Language Support.
 
-## Compatibility
+### Compatibility
 
 The COBOL Language Support extension is supported on Visual Studio Code and Github Codespaces.
 
@@ -37,21 +39,21 @@ If you have Java on your workstation, COBOL Language Support uses the Java binar
 
 If you do not have Java on your workstation, COBOL Language Support uses the native binary (engine.exe) to execute. If your environment does not allow engine.exe to execute, contact your system administrator to add an exception for engine.exe.
 
-## Integration with Zowe Explorer and Explorer for Endevor
+## Integrate with Zowe Explorer and Explorer for Endevor
 
 Integrating COBOL Language Support with the Zowe Explorer and Explorer for Endevor extensions let you:
 
 - Load your data sets containing COBOL code directly from the data set tree.
 - Load your COBOL code directly from Endevor elements.
-- Enable automatic copybook retrieval from the mainframe.
+- Enable remote copybook support.
 
-Both Zowe Explorer and Explorer for Endevor are available as part of the [Code4z extension pack](https://marketplace.visualstudio.com/items?itemName=broadcomMFD.code4z-extension-pack). A Zowe Explorer `zosmf` or `zftp` profile with credentials and a connection URL is also required to retrieve copybooks from mainframe data sets.
+Both Zowe Explorer and Explorer for Endevor are available as part of the [Code4z foundation pack](https://marketplace.visualstudio.com/items?itemName=broadcomMFD.code4z-extension-pack). A Zowe Explorer `zosmf` or `zftp` profile with credentials and a connection URL is also required to retrieve copybooks from mainframe data sets.
 
 To enable automatic dependency retrieval from Endevor, ensure your site has enabled the Endevor REST API version 2.16 or higher (PTF LU09053).
 
 <a href="https://www.openmainframeproject.org/all-projects/zowe/conformance"><img alt="This extension is Zowe v3 conformant" src="https://artwork.openmainframeproject.org/other/zowe-conformant/zowev3/explorer-vs-code/color/zowe-conformant-zowev3-explorer-vs-code-color.png" width=20% height=20% /></a>
 
-## Features
+## Language and LSP Features
 COBOL Language Support provides the following COBOL syntax awareness features:
 
 ### Autocomplete
@@ -98,7 +100,11 @@ You can also insert a code snippet by typing the name of the snippet in your cod
 
 The COBOL Language Support extension also supports user snippets. Add your custom snippets to the `COBOL.json` file in your user snippets folder. To access your user snippets file, press **F1** to open the command pallette, and run the command **Snippets: Configure Snippets**.
 
-### Smart Tab
+## Language Server Settings
+
+The following language server settings can be customized in the extension:
+
+### Configure Smart Tab
 
 Configure the smart tab function in your `settings.json` file to set tab stops at specific columns in the editor window. The cursor stops at these columns when you use **Tab** and **Shift+Tab** to move forwards and backwards in the code. You can specify custom tab stops, and use regular expressions to set conditional tab settings for different sections and divisions of the code.
 
@@ -126,7 +132,7 @@ The following example sets tab stops after columns 1, 2, 3 and 4 after the line 
     }
     ```
 
-### Dialect Add-ons
+### Configure Dialect Add-ons
 
 Many companies have their own COBOL preprocessors which complement or modify standard IBM enterprise COBOL with custom statements and keywords. In our documentation, we refer to these preprocessors as "dialects".
 
@@ -140,7 +146,7 @@ Dialect add-ons must be enabled in the COBOL Language Support extension settings
 
 COBOL Language Support processes dialects in the order you list them in the **Cobol-lsp: dialects** setting or within the `preprocessor` parameter of a processor group. If you list dialects in the wrong order, some pieces of code might be incorrectly processed using the wrong dialect parser and marked as errors. 
 
-### SQL Backend Server
+### Configure SQL Backend Server
 
 Set the SQL backend server as either DB2 or Datacom to ensure you use the correct version of the implicit `SQLCA` and `SQLDA` copybooks. To set the SQL backend server, go to **VS Code Settings** > **User** > **Extensions** > **COBOL Language Support** > **Cobol-lsp: Target-sql-backend**. The default setting is DB2.
 
@@ -161,7 +167,7 @@ If you specify your subroutine folders using absolute paths or paths containing 
 
 ## Copybook Support
 
-The COBOL Language Support extension supports copybooks used in your source code that are stored in local folders in your workspace. If you have copybooks stored in mainframe data sets or USS directories, you can use a Zowe Explorer profile to automatically download them from the mainframe to your workspace. You specify the data sets and folders that contain copybooks used in your project in the extension settings. You can also configure COBOL Language Support to use copybooks that are stored in TAR files locally or on the mainframe.
+The COBOL Language Support extension supports copybooks used in your source code that are stored in local folders in your workspace. If you have copybooks stored in mainframe data sets or USS directories, you can use a Zowe Explorer profile to resolve and open copybooks that are stored in remote locations. You specify the data sets and folders that contain copybooks used in your project in the extension settings. You can also configure COBOL Language Support to use copybooks that are stored in TAR files locally or on the mainframe.
 
 When a copybook is used in the program, the folders and data sets are searched in the order they are listed for files and members that match the name of the copybook. If a copybook with the same file name is located in both a local folder and a remote location, the one in the local folder is used.
 
@@ -176,7 +182,7 @@ COBOL Language Support supports the following copybook types:
 - IBM COBOL Copybooks, called with the `COPY` statement.
 - Datacom COBOL copybooks, called with the `COPY` statement. Datacom copybooks must be extracted to a mainframe data set or local folder for use in COBOL Language Support. For more information, see the [Datacom documentation](https://techdocs.broadcom.com/datacom).
 
-### Storing Copybooks Locally
+### Enable Support for Locally Stored Copybooks
 
 You can store your copybooks locally in folders in your workspace. To enable copybook support, specify the folder paths that contain copybooks in your workspace extension settings.
 
@@ -199,30 +205,22 @@ If you specify your copybook folders using absolute paths or paths containing `.
 
 To resolve copybook names manually, hover over the copybook name with the error underline, select **Quick Fix...** and **Resolve copybook**.
 
-### Retrieving Copybooks from Mainframe Data Sets and USS Files
+### Enable Remote Copybook Support
 
-You can also set up automatic copybook retrieval from the mainframe to download copybooks from mainframe data sets and USS directories to your workspace.
+You can also configure COBOL Language Support to resolve copybooks that are stored in mainframe data sets and USS directories.
 
 1. Ensure that you have a [Zowe Explorer profile](https://docs.zowe.org/stable/user-guide/ze-profiles/) configured, with credentials and a connection URL defined.
 2. Open the COBOL Language Support extension settings.
-3. Under **Cpy-manager: Paths-dsn**, list the names of any number of partitioned data sets on the mainframe to search for copybooks. The data sets are searched in the order they are listed, so if two data sets contain a copybook with the same member name, the one from the data set higher on the list is downloaded.
-4. Under **Cpy-manager: Paths-uss**, list absolute paths of directories on USS subsystems to search for copybooks. The directories are searched in the order they are listed, so if two directories contain a copybook with the same member name, the one from the directory higher on the list is downloaded. If copybooks with the same name are found in both a mainframe data set and a USS directory, the one from the mainframe data set is downloaded.
+3. Under **Cpy-manager: Paths-dsn**, list the names of any number of partitioned data sets on the mainframe to search for copybooks. The data sets are searched in the order they are listed, so if two data sets contain a copybook with the same member name, the one from the data set higher on the list is used.
+4. Under **Cpy-manager: Paths-uss**, list absolute paths of directories on USS subsystems to search for copybooks. The directories are searched in the order they are listed, so if two directories contain a copybook with the same member name, the one from the directory higher on the list is used. If copybooks with the same name are found in both a mainframe data set and a USS directory, the one from the mainframe data set is used.
 5. Under **Cpy-manager: Profiles**, enter the name of your Zowe Explorer profile.
 6. (Optional) Under **Cpy-manager: Copybook-extensions**, specify the file extensions used for your copybooks. The default supported file extensions are `.cpy` and `.copy`.
-7. (Optional) Under **Cpy-manager: Copybook-file-encoding**, specify the file encoding used in your copybooks. COBOL Language Support converts copybooks that it downloads from the mainframe from the specified encoding to UTF-8.
-8. Open a file or folder.  
-   All copybooks used in the program which are not stored locally are downloaded from the mainframe data sets and USS directories that you specified in steps 4 and 5.  
+7. Open a file or folder.  
    Copybook support features are now enabled.
 
-Copybooks that you retrieve from mainframe data sets are stored in your VS Code global storage folder. 
+### Retrieve Copybooks from TAR files
 
-Changes you make to copybooks that you retrieve from mainframe data sets are not saved back to the mainframe. To edit the content of your copybooks, we recommend that you use Zowe Explorer.
-
-We recommend that you refresh your copybooks from time to time. To refresh your copybooks, press **F1** and run the command **Clear downloaded copybooks**. This command clears the global storage folder so that copybooks are downloaded again from the mainframe.
-
-### Retrieving Copybooks from TAR files
-
-You can specify TAR files that contain copybooks in the extension settings. The TAR files can be stored locally, or retrieved from PDS members and USS folders. COBOL Language Support also enables you to specify individual subfolders to search within the TAR file.
+You can specify TAR files that contain copybooks in the extension settings. The TAR files can be stored locally, or downloaded from PDS members and USS folders to a folder in your workspace. COBOL Language Support also enables you to specify individual subfolders to search within the TAR file.
 
 1. Open the COBOL Language Support extension settings.
 2. Under **Cpy-manager: Paths-local**, specify paths to TAR files and prefix them with **tar:**. To specify a path within the TAR file to index, add **::*path/*** after the TAR file location. If you do not specify a path, the entire TAR file is indexed. 
@@ -232,7 +230,9 @@ You can specify TAR files that contain copybooks in the extension settings. The 
 5. Open a file or folder.  
    Copybook support features are now enabled.
 
-### Retrieving Copybooks from Endevor
+TAR files that you retrieve from remote locations are stored in your VS Code global storage folder. 
+
+### Retrieve Copybooks from Endevor
 
 When you open a COBOL file using Explorer for Endevor, COBOL copybooks that are specified in the Endevor element processor group are automatically downloaded to your VS Code global storage folder.
 
@@ -240,7 +240,9 @@ The extension setting **Cpy-manager: Endevor-dependencies** determines how copyb
 * **ENDEVOR_PROCESSOR**
   * Downloads copybooks from locations that are specified in the Endevor element processor group.
 * **ZOWE**
-  * Downloads copybooks from locations that are specified in the **paths-dsn** and **paths-uss** settings.
+  * Resolves copybooks from locations that are specified in the **paths-dsn** and **paths-uss** settings.
+
+Copybooks that you retrieve from Endevor locations are stored in your VS Code global storage folder. 
 
 ### Copybook Support Features
 
@@ -261,7 +263,7 @@ Syntax coloring is automatically enabled for copybook files with the extension `
 The Find All References and Go To Definition functionalities are extended to work for occurrences of copybook names, variables and paragraphs in the main COBOL file.
 
 * **Find All References** identifies all occurrences of variables and paragraphs from copybooks in the code.
-* **Go To Definition** enables you to right-click on any variable or paragraph to reveal a definition of the element. If the definition is in a copybook, or the name of a copybook, the copybook opens.
+* **Go To Definition** enables you to right-click on any variable or paragraph to reveal a definition of the element. If the definition is in a copybook, or the name of a copybook, the copybook opens. When you use Go To Definition to open a copybook that is stored in a mainframe data set or USS file, the copybook opens in Zowe Explorer and can be edited and saved back to the mainframe.
 
 ![Go To Definition in a copybook](/docs/images/CPYGoToDefinition.gif)
 
@@ -271,9 +273,11 @@ The Find All References and Go To Definition functionalities are extended to wor
 * Variables and paragraphs are defined across copybooks. This ensures consistency of code, and prevents issues in error diagnostics caused by incorrect variables or paragraphs in code.
 * Functionality to skip variable levels when called, reducing call time.
 
-## Processor Groups
+## Define Processor Groups
 
 Use processor groups to link programs with specific dialects, SQL backend settings, copybook extensions, compiler options, and local and remote locations that contain copybooks. You define processor groups in a `proc_grps.json` file and associate processor groups with programs in a `pgm_conf.json` file. Create both of these files in a `/.cobolplugin` folder in your workspace root.
+
+### Processor Group Configuration File (proc_grps.json)
 
 The `proc_grps.json` file is formatted as an array of JSON elements, with one JSON per processor group. Each processor group can contain the following elements:
 
@@ -356,7 +360,7 @@ A dialect preprocessor can be used to enable a COBOL dialect for a particular pr
         - **"subsystem":** (string)
         - **"type":** (string)
  
-### Program configuration file
+### Program Configuration File (pgm_conf.json)
 
 The program configuration file, `pgm_conf.json`, links programs to processor groups. The program configuration file has the following format:
 
