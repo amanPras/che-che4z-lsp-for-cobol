@@ -9,21 +9,25 @@
 
 # COBOL Language Support
 
-COBOL Language Support enhances the COBOL programming experience on your IDE. The extension leverages the language server protocol to provide autocomplete, syntax highlighting and coloring, and diagnostic features for COBOL code and copybooks. The COBOL Language Support extension can also connect to a mainframe using the Zowe Explorer extension to automatically retrieve copybooks used in your programs and store them in your workspace. COBOL Language Support also supports COBOL programs which interact with Datacom, CICS, and DB2 SQL. An add-on extension which adds support for the IDMS dialect is available on the VS Code Marketplace.
+COBOL Language Support enhances the COBOL programming experience on your IDE. The extension leverages the language server protocol to provide autocomplete, syntax highlighting and coloring, and diagnostic features for COBOL code and copybooks. The COBOL Language Support extension can also connect to a mainframe using the Zowe Explorer extension to resolve remotely stored copybooks in mainframe data sets and USS files. COBOL Language Support also supports COBOL programs which interact with Datacom, CICS, and DB2 SQL. An add-on extension which adds support for the IDMS dialect is available on the VS Code Marketplace.
 
 COBOL Language Support recognizes files with the extensions `.cob`, `.cbl` and `.cobol` as COBOL files.
 
-COBOL Language Support is a part of [Code4z](https://techdocs.broadcom.com/code4z), which offers a modern experience for mainframe application developers. To get started with Code4z, check out our foundational [extension pack](https://marketplace.visualstudio.com/items?itemName=broadcomMFD.code4z-extension-pack).
+COBOL Language Support is part of the [Code4z](https://techdocs.broadcom.com/code4z) experience from Broadcom, which offers a modern experience for mainframe application developers. To get started with Code4z, check out our foundational [extension pack](https://marketplace.visualstudio.com/items?itemName=broadcomMFD.code4z-extension-pack).
+
+<br />
+<br />
 
 > 
 > COBOL Language Support is part of the **Che4z** open-source project. Contributions and feedback are always welcome. To contribute, see our [GitHub repository](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/). If you have a question about how to accomplish something with the extension, or come across a problem, file an issue on [GitHub](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol). 
 > 
 
-## Address Software Requirements
-
+<details>
+<summary><span style="font-size: 1.5em"><b>Address Software Requirements</b></span><hr></summary>
+	
 There are no client or server-side prerequisites for COBOL Language Support.
 
-### Compatibility
+#### Compatibility
 
 The COBOL Language Support extension is supported on Visual Studio Code and Github Codespaces.
 
@@ -33,15 +37,21 @@ The COBOL Language Support extension only supports IBM Enterprise COBOL. Other v
 
 Double-byte character sets and the DBCS compiler option are not supported.
 
-## Configure Server Runtime
+</details>
+
+<details>
+<summary><span style="font-size: 1.5em"><b>Configure Server Runtime</b></span><hr></summary>
 
 If you have Java on your workstation, COBOL Language Support uses the Java binaries in the PATH variable to execute. To use a different installation of Java, open the COBOL Language Support extension settings and specify the path in the **Java Home** setting.
 
 If you do not have Java on your workstation, COBOL Language Support uses the native binary (engine.exe) to execute. If your environment does not allow engine.exe to execute, contact your system administrator to add an exception for engine.exe.
 
-## Integrate with Zowe Explorer and Explorer for Endevor
+</details>
 
-Integrating COBOL Language Support with the Zowe Explorer and Explorer for Endevor extensions let you:
+<details>
+<summary><span style="font-size: 1.5em"><b>Integrate with Zowe Explorer and Explorer for Endevor</b></span><hr></summary>
+
+Integrating COBOL Language Support with the Zowe Explorer and Explorer for Endevor extensions enables you to:
 
 - Load your data sets containing COBOL code directly from the data set tree.
 - Load your COBOL code directly from Endevor elements.
@@ -53,10 +63,16 @@ To enable automatic dependency retrieval from Endevor, ensure your site has enab
 
 <a href="https://www.openmainframeproject.org/all-projects/zowe/conformance"><img alt="This extension is Zowe v3 conformant" src="https://artwork.openmainframeproject.org/other/zowe-conformant/zowev3/explorer-vs-code/color/zowe-conformant-zowev3-explorer-vs-code-color.png" width=20% height=20% /></a>
 
-## Language and LSP Features
+</details>
+
+<details>
+<summary><span style="font-size: 1.5em"><b>Language and LSP Features</b></span><hr></summary>
+
 COBOL Language Support provides the following COBOL syntax awareness features:
 
-### Autocomplete
+<details>
+<summary><span style="font-size: 1.3em">Autocomplete</span></summary>
+
 Autocomplete speeds up the coding process by intuitively suggesting the most likely variables or paragraphs to follow existing code. The extension provides live suggestions while you type for:
 
 - COBOL keywords, variables, paragraphs and sections
@@ -71,21 +87,36 @@ The autocomplete feature is only available in the main COBOL file, not in copybo
 
 ![Autocomplete](/docs/images/autocomplete3.gif)
 
-### Syntax and Semantic Check for Code
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Syntax and Semantic Check for Code</span></summary>
+
 This feature checks for mistakes and errors in COBOL code. The syntax check feature reviews the whole content of the code and suggests fixes, and the semantic analysis highlights incorrect names of variables, copybooks and paragraphs.
 
 This feature is also enabled for Datacom, CICS, and DB2 SQL keywords and variables.
 
-### Syntax Highlighting
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Syntax Highlighting and Coloring</span></summary>
+
 The extension enables syntax highlighting for COBOL code.
 
-### Syntax Coloring
 Contrasting colors are used in displayed code for ease of identifying and distinguishing keywords, variables, paragraphs and sections.
 
-### Outline View and Breadcrumbs
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Outline View and Breadcrumbs</span></summary>
+
 The extension enables outline view and the breadcrumbs navigation bar at the top of the edit window, which show the structure of elements within the program and allow easy navigation between them.
 
-### Code Snippets
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Code Snippets</span></summary>
+	
 Before you write your COBOL code from scratch, search the snippet library for useful templates.
 
 1. Press **F1** to open the command palette.
@@ -98,15 +129,23 @@ You can also insert a code snippet by typing the name of the snippet in your cod
 
 The COBOL Language Support extension also supports user snippets. Add your custom snippets to the `COBOL.json` file in your user snippets folder. To access your user snippets file, press **F1** to open the command pallette, and run the command **Snippets: Configure Snippets**.
 
-## Language Server Settings
+</details>
+</details>
+
+<details>
+<summary><span style="font-size: 1.5em"><b>Language Server Settings</b></span><hr></summary>
 
 The following language server settings can be customized in the extension:
 
-### Disable Semantic Check
+<details>
+<summary><span style="font-size: 1.3em">Disable Semantic Check</span></summary>
 
 To disable the semantic check feature, open the COBOL Language Support extension settings and change the **Analysis mode** setting to **BASIC**.
 
-### Configure Smart Tab
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Configure Smart Tab</span></summary>
 
 Configure the smart tab function in your `settings.json` file to set tab stops at specific columns in the editor window. The cursor stops at these columns when you use **Tab** and **Shift+Tab** to move forwards and backwards in the code. You can specify custom tab stops, and use regular expressions to set conditional tab settings for different sections and divisions of the code.
 
@@ -134,7 +173,10 @@ The following example sets tab stops after columns 1, 2, 3 and 4 after the line 
     }
     ```
 
-### Configure Dialect Add-ons
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Configure Dialect Add-ons</span></summary>
 
 Many companies have their own COBOL preprocessors which complement or modify standard IBM enterprise COBOL with custom statements and keywords. In our documentation, we refer to these preprocessors as "dialects".
 
@@ -148,11 +190,18 @@ Dialect add-ons must be enabled in the COBOL Language Support extension settings
 
 COBOL Language Support processes dialects in the order you list them in the **Cobol-lsp: dialects** setting or within the `preprocessor` parameter of a processor group. If you list dialects in the wrong order, some pieces of code might be incorrectly processed using the wrong dialect parser and marked as errors. 
 
-### Configure SQL Backend Server
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Configure SQL Backend Server</span></summary>
 
 Set the SQL backend server as either DB2 or Datacom to ensure you use the correct version of the implicit `SQLCA` and `SQLDA` copybooks. To set the SQL backend server, go to **VS Code Settings** > **User** > **Extensions** > **COBOL Language Support** > **Cobol-lsp: Target-sql-backend**. The default setting is DB2.
 
-## Subroutine Support
+</details>
+</details>
+
+<details>
+<summary><span style="font-size: 1.5em"><b>Subroutine Support</b></span><hr></summary>
 
 The COBOL Language Support extension supports subroutines specified in CALL statements if the called program is stored in a local folder in your workspace. The Go To Definition and Find All References functionalities, as well as autocomplete, are extended to work for names of subroutines.
 
@@ -167,7 +216,10 @@ To enable subroutine support, specify the paths of folders containing subroutine
 
 If you specify your subroutine folders using absolute paths or paths containing `../` or `./`, the subroutine folders are not watched for changes. You might need to resolve names of recently added files in your code manually.
 
-## Copybook Support
+</details>
+
+<details>
+<summary><span style="font-size: 1.5em"><b>Copybook Support</b></span><hr></summary>
 
 The COBOL Language Support extension supports copybooks used in your source code that are stored in local folders in your workspace. If you have copybooks stored in mainframe data sets or USS directories, you can use a Zowe Explorer profile to resolve and open copybooks that are stored in remote locations. You specify the data sets and folders that contain copybooks used in your project in the extension settings. You can also configure COBOL Language Support to use copybooks that are stored in TAR files locally or on the mainframe.
 
@@ -177,14 +229,18 @@ Copybook support features are disabled for files stored in the folder **.c4z/.ex
 
 Configuring copybook support on COBOL Language Support also enables copybook support features of the [COBOL Control Flow](https://marketplace.visualstudio.com/items?itemName=broadcomMFD.ccf) extension.
 
-### Supported Copybook Types
+<details>
+<summary><span style="font-size: 1.3em">Supported Copybook Types</span></summary>
 
 COBOL Language Support supports the following copybook types:
 
 - IBM COBOL Copybooks, called with the `COPY` statement.
 - Datacom COBOL copybooks, called with the `COPY` statement. Datacom copybooks must be extracted to a mainframe data set or local folder for use in COBOL Language Support. For more information, see the [Datacom documentation](https://techdocs.broadcom.com/datacom).
 
-### Enable Support for Locally Stored Copybooks
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Enable Support for Locally Stored Copybooks</span></summary>
 
 You can store your copybooks locally in folders in your workspace. To enable copybook support, specify the folder paths that contain copybooks in your workspace extension settings.
 
@@ -207,7 +263,10 @@ If you specify your copybook folders using absolute paths or paths containing `.
 
 To resolve copybook names manually, hover over the copybook name with the error underline, select **Quick Fix...** and **Resolve copybook**.
 
-### Enable Remote Copybook Support
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Enable Remote Copybook Support</span></summary>
 
 You can also configure COBOL Language Support to resolve copybooks that are stored in mainframe data sets and USS directories.
 
@@ -220,7 +279,10 @@ You can also configure COBOL Language Support to resolve copybooks that are stor
 7. Open a file or folder.  
    Copybook support features are now enabled.
 
-### Retrieve Copybooks from TAR files
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Retrieve Copybooks from TAR Files</span></summary>
 
 You can specify TAR files that contain copybooks in the extension settings. The TAR files can be stored locally, or downloaded from PDS members and USS folders to a folder in your workspace. COBOL Language Support also enables you to specify individual subfolders to search within the TAR file.
 
@@ -234,7 +296,10 @@ You can specify TAR files that contain copybooks in the extension settings. The 
 
 TAR files that you retrieve from remote locations are stored in your VS Code global storage folder. 
 
-### Retrieve Copybooks from Endevor
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Retrieve Copybooks from Endevor</span></summary>
 
 When you open a COBOL file using Explorer for Endevor, COBOL copybooks that are specified in the Endevor element processor group are automatically downloaded to your VS Code global storage folder.
 
@@ -246,7 +311,10 @@ The extension setting **Cpy-manager: Endevor-dependencies** determines how copyb
 
 Copybooks that you retrieve from Endevor locations are stored in your VS Code global storage folder. 
 
-### Copybook Support Features
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Copybook Support Features</span></summary>
 
 The extension includes the following copybook support features:
 
@@ -275,11 +343,16 @@ The Find All References and Go To Definition functionalities are extended to wor
 * Variables and paragraphs are defined across copybooks. This ensures consistency of code, and prevents issues in error diagnostics caused by incorrect variables or paragraphs in code.
 * Functionality to skip variable levels when called, reducing call time.
 
-## Define Processor Groups
+</details>
+</details>
+
+<details>
+<summary><span style="font-size: 1.5em"><b>Define Processor Groups</b></span><hr></summary>
 
 Use processor groups to link programs with specific dialects, SQL backend settings, copybook extensions, compiler options, and local and remote locations that contain copybooks. You define processor groups in a `proc_grps.json` file and associate processor groups with programs in a `pgm_conf.json` file. Create both of these files in a `/.cobolplugin` folder in your workspace root.
 
-### Processor Group Configuration File (proc_grps.json)
+<details>
+<summary><span style="font-size: 1.3em">Processor Group Configuration File (proc_grps.json)</span></summary>
 
 The `proc_grps.json` file is formatted as an array of JSON elements, with one JSON per processor group. Each processor group can contain the following elements:
 
@@ -322,7 +395,10 @@ The `proc_grps.json` file is formatted as an array of JSON elements, with one JS
 - (Optional) **"preprocessor":** (array)
     - Specify dialect and SQL preprocessors that you want to apply to the programs linked with this processor group. See the [Preprocessors](#preprocessors) section below for further information.
 
-### Preprocessors
+</details>
+
+<details>
+<summary id="preprocessors"><span style="font-size: 1.3em">Preprocessors</span></summary>
 
 Specify preprocessors to enable specific dialects and SQL backend settings for the programs linked to a processor group. You can also specify libraries that contain copybooks that use a specific dialect.
 
@@ -362,7 +438,10 @@ A dialect preprocessor can be used to enable a COBOL dialect for a particular pr
         - **"subsystem":** (string)
         - **"type":** (string)
  
-### Program Configuration File (pgm_conf.json)
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Program Configuration File (pgm_conf.json)</span></summary>
 
 The program configuration file, `pgm_conf.json`, links programs to processor groups. The program configuration file has the following format:
 
@@ -382,7 +461,10 @@ Each element contains the following parameters:
 - **"pgroup":** (string)
     - Specify the name of a procecssor group that is defined in `proc_grps.json`.
    
-### Example Processor Group Configuration
+</details>
+
+<details>
+<summary><span style="font-size: 1.3em">Example Processor Group Configuration</span></summary>
 
 Using the example `pgm_conf.json` file above, the following `proc_grps.json` example enables the following:
 
@@ -449,7 +531,11 @@ Using the example `pgm_conf.json` file above, the following `proc_grps.json` exa
 }
 ```
 
-## Troubleshooting
+</details>
+</details>
+
+<details>
+<summary><span style="font-size: 1.5em"><b>Troubleshooting</b></span><hr></summary>
 
 To enable troubleshooting logs for the LSP server, specify a value for the parameter **cobol-lsp.logging.level.root** in the extension settings. Specify one of the following values:
 
@@ -463,3 +549,5 @@ To enable troubleshooting logs for the LSP server, specify a value for the param
 These values are ordered from returning the least information ("ERROR"; errors only) to the most information ("ALL"; all details).
 
 To view troubleshooting logs, open the output panel and select **COBOL Language Support** from the drop-down menu.
+
+</details>
