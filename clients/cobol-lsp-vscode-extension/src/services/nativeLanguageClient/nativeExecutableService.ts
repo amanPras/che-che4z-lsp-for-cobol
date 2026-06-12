@@ -21,7 +21,7 @@ import { WindowsLanguageClient } from "./windowsLanguageClient";
 export class NativeExecutableService {
   public constructor(public serverPath: string) {}
 
-  public getNativeLanguageClient() {
+  public getNativeLanguageClient(vscodeExtensionsPath: string) {
     let client: NativeLanguageClient | undefined;
     switch (os.type()) {
       case "Windows_NT":
@@ -37,7 +37,7 @@ export class NativeExecutableService {
         break;
     }
     if (client) {
-      return client.getServer();
+      return client.getServer(vscodeExtensionsPath);
     }
   }
 }

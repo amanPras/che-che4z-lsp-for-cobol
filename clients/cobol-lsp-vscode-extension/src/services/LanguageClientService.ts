@@ -13,7 +13,7 @@
  */
 
 import * as fs from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import * as vscode from "vscode";
 
 import {
@@ -48,6 +48,7 @@ export class LanguageClientService {
   private handlers: Array<(languageClient: LanguageClient) => void> = [];
   private isNativeBuildEnabled: boolean = false;
   private executableService: NativeExecutableService;
+  private vscodeExtensionsPath: string;
 
   constructor(
     private outputChannel: vscode.OutputChannel,
@@ -55,6 +56,7 @@ export class LanguageClientService {
     private middleware: Middleware,
   ) {
     const ext = vscode.extensions.getExtension(extensionId)!;
+    this.vscodeExtensionsPath = dirname(ext.extensionPath);
     this.executablePath = join(
       ext.extensionPath,
       "server",
@@ -238,7 +240,9 @@ export class LanguageClientService {
 
   private createServerOptions(jarPath: string) {
     if (this.isNativeBuildEnabled) {
-      return this.executableService.getNativeLanguageClient();
+      return this.executableService.getNativeLanguageClient(
+        this.vscodeExtensionsPath,
+      );
     }
     return {
       args: [
@@ -249,7 +253,12 @@ export class LanguageClientService {
         jarPath,
       ],
       command: SettingsService.getJavaCommand(),
-      options: { detached: false },
+      options: {
+        detached: false,
+        env: {
+          VSCODE_EXTENSIONS_ROOT: this.vscodeExtensionsPath,
+        },
+      },
     };
   }
 }

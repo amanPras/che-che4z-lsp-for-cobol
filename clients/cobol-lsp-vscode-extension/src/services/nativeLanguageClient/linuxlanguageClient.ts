@@ -25,7 +25,7 @@ export class LinuxlanguageClient implements NativeLanguageClient {
     this.command = `./server-linux`;
   }
 
-  public getServer(): Executable {
+  public getServer(vscodeExtensionsPath: string): Executable {
     return {
       args: [
         "-Dline.separator=\r\n",
@@ -33,7 +33,13 @@ export class LinuxlanguageClient implements NativeLanguageClient {
         "-DserverType=NATIVE",
       ],
       command: this.command,
-      options: { detached: false, cwd: this.executablePath },
+      options: {
+        detached: false,
+        cwd: this.executablePath,
+        env: {
+          VSCODE_EXTENSIONS_ROOT: vscodeExtensionsPath,
+        },
+      },
     };
   }
 }

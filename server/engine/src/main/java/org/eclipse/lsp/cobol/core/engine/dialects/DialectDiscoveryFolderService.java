@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -163,7 +164,25 @@ public class DialectDiscoveryFolderService implements DialectDiscoveryService {
   }
 
   private URLClassLoader createClassLoader(URI uriToJar) throws MalformedURLException {
-    return new URLClassLoader(new URL[] {uriToJar.toURL()}, this.getClass().getClassLoader());
+    if (isSafeURI(uriToJar)) {
+      return new URLClassLoader(new URL[] {uriToJar.toURL()}, this.getClass().getClassLoader());
+    }
+    LOG.warn("Cannot create dialect from {}", uriToJar);
+    throw new RuntimeException(
+        String.format(
+            "Cannot create dialect from %s, expect the jars to be placed under extensions folder",
+            uriToJar));
+  }
+
+  private static boolean isSafeURI(URI uri) {
+    String extensionsRoot = System.getenv("VSCODE_EXTENSIONS_ROOT");
+    // for UNC oaths
+    if (uri.getAuthority() != null && !uri.getAuthority().isEmpty()) {
+      return false;
+    }
+    Path targetPath = Paths.get(uri).toAbsolutePath().normalize();
+    Path allowedFolder = Paths.get(extensionsRoot).toAbsolutePath().normalize();
+    return targetPath.startsWith(allowedFolder);
   }
 
   private List<String> getClassNames(File filename) throws IOException {
