@@ -133,7 +133,7 @@ public class DialectDiscoveryFolderService implements DialectDiscoveryService {
       URI jarUri, CopybookService copybookService, MessageService messageService) {
     List<CobolDialect> dialects = new LinkedList<>();
     try {
-      if (!"file".equals(jarUri.getScheme()))
+      if (!isSafeURI(jarUri))
         throw new UnsupportedOperationException("Dialect must reside on local filesystem");
 
       final File jarFile = Paths.get(jarUri).toFile();
@@ -164,17 +164,13 @@ public class DialectDiscoveryFolderService implements DialectDiscoveryService {
   }
 
   private URLClassLoader createClassLoader(URI uriToJar) throws MalformedURLException {
-    if (isSafeURI(uriToJar)) {
-      return new URLClassLoader(new URL[] {uriToJar.toURL()}, this.getClass().getClassLoader());
-    }
-    LOG.warn("Cannot create dialect from {}", uriToJar);
-    throw new RuntimeException(
-        String.format(
-            "Cannot create dialect from %s, expect the jars to be placed under extensions folder",
-            uriToJar));
+    return new URLClassLoader(new URL[] {uriToJar.toURL()}, this.getClass().getClassLoader());
   }
 
   private static boolean isSafeURI(URI uri) {
+    if (!"file".equalsIgnoreCase(uri.getScheme())) {
+      return false;
+    }
     String extensionsRoot = System.getenv("VSCODE_EXTENSIONS_ROOT");
     // for UNC oaths
     if (uri.getAuthority() != null && !uri.getAuthority().isEmpty()) {
