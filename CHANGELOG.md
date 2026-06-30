@@ -15,7 +15,7 @@ All notable changes to the COBOL Language Support extension are documented in th
 * Millennium language extensions support ([#3022](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3022)) ([dce654e](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/dce654e98a6954d048b87058b1a2efec2a0b317f))
 
 ### Documentation
-* Update to README([#3051](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/pull/3051)([bac3592](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/bac35922b8ab1655be801fe25affdcaf20a049e2)))
+* Update to README([#3055](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/pull/3055))
 
 ## [2.5.0](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.4.3...2.5.0) (2026-05-26)
 
