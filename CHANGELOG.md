@@ -1,6 +1,22 @@
 # Changelog
 All notable changes to the COBOL Language Support extension are documented in this file.
 
+# [2.5.1](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.5.0...2.5.1) (2026-06-30)
+
+### Bug Fixes
+* Adjust Help message ([#3044](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3044)) ([ac0035c](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/ac0035c4fb74e8c4886d13a9c49aecc93e3f9601))
+* Clean up dialect loading ([#3045](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3045)) ([57a6e43](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/57a6e43caa4ae6e8184ed842a62cce9d7f71c5df))
+* Make sure E4E download path is contained inside the extension global-storage directory ([#3019](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3019)) ([ecb90fa](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/ecb90fa145673a82d52b89d20c9e3ce3aef9a936))
+* Missing escaping in multiline search pattern ([#3027](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3027)) ([8352f20](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/8352f201fad83139813b401587aa27cbb1578b0b))
+* Print CLI Analysis command into output channel ([#3021](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3021)) ([e054d20](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/e054d205ed51ad40b6e5de0618938737bba78e4b))
+* Scheme string comparison ([#3046](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3046)) ([0a505cc](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/0a505ccb5b46e6eab77d3d43847eea778df8fed5))
+
+### Features
+* Millennium language extensions support ([#3022](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/issues/3022)) ([dce654e](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/dce654e98a6954d048b87058b1a2efec2a0b317f))
+
+### Documentation
+* Update to README([#3051](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/pull/3051)([bac3592](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/commit/bac35922b8ab1655be801fe25affdcaf20a049e2)))
+
 ## [2.5.0](https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/compare/2.4.3...2.5.0) (2026-05-26)
 
 ### Bug Fixes
