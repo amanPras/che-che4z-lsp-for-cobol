@@ -15,7 +15,7 @@
             "name": "keyword.cobol"
           },
       "exec-statement": {
-        "begin": "\\b(EXEC)\\b",
+        "begin": "\\b(EXEC(?!(?i) +(?:SQL|CICS)))\\b",
         "beginCaptures": {
           "1": { "name": "keyword.cobol.daco" }
         },
