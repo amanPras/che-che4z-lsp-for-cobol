@@ -112,7 +112,7 @@ public class DialectService {
                   errorFinalizerService.keepDiagnotics(
                       err,
                       orderedDialect.getFatalErrorCodes(),
-                      context.getConfig().getAnalysisMode().mode))
+                      context.getConfig().getAnalysisMode()))
           .forEach(
               e ->
                   e.getLocation()

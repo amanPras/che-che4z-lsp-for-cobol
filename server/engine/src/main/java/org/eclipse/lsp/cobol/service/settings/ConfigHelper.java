@@ -154,12 +154,12 @@ public class ConfigHelper {
    * Parse analysis mode configuration
    *
    * @param option analysis mode option
-   * @return {@link AnalysisMode.Mode}
+   * @return {@link AnalysisMode}
    */
-  public AnalysisMode.Mode parseAnalysisMode(JsonElement option) {
+  public AnalysisMode parseAnalysisMode(JsonElement option) {
     if (option.isJsonPrimitive() && option.getAsJsonPrimitive().isString()) {
       try {
-        return AnalysisMode.Mode.valueOf(option.getAsString());
+        return AnalysisMode.valueOf(option.getAsString());
       } catch (IllegalArgumentException e) {
         // don't throw
         LOG.error(
@@ -167,7 +167,7 @@ public class ConfigHelper {
             option.getAsString());
       }
     }
-    return AnalysisMode.Mode.ADVANCED;
+    return AnalysisMode.ADVANCED;
   }
 
   /**

@@ -179,7 +179,7 @@ public class CobolLanguageEngine {
                   .filter(
                       err ->
                           errorFinalizerService.keepDiagnotics(
-                              err, TOLERATED_ERRORS, analysisConfig.getAnalysisMode().mode))
+                              err, TOLERATED_ERRORS, analysisConfig.getAnalysisMode()))
                   .map(errorFinalizerService::localizeErrorMessage)
                   .collect(toList())),
           documentUri);
@@ -197,7 +197,7 @@ public class CobolLanguageEngine {
                   .filter(
                       err ->
                           errorFinalizerService.keepDiagnotics(
-                              err, TOLERATED_ERRORS, analysisConfig.getAnalysisMode().mode))
+                              err, TOLERATED_ERRORS, analysisConfig.getAnalysisMode()))
                   .map(errorFinalizerService::localizeErrorMessage)
                   .collect(toList())),
           documentUri);

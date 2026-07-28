@@ -15,27 +15,7 @@
 
 package org.eclipse.lsp.cobol.common;
 
-import java.util.Objects;
-
-public final class AnalysisMode {
-  public Mode mode;
-
-  public AnalysisMode() {
-    this.mode = Mode.ADVANCED;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof AnalysisMode && Objects.equals(this.mode, ((AnalysisMode) obj).mode);
-  }
-
-  @Override
-  public int hashCode() {
-    return mode == null ? 0 : mode.hashCode();
-  }
-
-  public enum Mode {
-    ADVANCED,
-    BASIC
-  }
+public enum AnalysisMode {
+  ADVANCED,
+  BASIC
 }
