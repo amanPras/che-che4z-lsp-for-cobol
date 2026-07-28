@@ -210,7 +210,7 @@ describe("SettingService lspConfigHandler", () => {
       });
 
       expect(result).toEqual(["ADVANCED"]);
-      expect(outputChannel.warn).not.toHaveBeenCalled();
+      expect(outputChannel.info).not.toHaveBeenCalled();
       expect(telemetryEvent).not.toHaveBeenCalled();
     });
 
@@ -225,7 +225,7 @@ describe("SettingService lspConfigHandler", () => {
       });
 
       expect(result).toEqual(["ADVANCED"]);
-      expect(outputChannel.warn).not.toHaveBeenCalled();
+      expect(outputChannel.info).not.toHaveBeenCalled();
       expect(telemetryEvent).not.toHaveBeenCalled();
     });
 
@@ -237,7 +237,7 @@ describe("SettingService lspConfigHandler", () => {
       });
 
       expect(result).toEqual(["BASIC"]);
-      expect(outputChannel.warn).toHaveBeenCalledWith(
+      expect(outputChannel.info).toHaveBeenCalledWith(
         `Switched ANALYSIS MODE to BASIC for uri ${scopeUri}`,
       );
       expect(telemetryEvent).toHaveBeenCalledWith(
@@ -245,6 +245,41 @@ describe("SettingService lspConfigHandler", () => {
         ["bootstrap", "analysis-mode", "app-analyzer"],
         `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
       );
+    });
+
+    test("logs and reports telemetry only once for the same scope uri", async () => {
+      const scopeUri = "c4z-app-ann:/workspace/repeated-request.cob";
+
+      await lspConfigHandler({
+        items: [{ section: ANALYSIS_MODE, scopeUri }],
+      });
+      const result = await lspConfigHandler({
+        items: [{ section: ANALYSIS_MODE, scopeUri }],
+      });
+
+      expect(result).toEqual(["BASIC"]);
+      expect(outputChannel.info).toHaveBeenCalledTimes(1);
+      expect(telemetryEvent).toHaveBeenCalledTimes(1);
+    });
+
+    test("logs and reports telemetry independently for a different scope uri", async () => {
+      const firstScopeUri = "c4z-app-ann:/workspace/first-file.cob";
+      const secondScopeUri = "c4z-app-ann:/workspace/second-file.cob";
+
+      await lspConfigHandler({
+        items: [{ section: ANALYSIS_MODE, scopeUri: firstScopeUri }],
+      });
+      const result = await lspConfigHandler({
+        items: [{ section: ANALYSIS_MODE, scopeUri: secondScopeUri }],
+      });
+
+      expect(result).toEqual(["BASIC"]);
+      expect(outputChannel.info).toHaveBeenCalledTimes(2);
+      expect(outputChannel.info).toHaveBeenNthCalledWith(
+        2,
+        `Switched ANALYSIS MODE to BASIC for uri ${secondScopeUri}`,
+      );
+      expect(telemetryEvent).toHaveBeenCalledTimes(2);
     });
   });
 

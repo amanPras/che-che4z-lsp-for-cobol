@@ -108,6 +108,8 @@ async function handleProcessorGroupConfigurationRequest<Type, Output, R>(
   }
 }
 
+const notifiedAppAnalyzerScopeUris = new Set<string>();
+
 function handleAnalysisModeRequest(item: Item, result: unknown[]) {
   let mode = SettingsService.getAnalysisMode();
 
@@ -115,14 +117,17 @@ function handleAnalysisModeRequest(item: Item, result: unknown[]) {
     const uri = vscode.Uri.parse(item.scopeUri);
     if (uri.scheme === APP_ANALYZER_SCHEME) {
       mode = "BASIC";
-      outputChannel.warn(
-        `Switched ANALYSIS MODE to BASIC for uri ${item.scopeUri}`,
-      );
-      telemetryEvent(
-        "analysis-mode",
-        ["bootstrap", "analysis-mode", "app-analyzer"],
-        `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
-      );
+      if (!notifiedAppAnalyzerScopeUris.has(item.scopeUri)) {
+        notifiedAppAnalyzerScopeUris.add(item.scopeUri);
+        outputChannel.info(
+          `Switched ANALYSIS MODE to BASIC for uri ${item.scopeUri}`,
+        );
+        telemetryEvent(
+          "analysis-mode",
+          ["bootstrap", "analysis-mode", "app-analyzer"],
+          `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
+        );
+      }
     }
   }
 
