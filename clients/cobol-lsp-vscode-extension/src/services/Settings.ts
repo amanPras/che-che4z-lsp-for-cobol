@@ -110,28 +110,34 @@ async function handleProcessorGroupConfigurationRequest<Type, Output, R>(
 
 const notifiedAppAnalyzerScopeUris = new Set<string>();
 
-function handleAnalysisModeRequest(item: Item, result: unknown[]) {
+function handleAnalysisModeRequest(item: Item) {
   let mode = SettingsService.getAnalysisMode();
-
   if (item.scopeUri) {
-    const uri = vscode.Uri.parse(item.scopeUri);
-    if (uri.scheme === APP_ANALYZER_SCHEME) {
-      mode = "BASIC";
-      if (!notifiedAppAnalyzerScopeUris.has(item.scopeUri)) {
-        notifiedAppAnalyzerScopeUris.add(item.scopeUri);
-        outputChannel.info(
-          `Switched ANALYSIS MODE to BASIC for uri ${item.scopeUri}`,
-        );
-        telemetryEvent(
-          "analysis-mode",
-          ["bootstrap", "analysis-mode", "app-analyzer"],
-          `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
-        );
+    try {
+      const uri = vscode.Uri.parse(item.scopeUri);
+      if (uri.scheme === APP_ANALYZER_SCHEME) {
+        mode = "BASIC";
+        if (!notifiedAppAnalyzerScopeUris.has(item.scopeUri)) {
+          notifiedAppAnalyzerScopeUris.add(item.scopeUri);
+          outputChannel.info(
+            `Switched ANALYSIS MODE to BASIC for uri ${item.scopeUri}`,
+          );
+          telemetryEvent(
+            "analysis-mode",
+            ["bootstrap", "analysis-mode", "app-analyzer"],
+            `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
+          );
+        }
       }
+    } catch (_err) {
+      outputChannel.appendLine(
+        `Invalid uri: ${item.scopeUri} while fetching setting- ${item.section}. Defaulting to ADVANCE mode`,
+      );
+      return "ADVANCE";
     }
   }
 
-  result.push(mode);
+  return mode;
 }
 
 export async function lspConfigHandler(request: Request) {
@@ -143,7 +149,7 @@ export async function lspConfigHandler(request: Request) {
           result.push(SettingsService.getCobolProgramLayout());
           break;
         case ANALYSIS_MODE:
-          handleAnalysisModeRequest(item, result);
+          result.push(handleAnalysisModeRequest(item));
           break;
         case SETTINGS_DIALECT:
           await handleProcessorGroupConfigurationRequest(
