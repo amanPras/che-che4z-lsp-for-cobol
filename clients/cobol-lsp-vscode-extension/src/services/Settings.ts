@@ -111,33 +111,37 @@ async function handleProcessorGroupConfigurationRequest<Type, Output, R>(
 const notifiedAppAnalyzerScopeUris = new Set<string>();
 
 function handleAnalysisModeRequest(item: Item) {
-  let mode = SettingsService.getAnalysisMode();
-  if (item.scopeUri) {
-    try {
-      const uri = vscode.Uri.parse(item.scopeUri);
-      if (uri.scheme === APP_ANALYZER_SCHEME) {
-        mode = "BASIC";
-        if (!notifiedAppAnalyzerScopeUris.has(item.scopeUri)) {
-          notifiedAppAnalyzerScopeUris.add(item.scopeUri);
-          outputChannel.info(
-            `Switched ANALYSIS MODE to BASIC for uri ${item.scopeUri}`,
-          );
-          telemetryEvent(
-            "analysis-mode",
-            ["bootstrap", "analysis-mode", "app-analyzer"],
-            `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
-          );
-        }
-      }
-    } catch (_err) {
-      outputChannel.appendLine(
-        `Invalid uri: ${item.scopeUri} while fetching setting- ${item.section}. Defaulting to ADVANCE mode`,
-      );
-      return "ADVANCE";
-    }
+  if (!item.scopeUri) {
+    return SettingsService.getAnalysisMode();
   }
 
-  return mode;
+  let uri: vscode.Uri;
+  try {
+    uri = vscode.Uri.parse(item.scopeUri);
+  } catch {
+    outputChannel.error(
+      `Invalid uri: ${item.scopeUri} while fetching setting - ${item.section}. Defaulting to ADVANCED mode`,
+    );
+    return "ADVANCED";
+  }
+
+  if (uri.scheme !== APP_ANALYZER_SCHEME) {
+    return SettingsService.getAnalysisMode();
+  }
+
+  if (!notifiedAppAnalyzerScopeUris.has(item.scopeUri)) {
+    notifiedAppAnalyzerScopeUris.add(item.scopeUri);
+    outputChannel.info(
+      `Switched ANALYSIS MODE to BASIC for uri ${item.scopeUri}`,
+    );
+    telemetryEvent(
+      "analysis-mode",
+      ["bootstrap", "analysis-mode", "app-analyzer"],
+      `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
+    );
+  }
+
+  return "BASIC";
 }
 
 export async function lspConfigHandler(request: Request) {
