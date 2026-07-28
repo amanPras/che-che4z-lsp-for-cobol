@@ -97,14 +97,6 @@ public class DidChangeConfigurationHandler {
 
   private void reanalyseIfRequired() {
     List<String> prevDialects = keywords.getDialectType();
-    // TODO: check, what happens when we have a file schema which is always at BASIC and workspace
-    // config of ADVANCED
-    //      and we change some configutation to trigger this method, does this cause issue with the
-    // schema thingy ???
-    CompletableFuture<Boolean> analysisModeFuture =
-        settingsService
-            .fetchConfiguration(ANALYSIS_MODE.label)
-            .thenApply(errorFinalizerService::updateDiagnosticsLevel);
     CompletableFuture<Boolean> copybookFolderFuture =
         this.copybookLocalFolders(null)
             .thenApply(
@@ -127,7 +119,6 @@ public class DidChangeConfigurationHandler {
                     !new HashSet<>(prevDialects).equals(new HashSet<>(keywords.getDialectType())));
     copybookFolderFuture
         .thenCombine(dialectFuture, (b1, b2) -> b1 || b2)
-        .thenCombine(analysisModeFuture, (b1, b2) -> b1 || b2)
         .thenAccept(
             shouldReAnalyse -> {
               if (shouldReAnalyse) {
