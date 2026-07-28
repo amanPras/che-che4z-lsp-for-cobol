@@ -73,7 +73,6 @@ public class InitializedHandler {
     keywords.updateStorage();
     messageService.reloadMessages();
     notifyConfiguredCopybookExtensions();
-    getDiagnosticsLevel();
   }
 
   private void getCobolProgramLayout() {
@@ -90,12 +89,6 @@ public class InitializedHandler {
     settingsService
         .fetchTextConfiguration(CPY_EXTENSIONS.label)
         .thenAccept(analysisService::setExtensionConfig);
-  }
-
-  private void getDiagnosticsLevel() {
-    settingsService
-        .fetchConfiguration(ANALYSIS_MODE.label)
-        .thenAccept(errorFinalizerService::updateDiagnosticsLevel);
   }
 
   private void getLogLevelFromClient() {

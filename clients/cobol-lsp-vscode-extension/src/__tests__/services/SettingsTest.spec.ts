@@ -16,13 +16,18 @@ import * as vscode from "vscode";
 import { lspConfigHandler, SettingsService } from "../../services/Settings";
 import { SettingsUtils } from "../../services/util/SettingsUtils";
 import { getTabSettings } from "../../services/SmartTabSettings";
+import { outputChannel } from "../../services/util/OutputChannel";
+import { telemetryEvent } from "../../services/reporter";
 
 import { asMutable } from "../../test/suite/testHelper";
 import {
+  ANALYSIS_MODE,
   SETTINGS_COMPILE_OPTIONS,
   SETTINGS_CPY_LOCAL_PATH,
   SETTINGS_DIALECT,
 } from "../../constants";
+
+jest.mock("../../services/reporter");
 
 function makefsPath(p: string): string {
   return path.join(process.platform == "win32" ? "a:" : "", p);
@@ -188,6 +193,58 @@ describe("SettingService lspConfigHandler", () => {
       });
 
       expect(result).toEqual(expect.arrayContaining([undefined]));
+    });
+  });
+
+  describe("analysis mode section", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.spyOn(vscode.workspace, "getConfiguration").mockReturnValue({
+        get: () => "ADVANCED",
+      } as unknown as vscode.WorkspaceConfiguration);
+    });
+
+    test("returns the configured analysis mode when no scope uri is provided", async () => {
+      const result = await lspConfigHandler({
+        items: [{ section: ANALYSIS_MODE }],
+      });
+
+      expect(result).toEqual(["ADVANCED"]);
+      expect(outputChannel.warn).not.toHaveBeenCalled();
+      expect(telemetryEvent).not.toHaveBeenCalled();
+    });
+
+    test("returns the configured analysis mode for a scope uri with a standard scheme", async () => {
+      const result = await lspConfigHandler({
+        items: [
+          {
+            section: ANALYSIS_MODE,
+            scopeUri: "file:///workspace/program.cob",
+          },
+        ],
+      });
+
+      expect(result).toEqual(["ADVANCED"]);
+      expect(outputChannel.warn).not.toHaveBeenCalled();
+      expect(telemetryEvent).not.toHaveBeenCalled();
+    });
+
+    test("switches to BASIC mode and reports telemetry for the c4z-app-ann scheme", async () => {
+      const scopeUri = "c4z-app-ann:/workspace/program.cob";
+
+      const result = await lspConfigHandler({
+        items: [{ section: ANALYSIS_MODE, scopeUri }],
+      });
+
+      expect(result).toEqual(["BASIC"]);
+      expect(outputChannel.warn).toHaveBeenCalledWith(
+        `Switched ANALYSIS MODE to BASIC for uri ${scopeUri}`,
+      );
+      expect(telemetryEvent).toHaveBeenCalledWith(
+        "analysis-mode",
+        ["bootstrap", "analysis-mode", "app-analyzer"],
+        `COBOL LS automatically switched to BASIC mode for c4z-app-ann scheme`,
+      );
     });
   });
 

@@ -16,7 +16,6 @@ package org.eclipse.lsp.cobol.core.engine.errors;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.lsp.cobol.core.engine.errors.AnalysisMode.ADVANCED;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
@@ -25,6 +24,7 @@ import com.google.inject.Singleton;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import org.eclipse.lsp.cobol.common.AnalysisMode;
 import org.eclipse.lsp.cobol.common.error.ErrorCodes;
 import org.eclipse.lsp.cobol.common.error.ErrorSeverity;
 import org.eclipse.lsp.cobol.common.error.ErrorSource;
@@ -40,7 +40,7 @@ import org.eclipse.lsp.cobol.core.semantics.CopybooksRepository;
 public class ErrorFinalizerService {
 
   private final MessageService messageService;
-  private AnalysisMode filterDiagnostics = ADVANCED;
+  private AnalysisMode.Mode filterDiagnostics = AnalysisMode.Mode.ADVANCED;
   public static final Set<String> TOLERATED_ERRORS =
       ImmutableSet.of(
           "cobolParser.subSchemaNameLength",
@@ -279,7 +279,7 @@ public class ErrorFinalizerService {
    * @return true if diagnostics is within the clients diagnostic level, false otherwise
    */
   public boolean keepDiagnotics(SyntaxError syntaxError, Set<String> toleratedErrors) {
-    if (this.filterDiagnostics == ADVANCED) return true;
+    if (this.filterDiagnostics == AnalysisMode.Mode.ADVANCED) return true;
     return ofNullable(syntaxError.getErrorCode())
         .map(errCode -> !toleratedErrors.contains(errCode.getLabel()))
         .orElse(true);
@@ -295,8 +295,8 @@ public class ErrorFinalizerService {
     if (levels != null && !levels.isEmpty()) {
       if (levels.get(0) instanceof JsonElement) {
         JsonElement option = (JsonElement) levels.get(0);
-        boolean isUpdated = AnalysisMode.valueOf(option.getAsString()) != filterDiagnostics;
-        filterDiagnostics = AnalysisMode.valueOf(option.getAsString());
+        boolean isUpdated = AnalysisMode.Mode.valueOf(option.getAsString()) != filterDiagnostics;
+        filterDiagnostics = AnalysisMode.Mode.valueOf(option.getAsString());
         return isUpdated;
       }
     }

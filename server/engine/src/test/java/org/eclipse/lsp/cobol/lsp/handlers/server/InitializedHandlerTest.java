@@ -78,7 +78,6 @@ class InitializedHandlerTest {
     verify(settingsService).fetchConfiguration(LOCALE.label);
     verify(settingsService).fetchConfiguration(LOGGING_LEVEL.label);
     verify(settingsService).fetchConfiguration(CPY_EXTENSIONS.label);
-    verify(settingsService).fetchConfiguration(ANALYSIS_MODE.label);
     verify(localeStore).notifyLocaleStore();
   }
 

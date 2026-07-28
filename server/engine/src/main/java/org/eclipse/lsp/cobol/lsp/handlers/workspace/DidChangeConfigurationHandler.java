@@ -97,6 +97,10 @@ public class DidChangeConfigurationHandler {
 
   private void reanalyseIfRequired() {
     List<String> prevDialects = keywords.getDialectType();
+    // TODO: check, what happens when we have a file schema which is always at BASIC and workspace
+    // config of ADVANCED
+    //      and we change some configutation to trigger this method, does this cause issue with the
+    // schema thingy ???
     CompletableFuture<Boolean> analysisModeFuture =
         settingsService
             .fetchConfiguration(ANALYSIS_MODE.label)
