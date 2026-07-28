@@ -85,7 +85,7 @@ public interface ConfigurationService {
     SqlDecimalComma isSQLDecimalCommaAllowed;
     List<String> compilerOptions;
     ErrorSeverity unusedVariableSeverity;
-    AnalysisMode.Mode anaysisMode;
+    AnalysisMode.Mode analysisMode;
     //    CobolProgramLayout layout;
     Map<String, JsonElement> dialectsSettings;
 
@@ -98,7 +98,7 @@ public interface ConfigurationService {
       isSQLDecimalCommaAllowed = SqlDecimalComma.DISABLED;
       compilerOptions = ImmutableList.of();
       unusedVariableSeverity = null;
-      anaysisMode = AnalysisMode.Mode.ADVANCED;
+      analysisMode = AnalysisMode.Mode.ADVANCED;
       dialectsSettings = ImmutableMap.of();
       //      layout = new CobolProgramLayout();
     }

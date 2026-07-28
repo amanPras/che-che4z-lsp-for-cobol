@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 import org.eclipse.lsp.cobol.common.message.LocaleStore;
 import org.eclipse.lsp.cobol.common.message.MessageService;
 import org.eclipse.lsp.cobol.common.utils.LogLevelUtils;
-import org.eclipse.lsp.cobol.core.engine.errors.ErrorFinalizerService;
 import org.eclipse.lsp.cobol.service.AnalysisService;
 import org.eclipse.lsp.cobol.service.WatcherService;
 import org.eclipse.lsp.cobol.service.delegates.completions.Keywords;
@@ -38,7 +37,6 @@ public class InitializedHandler {
   private final CodeLayoutStore codeLayoutStore;
   private final AnalysisService analysisService;
   private final MessageService messageService;
-  private final ErrorFinalizerService errorFinalizerService;
 
   @Inject
   public InitializedHandler(
@@ -48,8 +46,7 @@ public class InitializedHandler {
       LocaleStore localeStore,
       AnalysisService analysisService,
       MessageService messageService,
-      CodeLayoutStore codeLayoutStore,
-      ErrorFinalizerService errorFinalizerService) {
+      CodeLayoutStore codeLayoutStore) {
     this.watchingService = watchingService;
     this.keywords = keywords;
     this.settingsService = settingsService;
@@ -57,7 +54,6 @@ public class InitializedHandler {
     this.analysisService = analysisService;
     this.messageService = messageService;
     this.codeLayoutStore = codeLayoutStore;
-    this.errorFinalizerService = errorFinalizerService;
   }
 
   /**

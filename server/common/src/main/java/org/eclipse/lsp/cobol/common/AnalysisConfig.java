@@ -42,7 +42,7 @@ public class AnalysisConfig {
   // Map preprocessors name to list of directives
   Map<String, List<String>> preprocessorsDirectives = new HashMap<>();
   UnusedVariableSeverity unusedVariableSeverity = new UnusedVariableSeverity();
-  AnalysisMode anaysisMode = new AnalysisMode();
+  AnalysisMode analysisMode = new AnalysisMode();
 
   /**
    * Create the default language features config, containing all features and the given copybook

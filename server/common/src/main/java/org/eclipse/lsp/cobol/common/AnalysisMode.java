@@ -29,6 +29,11 @@ public final class AnalysisMode {
     return obj instanceof AnalysisMode && Objects.equals(this.mode, ((AnalysisMode) obj).mode);
   }
 
+  @Override
+  public int hashCode() {
+    return mode == null ? 0 : mode.hashCode();
+  }
+
   public enum Mode {
     ADVANCED,
     BASIC

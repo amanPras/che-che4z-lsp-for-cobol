@@ -187,7 +187,7 @@ class CachingConfigurationServiceTest {
             SqlDecimalComma.DISABLED,
             ImmutableList.of(),
             ImmutableMap.of("dialect", dialectsSettings));
-    expected.getAnaysisMode().mode = AnalysisMode.Mode.BASIC;
+    expected.getAnalysisMode().mode = AnalysisMode.Mode.BASIC;
     assertEquals(expected, configuration.getConfig("", CopybookProcessingMode.DISABLED));
   }
 

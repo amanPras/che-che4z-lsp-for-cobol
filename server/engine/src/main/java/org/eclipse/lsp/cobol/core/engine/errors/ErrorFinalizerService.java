@@ -207,7 +207,8 @@ public class ErrorFinalizerService {
     List<SyntaxError> accumulatedErrors =
         ctx.getAccumulatedErrors().stream()
             .filter(
-                err -> keepDiagnotics(err, TOLERATED_ERRORS, ctx.getConfig().getAnaysisMode().mode))
+                err ->
+                    keepDiagnotics(err, TOLERATED_ERRORS, ctx.getConfig().getAnalysisMode().mode))
             .collect(toList());
     accumulatedErrors.addAll(collectErrorsForCopybooks(accumulatedErrors, copybooksRepository));
     List<SyntaxError> distinct = accumulatedErrors.stream().distinct().collect(toList());
