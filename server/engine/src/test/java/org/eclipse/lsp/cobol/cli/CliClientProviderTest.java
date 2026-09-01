@@ -35,13 +35,11 @@ import org.mockito.MockedStatic;
  */
 class CliClientProviderTest {
 
-  private static final String COBOL_FILE_URI =
-      Paths.get("COBPGM", "COOL").toUri().toString();
+  private static final String COBOL_FILE_URI = Paths.get("COBPGM", "COOL").toUri().toString();
 
   @Test
   void relativeCopybookFolderIsResolvedAgainstCurrentWorkingDirectory() {
-    Path expected =
-        Paths.get("").toAbsolutePath().resolve("COBCOPY").resolve("SIMPLE.cpy");
+    Path expected = Paths.get("").toAbsolutePath().resolve("COBCOPY").resolve("SIMPLE.cpy");
 
     try (MockedStatic<Files> files = mockStatic(Files.class)) {
       files.when(() -> Files.exists(expected)).thenReturn(true);
