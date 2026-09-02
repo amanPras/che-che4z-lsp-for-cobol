@@ -53,7 +53,7 @@ class CliClientProviderTest {
 
   @Test
   void absoluteCopybookFolderIsUsedAsIs() {
-    File absoluteFolder = new File("/workspace_root/COBCOPY");
+    File absoluteFolder = Paths.get("").toAbsolutePath().resolve("workspace_root/COBCOPY").toFile();
     Path expected = absoluteFolder.toPath().resolve("SIMPLE.cpy");
 
     try (MockedStatic<Files> files = mockStatic(Files.class)) {
