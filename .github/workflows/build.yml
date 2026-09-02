@@ -323,22 +323,45 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, windows-arm64, ubuntu-latest]
         arch: [x64, arm64]
         include:
+          - os: windows-latest
+            arch: x64
+            runs-on: windows-latest
+          - os: windows-latest
+            arch: arm64
+            # Skip x64 runner attempting ARM64 build; ARM builds only on dedicated runner
+            runs-on: windows-latest
+          - os: windows-arm64
+            arch: arm64
+            runs-on: windows-2025-arm
           - os: ubuntu-latest
             arch: x64
             container: alpine:3.17
+            runs-on: ubuntu-latest
+          - os: ubuntu-latest
+            arch: arm64
+            runs-on: ubuntu-latest
           - os: macos-15-intel
             arch: x64
+            runs-on: macos-15-intel
           - os: macos-14
             arch: arm64
-    runs-on: ${{ matrix.os }}
+            runs-on: macos-14
+        exclude:
+          # Exclude the auto-generated combinations; we define them explicitly in include
+          - os: windows-latest
+          - os: windows-arm64
+          - os: ubuntu-latest
+          - os: macos-15-intel
+          - os: macos-14
+    runs-on: ${{ matrix.runs-on }}
     needs: [generateNativeConfig, build-info]
     steps:
       # Generate environment variable
       - shell: pwsh
-        if: matrix.os == 'windows-latest'
+        if: contains(matrix.os, 'windows')
         run: echo "target=win32-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - shell: sh
         if: startsWith( matrix.os, 'macos')
@@ -354,7 +377,7 @@ jobs:
 #          sudo xcode-select -s /Applications/Xcode_12.5.1.app/Contents/Developer
 #          xcodebuild -version
       - uses: al-cheb/configure-pagefile-action@v1.4
-        if: matrix.os == 'windows-latest'
+        if: contains(matrix.os, 'windows')
         with:
           minimum-size: 16GB
           maximum-size: 16GB
@@ -380,7 +403,7 @@ jobs:
           # native-image-job-reports: 'true'
           cache: 'maven'
       - uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.os == 'windows-latest'
+        if: contains(matrix.os, 'windows')
       - name: Retrieve native build configurations
         uses: actions/download-artifact@v4
         with:
@@ -449,22 +472,44 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, windows-arm64, ubuntu-latest]
         arch: [x64, arm64]
         include:
+          - os: windows-latest
+            arch: x64
+            runs-on: windows-latest
+          - os: windows-latest
+            arch: arm64
+            runs-on: windows-latest
+          - os: windows-arm64
+            arch: arm64
+            runs-on: windows-2025-arm
           - os: ubuntu-latest
             arch: x64
             container: alpine:3.17
+            runs-on: ubuntu-latest
+          - os: ubuntu-latest
+            arch: arm64
+            runs-on: ubuntu-latest
           - os: macos-15-intel
             arch: x64
+            runs-on: macos-15-intel
           - os: macos-14
             arch: arm64
-    runs-on: ${{ matrix.os }}
+            runs-on: macos-14
+        exclude:
+          # Exclude the auto-generated combinations; we define them explicitly in include
+          - os: windows-latest
+          - os: windows-arm64
+          - os: ubuntu-latest
+          - os: macos-15-intel
+          - os: macos-14
+    runs-on: ${{ matrix.runs-on }}
     needs: [buildNative,buildPlatformIndependedPart]
     steps:
       # Generate environment variable
       - shell: pwsh
-        if: matrix.os == 'windows-latest'
+        if: contains(matrix.os, 'windows')
         run: echo "target=win32-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - shell: sh
         if: startsWith( matrix.os, 'macos')
@@ -488,7 +533,7 @@ jobs:
         run: cp ../../jar/server.jar ./server/jar
       - name: Deploy windows executable
         working-directory: clients/cobol-lsp-vscode-extension
-        if: startsWith( matrix.os, 'windows')
+        if: contains(matrix.os, 'windows')
         run: |
           cp ../../staging/${{ env.target }}/engine.exe ./server/native
           cp ./server/native/* ../../tests/native-executable-tests/server/windows/
