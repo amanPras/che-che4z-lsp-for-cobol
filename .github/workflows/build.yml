@@ -323,15 +323,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, windows-arm64, ubuntu-latest]
-        arch: [x64, arm64]
         include:
           - os: windows-latest
             arch: x64
-            runs-on: windows-latest
-          - os: windows-latest
-            arch: arm64
-            # Skip x64 runner attempting ARM64 build; ARM builds only on dedicated runner
             runs-on: windows-latest
           - os: windows-arm64
             arch: arm64
@@ -349,13 +343,6 @@ jobs:
           - os: macos-14
             arch: arm64
             runs-on: macos-14
-        exclude:
-          # Exclude the auto-generated combinations; we define them explicitly in include
-          - os: windows-latest
-          - os: windows-arm64
-          - os: ubuntu-latest
-          - os: macos-15-intel
-          - os: macos-14
     runs-on: ${{ matrix.runs-on }}
     needs: [generateNativeConfig, build-info]
     steps:
@@ -472,14 +459,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, windows-arm64, ubuntu-latest]
-        arch: [x64, arm64]
         include:
           - os: windows-latest
             arch: x64
-            runs-on: windows-latest
-          - os: windows-latest
-            arch: arm64
             runs-on: windows-latest
           - os: windows-arm64
             arch: arm64
@@ -497,13 +479,6 @@ jobs:
           - os: macos-14
             arch: arm64
             runs-on: macos-14
-        exclude:
-          # Exclude the auto-generated combinations; we define them explicitly in include
-          - os: windows-latest
-          - os: windows-arm64
-          - os: ubuntu-latest
-          - os: macos-15-intel
-          - os: macos-14
     runs-on: ${{ matrix.runs-on }}
     needs: [buildNative,buildPlatformIndependedPart]
     steps:
